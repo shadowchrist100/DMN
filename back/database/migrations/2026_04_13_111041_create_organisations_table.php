@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->boolean(('est_actif'))->default(true);
             $table->string('type');
+            $table->string('nom');
             $table->string('alias');
             $table->text('description');
             $table->uuid('part_of_id')->nullable();

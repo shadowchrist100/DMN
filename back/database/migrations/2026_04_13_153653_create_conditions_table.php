@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('conditions', function (Blueprint $table) {
             $table->uuid('id');
             $table->foreignUuid('patient_id')->nullable();
-            $table->foreignUuid('encounter_id')->nullable();
+            $table->foreignUuid('visite_id')->nullable();
             $table->string('code_diagnostic');
             $table->string('nom_diagnostic');
             $table->enum('statut_clinique', ['actif', 'inactif', 'remission', 'resolu'])->default('actif');

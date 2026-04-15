@@ -1,0 +1,124 @@
+<div class="flex-grow flex items-center justify-center px-6 py-12">
+    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Branding/Visual Side (Asymmetric Layout) -->
+        <div class="hidden lg:flex flex-col gap-8 pr-12">
+            <div class="relative">
+                <div class="absolute -top-12 -left-12 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+                <h1 class="font-headline font-extrabold text-display-lg text-primary leading-tight relative z-10">
+                    Clinical <br /><span class="text-tertiary">Precision</span> <br />Redefined.
+                </h1>
+            </div>
+            <p class="text-on-surface-variant text-lg max-w-md leading-relaxed">
+                Access the industry's most secure and intuitive health portal. Designed for clarity, built for trust.
+            </p>
+            <div class="grid grid-cols-2 gap-4 mt-8">
+                <div class="p-6 rounded-xl bg-surface-container-low flex flex-col gap-3">
+                    <span class="material-symbols-outlined text-primary text-3xl"
+                        style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                    <h3 class="font-headline font-bold text-primary">HIPAA Secure</h3>
+                    <p class="text-xs text-on-surface-variant font-medium">Military-grade encryption for all patient
+                        data.</p>
+                </div>
+                <div class="p-6 rounded-xl bg-surface-container-low flex flex-col gap-3">
+                    <span class="material-symbols-outlined text-tertiary text-3xl"
+                        style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    <h3 class="font-headline font-bold text-tertiary">AI Insights</h3>
+                    <p class="text-xs text-on-surface-variant font-medium">Predictive diagnostics at the point of care.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-8 rounded-xl overflow-hidden shadow-2xl shadow-primary/5 border border-white/20">
+                <img alt="Clinical Environment" class="w-full h-64 object-cover"
+                    data-alt="modern clean laboratory interior with high-tech medical equipment and soft blue atmospheric lighting clinical environment"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt_n0Tu9y38fUv6S-513hPjZ49_2DcgGM2coeL-i8t7Fe_e6W0FhzF3X_mJxF-j8WL-7NDRmYEmTsRr_An4lepCiEzkLnUuznZEWq23O3cMEVMd_8YnMkTBsW2s2VWDDRdIWKDtkA6-Y1hYxfRpByElKZ9hE25W7xWeTvw2bL86BgCHcKai2KvE-oUWa4cnKZFr-iynV4laBYFqh7I1UJaKAsinV3g-p9b2ivAIzjCu6Ra1CHr3h32axuxcGT8boIPKkhzjnQ_FaU" />
+            </div>
+        </div>
+        <!-- Login Form Side -->
+        <div class="w-full max-w-md mx-auto">
+            <div class="bg-surface-container-lowest rounded-xl p-8 lg:p-10 shadow-sm border border-outline-variant/10">
+                <div class="mb-10">
+                    <h2 class="font-headline font-bold text-headline-sm text-primary mb-2">Welcome back to Clinical
+                        Precision</h2>
+                    <p class="text-on-surface-variant text-sm font-medium">Enter your credentials to access your secure
+                        portal.</p>
+                </div>
+                <!-- Role Switcher (Tonal Layering) -->
+                <div class="flex p-1 bg-surface-container-low rounded-lg mb-8">
+                    <button
+                        class="flex-1 py-2 text-sm font-semibold rounded-md bg-white text-primary shadow-sm transition-all">
+                        Healthcare Provider
+                    </button>
+                    <button
+                        class="flex-1 py-2 text-sm font-semibold rounded-md text-on-surface-variant hover:text-primary transition-all">
+                        Patient
+                    </button>
+                </div>
+                <form class="space-y-6" [formGroup]="loginForm" >
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-primary uppercase tracking-wider ml-1"
+                            for="email">Email / Provider ID</label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-xl">person</span>
+                            <input
+                                class="w-full pl-10 pr-4 py-3 bg-surface rounded-lg border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary outline-none transition-all text-on-surface text-sm"
+                                formControlName="email" id="email" placeholder="Enter your ID" type="text" />
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-primary uppercase tracking-wider ml-1"
+                            for="password">Password</label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
+                            <input
+                                class="w-full pl-10 pr-12 py-3 bg-surface rounded-lg border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary outline-none transition-all text-on-surface text-sm"
+                                formControlName="password" id="password" placeholder="••••••••" type="password" />
+                            <button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary"
+                                type="button">
+                                <span class="material-symbols-outlined text-xl">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input
+                                class="w-4 h-4 rounded-sm border-outline-variant text-primary focus:ring-primary bg-surface transition-all"
+                                type="checkbox" />
+                            <span
+                                class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Remember
+                                me</span>
+                        </label>
+                        <a class="text-sm font-semibold text-primary hover:underline underline-offset-4" href="#">Forgot
+                            password?</a>
+                    </div>
+                    <button
+                        class="w-full btn-gradient text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-[0.98] transition-all"
+                        (click)="onSubmit()" type="submit">
+                        <span class="material-symbols-outlined text-xl"
+                            style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                        Secure Login
+                    </button>
+                </form>
+                <div class="mt-10 pt-8 border-t border-outline-variant/20">
+                    <p class="text-center text-xs text-on-surface-variant">
+                        Don't have an account?
+                        <a class="text-primary font-bold hover:underline" href="#">Contact your administrator</a>
+                    </p>
+                </div>
+            </div>
+            <!-- Trust Badge (Low impact) -->
+            <div class="mt-6 flex items-center justify-center gap-4 opacity-60">
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">lock</span>
+                    <span class="text-[10px] font-bold tracking-widest uppercase">SSL Encrypted</span>
+                </div>
+                <div class="w-1 h-1 bg-outline-variant rounded-full"></div>
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">verified</span>
+                    <span class="text-[10px] font-bold tracking-widest uppercase">HIPAA Compliant</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

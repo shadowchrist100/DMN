@@ -1,0 +1,145 @@
+<div class="max-w-7xl mx-auto px-6 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+    <section class="lg:col-span-5 space-y-10">
+        <div class="space-y-4">
+            <span
+                class="inline-flex items-center gap-2 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-lg text-xs font-semibold tracking-wider uppercase">
+                <span class="material-symbols-outlined text-[14px]"
+                    style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                Clinical Portal
+            </span>
+            <h1 class="font-headline text-5xl font-extrabold text-primary tracking-tight leading-[1.1]">
+                Empowering precision in <span class="text-surface-tint">healthcare.</span>
+            </h1>
+            <p class="text-on-surface-variant text-lg leading-relaxed max-w-md">
+                Join the Aura ecosystem to access advanced clinical AI insights, secure patient records, and integrated
+                care pathways.
+            </p>
+        </div>
+        <div class="relative rounded-xl overflow-hidden aspect-video clinical-shadow">
+            <img class="w-full h-full object-cover"
+                data-alt="Modern medical professional in a clean laboratory setting using a digital tablet with soft clinical lighting"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_qqS1d3xuFQKbOqxRPnUj3ehOLX2_nmkDxYJXX4qlHgA4IuGDsiBWi9BUyN3H_lfrPgVRHAzieFgthk9gmQ89HYmUJ45_7zRNpVE2mkvvHNpyg0n6YG2vLsWrjj0BdexB_RsWlchgSSRYxUuHcyeGvb9NMhcn6wbfZd-6bt7xsivw71_JeVTSDoEbyTdk07xm__xDx-adsup7n24yRlPefTU__h94sSC5Idq6AeHOmkFJ1_RvDQ6h_IJ3O-KjetSpBed0jIwdQM8" />
+            <div class="absolute inset-0 bg-linear-to-t from-primary/40 to-transparent"></div>
+        </div>
+        <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+            <h3 class="font-headline font-bold text-xl text-primary">Security &amp; Compliance</h3>
+            <ul class="space-y-4">
+                <li class="flex items-start gap-4">
+                    <div class="bg-surface-container-lowest p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary">security</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-on-surface">HIPAA Compliant</p>
+                        <p class="text-sm text-on-surface-variant">Military-grade encryption for all sensitive health
+                            data.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-4">
+                    <div class="bg-surface-container-lowest p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary">fingerprint</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-on-surface">Verified Credentials</p>
+                        <p class="text-sm text-on-surface-variant">Real-time NPI and medical license validation.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section class="lg:col-span-7">
+        <div
+            class="bg-surface-container-lowest rounded-xl clinical-shadow p-8 lg:p-12 border border-outline-variant/10">
+            <div class="mb-10">
+                <h2 class="font-headline text-3xl font-bold text-on-surface mb-2">Provider Registration</h2>
+                <p class="text-on-surface-variant">Please provide your professional details to establish your clinical
+                    identity.</p>
+            </div>
+            <form class="space-y-8" [formGroup]="registerForm" >
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-semibold text-on-surface-variant ml-1">Full Name</label>
+                        <input
+                            class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
+                            formControlName="name" placeholder="Dr. Jane Smith" type="text" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-semibold text-on-surface-variant ml-1">Medical ID/NPI Number</label>
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
+                                formControlName="medicalId" placeholder="10-digit NPI" type="text" />
+                            <span
+                                class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant text-sm">info</span>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-semibold text-on-surface-variant ml-1">Specialization</label>
+                        <select 
+                            formControlName="speciality"
+                            class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface appearance-none">
+                            <option>Internal Medicine</option>
+                            <option>Cardiology</option>
+                            <option>Pediatrics</option>
+                            <option>Neurology</option>
+                            <option>Psychiatry</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-semibold text-on-surface-variant ml-1">Healthcare Facility</label>
+                        <input
+                            class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
+                            formControlName="facility" placeholder="Facility or Hospital Name" type="text" />
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-on-surface-variant ml-1">Work Email</label>
+                    <input
+                        class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
+                        formControlName="email" placeholder="jane.smith@facility.org" type="email" />
+                </div>
+                <div class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-semibold text-on-surface-variant ml-1">Password</label>
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
+                                formControlName="password" placeholder="••••••••••••" type="password" />
+                            <span
+                                class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant cursor-pointer">visibility</span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-surface-container-low rounded-lg space-y-3">
+                        <div
+                            class="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                            <span>Security Strength</span>
+                            <span class="text-tertiary">Advanced Secure</span>
+                        </div>
+                        <div class="flex gap-1.5 h-1.5 w-full">
+                            <div class="flex-1 bg-tertiary rounded-full"></div>
+                            <div class="flex-1 bg-tertiary rounded-full"></div>
+                            <div class="flex-1 bg-tertiary rounded-full"></div>
+                            <div class="flex-1 bg-tertiary rounded-full"></div>
+                            <div class="flex-1 bg-surface-container-high rounded-full"></div>
+                        </div>
+                        <p class="text-[11px] text-on-surface-variant italic">Must include at least 12 characters, one
+                            special symbol, and a numeric digit.</p>
+                    </div>
+                </div>
+                <div class="pt-6 space-y-4">
+                    <button
+                        class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-bold py-5 rounded-lg clinical-shadow hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                        (click)="onSubmit()" type="button">
+                        <span class="material-symbols-outlined">verified</span>
+                        Verify Professional Credentials
+                    </button>
+                    <p class="text-center text-sm text-on-surface-variant">
+                        By clicking verify, you agree to our
+                        <a class="text-primary font-semibold hover:underline" href="#">Provider Terms</a>
+                        and
+                        <a class="text-primary font-semibold hover:underline" href="#">Privacy Policy</a>.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
