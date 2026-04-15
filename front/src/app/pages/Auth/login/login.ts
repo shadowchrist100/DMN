@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PASSWORD_REGEX } from '../../../core/constants/PASSWORD_REGEX';
 
@@ -10,6 +10,7 @@ import { PASSWORD_REGEX } from '../../../core/constants/PASSWORD_REGEX';
 })
 export class Login {
     private formBuilder = inject(FormBuilder);
+    errors = signal<string>('');
 
     loginForm = this.formBuilder.group({
         email : ['', [Validators.required, Validators.email] ],
@@ -18,7 +19,7 @@ export class Login {
 
     onSubmit(){
         if (this.loginForm.invalid) {
-            
+            this.errors.set('Formulaire invalide');
         }
         console.log(this.loginForm);
     }

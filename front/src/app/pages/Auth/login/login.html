@@ -54,6 +54,9 @@
                     </button>
                 </div>
                 <form class="space-y-6" [formGroup]="loginForm" >
+                    @if (errors()) {
+                        
+                    }
                     <div class="space-y-1.5">
                         <label class="block text-xs font-bold text-primary uppercase tracking-wider ml-1"
                             for="email">Email / Provider ID</label>
@@ -63,6 +66,9 @@
                             <input
                                 class="w-full pl-10 pr-4 py-3 bg-surface rounded-lg border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary outline-none transition-all text-on-surface text-sm"
                                 formControlName="email" id="email" placeholder="Enter your ID" type="text" />
+                            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+
+                            }
                         </div>
                     </div>
                     <div class="space-y-1.5">
@@ -78,6 +84,9 @@
                                 type="button">
                                 <span class="material-symbols-outlined text-xl">visibility</span>
                             </button>
+                            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+
+                            }
                         </div>
                     </div>
                     <div class="flex items-center justify-between">

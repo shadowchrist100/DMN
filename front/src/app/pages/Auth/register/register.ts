@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { email } from '@angular/forms/signals';
 
 @Component({
     selector: 'app-register',
@@ -10,6 +9,7 @@ import { email } from '@angular/forms/signals';
 })
 export class Register {
     private formBuilder = inject(FormBuilder);
+    errors = signal<string>('');
 
     registerForm = this.formBuilder.group({
         name: ['', [Validators.required, Validators.max(30)]],
@@ -22,7 +22,7 @@ export class Register {
 
     onSubmit(){
         if (this.registerForm.invalid) {
-            
+            this.errors.set('Formulaire invalide')
         }
         console.log(this.registerForm.value);
     }

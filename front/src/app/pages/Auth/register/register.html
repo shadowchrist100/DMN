@@ -55,12 +55,18 @@
                     identity.</p>
             </div>
             <form class="space-y-8" [formGroup]="registerForm" >
+                @if (errors()) {
+
+                }
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-1.5">
                         <label class="text-sm font-semibold text-on-surface-variant ml-1">Full Name</label>
                         <input
                             class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
                             formControlName="name" placeholder="Dr. Jane Smith" type="text" />
+                        @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+
+                        }
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-sm font-semibold text-on-surface-variant ml-1">Medical ID/NPI Number</label>
@@ -70,6 +76,9 @@
                                 formControlName="medicalId" placeholder="10-digit NPI" type="text" />
                             <span
                                 class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant text-sm">info</span>
+                                @if (registerForm.get('email') && registerForm.get('email')?.touched ) {
+
+                                }
                         </div>
                     </div>
                     <div class="space-y-1.5">
@@ -83,12 +92,18 @@
                             <option>Neurology</option>
                             <option>Psychiatry</option>
                         </select>
+                        @if (registerForm.get('speciality')?.invalid && registerForm.get('speciality')?.touched ) {
+
+                        }
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-sm font-semibold text-on-surface-variant ml-1">Healthcare Facility</label>
                         <input
                             class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
                             formControlName="facility" placeholder="Facility or Hospital Name" type="text" />
+                        @if (registerForm.get('speciality')?.invalid && registerForm.get('speciality')?.touched) {
+
+                        }
                     </div>
                 </div>
                 <div class="space-y-1.5">
@@ -96,6 +111,9 @@
                     <input
                         class="w-full bg-surface-container-low border-none rounded-lg py-4 px-5 focus:ring-2 focus:ring-primary transition-all text-on-surface placeholder:text-outline"
                         formControlName="email" placeholder="jane.smith@facility.org" type="email" />
+                        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+
+                        }
                 </div>
                 <div class="space-y-4">
                     <div class="space-y-1.5">
@@ -106,6 +124,9 @@
                                 formControlName="password" placeholder="••••••••••••" type="password" />
                             <span
                                 class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant cursor-pointer">visibility</span>
+                            @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+
+                            }
                         </div>
                     </div>
                     <div class="p-4 bg-surface-container-low rounded-lg space-y-3">
