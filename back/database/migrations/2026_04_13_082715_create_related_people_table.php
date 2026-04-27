@@ -16,7 +16,15 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('patient_id')->constrained()->onDelete('cascade');
             $table->boolean('est_actif')->default(true);
-            $table->string('code_relation');
+            $table->enum('code_relation', [
+                'parent',
+                'enfant',
+                'conjoint',
+                'frere_soeur',
+                'tuteur',
+                'contact_urgence',
+                'medecin_referent'
+            ]);
             $table->string('nom');
             $table->string('prenom')->nullable();
             $table->date('debut_validite')->nullable();

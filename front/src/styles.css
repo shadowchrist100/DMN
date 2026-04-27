@@ -50,9 +50,53 @@
     --color-secondary-container: #d0e6f3;
     --color-on-secondary-fixed-variant: #364954;
     --color-outline: #70787e;
+    --color-surface-variant: #e1e3e4,
+    --color-surface-container: #eceeef,
+    --color-on-secondary: #ffffff,
+    --color-on-surface: #191c1d,
+    --color-background: #f8fafb,
+    --color-on-secondary-fixed: #081e27,
+    --color-secondary: #4d616c,
+    --color-on-primary-fixed-variant: #004d64,
+    --color-on-tertiary: #ffffff,
+    --color-on-secondary-container: #536772,
+    --color-on-tertiary-container: #95e5e5,
+    --color-surface-container-high: #e6e8e9,
+    --color-tertiary: #004f4f,
+    --color-tertiary-fixed-dim: #84d4d3,
+    --color-on-primary: #ffffff,
+    --color-error: #ba1a1a,
+    --color-inverse-primary: #87d0f2,
+    --color-on-primary-container: #a2e1ff,
+    --color-primary-fixed-dim: #87d0f2,
+    --color-primary-fixed: #bee9ff,
+    --color-on-tertiary-fixed-variant: #004f4f,
+    --color-on-error: #ffffff,
+    --color-inverse-on-surface: #eff1f2,
+    --color-surface-container-low: #f2f4f5,
+    --color-on-primary-fixed: #001f2a,
+    --color-surface-tint: #016684,
+    --color-primary-container: #006684,
+    --color-outline-variant: #bfc8cd,
+    --color-secondary-fixed-dim: #b4cad6,
+    --color-secondary-container: #d0e6f3,
+    --color-on-surface-variant: #3f484d,
+    --color-on-error-container: #93000a,
+    --color-surface: #f8fafb,
+    --color-primary: #004d64,
+    --color-on-secondary-fixed-variant: #364954,
+    --color-inverse-surface: #2e3132,
+    --color-surface-container-highest: #e1e3e4,
+    --color-error-container: #ffdad6,
+    --color-tertiary-container: #006969,
+    --color-on-tertiary-fixed: #002020,
+    --color-tertiary-fixed: #a0f0f0,
+    --color-surface-container-lowest: #ffffff,
+    --color-on-background: #191c1d,
+    --color-surface-bright: #f8fafb,
 
-    /* Polices de caractères */
-    --font-headline: "Manrope", sans-serif;
+        /* Polices de caractères */
+        --font-headline: "Manrope", sans-serif;
     --font-body: "Inter", sans-serif;
     --font-label: "Inter", sans-serif;
 

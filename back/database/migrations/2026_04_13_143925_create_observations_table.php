@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('observations', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->foreignUuid('patient_id')->constrained();
             $table->foreignUuid('practicien_id')->constrained();
-            $table->enum('status',['provisoire,final']);
+            $table->foreignUuid('diagnostic_report_id')->nullable()->constrained();
+            $table->enum('status',['provisoire','final']);
             $table->string('categorie');
             $table->string('code_standard');
             $table->json('valeur_json');

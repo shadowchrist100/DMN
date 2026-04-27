@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('diagnostic_reports', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->enum('statut', ['provisoire', 'final', 'corrige', 'annule']);
             $table->string('categorie');
             $table->string('code'); //type
@@ -20,9 +20,8 @@ return new class extends Migration
             $table->foreignUuid('visite_id')->constrained();
             $table->date('effective_at');
             $table->date('publie');
-            $table->foreignUuid('practicien_id');
+            $table->foreignUuid('practicien_id')->constrained('practiciens');
             $table->text('conclusion');
-            $table->string('resultats_observations');
             $table->timestamps();
         });
     }

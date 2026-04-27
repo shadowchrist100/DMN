@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('conditions', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->foreignUuid('patient_id')->nullable();
             $table->foreignUuid('visite_id')->nullable();
             $table->string('code_diagnostic');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('severite')->nullable();
             $table->dateTime('date_apparition')->nullable();
             $table->dateTime('date_resolution')->nullable();
-            $table->foreignUuid('practicien_id')->nullable()->references('id')->on('practiciens');
+            $table->foreignUuid('practicien_id')->nullable()->constrained();
             $table->timestamps();
         });
     }

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('type');
             $table->string('priorite');
             $table->dateTime('debut_reel');
-            $table->dateTime('fin_reel');
-            $table->string('motif_code');
+            $table->dateTime('fin_reel')->nullable();
+            $table->string('motif_code')->nullable();
             $table->json('donnees_diagnostiques');
             $table->timestamps();
         });

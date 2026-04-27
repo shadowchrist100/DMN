@@ -1,0 +1,40 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "DMN",
+        "description": "DMN api documentation ",
+        "contact": {
+            "email": "darius@gmail.com"
+        },
+        "version": "1.0.0",
+        "x-logo": {
+            "url": "https://via.placeholder.com/190x90.png?text=L5-Swagger"
+        }
+    },
+    "paths": {
+        "api/patients": {
+            "post": {
+                "tags": [
+                    "Patients"
+                ],
+                "summary": "Enregistrer un nouveau patient",
+                "description": "Store a newly created resource in storage.",
+                "operationId": "f8d8c36311f38d8e59cb92deb93acc32",
+                "responses": {
+                    "201": {
+                        "description": "Patient crée avec succès "
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Patients",
+            "description": "Gestion du dossier civil des patients"
+        }
+    ]
+}

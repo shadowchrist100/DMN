@@ -1,0 +1,176 @@
+<!-- TopNavBar -->
+<header class="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-0 z-50">
+    <div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container"
+                style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+            <span class="text-xl font-extrabold text-cyan-900 dark:text-cyan-400 tracking-tight brand-font">HealthSync
+                Pro</span>
+        </div>
+        <a class="flex items-center gap-2 text-secondary font-medium hover:text-primary transition-colors" href="#">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            <span>Retour à la connexion</span>
+        </a>
+    </div>
+</header>
+<main class="grow flex items-center justify-center py-12 px-4">
+    <div class="max-w-3xl w-full">
+        <!-- Form Header & Progress -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-extrabold text-on-surface mb-2 tracking-tight">Inscription Patient</h1>
+            <p class="text-secondary">Veuillez remplir le formulaire ci-dessous pour créer votre compte portail patient
+                sécurisé Aura Health Systems.</p>
+            <div class="mt-8 flex items-center justify-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm">
+                        1</div>
+                    <span class="text-sm font-semibold text-primary">Inscription</span>
+                </div>
+                <div class="h-px w-12 bg-outline-variant"></div>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-full border-2 border-outline-variant text-outline flex items-center justify-center font-bold text-sm">
+                        2</div>
+                    <span class="text-sm font-medium text-outline">Vérification</span>
+                </div>
+            </div>
+        </div>
+        <!-- Main Form Card -->
+        <div
+            class="bg-white shadow-xl shadow-surface-container-high/50 border border-surface-container rounded-xl overflow-hidden">
+            <div class="p-8 md:p-10">
+                <form class="space-y-10" [formGroup]="patientForm" >
+                    <!-- Section 1: Informations personnelles -->
+                    <section>
+                        <div class="flex items-center gap-3 mb-6 border-b border-surface-container-low pb-3">
+                            <span class="material-symbols-outlined text-primary-container">person</span>
+                            <h2 class="text-lg font-bold text-on-surface tracking-tight">Informations personnelles</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Nom
+                                    complet</label>
+                                <input
+                                    
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="Entrez votre nom légal complet" type="text" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Date de
+                                    naissance</label>
+                                <input
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    type="date" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Genre</label>
+                                <select
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none">
+                                    <option value="">Sélectionner le genre</option>
+                                    <option value="male">Homme</option>
+                                    <option value="female">Femme</option>
+                                    <option value="non-binary">Non-binaire</option>
+                                    <option value="prefer-not-to-say">Préfère ne pas répondre</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Section 2: Coordonnées -->
+                    <section>
+                        <div class="flex items-center gap-3 mb-6 border-b border-surface-container-low pb-3">
+                            <span class="material-symbols-outlined text-primary-container">contact_phone</span>
+                            <h2 class="text-lg font-bold text-on-surface tracking-tight">Coordonnées</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Adresse
+                                    e-mail</label>
+                                <input
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="nom@exemple.com" type="email" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Numéro de
+                                    téléphone</label>
+                                <input
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="+33 6 00 00 00 00" type="tel" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Adresse de
+                                    résidence</label>
+                                <input
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="Rue, étage ou appartement" type="text" />
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Section 3: Contact d'urgence -->
+                    <section>
+                        <div class="flex items-center gap-3 mb-6 border-b border-surface-container-low pb-3">
+                            <span class="material-symbols-outlined text-primary-container">emergency_share</span>
+                            <h2 class="text-lg font-bold text-on-surface tracking-tight">Contact d'urgence</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Nom du
+                                    contact</label>
+                                <input
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="Nom complet" type="text" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Relation</label>
+                                <input
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="Ex: Conjoint, Parent" type="text" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Téléphone du
+                                    contact</label>
+                                <input
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="Numéro de téléphone d'urgence" type="tel" />
+                            </div>
+                        </div>
+                    </section>
+                    <!-- HIPAA & Submission -->
+                    <div
+                        class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/30 flex items-start gap-4">
+                        <div class="p-2 bg-on-tertiary-container/10 rounded-full">
+                            <span class="material-symbols-outlined text-tertiary text-xl"
+                                style="font-variation-settings: 'FILL' 1;">encrypted</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-on-surface tracking-tight">Sécurité conforme HIPAA</h4>
+                            <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Vos données sont cryptées et
+                                stockées conformément aux normes strictes de protection des données médicales. Nous
+                                accordons la priorité à votre vie privée et à votre confidentialité.</p>
+                        </div>
+                    </div>
+                    <button
+                        (click)="OnSubmit()"
+                        class="w-full bg-primary-container hover:bg-primary text-white font-bold py-4 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-[0.98] brand-font text-lg"
+                        type="submit">
+                        Créer mon compte patient
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- Footer Meta -->
+        <div class="mt-8 text-center">
+            <p class="text-xs text-secondary-fixed-dim uppercase tracking-widest font-bold">Aura Health Systems • Réseau
+                Médical Unifié</p>
+            <div class="mt-4 flex justify-center gap-6">
+                <a class="text-xs text-outline hover:text-primary underline" href="#">Politique de confidentialité</a>
+                <a class="text-xs text-outline hover:text-primary underline" href="#">Conditions d'utilisation</a>
+                <a class="text-xs text-outline hover:text-primary underline" href="#">Centre d'aide</a>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Side Graphic -->
+<div class="fixed bottom-0 right-0 p-10 opacity-10 pointer-events-none hidden lg:block">
+    <span class="material-symbols-outlined text-[160px] text-primary-container">medical_services</span>
+</div>

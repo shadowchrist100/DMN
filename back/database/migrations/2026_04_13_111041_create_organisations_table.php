@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('organisations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->boolean(('est_actif'))->default(true);
+            $table->boolean('est_actif')->default(true);
             $table->string('type');
             $table->string('nom');
-            $table->string('alias');
-            $table->text('description');
+            $table->string('alias')->nullable();
+            $table->text('description')->nullable();
             $table->uuid('part_of_id')->nullable();
             $table->foreign('part_of_id')->references('id')->on('organisations');
             $table->text('contrat_details')->nullable();

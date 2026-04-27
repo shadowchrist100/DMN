@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('telecoms', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->uuid('owner_id'); // owner_id
             $table->string('owner_type'); // owner_type
             $table->enum('systeme', ['telephone', 'email', 'url', 'sms']);

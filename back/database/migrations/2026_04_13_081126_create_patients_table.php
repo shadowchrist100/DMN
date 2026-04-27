@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('npi')->nullable()->unique(); // NIP ou équivalent
             $table->boolean('est_actif');
             $table->string('nom');
             $table->string('prenom');

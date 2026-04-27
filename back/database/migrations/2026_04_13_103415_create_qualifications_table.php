@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('qualifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('practicien_id')->constrained();
-            $table->string('code');
+            $table->string('code')->nullable();
             $table->string('nom');
             $table->string('specialite');
             $table->string('type');
