@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from '@angular/forms';
 import { PASSWORD_REGEX } from '../../../../core/constants/PASSWORD_REGEX';
+import { RouterLink } from "@angular/router";
 
 @Component({
     selector: 'app-patient-form',
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterLink],
     templateUrl: './patient-form.html',
     styleUrl: './patient-form.css',
 })

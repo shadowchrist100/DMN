@@ -10,7 +10,7 @@
         <a class="flex items-center gap-2 text-secondary font-medium hover:text-primary transition-colors"
             routerLink="/login">
             <span class="material-symbols-outlined text-sm">arrow_back</span>
-            <span>Retour à la connexion</span>
+            <span class="cursor-pointer" >Retour à la connexion</span>
         </a>
     </div>
 </header>
@@ -72,7 +72,7 @@
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Genre</label>
                                 <select formControlName="genre"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none">
-                                    <option value="">Sélectionner le genre</option>
+                                    <option selected value="">Sélectionner le genre</option>
                                     <option value="male">Homme</option>
                                     <option value="female">Femme</option>
                                     <option value="non-binary">Non-binaire</option>
@@ -82,7 +82,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Situation
                                     Matrimonial</label>
-                                <select
+                                <select formControlName="matrimonialStatus"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none">
                                     <option value="male">Célibataire</option>
                                     <option value="female">Marié(e)</option>
@@ -103,6 +103,7 @@
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Adresse
                                     e-mail</label>
                                 <input
+                                    formControlName="email"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="nom@exemple.com" type="email" />
                             </div>
@@ -110,6 +111,7 @@
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Numéro de
                                     téléphone</label>
                                 <input
+                                    formControlName="contact"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="+33 6 00 00 00 00" type="tel" />
                             </div>
@@ -117,6 +119,7 @@
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Adresse de
                                     résidence</label>
                                 <input
+                                    formControlName="adresse"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Rue, étage ou appartement" type="text" />
                             </div>
@@ -133,18 +136,21 @@
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Nom du
                                     contact</label>
                                 <input
+                                    formControlName="contactLastName"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Nom complet" type="text" />
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Prénom</label>
                                 <input
+                                    formControlName="contactFirstName"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Prénom du contact" type="text" />
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Relation</label>
                                 <input
+                                    formControlName="contactRelation"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Ex: Conjoint, Parent" type="text" />
                             </div>
@@ -152,6 +158,7 @@
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Téléphone du
                                     contact</label>
                                 <input
+                                    formControlName="contactContact"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Numéro de téléphone d'urgence" type="tel" />
                             </div>
