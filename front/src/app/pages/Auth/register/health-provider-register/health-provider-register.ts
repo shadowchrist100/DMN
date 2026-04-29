@@ -12,14 +12,17 @@ export class HealthProviderRegister {
     private formBuilder = inject(FormBuilder);
     private router = inject(Router);
     errors = signal<string>('');
+    showPassword = signal<boolean>(false);
 
     registerForm = this.formBuilder.group({
-        name: ['', [Validators.required, Validators.max(30)]],
+        firstName: ['', Validators.required ],
+        lastName: ['', [Validators.required, Validators.max(30)]],
         medicalId: ['', [Validators.required]],
         speciality: [''],
-        facility: ['', Validators.required],
+        organisation: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required]]
+        password: ['', [Validators.required]],
+        confirmPassword: ['', [Validators.required] ]
     })
 
     onSubmit() {
@@ -28,5 +31,9 @@ export class HealthProviderRegister {
             this.errors.set('Formulaire invalide')
         }
         console.log(this.registerForm.value);
+    }
+
+    togglePasswordVisibility(){
+        this.showPassword.set(!this.showPassword());
     }
 }

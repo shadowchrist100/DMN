@@ -20,7 +20,7 @@ import { PASSWORD_REGEX } from '../../../../core/constants/PASSWORD_REGEX';
 export class PatientRegister implements OnInit {
     private router = inject(Router);
     private fb = inject(FormBuilder);
-    serverError = signal<string>('Une erreur de validation');
+    serverError = signal<string>('');
 
     showPassword = false;
     loading = false;
