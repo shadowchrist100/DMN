@@ -2,16 +2,16 @@
 <header class="bg-[#F8FAFB]  shadow-sm dark:shadow-none border-b border-slate-200  sticky top-0 z-50">
     <div class="flex justify-between items-center px-8 py-4 w-full max-w-7xl mx-auto font-['Manrope'] antialiased">
         <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary-container dark:text-cyan-400"
+            <span class="material-symbols-outlined text-primary-container "
                 data-icon="clinical_notes">clinical_notes</span>
-            <span class="text-xl font-bold text-primary-container dark:text-cyan-400 tracking-tight">MedAI Care</span>
+            <span class="text-xl font-bold text-primary-container  tracking-tight">MedAI Care</span>
         </div>
         <nav class="hidden md:flex gap-8 items-center">
-            <a class="text-[#4D616C] dark:text-slate-400 font-medium hover:text-primary-container dark:hover:text-cyan-300 transition-colors"
+            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors"
                 href="#">Help</a>
-            <a class="text-[#4D616C] dark:text-slate-400 font-medium hover:text-primary-container dark:hover:text-cyan-300 transition-colors"
+            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors"
                 href="#">Security</a>
-            <a class="text-[#4D616C] dark:text-slate-400 font-medium hover:text-primary-container dark:hover:text-cyan-300 transition-colors"
+            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors"
                 href="#">Contact</a>
             <button
                 class="bg-primary text-on-primary px-6 py-2 rounded font-semibold active:opacity-80 transition-all">Sign
@@ -60,10 +60,12 @@
             <!-- Dual Tab System -->
             <div class="flex p-1 bg-surface-container rounded-lg mb-8">
                 <button
+                    (click)="switchForm('healthProvider')"
                     class="flex-1 py-2.5 text-sm font-semibold rounded-md transition-all text-secondary hover:text-primary">
                     Professionnel de santé
                 </button>
                 <button
+                    (click)="switchForm('patient')"
                     class="flex-1 py-2.5 text-sm font-semibold rounded-md bg-white shadow-sm text-primary ring-1 ring-black/5">
                     Patient
                 </button>
@@ -74,10 +76,9 @@
                     <label class="block text-sm font-semibold text-on-surface" for="email">E-mail</label>
                     <div class="relative">
                         <input
-                            class="w-full px-4 py-3 bg-white border-2 border-error rounded-lg focus:outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface"
+                            [class.border-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                            class="w-full px-4 py-3 bg-white border-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface"
                             id="email" formControlName="email" placeholder="exemple@email.com" type="email" value="jean.dupont@invalid" />
-                        <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-error"
-                            data-icon="error">error</span>
                     </div>
                     @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
                         <p class="text-xs font-medium text-error flex items-center gap-1">
@@ -93,16 +94,25 @@
                     </div>
                     <div class="relative">
                         <input
-                            class="w-full px-4 py-3 bg-white border-2 border-error rounded-lg focus:outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface"
+                            [class.border-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                            class="w-full px-4 py-3 bg-white border-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface"
                             formControlName="password" id="password" placeholder="••••••••" type="password" />
                         <span
                             class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline cursor-pointer"
                             data-icon="visibility">visibility</span>
                     </div>
                     @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched ) {
-                        <p class="text-xs font-medium text-error flex items-center gap-1">
-                            Mot de passe requis
-                        </p>
+                        @if (loginForm.get('password')?.touched) {
+                            <p class="text-xs font-medium text-error flex items-center gap-1">
+                                Mot de passe requis
+                            </p>
+                        }
+                        @if (loginForm.get('password')?.invalid) {
+                            <p class="text-xs font-medium text-error flex items-center gap-1">
+                                Mot de passe invalid
+                            </p>
+                        }
+                        
                     }
                 </div>
                 <!-- Remember Me -->
@@ -133,15 +143,15 @@
 <footer class="bg-[#F8FAFB] dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
     <div
         class="flex flex-col md:flex-row justify-between items-center px-8 py-12 w-full max-w-7xl mx-auto gap-4 font-['Inter'] text-sm">
-        <div class="text-lg font-bold text-primary-container dark:text-cyan-400">MedAI Care</div>
+        <div class="text-lg font-bold text-primary-container ">MedAI Care</div>
         <div class="flex flex-wrap justify-center gap-6">
-            <a class="text-[#4D616C] dark:text-slate-500 hover:text-primary-container dark:hover:text-cyan-300 transition-opacity duration-200"
+            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
                 href="#">Privacy Policy</a>
-            <a class="text-[#4D616C] dark:text-slate-500 hover:text-primary-container dark:hover:text-cyan-300 transition-opacity duration-200"
+            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
                 href="#">Terms of Service</a>
-            <a class="text-[#4D616C] dark:text-slate-500 hover:text-primary-container dark:hover:text-cyan-300 transition-opacity duration-200"
+            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
                 href="#">HIPAA Compliance</a>
-            <a class="text-[#4D616C] dark:text-slate-500 hover:text-primary-container dark:hover:text-cyan-300 transition-opacity duration-200"
+            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
                 href="#">Accessibility</a>
         </div>
         <div class="text-[#4D616C] dark:text-slate-500">© 2024 MedAI Platforms Inc. All rights reserved.</div>

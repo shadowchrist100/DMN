@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from '@angular/forms';
 import { PASSWORD_REGEX } from '../../../../core/constants/PASSWORD_REGEX';
 import { RouterLink } from "@angular/router";
@@ -10,6 +10,7 @@ import { RouterLink } from "@angular/router";
     styleUrl: './patient-form.css',
 })
 export class PatientForm {
+    view = output<string>();
     private formBuilder = inject(FormBuilder);
     errors = signal<string>('');
 
@@ -23,5 +24,9 @@ export class PatientForm {
             this.errors.set('Formulaire invalide');
         }
         console.log(this.loginForm);
+    }
+
+    switchForm(value: string){
+        this.view.emit(value);
     }
 }

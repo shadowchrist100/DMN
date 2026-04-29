@@ -1,8 +1,8 @@
 @switch (view()) {
     @case ('patient') {
-        <app-patient-form />
+        <app-patient-form (view)="switchView($event)" />
     }
     @case('healthProvider') {
-        <app-health-provider-form />
+        <app-health-provider-form (view)="switchView($event)" />
     }
 }

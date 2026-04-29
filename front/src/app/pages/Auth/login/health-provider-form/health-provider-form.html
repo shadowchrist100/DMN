@@ -63,10 +63,12 @@
                     <!-- Role Switcher -->
                     <div class="flex p-1 bg-surface-container-low rounded-lg mb-8">
                         <button
+                            (click)="switchForm('healthProvider')"
                             class="flex-1 py-2 text-sm font-semibold rounded-md bg-white text-primary shadow-sm transition-all">
                             Professionnel de santé
                         </button>
                         <button
+                            (click)="switchForm('patient')"
                             class="flex-1 py-2 text-sm font-semibold rounded-md text-on-surface-variant hover:text-primary transition-all">
                             Patient
                         </button>

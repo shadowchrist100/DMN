@@ -10,5 +10,7 @@ import { HealthProviderForm } from './health-provider-form/health-provider-form'
 })
 export class Login {
     view = signal<string>('patient');
-    
+    switchView(value: string){
+        this.view.set(value);
+    }
 }

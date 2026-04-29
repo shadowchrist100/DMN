@@ -1,170 +1,419 @@
 <!-- TopNavBar -->
-<header class="bg-white  border-slate-200  shadow-sm sticky top-0 z-50">
+<header class="bg-white border-slate-200 shadow-sm sticky top-0 z-50">
     <div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-primary-container"
                 style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
-            <span class="text-xl font-extrabold text-cyan-900  tracking-tight brand-font">HealthSync
-                Pro</span>
+            <span class="text-xl font-extrabold text-cyan-900 tracking-tight brand-font">HealthSync Pro</span>
         </div>
         <a class="flex items-center gap-2 text-secondary font-medium hover:text-primary transition-colors"
             routerLink="/login">
             <span class="material-symbols-outlined text-sm">arrow_back</span>
-            <span class="cursor-pointer" >Retour à la connexion</span>
+            <span class="cursor-pointer">Retour à la connexion</span>
         </a>
     </div>
 </header>
+
 <main class="grow flex items-center justify-center py-12 px-4">
     <div class="max-w-3xl w-full">
+
         <!-- Form Header & Progress -->
         <div class="mb-8 text-center">
             <h1 class="text-3xl font-extrabold text-on-surface mb-2 tracking-tight">Inscription Patient</h1>
             <p class="text-secondary">Veuillez remplir le formulaire ci-dessous pour créer votre compte portail patient
                 sécurisé Aura Health Systems.</p>
+
+            <!-- Progress Steps -->
             <div class="mt-8 flex items-center justify-center gap-4">
+                <!-- Step 1: Active -->
                 <div class="flex items-center gap-2">
                     <div
                         class="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm">
-                        1</div>
+                        1
+                    </div>
                     <span class="text-sm font-semibold text-primary">Inscription</span>
                 </div>
+
                 <div class="h-px w-12 bg-outline-variant"></div>
+
+                <!-- Step 2: Inactive -->
                 <div class="flex items-center gap-2">
                     <div
                         class="w-8 h-8 rounded-full border-2 border-outline-variant text-outline flex items-center justify-center font-bold text-sm">
-                        2</div>
+                        2
+                    </div>
                     <span class="text-sm font-medium text-outline">Vérification</span>
                 </div>
             </div>
         </div>
+
         <!-- Main Form Card -->
         <div
             class="bg-white shadow-xl shadow-surface-container-high/50 border border-surface-container rounded-xl overflow-hidden">
             <div class="p-8 md:p-10">
-                <form class="space-y-10" [formGroup]="patientForm">
+                <form class="space-y-10" [formGroup]="patientForm" (ngSubmit)="onSubmit()" novalidate>
+
                     <!-- Section 1: Informations personnelles -->
                     <section>
                         <div class="flex items-center gap-3 mb-6 border-b border-surface-container-low pb-3">
                             <span class="material-symbols-outlined text-primary-container">person</span>
                             <h2 class="text-lg font-bold text-on-surface tracking-tight">Informations personnelles</h2>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="">
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Nom</label>
-                                <input
+
+                        <div formGroupName="identity" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <!-- Nom -->
+                            <div class="flex flex-col gap-1">
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-1"
+                                    for="identity-lastName">Nom</label>
+                                <input formControlName="lastName" id="identity-lastName"
+                                    [class.border-error]="isInvalid('identity', 'lastName')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                                    placeholder="Entrez votre nom légal complet" formControlName="lastName" type="text" />
+                                    placeholder="Entrez votre nom légal complet" type="text" />
+                                @if (isInvalid('identity', 'lastName')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le nom est requis
+                                </p>
+                                }
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Prénoms</label>
-                                <input
+
+                            <!-- Prénoms -->
+                            <div class="flex flex-col gap-1">
+                                <label for="identity-firstName"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Prénoms</label>
+                                <input formControlName="firstName" id="identity-firstName"
+                                    [class.border-error]="isInvalid('identity', 'firstName')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                                    formControlName="firstName" placeholder="Entrer vos prénoms" type="text" />
+                                    placeholder="Entrez vos prénoms" type="text" />
+                                @if (isInvalid('identity', 'firstName')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le prénom est requis
+                                </p>
+                                }
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Date de
+
+                            <!-- Date de naissance -->
+                            <div class="flex flex-col gap-1">
+                                <label for="identity-birthDate"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Date de
                                     naissance</label>
-                                <input
+                                <input formControlName="birthDate" id="identity-birthDate"
+                                    [class.border-error]="isInvalid('identity', 'birthDate')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                                    formControlName="birthDate" type="date" />
+                                    type="date" />
+                                @if (isInvalid('identity', 'birthDate')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    @if (getControl('identity', 'birthDate')?.errors?.['invalidDate']) {
+                                    La date de naissance ne peut pas être dans le futur
+                                    } @else {
+                                    La date de naissance est requise
+                                    }
+                                </p>
+                                }
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Genre</label>
-                                <select formControlName="genre"
+
+                            <!-- Genre -->
+                            <div class="flex flex-col gap-1">
+                                <label for="identity-genre"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Genre</label>
+                                <select formControlName="genre" id="identity-genre"
+                                    [class.border-error]="isInvalid('identity', 'genre')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none">
-                                    <option selected value="">Sélectionner le genre</option>
+                                    <option value="">Sélectionner le genre</option>
                                     <option value="male">Homme</option>
                                     <option value="female">Femme</option>
                                     <option value="non-binary">Non-binaire</option>
                                     <option value="prefer-not-to-say">Préfère ne pas répondre</option>
                                 </select>
+                                @if (isInvalid('identity', 'genre')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Veuillez sélectionner un genre
+                                </p>
+                                }
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Situation
-                                    Matrimonial</label>
-                                <select formControlName="matrimonialStatus"
+
+                            <!-- Situation Matrimoniale -->
+                            <div class="flex flex-col gap-1">
+                                <label for="identity-matrimonialStatus"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Situation
+                                    Matrimoniale</label>
+                                <select formControlName="matrimonialStatus" id="identity-matrimonialStatus"
+                                    [class.border-error]="isInvalid('identity', 'matrimonialStatus')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none">
-                                    <option value="male">Célibataire</option>
-                                    <option value="female">Marié(e)</option>
-                                    <option value="non-binary">Veuf</option>
-                                    <option value="prefer-not-to-say">Autre</option>
+                                    <option value="">Sélectionner une situation</option>
+                                    <option value="single">Célibataire</option>
+                                    <option value="married">Marié(e)</option>
+                                    <option value="widowed">Veuf / Veuve</option>
+                                    <option value="other">Autre</option>
                                 </select>
+                                @if (isInvalid('identity', 'matrimonialStatus')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Veuillez sélectionner une situation matrimoniale
+                                </p>
+                                }
                             </div>
+
+                            <!-- Téléphone -->
+                            <div class="flex flex-col gap-1">
+                                <label for="identity-phone"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Numéro de
+                                    téléphone</label>
+                                <input formControlName="phone" id="identity-phone"
+                                    [class.border-error]="isInvalid('identity', 'phone')"
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="+229 0133456712" type="tel" />
+                                @if (isInvalid('identity', 'phone')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le numéro de téléphone est requis
+                                </p>
+                                }
+                            </div>
+
                         </div>
                     </section>
+
                     <!-- Section 2: Coordonnées -->
                     <section>
                         <div class="flex items-center gap-3 mb-6 border-b border-surface-container-low pb-3">
                             <span class="material-symbols-outlined text-primary-container">contact_phone</span>
                             <h2 class="text-lg font-bold text-on-surface tracking-tight">Coordonnées</h2>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Adresse
-                                    e-mail</label>
-                                <input
-                                    formControlName="email"
+
+                        <div formGroupName="address" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <!-- Ville -->
+                            <div class="flex flex-col gap-1">
+                                <label for="address-city"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Ville</label>
+                                <input formControlName="city" id="address-city"
+                                    [class.border-error]="isInvalid('address', 'city')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                                    placeholder="nom@exemple.com" type="email" />
+                                    placeholder="Ex: Cotonou" type="text" />
+                                @if (isInvalid('address', 'city')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    La ville est requise
+                                </p>
+                                }
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Numéro de
-                                    téléphone</label>
-                                <input
-                                    formControlName="contact"
+
+                            <!-- Quartier -->
+                            <div class="flex flex-col gap-1">
+                                <label for="address-neighborhood"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Quartier</label>
+                                <input formControlName="neighborhood" id="address-neighborhood"
+                                    [class.border-error]="isInvalid('address', 'neighborhood')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                                    placeholder="+33 6 00 00 00 00" type="tel" />
+                                    placeholder="Ex: Cadjehoun" type="text" />
+                                @if (isInvalid('address', 'neighborhood')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le quartier est requis
+                                </p>
+                                }
                             </div>
-                            <div class="col-span-2">
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Adresse de
-                                    résidence</label>
-                                <input
-                                    formControlName="adresse"
+
+                            <!-- Pays -->
+                            <div class="col-span-2 flex flex-col gap-1">
+                                <label for="address-country"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Pays</label>
+                                <input formControlName="country" id="address-country"
+                                    [class.border-error]="isInvalid('address', 'country')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                                    placeholder="Rue, étage ou appartement" type="text" />
+                                    placeholder="Ex: Bénin" type="text" />
+                                @if (isInvalid('address', 'country')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le pays est requis
+                                </p>
+                                }
                             </div>
+
                         </div>
                     </section>
+
                     <!-- Section 3: Contact d'urgence -->
                     <section>
                         <div class="flex items-center gap-3 mb-6 border-b border-surface-container-low pb-3">
                             <span class="material-symbols-outlined text-primary-container">emergency_share</span>
                             <h2 class="text-lg font-bold text-on-surface tracking-tight">Contact d'urgence</h2>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Nom du
+
+                        <div formGroupName="emergencyContact" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <!-- Nom du contact -->
+                            <div class="flex flex-col gap-1">
+                                <label for="emergency-lastName"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Nom du
                                     contact</label>
-                                <input
-                                    formControlName="contactLastName"
+                                <input formControlName="lastName" id="emergency-lastName"
+                                    [class.border-error]="isInvalid('emergencyContact', 'lastName')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Nom complet" type="text" />
+                                @if (isInvalid('emergencyContact', 'lastName')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le nom du contact est requis
+                                </p>
+                                }
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Prénom</label>
-                                <input
-                                    formControlName="contactFirstName"
+
+                            <!-- Prénom du contact -->
+                            <div class="flex flex-col gap-1">
+                                <label for="emergency-firstName"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Prénom</label>
+                                <input formControlName="firstName" id="emergency-firstName"
+                                    [class.border-error]="isInvalid('emergencyContact', 'firstName')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Prénom du contact" type="text" />
+                                @if (isInvalid('emergencyContact', 'firstName')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le prénom du contact est requis
+                                </p>
+                                }
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Relation</label>
-                                <input
-                                    formControlName="contactRelation"
+
+                            <!-- Relation -->
+                            <div class="flex flex-col gap-1">
+                                <label for="emergency-relation"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Relation</label>
+                                <input formControlName="relation" id="emergency-relation"
+                                    [class.border-error]="isInvalid('emergencyContact', 'relation')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Ex: Conjoint, Parent" type="text" />
+                                @if (isInvalid('emergencyContact', 'relation')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    La relation avec le contact est requise
+                                </p>
+                                }
                             </div>
-                            <div class="col-span-2">
-                                <label class="block text-sm font-semibold text-on-surface-variant mb-2">Téléphone du
+
+                            <!-- Téléphone du contact -->
+                            <div class="flex flex-col gap-1">
+                                <label for="emergency-phone"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Téléphone du
                                     contact</label>
-                                <input
-                                    formControlName="contactContact"
+                                <input formControlName="phone" id="emergency-phone"
+                                    [class.border-error]="isInvalid('emergencyContact', 'phone')"
                                     class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                                     placeholder="Numéro de téléphone d'urgence" type="tel" />
+                                @if (isInvalid('emergencyContact', 'phone')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le numéro de téléphone du contact est requis
+                                </p>
+                                }
                             </div>
+
                         </div>
                     </section>
-                    <!-- HIPAA & Submission -->
+
+                    <!-- Section 4: Authentification -->
+                    <section>
+                        <div class="flex items-center gap-3 mb-6 border-b border-surface-container-low pb-3">
+                            <span class="material-symbols-outlined text-primary-container">lock</span>
+                            <h2 class="text-lg font-bold text-on-surface tracking-tight">Authentification</h2>
+                        </div>
+
+                        <div formGroupName="auth" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <!-- Email -->
+                            <div class="col-span-2 flex flex-col gap-1">
+                                <label for="auth-email"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Adresse
+                                    e-mail</label>
+                                <input formControlName="email" id="auth-email"
+                                    [class.border-error]="isInvalid('auth', 'email')"
+                                    class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                    placeholder="nom@exemple.com" type="email" />
+                                @if (isInvalid('auth', 'email')) {
+                                @if (getControl('auth', 'email')?.errors?.['required']) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    L'adresse e-mail est requise
+                                </p>
+                                } @else if (getControl('auth', 'email')?.errors?.['email']) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Veuillez entrer une adresse e-mail valide
+                                </p>
+                                }
+                                }
+                            </div>
+
+                            <!-- Mot de passe -->
+                            <div class="flex flex-col gap-1">
+                                <label for="auth-password"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Mot de
+                                    passe</label>
+                                <div class="relative">
+                                    <input formControlName="password" id="auth-password"
+                                        [type]="showPassword ? 'text' : 'password'"
+                                        [class.border-error]="isInvalid('auth', 'password')"
+                                        class="w-full px-4 py-3 pr-10 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                        placeholder="••••••••" />
+                                    <span (click)="togglePasswordVisibility()"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline cursor-pointer select-none">
+                                        {{ showPassword ? 'visibility_off' : 'visibility' }}
+                                    </span>
+                                </div>
+                                @if (isInvalid('auth', 'password')) {
+                                @if (getControl('auth', 'password')?.errors?.['required']) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le mot de passe est requis
+                                </p>
+                                } @else if (getControl('auth', 'password')?.errors?.['pattern']) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre
+                                </p>
+                                }
+                                }
+                            </div>
+
+                            <!-- Confirmer le mot de passe -->
+                            <div class="flex flex-col gap-1">
+                                <label for="auth-confirmPassword"
+                                    class="block text-sm font-semibold text-on-surface-variant mb-1">Confirmer le mot de
+                                    passe</label>
+                                <div class="relative">
+                                    <input formControlName="confirmPassword" id="auth-confirmPassword"
+                                        [type]="showPassword ? 'text' : 'password'"
+                                        [class.border-error]="isInvalid('auth', 'confirmPassword') || (getAuth().errors?.['mismatch'] && getControl('auth', 'confirmPassword')?.touched)"
+                                        class="w-full px-4 py-3 pr-10 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                                        placeholder="••••••••" />
+                                    <span (click)="togglePasswordVisibility()"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline cursor-pointer select-none">
+                                        {{ showPassword ? 'visibility_off' : 'visibility' }}
+                                    </span>
+                                </div>
+                                @if (isInvalid('auth', 'confirmPassword')) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    La confirmation du mot de passe est requise
+                                </p>
+                                } @else if (getAuth().errors?.['mismatch'] && getControl('auth',
+                                'confirmPassword')?.touched) {
+                                <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                                    <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                                    Les mots de passe ne correspondent pas
+                                </p>
+                                }
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <!-- HIPAA Notice -->
                     <div
                         class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/30 flex items-start gap-4">
                         <div class="p-2 bg-on-tertiary-container/10 rounded-full">
@@ -178,15 +427,24 @@
                                 accordons la priorité à votre vie privée et à votre confidentialité.</p>
                         </div>
                     </div>
-                    <button (click)="OnSubmit()"
-                        class="w-full bg-primary-container hover:bg-primary text-white font-bold py-4 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-[0.98] brand-font text-lg"
+
+                    <!-- Submit -->
+                    <button [disabled]="loading" (click)="onSubmit()"
+                        class="w-full bg-primary-container hover:bg-primary text-white font-bold py-4 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-[0.98] brand-font text-lg disabled:opacity-60 disabled:cursor-not-allowed"
                         type="submit">
+                        @if (loading) {
+                        <span
+                            class="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        } @else {
                         Créer mon compte patient
+                        }
                     </button>
+
                 </form>
             </div>
         </div>
-        <!-- Footer Meta -->
+
+        <!-- Footer -->
         <div class="mt-8 text-center">
             <p class="text-xs text-secondary-fixed-dim uppercase tracking-widest font-bold">Aura Health Systems • Réseau
                 Médical Unifié</p>
@@ -198,7 +456,7 @@
         </div>
     </div>
 </main>
-<!-- Side Graphic -->
+
 <div class="fixed bottom-0 right-0 p-10 opacity-10 pointer-events-none hidden lg:block">
     <span class="material-symbols-outlined text-[160px] text-primary-container">medical_services</span>
 </div>
