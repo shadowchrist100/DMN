@@ -13,17 +13,37 @@ export class PatientForm {
     view = output<string>();
     private formBuilder = inject(FormBuilder);
     errors = signal<string>('');
+    serverError = signal<string>('');
+    showPassword = signal<boolean>(false);
+    loading = signal<boolean>(false);
 
     loginForm = this.formBuilder.group({
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.pattern(PASSWORD_REGEX)]]
     }, { updateOn: 'blur' })
 
+    isInvalid(field: string){
+        const control = this.loginForm.get(field);
+        return !! (control?.invalid && control?.touched);
+    }
+
+    onErrorClose(){
+        this.serverError.set('');
+    }
+
+    togglePasswordVisibility(){
+        this.showPassword.set(!this.showPassword());
+    }
+
     onSubmit() {
         if (this.loginForm.invalid) {
-            this.errors.set('Formulaire invalide');
+            this.loginForm.markAllAsTouched();
+            this.serverError.set('Formulaire invalide');
+            return;
         }
+        this.loading.set(true);
         console.log(this.loginForm);
+        
     }
 
     switchForm(value: string){

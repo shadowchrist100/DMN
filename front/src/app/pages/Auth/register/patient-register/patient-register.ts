@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
     AbstractControl,
@@ -20,6 +20,7 @@ import { PASSWORD_REGEX } from '../../../../core/constants/PASSWORD_REGEX';
 export class PatientRegister implements OnInit {
     private router = inject(Router);
     private fb = inject(FormBuilder);
+    serverError = signal<string>('Une erreur de validation');
 
     showPassword = false;
     loading = false;
@@ -115,6 +116,10 @@ export class PatientRegister implements OnInit {
     getAddress() { return this.getGroup('address'); }
     getEmergencyContact() { return this.getGroup('emergencyContact'); }
     getAuth() { return this.getGroup('auth'); }
+
+    onErrorClose(){
+        this.serverError.set('');    
+    }
 
     onSubmit(): void {
         if (this.patientForm.invalid) {

@@ -7,12 +7,9 @@
             <span class="text-xl font-bold text-primary-container  tracking-tight">MedAI Care</span>
         </div>
         <nav class="hidden md:flex gap-8 items-center">
-            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors"
-                href="#">Help</a>
-            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors"
-                href="#">Security</a>
-            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors"
-                href="#">Contact</a>
+            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors" href="#">Help</a>
+            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors" href="#">Security</a>
+            <a class="text-[#4D616C]  font-medium hover:text-primary-container  transition-colors" href="#">Contact</a>
             <button
                 class="bg-primary text-on-primary px-6 py-2 rounded font-semibold active:opacity-80 transition-all">Sign
                 Up</button>
@@ -59,31 +56,42 @@
             </div>
             <!-- Dual Tab System -->
             <div class="flex p-1 bg-surface-container rounded-lg mb-8">
-                <button
-                    (click)="switchForm('healthProvider')"
+                <button (click)="switchForm('healthProvider')"
                     class="flex-1 py-2.5 text-sm font-semibold rounded-md transition-all text-secondary hover:text-primary">
                     Professionnel de santé
                 </button>
-                <button
-                    (click)="switchForm('patient')"
+                <button (click)="switchForm('patient')"
                     class="flex-1 py-2.5 text-sm font-semibold rounded-md bg-white shadow-sm text-primary ring-1 ring-black/5">
                     Patient
                 </button>
             </div>
-            <form class="space-y-6" [formGroup]="loginForm" >
+            @if(serverError()){
+            <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 animate-shake"
+                role="alert" aria-live="assertive">
+                <span class="material-symbols-outlined text-red-500 mt-0.5">error</span>
+                <div>
+                    <h4 class="text-sm font-bold text-red-800">Erreur de soumission</h4>
+                    <p class="text-xs text-red-600 mt-1">{{ serverError() }}</p>
+                </div>
+                <button (click)="onErrorClose()" class="ml-auto text-red-400 hover:text-red-600">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+            }
+            <form class="space-y-6" [formGroup]="loginForm">
                 <!-- Email Field with Error -->
                 <div class="space-y-2">
                     <label class="block text-sm font-semibold text-on-surface" for="email">E-mail</label>
                     <div class="relative">
-                        <input
-                            [class.border-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                        <input [class.border-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
                             class="w-full px-4 py-3 bg-white border-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface"
-                            id="email" formControlName="email" placeholder="exemple@email.com" type="email" value="jean.dupont@invalid" />
+                            id="email" formControlName="email" placeholder="exemple@email.com" type="email"
+                            value="jean.dupont@invalid" />
                     </div>
-                    @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-                        <p class="text-xs font-medium text-error flex items-center gap-1">
-                            Veuillez saisir une adresse e-mail valide
-                        </p>
+                    @if (isInvalid('email')) {
+                    <p class="text-xs font-medium text-error flex items-center gap-1">
+                        Veuillez saisir une adresse e-mail valide
+                    </p>
                     }
                 </div>
                 <!-- Password Field with Error -->
@@ -96,23 +104,27 @@
                         <input
                             [class.border-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
                             class="w-full px-4 py-3 bg-white border-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-error/20 transition-all text-on-surface"
-                            formControlName="password" id="password" placeholder="••••••••" type="password" />
-                        <span
+                            formControlName="password" id="password" placeholder="••••••••"
+                            [type]="showPassword() ? 'text' : 'password' " />
+                        <span (click)="togglePasswordVisibility()"
                             class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline cursor-pointer"
                             data-icon="visibility">visibility</span>
                     </div>
-                    @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched ) {
-                        @if (loginForm.get('password')?.touched) {
-                            <p class="text-xs font-medium text-error flex items-center gap-1">
-                                Mot de passe requis
-                            </p>
-                        }
-                        @if (loginForm.get('password')?.invalid) {
-                            <p class="text-xs font-medium text-error flex items-center gap-1">
-                                Mot de passe invalid
-                            </p>
-                        }
-                        
+                    @if (isInvalid('password')) {
+                    @if (loginForm.get('password')?.errors?.['required']) {
+                    <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                        <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                        Le mot de passe est requis
+                    </p>
+                    }
+                    @if (loginForm.get('password')?.errors?.['pattern']) {
+                    <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                        <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                        Le mot de passe doit contenir au moins 8 caractères, une majuscule, un caractère spécial et un
+                        chiffre
+                    </p>
+                    }
+
                     }
                 </div>
                 <!-- Remember Me -->
@@ -122,35 +134,42 @@
                     <label class="text-sm font-medium text-secondary" for="remember">Se souvenir de moi</label>
                 </div>
                 <!-- Primary Action Button -->
-                <button
+                <button [disabled]="loading()"
                     class="w-full py-4 bg-primary text-on-primary font-bold rounded-lg shadow-lg shadow-primary/20 hover:bg-on-primary-fixed-variant active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                    type="submit">
+                    type="submit" (click)="onSubmit()" >
+                    @if (loading()) {
+                    <span
+                        class="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    }@else {
                     <span class="material-symbols-outlined text-lg" data-icon="lock" data-weight="fill"
                         style="font-variation-settings: 'FILL' 1;">lock</span>
                     Connexion sécurisée
+                    }
+
                 </button>
             </form>
             <div class="mt-10 pt-8 border-t border-outline-variant text-center">
                 <p class="text-sm text-secondary">
                     Nouveau sur Clinical Precision ?
-                    <a class="text-primary font-bold hover:underline" routerLink="/patientRegister" >Créer un compte patient</a>
+                    <a class="text-primary font-bold hover:underline" routerLink="/patientRegister">Créer un compte
+                        patient</a>
                 </p>
             </div>
         </div>
     </div>
 </main>
 <!-- Footer (Shared Component) -->
-<footer class="bg-[#F8FAFB] dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+<footer class="bg-[#F8FAFB]  border-slate-200">
     <div
         class="flex flex-col md:flex-row justify-between items-center px-8 py-12 w-full max-w-7xl mx-auto gap-4 font-['Inter'] text-sm">
         <div class="text-lg font-bold text-primary-container ">MedAI Care</div>
         <div class="flex flex-wrap justify-center gap-6">
-            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
-                href="#">Privacy Policy</a>
-            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
-                href="#">Terms of Service</a>
-            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
-                href="#">HIPAA Compliance</a>
+            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200" href="#">Privacy
+                Policy</a>
+            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200" href="#">Terms of
+                Service</a>
+            <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200" href="#">HIPAA
+                Compliance</a>
             <a class="text-[#4D616C]  hover:text-primary-container  transition-opacity duration-200"
                 href="#">Accessibility</a>
         </div>

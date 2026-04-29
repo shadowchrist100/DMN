@@ -48,8 +48,22 @@
         </div>
 
         <!-- Main Form Card -->
-        <div
-            class="bg-white shadow-xl shadow-surface-container-high/50 border border-surface-container rounded-xl overflow-hidden">
+        <div class="bg-white shadow-xl shadow-surface-container-high/50 border border-surface-container rounded-xl overflow-hidden">
+            @if(serverError()){
+                <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 animate-shake"
+                    role="alert"
+                    aria-live="assertive">
+                    <span class="material-symbols-outlined text-red-500 mt-0.5">error</span>
+                    <div>
+                        <h4 class="text-sm font-bold text-red-800">Erreur de soumission</h4>
+                        <p class="text-xs text-red-600 mt-1">{{ serverError() }}</p>
+                    </div>
+                    <button (click)="onErrorClose()" class="ml-auto text-red-400 hover:text-red-600">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
+            } 
+            
             <div class="p-8 md:p-10">
                 <form class="space-y-10" [formGroup]="patientForm" (ngSubmit)="onSubmit()" novalidate>
 
@@ -374,7 +388,7 @@
                                 } @else if (getControl('auth', 'password')?.errors?.['pattern']) {
                                 <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
                                     <span class="material-symbols-outlined" style="font-size:14px">error</span>
-                                    Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre
+                                    Le mot de passe doit contenir au moins 8 caractères, une majuscule, un caractère spécial et un chiffre
                                 </p>
                                 }
                                 }
