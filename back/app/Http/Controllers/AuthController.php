@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RefreshToken;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
@@ -41,5 +44,24 @@ class AuthController extends Controller
         ]);
 
         $user = $this->userService->register($userData);
+        $token = $user->createToken('access_token', ['role' =>$userData['user_type'] ])->plainTextToken;
+        return $this->respond_with_token($token,$user);
+    }
+
+    public function respond_with_token(string $token, User $user): JsonResponse{
+        $refresh_token = random_bytes(64);
+        $refresh_token_hash = hash('sha256',$refresh_token);
+        RefreshToken::create([
+            'user_id' => $user->id,
+            'refresh_token_hash' => $refresh_token_hash,
+            'expire_at' => now()->addDays(30)
+        ]);
+        
+        $cookie = cookie('refreshToken', $refresh_token,60*24*30,'/',null,false,true,false,null);
+
+        return response()->json([
+            'user' => $user,
+            'accessToken' => $token,
+        ])->withCookie($cookie);
     }
 }

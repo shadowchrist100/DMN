@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Qualification extends Model
@@ -17,5 +18,9 @@ class Qualification extends Model
         'debut_validite',
         'fin_validite'
     ];
+
+    public function practitioner():BelongsTo{
+        return $this->belongsTo(Practitioner::class);
+    }
 
 }
