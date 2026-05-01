@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Qualification extends Model
 {
@@ -11,9 +12,10 @@ class Qualification extends Model
         'practitioner_id',
         'code',
         'nom',
-        'specialite',
+        'speciality',
         'type',
         'debut_validite',
         'fin_validite'
     ];
+
 }

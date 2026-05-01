@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RelatedPerson extends Model
 {
@@ -11,11 +12,15 @@ class RelatedPerson extends Model
         'patient_id',
         'est_actif',
         'relationship_code',
-        'nom',
-        'prenom',
+        'firstName',
+        'lastName',
         'genre',
-        'date_naissance',
+        'birthDate',
         'adresse_json',
         'photo_path'
     ];
+
+    public function patient():BelongsTo{
+        return $this->belongsTo(Patient::class);
+    }
 }

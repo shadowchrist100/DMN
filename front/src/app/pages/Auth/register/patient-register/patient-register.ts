@@ -127,6 +127,7 @@ export class PatientRegister implements OnInit {
             return;
         }
         this.loading = true;
+        
         // Replace with your actual service call
         console.log(this.patientForm.value);
         this.router.navigateByUrl('/success-inscription');
