@@ -1,0 +1,5 @@
+.otp-input:focus {
+    outline: none;
+    border-color: #002B5C;
+    box-shadow: 0 0 0 2px rgba(0, 43, 92, 0.1);
+}
