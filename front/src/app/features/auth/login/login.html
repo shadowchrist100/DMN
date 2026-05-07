@@ -1,7 +1,7 @@
 <div
     class="body font-body-md text-on-background min-h-screen flex flex-col items-center justify-center p-margin-mobile md:p-margin-desktop">
     <!-- Auth Shell Suppression: No BottomNavBar or TopNavBar for Login per guidelines -->
-    <main class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+    <main class="w-full max-w-300 grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
         <!-- Branding & Contextual Column -->
         <section class="lg:col-span-7 hidden lg:flex flex-col space-y-stack-lg pr-stack-lg">
             <div class="flex items-center space-x-stack-sm mb-stack-md">
@@ -36,10 +36,10 @@
             <div
                 class="relative w-full aspect-video rounded-xl overflow-hidden mt-stack-lg shadow-sm border border-outline-variant">
                 <img alt="Healthcare Professional using digital records"
-                    class="w-full h-full object-cover grayscale-[20%] brightness-95"
+                    class="w-full h-full object-cover grayscale-20 brightness-95"
                     data-alt="A professional healthcare environment in Benin showing a focused doctor using a modern digital medical interface on a sleek tablet. The lighting is bright and clean, typical of a high-end medical facility, with a soft color palette of sterile whites and clinical blues. The composition is professional and secure, emphasizing the advanced technological infrastructure of the Dossier Médical Numérique platform."
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAwHOHQus8UDiGRoHqM9qST5KOM9WnHYmeLz6ieEphSgH8HC32QpN1MFZW2t7o0uUNY0nm44Usmc8T5Zm1v5uqXoj8ji-E6J3mv-NSx9cFoPxkVXFIaveOhD5qEMn2V2OuYJ_w4qoEC0rKSvUt1onAyxoIXwmbiCQkHM-BW-TGnyHsbpnXnp3LxePmYEq7bUjbMvHcrrnS6s4v7rgixAU8qHYCNVLGL1GW9a6CtilS1lKEEfkiKl6ubRztGRxCnvQC4-65shFT6ymD" />
-                <div class="absolute inset-0 bg-gradient-to-t from-primary-container/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-linear-to-t from-primary-container/40 to-transparent"></div>
             </div>
         </section>
         <!-- Login Form Card -->
@@ -58,67 +58,135 @@
                     </p>
                 </div>
                 <!-- Error Message (Hidden by default, shown for demonstration) -->
+                @if (serverError()) {
                 <div
                     class="mb-stack-md flex items-center p-4 bg-error-container text-on-error-container rounded-lg border border-error/20">
                     <span class="material-symbols-outlined mr-3 text-error" data-icon="error">error</span>
                     <p class="font-body-sm font-medium">L'identifiant ou le mot de passe est incorrect.</p>
                 </div>
-                <form class="space-y-stack-md">
+                }
+
+                <form class="space-y-stack-md" [formGroup]="loginForm">
                     <!-- Email/Identifier Field -->
                     <div class="space-y-2">
                         <label class="font-label-caps text-label-caps text-on-surface-variant block"
-                            for="identifier">IDENTIFIANT OU EMAIL</label>
+                            for="identifier">EMAIL</label>
                         <div class="relative">
                             <span
                                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl"
                                 data-icon="person">person</span>
-                            <input
+                            <input formControlName="email" [class.border-error]="isInvalid('email')"
                                 class="w-full pl-12 pr-4 py-3 bg-surface rounded-lg border border-outline-variant focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none font-body-md"
-                                id="identifier" placeholder="ex: 123456789 ou dr.koffi@santebenin.bj" type="text" />
+                                id="identifier" placeholder="ex: dr.koffi@santebenin.bj" type="text" />
                         </div>
+                        @if (loginForm.get('email')?.touched) {
+                        @if(loginForm.get('email')?.errors?.['required']){
+                        <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                            L'email est requis
+                        </p>
+                        }
+                        @else if(loginForm.get('email')?.errors?.['email']){
+                        <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                            L'email est invalid
+                        </p>
+                        }
+                        }
                     </div>
+                    <!-- Identifiant for practitioner -->
+                    @if (userType()=== 'PRACTITIONER') {
+                    <div class="space-y-2">
+                        <label class="font-label-caps text-label-caps text-on-surface-variant block"
+                            for="identifier">IDENTIFIANT </label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl"
+                                data-icon="person">person</span>
+                            <input formControlName="identifiant" [class.border-error]="isInvalid('identifiant')"
+                                class="w-full pl-12 pr-4 py-3 bg-surface rounded-lg border border-outline-variant focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none font-body-md"
+                                id="identifier" placeholder="ex: 123456789 " type="text" />
+                        </div>
+                        @if (loginForm.get('identifiant')?.touched) {
+                        @if(loginForm.get('identifiant')?.errors?.['required']){
+                        <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                            L'identifiant est requis
+                        </p>
+                        }
+                        @else if(loginForm.get('identifiant')?.errors?.['identifiant']){
+                        <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                            L'identifiant est invalid
+                        </p>
+                        }
+                        }
+                    </div>
+                    }
                     <!-- Password Field -->
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
                             <label class="font-label-caps text-label-caps text-on-surface-variant" for="password">MOT DE
                                 PASSE</label>
-                            <a class="font-body-sm text-secondary hover:underline" routerLink="/auth/forgotPassword" >Oublié ?</a>
+                            <a class="font-body-sm text-secondary hover:underline"
+                                routerLink="/auth/forgotPassword">Oublié ?</a>
                         </div>
                         <div class="relative">
                             <span
                                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl"
                                 data-icon="lock">lock</span>
-                            <input
+                            <input formControlName="password" [class.border-error]="isInvalid('password')"
                                 class="w-full pl-12 pr-12 py-3 bg-surface rounded-lg border border-outline-variant focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none font-body-md"
-                                id="password" placeholder="••••••••" type="password" />
-                            <button
+                                id="password" placeholder="••••••••" [type]="showPassword() ? 'text' : 'password' " />
+                            <button (click)="toggleShowPassword()"
                                 class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary focus:outline-none"
                                 type="button">
-                                <span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+                                <span class="material-symbols-outlined text-xl" data-icon="visibility"> {{showPassword()
+                                    ? 'visibility' : 'visibility_off' }} </span>
                             </button>
                         </div>
+                        @if (loginForm.get('password')?.touched) {
+                        @if (loginForm.get('password')?.errors?.['required']) {
+                        <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                            Le mot de passe est requis
+                        </p>
+                        }
+                        @else if (loginForm.get('password')?.errors?.['pattern']) {
+                        <p class="text-xs font-medium text-error flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined" style="font-size:14px">error</span>
+                            Le mot de passe est invalid
+                        </p>
+                        }
+                        }
                     </div>
                     <!-- Connection Type Select (Optional for authority) -->
                     <div class="space-y-2 pt-2">
                         <p class="font-label-caps text-label-caps text-on-surface-variant mb-3 text-center">TYPE DE
                             COMPTE</p>
                         <div class="grid grid-cols-3 gap-2">
-                            <button
-                                class="p-3 border border-outline-variant rounded-lg flex flex-col items-center gap-1 hover:border-secondary hover:bg-surface-container-low transition-colors group"
+                            <button (click)="definedUserType('PATIENT')"
+                                [class]="userType()=== 'PATIENT' ? ['border-secondary', 'bg-surface-container-low'] : ['border-outline-variant', 'hover:border-secondary', 'hover:bg-surface-container-low', 'group'] "
+                                class="p-3 border  rounded-lg flex flex-col items-center gap-1 transition-colors "
                                 type="button">
                                 <span
-                                    class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary"
+                                    [class]="userType()=== 'PATIENT' ? 'text-secondary' : ['text-on-surface-variant', 'group-hover:text-secondary']"
+                                    class="material-symbols-outlined "
+                                    [attr.data-weight]="userType() === 'PATIENT' ? 'fill' : ''"
                                     data-icon="person_search">person_search</span>
-                                <span class="text-[10px] font-bold text-on-surface-variant">PATIENT</span>
+                                <span class="text-[10px] font-bold " [class]="userType() === 'PATIENT' ? 'text-secondary' : 'text-on-surface-variant' " >PATIENT</span>
                             </button>
-                            <button
-                                class="p-3 border border-secondary bg-surface-container-low rounded-lg flex flex-col items-center gap-1 transition-colors"
+                            <button (click)="definedUserType('PRACTITIONER')"
+                                [class]="userType()=== 'PRACTITIONER' ? ['border-secondary', 'bg-surface-container-low'] : ['border-outline-variant', 'hover:border-secondary', 'hover:bg-surface-container-low', 'group'] "
+                                [class.border-secondary]="userType()=== 'PRACTITIONER' "
+                                [class.bg-surface-container-low]="userType()=== 'PRACTITIONER' "
+                                class="p-3 border rounded-lg flex flex-col items-center gap-1 transition-colors"
                                 type="button">
-                                <span class="material-symbols-outlined text-secondary" data-icon="medical_services"
-                                    data-weight="fill">medical_services</span>
-                                <span class="text-[10px] font-bold text-secondary">MÉDECIN</span>
+                                <span class="material-symbols-outlined" [class]="userType()=== 'PRACTITIONER' ? 'text-secondary' : ['text-on-surface-variant', 'group-hover:text-secondary'] " data-icon="medical_services"
+                                    [attr.data-weight]="userType()==='PRACTITIONER' ? 'fill' : '' ">medical_services</span>
+                                <span class="text-[10px] font-bold " [class]="userType() === 'PRACTITIONER' ? 'text-secondary' : 'text-on-surface-variant' " >MÉDECIN</span>
                             </button>
-                            <button
+                            <button (click)="definedUserType('')"
                                 class="p-3 border border-outline-variant rounded-lg flex flex-col items-center gap-1 hover:border-secondary hover:bg-surface-container-low transition-colors group"
                                 type="button">
                                 <span
@@ -129,7 +197,8 @@
                         </div>
                     </div>
                     <!-- Submit Button -->
-                    <button
+                    <button (click)="onSubmit()"
+                        [disabled]="isLoading()"
                         class="w-full bg-secondary-container hover:bg-secondary text-white font-h3 py-4 rounded-lg shadow-sm active:scale-[0.98] transition-all flex items-center justify-center space-x-2 mt-stack-md"
                         type="submit">
                         <span>Se connecter</span>
@@ -139,7 +208,8 @@
                 <div class="mt-stack-lg pt-stack-md border-t border-outline-variant text-center">
                     <p class="font-body-sm text-on-surface-variant">
                         Pas encore de dossier ?
-                        <a class="text-secondary font-bold hover:underline ml-1" routerLink="/auth/userChoose">Créer un compte
+                        <a class="text-secondary font-bold hover:underline ml-1" routerLink="/auth/userChoose">Créer un
+                            compte
                             DMN</a>
                     </p>
                 </div>
