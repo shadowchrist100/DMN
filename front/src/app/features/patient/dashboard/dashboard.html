@@ -1,1 +1,379 @@
-<p>dashboard works!</p>
+<div class="body bg-background text-on-background min-h-screen">
+    <!-- SideNavBar -->
+    <aside
+        class="hidden lg:flex flex-col h-screen fixed left-0 top-0 z-40 bg-[#002B5C] text-white w-64 border-r border-white/10 font-['Public_Sans'] text-sm tracking-wide">
+        <div class="px-6 py-8">
+            <h1 class="text-lg font-black text-white uppercase tracking-tighter">DMN Portal</h1>
+            <p class="text-blue-100/70 text-xs mt-1">République du Bénin</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto px-2 space-y-1">
+            <a class="sidebar-active py-3 px-4 flex items-center gap-3" href="#">
+                <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Tableau de bord
+            </a>
+            <a class="text-blue-100/70 hover:bg-white/5 py-3 px-4 flex items-center gap-3 transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="group">group</span>
+                Patients
+            </a>
+            <a class="text-blue-100/70 hover:bg-white/5 py-3 px-4 flex items-center gap-3 transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="Description">description</span>
+                Dossiers Médicaux
+            </a>
+            <a class="text-blue-100/70 hover:bg-white/5 py-3 px-4 flex items-center gap-3 transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="medication">medication</span>
+                Prescriptions
+            </a>
+            <a class="text-blue-100/70 hover:bg-white/5 py-3 px-4 flex items-center gap-3 transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+                Analyses
+            </a>
+            <a class="text-blue-100/70 hover:bg-white/5 py-3 px-4 flex items-center gap-3 transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+                Consentement
+            </a>
+            <a class="text-blue-100/70 hover:bg-white/5 py-3 px-4 flex items-center gap-3 transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+                Alertes IA
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/10 space-y-1 mb-6">
+            <button
+                class="w-full bg-secondary text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-4 hover:bg-opacity-90 transition-all">
+                <span class="material-symbols-outlined" data-icon="add">add</span>
+                Nouveau Dossier
+            </button>
+            <a class="text-blue-100/70 hover:bg-white/5 py-2 px-4 flex items-center gap-3 transition-all text-xs"
+                href="#">
+                <span class="material-symbols-outlined text-sm" data-icon="support_agent">support_agent</span>
+                Support
+            </a>
+            <a class="text-blue-100/70 hover:bg-white/5 py-2 px-4 flex items-center gap-3 transition-all text-xs"
+                href="#">
+                <span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
+                Déconnexion
+            </a>
+        </div>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="lg:ml-64 min-h-screen flex flex-col pb-20 lg:pb-0">
+        <!-- TopNavBar -->
+        <header
+            class="sticky top-0 z-30 bg-white border-b border-slate-200 flex justify-between items-center w-full px-6 py-3 shadow-sm font-['Public_Sans'] font-medium antialiased">
+            <div class="flex items-center gap-4">
+                <span class="lg:hidden material-symbols-outlined text-primary" data-icon="menu">menu</span>
+                <span class="text-xl font-bold text-blue-900 tracking-tight">DMN Bénin</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex relative group">
+                    <input
+                        class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 w-64 focus:ring-2 focus:ring-secondary transition-all text-sm"
+                        placeholder="Rechercher un patient..." type="text" />
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"
+                        data-icon="search">search</span>
+                </div>
+                <div class="flex items-center gap-4 text-slate-500">
+                    <span
+                        class="material-symbols-outlined cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-colors"
+                        data-icon="notifications">notifications</span>
+                    <span
+                        class="material-symbols-outlined cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-colors"
+                        data-icon="help">help</span>
+                    <span
+                        class="material-symbols-outlined cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-colors"
+                        data-icon="settings">settings</span>
+                    <div class="h-8 w-8 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm">
+                        <img class="h-full w-full object-cover"
+                            data-alt="Professional medical profile headshot of a female doctor wearing a white clinical coat in a brightly lit modern hospital environment. The setting is clean and minimalist with soft blue accents reflecting a clinical grade corporate style. The professional is smiling warmly, projecting authority and reliability."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdw4Yolw04rUOKTRgPsC3ur9NXhxTh45_pDwau-jnni7Cl7nfngUjbT6a04AMWeUzvcWkIzRRG-XDVZTm9aQFSL9mCXZyWLiq74X3jAQQAuEqIfdVylv2PFYi7xFjNzBiw7djAaEntYBQO2JuZAzdQEFFHvqXmqoI32S-teb8DN4PP3bdlTKNI3UZzgppVhb63uXrEWwL3TuLniOa6cn2ymTQAXk24I6z0l00uYwdHA89aDayGcXXHu81oHxjlDgSY5hNq7LiOmnD5" />
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Canvas -->
+        <div class="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h2 class="font-h1 text-h1 text-primary">Bonjour, M. Koffi</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Voici le résumé de votre état de santé
+                        mis à jour en temps réel.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button
+                        class="bg-surface-container text-primary font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm border border-outline-variant hover:bg-surface-container-high transition-colors">
+                        <span class="material-symbols-outlined text-lg" data-icon="share">share</span> Partager mon
+                        dossier
+                    </button>
+                    <button
+                        class="bg-primary text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm hover:opacity-90 transition-all">
+                        <span class="material-symbols-outlined text-lg" data-icon="download">download</span> Télécharger
+                        QR Code
+                    </button>
+                </div>
+            </div>
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+                <!-- Risk Score Card (High Priority Bento Item) -->
+                <div
+                    class="md:col-span-4 bg-white p-6 border border-slate-200 rounded-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4">
+                        <span class="material-symbols-outlined text-on-tertiary-container/30 text-5xl"
+                            data-icon="neurology">neurology</span>
+                    </div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="material-symbols-outlined text-tertiary" data-icon="auto_awesome"
+                            style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                        <span class="font-label-caps text-label-caps uppercase text-tertiary">Score de Risque IA</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-5xl font-black text-primary">12%</span>
+                        <span class="text-sm font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">Faible</span>
+                    </div>
+                    <p class="font-body-sm text-body-sm text-slate-500 mt-4 leading-relaxed">
+                        Votre profil de santé actuel présente un risque minimal basé sur vos dernières analyses
+                        glycémiques.
+                    </p>
+                    <div class="mt-6 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-secondary-container w-[12%] rounded-full"></div>
+                    </div>
+                </div>
+                <!-- Active Alerts -->
+                <div class="md:col-span-8 bg-surface-container-low border border-outline-variant rounded-xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-h3 text-h3 text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-error" data-icon="warning"
+                                style="font-variation-settings: 'FILL' 1;">warning</span>
+                            Alertes Actives
+                        </h3>
+                        <span
+                            class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">2
+                            Priorités</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div
+                            class="bg-white border-l-4 border-error p-4 flex items-center justify-between rounded-r-lg shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-error" data-icon="vaccines">vaccines</span>
+                                <div>
+                                    <p class="font-bold text-primary text-sm">Rappel Vaccinal en Retard</p>
+                                    <p class="text-xs text-slate-500">Rappel Hépatite B - Date limite dépassée depuis 12
+                                        jours.</p>
+                                </div>
+                            </div>
+                            <button class="text-secondary font-bold text-xs hover:underline">Planifier</button>
+                        </div>
+                        <div
+                            class="bg-white border-l-4 border-amber-500 p-4 flex items-center justify-between rounded-r-lg shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-amber-500"
+                                    data-icon="clinical_notes">clinical_notes</span>
+                                <div>
+                                    <p class="font-bold text-primary text-sm">Action Requise : Consentement</p>
+                                    <p class="text-xs text-slate-500">Mise à jour requise pour le partage de données
+                                        avec l'Hôpital CNHU.</p>
+                                </div>
+                            </div>
+                            <button class="text-secondary font-bold text-xs hover:underline">Signer</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quick Access Grid -->
+                <div class="md:col-span-12 grid grid-cols-1 sm:grid-cols-3 gap-gutter">
+                    <div
+                        class="bg-white p-5 border border-slate-200 rounded-xl flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="bg-primary-container p-3 rounded-lg">
+                            <span class="material-symbols-outlined text-white" data-icon="event">event</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-primary">Mes Visites</p>
+                            <p class="text-xs text-slate-500">8 historiques enregistrés</p>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white p-5 border border-slate-200 rounded-xl flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="bg-secondary p-3 rounded-lg">
+                            <span class="material-symbols-outlined text-white"
+                                data-icon="lab_research">lab_research</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-primary">Mes Analyses</p>
+                            <p class="text-xs text-slate-500">Dernière mise à jour : Hier</p>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white p-5 border border-slate-200 rounded-xl flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="bg-tertiary-container p-3 rounded-lg">
+                            <span class="material-symbols-outlined text-white"
+                                data-icon="prescriptions">prescriptions</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-primary">Mes Ordonnances</p>
+                            <p class="text-xs text-slate-500">1 ordonnance active</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Content Left Column (Details) -->
+                <div class="md:col-span-8 space-y-gutter">
+                    <!-- Dernières entrées Section -->
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-h3 text-h3 text-primary">Dernières entrées du dossier</h3>
+                            <button class="text-secondary text-sm font-bold">Tout voir</button>
+                        </div>
+                        <div class="divide-y divide-slate-100">
+                            <!-- Entry 1 -->
+                            <div class="p-6 flex gap-4 hover:bg-slate-50 transition-colors">
+                                <div
+                                    class="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary"
+                                        data-icon="stethoscope">stethoscope</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between mb-1">
+                                        <h4 class="font-bold text-primary">Consultation Générale</h4>
+                                        <span class="text-xs font-mono-data text-slate-400">12 Oct 2023</span>
+                                    </div>
+                                    <p class="text-sm text-on-surface-variant">Hôpital de Zone de Calavi — Dr. Dossou
+                                    </p>
+                                    <div class="mt-3 flex gap-2">
+                                        <span
+                                            class="text-[10px] px-2 py-0.5 border border-slate-200 rounded text-slate-500 uppercase font-bold">Hypertension</span>
+                                        <span
+                                            class="text-[10px] px-2 py-0.5 border border-slate-200 rounded text-slate-500 uppercase font-bold">Suivi</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Entry 2 -->
+                            <div class="p-6 flex gap-4 hover:bg-slate-50 transition-colors">
+                                <div
+                                    class="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary"
+                                        data-icon="biotech">biotech</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between mb-1">
+                                        <h4 class="font-bold text-primary">Bilan Sanguin Complet</h4>
+                                        <span class="text-xs font-mono-data text-slate-400">28 Sep 2023</span>
+                                    </div>
+                                    <p class="text-sm text-on-surface-variant">Laboratoire BIO-BENIN — Résultats
+                                        disponibles</p>
+                                    <div class="mt-3 flex items-center gap-2 text-xs text-secondary font-bold">
+                                        <span class="material-symbols-outlined text-sm"
+                                            data-icon="attachment">attachment</span> Rapport_Bio_Final.pdf
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Entry 3 -->
+                            <div class="p-6 flex gap-4 hover:bg-slate-50 transition-colors">
+                                <div
+                                    class="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary"
+                                        data-icon="medication">medication</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between mb-1">
+                                        <h4 class="font-bold text-primary">Renouvellement Ordonnance</h4>
+                                        <span class="text-xs font-mono-data text-slate-400">15 Sep 2023</span>
+                                    </div>
+                                    <p class="text-sm text-on-surface-variant">Pharmacie la Grâce — Traitement
+                                        tensionnel</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Secondary Content Right Column -->
+                <div class="md:col-span-4 space-y-gutter">
+                    <!-- Prochaine Visite Card -->
+                    <div class="bg-primary text-white p-6 rounded-xl shadow-lg relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10">
+                            <span class="material-symbols-outlined text-9xl"
+                                data-icon="calendar_month">calendar_month</span>
+                        </div>
+                        <h4 class="font-label-caps text-label-caps uppercase text-blue-200 mb-4">Prochaine visite</h4>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="bg-white/10 p-3 rounded-lg backdrop-blur-sm border border-white/20 text-center min-w-[60px]">
+                                <p class="text-xs uppercase font-bold">Oct</p>
+                                <p class="text-2xl font-black">24</p>
+                            </div>
+                            <div>
+                                <p class="font-bold text-lg">Ophtalmologie</p>
+                                <p class="text-sm text-blue-100/70">09:30 — Clinique Mahouna</p>
+                            </div>
+                        </div>
+                        <button
+                            class="w-full bg-white text-primary font-bold py-2 rounded-lg text-sm hover:bg-blue-50 transition-colors">Modifier
+                            le RDV</button>
+                    </div>
+                    <!-- Dernière Ordonnance -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-6">
+                        <h4 class="font-h3 text-h3 text-primary mb-4">Dernière ordonnance</h4>
+                        <div class="bg-slate-50 rounded-lg p-4 mb-4 border-l-4 border-secondary">
+                            <p class="font-bold text-sm text-primary">Amlodipine 5mg</p>
+                            <p class="text-xs text-slate-500">1 comprimé par jour, le matin</p>
+                            <div class="mt-2 flex items-center justify-between">
+                                <span class="text-[10px] text-slate-400 font-mono-data">Expire le 12 Jan 2024</span>
+                                <span
+                                    class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Valide</span>
+                            </div>
+                        </div>
+                        <button
+                            class="w-full border border-secondary text-secondary font-bold py-2 rounded-lg text-sm hover:bg-secondary/5 transition-colors">Afficher
+                            l'ordonnance</button>
+                    </div>
+                    <!-- Specialized Data Viz (Vital Signs) -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-h3 text-h3 text-primary">Signes Vitaux</h4>
+                            <span class="material-symbols-outlined text-slate-300"
+                                data-icon="trending_up">trending_up</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-500">Tension Artérielle</span>
+                                    <span class="font-bold text-primary">12/8 mmHg</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-slate-100 rounded-full">
+                                    <div class="h-full bg-green-500 w-[70%] rounded-full"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-500">Fréquence Cardiaque</span>
+                                    <span class="font-bold text-primary">72 bpm</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-slate-100 rounded-full">
+                                    <div class="h-full bg-blue-500 w-[65%] rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- BottomNavBar (Mobile Only) -->
+        <nav
+            class="lg:hidden fixed bottom-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 flex justify-around items-center px-4 pb-6 pt-2 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] font-['Public_Sans'] text-[10px] font-bold">
+            <a class="flex flex-col items-center text-blue-900 scale-105" href="#">
+                <span class="material-symbols-outlined" data-icon="home"
+                    style="font-variation-settings: 'FILL' 1;">home</span>
+                Accueil
+            </a>
+            <a class="flex flex-col items-center text-slate-400" href="#">
+                <span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+                Santé
+            </a>
+            <a class="flex flex-col items-center text-slate-400" href="#">
+                <span class="material-symbols-outlined" data-icon="history">history</span>
+                Timeline
+            </a>
+            <a class="flex flex-col items-center text-slate-400" href="#">
+                <span class="material-symbols-outlined" data-icon="person">person</span>
+                Profil
+            </a>
+        </nav>
+    </main>
+</div>
