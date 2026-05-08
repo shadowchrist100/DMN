@@ -1,31 +1,44 @@
 <div class="mb-10">
     <h3 class="text-h2 font-h2 text-primary mb-3">Choisir votre profil</h3>
     <p class="text-body-md text-on-surface-variant max-w-lg">
-        Sélectionnez le type de compte qui correspond à votre situation pour commencer votre inscription sur le Portail National.
+        Sélectionnez le type de compte qui correspond à votre situation pour commencer votre inscription sur le Portail
+        National.
     </p>
 </div>
+
+@if (store.continueSteps() !==null ) {
+    <div
+        class="mb-stack-md flex items-center p-4 bg-error-container text-on-error-container rounded-lg border border-error/20">
+        <span class="material-symbols-outlined mr-3 text-error" data-icon="error">error</span>
+        <p class="font-body-sm font-medium">{{ !store.userType() ? 'Choisissez votre profil' : '' }} <br>
+            {{ acceptPolitic.value ? '' : 'Acceptez les politiques de confidentialié pour continer.' }}
+        </p>
+    </div>
+}
 
 <!-- Account Type Selection Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- Patient Card -->
     <label (click)="toggleUser('PATIENT')" class="relative group cursor-pointer block h-full">
-        <input [checked]="store.userType() === 'PATIENT'" class="peer sr-only" name="account_type" type="radio" />
-        <div class="p-8 border-2 border-outline-variant rounded-[24px] transition-all duration-300 
+        <div class="p-8 border-2 border-outline-variant rounded-3xl transition-all duration-300 
                     peer-checked:border-secondary peer-checked:bg-secondary/5 
                     hover:border-secondary/30 hover:shadow-xl hover:shadow-secondary/5
                     flex flex-col h-full relative overflow-hidden">
-            
-            <div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center mb-6 
+
+            <div
+                class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center mb-6 
                         text-secondary group-hover:scale-110 group-hover:bg-secondary group-hover:text-white transition-all duration-500">
                 <span class="material-symbols-outlined text-3xl">person</span>
             </div>
-            
+
             <h4 class="text-h3 font-h3 text-primary mb-3">Patient / Citoyen</h4>
             <p class="text-body-sm text-on-surface-variant leading-relaxed grow">
-                Accédez en toute sécurité à votre carnet de santé numérique, vos prescriptions et vos résultats d'examens.
+                Accédez en toute sécurité à votre carnet de santé numérique, vos prescriptions et vos résultats
+                d'examens.
             </p>
-            
-            <div class="mt-8 flex items-center gap-2 text-secondary font-bold text-body-sm opacity-0 peer-checked:opacity-100 transition-all translate-y-2 peer-checked:translate-y-0">
+
+            <div
+                class="mt-8 flex items-center gap-2 text-secondary font-bold text-body-sm opacity-0 peer-checked:opacity-100 transition-all translate-y-2 peer-checked:translate-y-0">
                 <span class="material-symbols-outlined">check_circle</span>
                 Sélectionné
             </div>
@@ -39,23 +52,24 @@
 
     <!-- Professional Card -->
     <label (click)="toggleUser('PRACTITIONER')" class="relative group cursor-pointer block h-full">
-        <input [checked]="store.userType() === 'PRACTITIONER'" class="peer sr-only" name="account_type" type="radio" />
-        <div class="p-8 border-2 border-outline-variant rounded-[24px] transition-all duration-300 
+        <div class="p-8 border-2 border-outline-variant rounded-3xl transition-all duration-300 
                     peer-checked:border-secondary peer-checked:bg-secondary/5 
                     hover:border-secondary/30 hover:shadow-xl hover:shadow-secondary/5
                     flex flex-col h-full relative overflow-hidden">
-            
-            <div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center mb-6 
+
+            <div
+                class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center mb-6 
                         text-secondary group-hover:scale-110 group-hover:bg-secondary group-hover:text-white transition-all duration-500">
                 <span class="material-symbols-outlined text-3xl">medical_services</span>
             </div>
-            
+
             <h4 class="text-h3 font-h3 text-primary mb-3">Professionnel</h4>
             <p class="text-body-sm text-on-surface-variant leading-relaxed grow">
                 Gérez vos patients, collaborez avec vos confrères et accédez aux outils de diagnostic avancés.
             </p>
-            
-            <div class="mt-8 flex items-center gap-2 text-secondary font-bold text-body-sm opacity-0 peer-checked:opacity-100 transition-all translate-y-2 peer-checked:translate-y-0">
+
+            <div
+                class="mt-8 flex items-center gap-2 text-secondary font-bold text-body-sm opacity-0 peer-checked:opacity-100 transition-all translate-y-2 peer-checked:translate-y-0">
                 <span class="material-symbols-outlined">check_circle</span>
                 Sélectionné
             </div>
@@ -70,13 +84,14 @@
 
 <!-- Info Banner -->
 <div class="mt-10 p-6 bg-primary/5 rounded-2xl border border-primary/10 flex items-start gap-4">
-    <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0">
+    <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center shrink-0">
         <span class="material-symbols-outlined text-secondary">info</span>
     </div>
     <div class="space-y-1">
         <p class="text-body-sm font-bold text-primary">Information importante</p>
         <p class="text-body-sm text-on-surface-variant leading-relaxed">
-            Pour les professionnels de santé, une étape de vérification des identifiants professionnels (numéro d'ordre) sera nécessaire ultérieurement.
+            Pour les professionnels de santé, une étape de vérification des identifiants professionnels (numéro d'ordre)
+            sera nécessaire ultérieurement.
         </p>
     </div>
 </div>
@@ -87,19 +102,24 @@
         <label class="flex items-start gap-4 cursor-pointer group">
             <div class="relative flex items-center justify-center pt-1">
                 <input class="peer w-6 h-6 rounded-lg border-2 border-outline-variant text-secondary 
-                            focus:ring-secondary/20 focus:ring-offset-0 transition-all cursor-pointer"
-                       type="checkbox" />
-                <span class="absolute material-symbols-outlined text-white text-lg font-bold opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none">check</span>
+                            focus:ring-secondary/20 focus:ring-offset-0 transition-all cursor-pointer" type="checkbox"
+                    [formControl]="acceptPolitic" />
+                <span
+                    class="absolute material-symbols-outlined text-white text-lg font-bold opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none">check</span>
             </div>
             <div class="space-y-1">
-                <span class="text-body-sm text-on-surface-variant leading-relaxed block group-hover:text-primary transition-colors">
-                    En continuant, vous acceptez nos 
-                    <a class="text-secondary font-bold hover:underline underline-offset-4 decoration-2" href="#">Conditions Générales d'Utilisation</a> 
-                    et reconnaissez avoir lu notre 
-                    <a class="text-secondary font-bold hover:underline underline-offset-4 decoration-2" href="#">Politique de Confidentialité</a>.
+                <span
+                    class="text-body-sm text-on-surface-variant leading-relaxed block group-hover:text-primary transition-colors">
+                    En continuant, vous acceptez nos
+                    <a class="text-secondary font-bold hover:underline underline-offset-4 decoration-2"
+                        href="#">Conditions Générales d'Utilisation</a>
+                    et reconnaissez avoir lu notre
+                    <a class="text-secondary font-bold hover:underline underline-offset-4 decoration-2"
+                        href="#">Politique de Confidentialité</a>.
                 </span>
                 <p class="text-[11px] text-on-surface-variant/60">
-                    DMN Bénin s'engage à protéger la confidentialité de vos données personnelles conformément aux lois en vigueur.
+                    DMN Bénin s'engage à protéger la confidentialité de vos données personnelles conformément aux lois
+                    en vigueur.
                 </p>
             </div>
         </label>

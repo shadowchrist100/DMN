@@ -1,5 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { RegisterStore } from './register.store';
 import { StepTypeCompte } from "./step-type-compte/step-type-compte";
 import { StepIdentity } from "./step-identity/step-identity";
@@ -13,13 +12,15 @@ import { StepAuth } from "./step-auth/step-auth";
     styleUrl: './register.css',
 })
 export class Register {
-    private router = inject(Router);
     store = RegisterStore;
+    continue = signal<boolean>(false);
 
     userType = signal<'PATIENT' | 'PRACTITIONER' | null>('PATIENT');
 
     handleContinue() {
-        if (this.store.userType()) {
+        console.log(this.store.userType());
+        
+        if (this.store.continueSteps()) {
             this.store.nextStep();
         }else{
 
