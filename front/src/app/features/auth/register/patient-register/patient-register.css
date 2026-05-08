@@ -1,9 +1,0 @@
-@import 'tailwindcss';
-
-.step-active {
-    @apply border-l-4 border-white bg-white/10;
-}
-
-.step-completed {
-    @apply opacity-60;
-}

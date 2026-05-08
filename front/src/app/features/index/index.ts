@@ -9,7 +9,11 @@ import { Router } from '@angular/router';
 })
 export class Index {
     private router = inject(Router)
-    onLogin() {
+    handleSignIn() {
         this.router.navigateByUrl("/auth/login")
+    }
+
+    handleSignOn(){
+        this.router.navigateByUrl('auth/register');
     }
 }

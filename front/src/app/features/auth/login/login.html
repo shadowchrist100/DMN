@@ -77,7 +77,7 @@
                                 data-icon="person">person</span>
                             <input formControlName="email" [class.border-error]="isInvalid('email')"
                                 class="w-full pl-12 pr-4 py-3 bg-surface rounded-lg border border-outline-variant focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none font-body-md"
-                                id="identifier" placeholder="ex: dr.koffi@santebenin.bj" type="text" />
+                                id="identifier" placeholder="ex: dr.koffi@santebenin.bj" type="email" />
                         </div>
                         @if (loginForm.get('email')?.touched) {
                         @if(loginForm.get('email')?.errors?.['required']){
@@ -208,7 +208,7 @@
                 <div class="mt-stack-lg pt-stack-md border-t border-outline-variant text-center">
                     <p class="font-body-sm text-on-surface-variant">
                         Pas encore de dossier ?
-                        <a class="text-secondary font-bold hover:underline ml-1" routerLink="/auth/userChoose">Créer un
+                        <a class="text-secondary font-bold hover:underline ml-1" routerLink="/auth/register">Créer un
                             compte
                             DMN</a>
                     </p>

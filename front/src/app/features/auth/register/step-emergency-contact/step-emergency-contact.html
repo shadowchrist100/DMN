@@ -1,0 +1,86 @@
+<div class="mb-10">
+    <h2 class="text-h2 font-h2 text-primary mb-3">Contact d'urgence</h2>
+    <p class="text-body-md text-on-surface-variant max-w-2xl">
+        Ces informations sont cruciales pour vous contacter en cas d'urgence médicale ou pour la validation de vos accès sécurisés.
+    </p>
+</div>
+
+<form class="space-y-8" [formGroup]="emergencyForm">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- First Name -->
+        <div class="space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="firstname">
+                <span class="material-symbols-outlined text-[18px] opacity-40">person</span>
+                Prénom du contact
+            </label>
+            <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                   id="firstname" formControlName="firstName" placeholder="Ex: Jean-Luc" type="text" />
+            @if (isInvalid('firstName')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le prénom est requis
+                </p>
+            }
+        </div>
+
+        <!-- Last Name -->
+        <div class="space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="lastname">
+                <span class="material-symbols-outlined text-[18px] opacity-40">badge</span>
+                Nom de famille
+            </label>
+            <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                   id="lastname" formControlName="lastName" placeholder="Ex: AHOUANVOEBLA" type="text" />
+            @if (isInvalid('lastName')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le nom est requis
+                </p>
+            }
+        </div>
+    </div>
+
+    <!-- Phone Field -->
+    <div class="space-y-2.5">
+        <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="phone">
+            <span class="material-symbols-outlined text-[18px] opacity-40">phone_android</span>
+            Numéro de téléphone mobile
+        </label>
+        <div class="flex">
+            <div class="flex items-center px-5 bg-surface-container-low border-2 border-outline-variant border-r-0 rounded-l-2xl text-primary font-bold text-sm tracking-widest">
+                +229
+            </div>
+            <input class="flex-1 h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-r-2xl focus:border-secondary outline-none transition-all font-mono-data text-lg tracking-widest placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                   id="phone" formControlName="phone" placeholder="00 00 00 00" type="tel" />
+        </div>
+        <p class="text-[11px] text-on-surface-variant/60 px-2 flex items-center gap-2 mt-1">
+            <span class="material-symbols-outlined text-[14px]">sms</span>
+            Un code de vérification SMS sera envoyé à ce numéro.
+        </p>
+        @if (isInvalid('phone')) {
+            <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                Un numéro de téléphone valide est requis
+            </p>
+        }
+    </div>
+
+    <!-- Relation Selection -->
+    <div class="space-y-2.5">
+        <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="relation">
+            <span class="material-symbols-outlined text-[18px] opacity-40">family_history</span>
+            Lien de parenté
+        </label>
+        <div class="relative">
+            <select class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm"
+                    id="relation">
+                <option value="">Sélectionnez le lien</option>
+                <option value="parent">Parent</option>
+                <option value="conjoint">Conjoint(e)</option>
+                <option value="enfant">Enfant</option>
+                <option value="autre">Autre</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
+        </div>
+    </div>
+</form>

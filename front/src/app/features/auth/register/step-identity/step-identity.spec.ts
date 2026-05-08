@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PatientRegister } from './patient-register';
+import { StepIdentity } from './step-identity';
 
-describe('PatientRegister', () => {
-  let component: PatientRegister;
-  let fixture: ComponentFixture<PatientRegister>;
+describe('StepIdentity', () => {
+  let component: StepIdentity;
+  let fixture: ComponentFixture<StepIdentity>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PatientRegister],
+      imports: [StepIdentity],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PatientRegister);
+    fixture = TestBed.createComponent(StepIdentity);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

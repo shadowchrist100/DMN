@@ -1,0 +1,184 @@
+<div class="mb-10">
+    <h2 class="text-h2 font-h2 text-primary mb-3">Informations personnelles</h2>
+    <p class="text-body-md text-on-surface-variant max-w-2xl">
+        Veuillez renseigner vos informations d'identité telles qu'elles figurent sur vos documents officiels pour garantir la validité de votre carnet de santé numérique.
+    </p>
+</div>
+
+@if(serverError()){
+    <div class="mb-8 p-4 rounded-2xl bg-error/5 border border-error/20 flex items-start gap-3 animate-in fade-in zoom-in duration-300" role="alert">
+        <span class="material-symbols-outlined text-error mt-0.5">error</span>
+        <div class="grow">
+            <h4 class="text-sm font-bold text-error">Erreur de soumission</h4>
+            <p class="text-xs text-error/80 mt-1">{{ serverError() }}</p>
+        </div>
+        <button (click)="onErrorClose()" class="text-error/40 hover:text-error transition-colors">
+            <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+    </div>
+} 
+
+<form class="space-y-10" [formGroup]="identityForm">
+    <!-- Profile Photo Section -->
+    <div class="flex flex-col md:flex-row items-center gap-8 p-8 bg-surface-container-lowest border border-outline-variant rounded-[32px] shadow-sm group">
+        <div class="relative group cursor-pointer">
+            <div class="w-32 h-32 rounded-full bg-surface-container-low border-2 border-dashed border-outline-variant flex flex-col items-center justify-center overflow-hidden transition-all group-hover:bg-secondary/5 group-hover:border-secondary/50 group-hover:scale-105 duration-500">
+                <span class="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-1 group-hover:text-secondary transition-colors">photo_camera</span>
+                <span class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest group-hover:text-secondary transition-colors">Ajouter</span>
+            </div>
+            <div class="absolute inset-0 rounded-full bg-secondary opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none"></div>
+        </div>
+        <div class="text-center md:text-left flex-1">
+            <h3 class="text-h3 font-h3 text-primary mb-2">Photo d'identité</h3>
+            <p class="text-body-sm text-on-surface-variant leading-relaxed">
+                Une photo claire de votre visage est requise pour la sécurisation de votre accès. 
+                <span class="font-semibold text-secondary">JPG ou PNG, max 5Mo.</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Personal Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+        <!-- First Name -->
+        <div class="space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="firstname">
+                <span class="material-symbols-outlined text-[18px] opacity-40">person</span>
+                Prénom
+            </label>
+            <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                   id="firstname" formControlName="firstName" placeholder="Ex: Jean-Luc" type="text" />
+            @if (isInvalid('firstName')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le prénom est requis
+                </p>
+            }
+        </div>
+
+        <!-- Last Name -->
+        <div class="space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="lastname">
+                <span class="material-symbols-outlined text-[18px] opacity-40">badge</span>
+                Nom de famille
+            </label>
+            <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                   id="lastname" formControlName="lastName" placeholder="Ex: AHOUANVOEBLA" type="text" />
+            @if (isInvalid('lastName')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le nom est requis
+                </p>
+            }
+        </div>
+
+        <!-- Date of Birth -->
+        <div class="space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="dob">
+                <span class="material-symbols-outlined text-[18px] opacity-40">event</span>
+                Date de naissance
+            </label>
+            <div class="relative">
+                <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md shadow-sm"
+                       id="dob" formControlName="birthDate" type="date" />
+                @if (isInvalid('birthDate')) {
+                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-2">
+                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                        @if (identityForm.get('birthDate')?.errors?.['invalidDate']) {
+                            La date de naissance ne peut pas être dans le futur
+                        } @else {
+                            La date de naissance est requise
+                        }
+                    </p>
+                }
+            </div>
+        </div>
+
+        <!-- Gender Selection -->
+        <div class="space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold">
+                <span class="material-symbols-outlined text-[18px] opacity-40">wc</span>
+                Genre
+            </label>
+            <div class="flex gap-3">
+                <label class="flex-1 group cursor-pointer">
+                    <input class="sr-only peer" formControlName="gender" type="radio" value="male" />
+                    <div class="h-14 flex items-center justify-center border-2 border-outline-variant rounded-2xl transition-all font-bold text-sm
+                                peer-checked:bg-secondary peer-checked:text-white peer-checked:border-secondary
+                                hover:border-secondary/40">
+                        Homme
+                    </div>
+                </label>
+                <label class="flex-1 group cursor-pointer">
+                    <input class="sr-only peer" formControlName="gender" type="radio" value="female" />
+                    <div class="h-14 flex items-center justify-center border-2 border-outline-variant rounded-2xl transition-all font-bold text-sm
+                                peer-checked:bg-secondary peer-checked:text-white peer-checked:border-secondary
+                                hover:border-secondary/40">
+                        Femme
+                    </div>
+                </label>
+            </div>
+            @if (isInvalid('gender')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Sélectionnez votre genre
+                </p>
+            }
+        </div>
+
+        <!-- National ID (NPI) -->
+        <div class="md:col-span-2 space-y-2.5 pt-4">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="npi">
+                <span class="material-symbols-outlined text-[18px] opacity-40">pin</span>
+                Identifiant National Unique (NPI)
+            </label>
+            <div class="relative group">
+                <input class="w-full h-16 px-6 pr-14 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-mono-data text-xl tracking-[0.2em] shadow-sm group-focus-within:shadow-lg"
+                       id="npi" formControlName="npi" placeholder="0000 0000 0000 0000" type="text" />
+                <div class="absolute right-6 top-1/2 -translate-y-1/2">
+                    <span class="material-symbols-outlined text-secondary opacity-40 group-focus-within:opacity-100 transition-opacity">fingerprint</span>
+                </div>
+            </div>
+            <div class="flex items-start gap-2 px-2">
+                <span class="material-symbols-outlined text-[16px] text-secondary mt-0.5">info</span>
+                <p class="text-[11px] text-on-surface-variant/80 italic leading-tight">
+                    L'identifiant unique (10 chiffres) se trouve sur votre carte biométrique ou acte de naissance sécurisé (ANIP).
+                </p>
+            </div>
+            @if (isInvalid('npi')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le numéro NPI est requis
+                </p>
+            }
+        </div>
+
+        <!-- Residence: City -->
+        <div class="space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="city">
+                <span class="material-symbols-outlined text-[18px] opacity-40">location_city</span>
+                Ville / Commune
+            </label>
+            <div class="relative">
+                <select class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm"
+                        id="city">
+                    <option value="">Sélectionnez votre ville</option>
+                    <option value="cotonou">Cotonou</option>
+                    <option value="porto-novo">Porto-Novo</option>
+                    <option value="parakou">Parakou</option>
+                    <option value="abomey-calavi">Abomey-Calavi</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
+            </div>
+        </div>
+
+        <!-- Residence: Neighborhood -->
+        <div class="md:col-span-2 space-y-2.5">
+            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="address">
+                <span class="material-symbols-outlined text-[18px] opacity-40">home_pin</span>
+                Adresse précise
+            </label>
+            <textarea class="w-full px-5 py-4 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm min-h-[100px]"
+                      id="address" placeholder="Ex: Lot 452, Quartier Zongo, Maison Kouandété" rows="3"></textarea>
+        </div>
+    </div>
+</form>

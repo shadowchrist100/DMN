@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PractitionerRegister } from './practitioner-register';
+import { StepAuth } from './step-auth';
 
-describe('PractitionerRegister', () => {
-  let component: PractitionerRegister;
-  let fixture: ComponentFixture<PractitionerRegister>;
+describe('StepAuth', () => {
+  let component: StepAuth;
+  let fixture: ComponentFixture<StepAuth>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PractitionerRegister],
+      imports: [StepAuth],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PractitionerRegister);
+    fixture = TestBed.createComponent(StepAuth);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

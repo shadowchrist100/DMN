@@ -26,11 +26,11 @@ export class Login implements OnInit {
             email: ['', [Validators.required, Validators.email]],
             identifiant: [''],
             password: ['', [Validators.required, Validators.pattern(PASSWORD_REGEX)]],
-            userType: ['', [Validators.required]]
+            userType: ['PRACTITIONER', [Validators.required]]
         })
 
-        this.loginForm.get('identifiant')?.valueChanges.subscribe( () => {
-            if (this.userType() === 'PRACTITIONER' ) {
+        this.loginForm.get('identifiant')?.valueChanges.subscribe(() => {
+            if (this.userType() === 'PRACTITIONER') {
                 this.loginForm.controls['identifiant'].setValidators(Validators.required);
             }
         })
@@ -40,7 +40,7 @@ export class Login implements OnInit {
         if (this.userType() !== userType) {
             this.userType.set(userType);
             this.loginForm.patchValue({
-                userType : userType
+                userType: userType
             })
         }
         else {
@@ -58,12 +58,22 @@ export class Login implements OnInit {
     }
 
     onSubmit() {
-        if (this.loginForm?.invalid) {
+        const controls = this.loginForm.controls;
+        for(const name in controls){
+            if (controls[name].errors) {
+                console.log(controls[name].errors);
+                console.log(name);
+                
+            }
+        }
+
+        if (this.loginForm.invalid) {
+
             this.loginForm.markAllAsTouched();
             return;
         }
         this.isLoading.set(true);
         console.log(this.loginForm.value);
-        this.router.navigateByUrl(`/${this.userType()=== 'PATIENT' ? 'patient': 'practitioner' }/dashboard`)
+        this.router.navigateByUrl(`/${this.userType() === 'PATIENT' ? 'patient' : 'practitioner'}/dashboard`)
     }
 }
