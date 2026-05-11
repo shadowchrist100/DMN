@@ -17,7 +17,6 @@ export class StepIdentity implements OnInit {
 
     constructor() {
         effect(() => {
-            console.log('submited');
 
             if (this.store.submited()) {
                 if (this.identityForm.invalid) {
@@ -27,11 +26,6 @@ export class StepIdentity implements OnInit {
                     this.store.setContinueSteps(true);
                 }
 
-                Object.keys(this.identityForm.controls).forEach(key => {
-                    console.log(this.identityForm.get(key)?.errors);
-
-                });
-                console.log('submited');
                 untracked(() => {
                     this.store.setSubmited(false);
                 });
@@ -54,7 +48,6 @@ export class StepIdentity implements OnInit {
     ngOnInit(): void {
         //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
         //Add 'implements OnInit' to the class.
-        this.store.setContinueSteps(false);
         this.identityForm = this.fb.group({
             firstName: ['', Validators.required],
             lastName: ['', [Validators.required]],

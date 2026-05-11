@@ -1,86 +1,134 @@
 <div class="mb-10">
     <h2 class="text-h2 font-h2 text-primary mb-3">Contact d'urgence</h2>
     <p class="text-body-md text-on-surface-variant max-w-2xl">
-        Ces informations sont cruciales pour vous contacter en cas d'urgence médicale ou pour la validation de vos accès sécurisés.
+        Ces informations sont cruciales pour vous contacter en cas d'urgence médicale ou pour la validation de vos accès
+        sécurisés.
     </p>
 </div>
 
 <form class="space-y-8" [formGroup]="emergencyForm">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- First Name -->
+
+        <!-- Prénom -->
         <div class="space-y-2.5">
-            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="firstname">
+            <label
+                class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+                for="firstname">
                 <span class="material-symbols-outlined text-[18px] opacity-40">person</span>
-                Prénom du contact
+                Prénom du contact <span class="text-error">*</span>
             </label>
-            <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                   id="firstname" formControlName="firstName" placeholder="Ex: Jean-Luc" type="text" />
+            <input
+                class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                id="firstname" formControlName="firstName" placeholder="Ex: Jean-Luc" type="text" />
             @if (isInvalid('firstName')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    Le prénom est requis
-                </p>
+            <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                Le prénom est requis
+            </p>
             }
         </div>
 
-        <!-- Last Name -->
+        <!-- Nom -->
         <div class="space-y-2.5">
-            <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="lastname">
+            <label
+                class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+                for="lastname">
                 <span class="material-symbols-outlined text-[18px] opacity-40">badge</span>
-                Nom de famille
+                Nom de famille <span class="text-error">*</span>
             </label>
-            <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                   id="lastname" formControlName="lastName" placeholder="Ex: AHOUANVOEBLA" type="text" />
+            <input
+                class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                id="lastname" formControlName="lastName" placeholder="Ex: AHOUANVOEBLA" type="text" />
             @if (isInvalid('lastName')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    Le nom est requis
-                </p>
+            <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                Le nom est requis
+            </p>
             }
         </div>
     </div>
 
-    <!-- Phone Field -->
+    <!-- Téléphone -->
     <div class="space-y-2.5">
-        <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="phone">
+        <label
+            class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+            for="phone">
             <span class="material-symbols-outlined text-[18px] opacity-40">phone_android</span>
-            Numéro de téléphone mobile
+            Numéro de téléphone mobile <span class="text-error">*</span>
         </label>
-        <div class="flex">
-            <div class="flex items-center px-5 bg-surface-container-low border-2 border-outline-variant border-r-0 rounded-l-2xl text-primary font-bold text-sm tracking-widest">
-                +229
+
+        <div class="flex gap-3">
+            <!-- Indicatif -->
+            <div class="relative shrink-0">
+                <select
+                    class="h-14 pl-4 pr-10 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
+                    formControlName="phonePrefix">
+                    <option value="+229">🇧🇯 +229</option>
+                    <option value="+225">🇨🇮 +225</option>
+                    <option value="+228">🇹🇬 +228</option>
+                    <option value="+234">🇳🇬 +234</option>
+                    <option value="+33">🇫🇷 +33</option>
+                </select>
+                <span
+                    class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40 text-[16px]">expand_more</span>
             </div>
-            <input class="flex-1 h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-r-2xl focus:border-secondary outline-none transition-all font-mono-data text-lg tracking-widest placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                   id="phone" formControlName="phone" placeholder="00 00 00 00" type="tel" />
+
+            <!-- Numéro -->
+            <input
+                class="flex-1 h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                [class.border-error]="isInvalid('phone')"
+                [class.border-secondary]="emergencyForm.get('phone')?.valid && emergencyForm.get('phone')?.touched"
+                id="phone" formControlName="phone" placeholder="XX XX XX XX XX" type="tel" />
         </div>
-        <p class="text-[11px] text-on-surface-variant/60 px-2 flex items-center gap-2 mt-1">
-            <span class="material-symbols-outlined text-[14px]">sms</span>
-            Un code de vérification SMS sera envoyé à ce numéro.
+
+        <!-- Hint dynamique -->
+        <p class="text-[11px] text-on-surface-variant/60 px-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[14px]">info</span>
+            {{ phoneHint() }}
         </p>
         @if (isInvalid('phone')) {
-            <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
-                <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                Un numéro de téléphone valide est requis
-            </p>
+            @if (emergencyForm.get("phone")?.hasError('required')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le numéro de téléphone est requis
+                </p>
+            }@else if (emergencyForm.get("phone")?.hasError("phoneInvalid")) {
+                {{ emergencyForm.get("phone")?.errors?.['phoneInvalid'].message }}
+            }
         }
     </div>
 
-    <!-- Relation Selection -->
+    <!-- Lien de parenté -->
     <div class="space-y-2.5">
-        <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="relation">
+        <label
+            class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+            for="relation">
             <span class="material-symbols-outlined text-[18px] opacity-40">family_history</span>
-            Lien de parenté
+            Lien de parenté <span class="text-error">*</span>
         </label>
         <div class="relative">
-            <select class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm"
-                    id="relation">
-                <option value="">Sélectionnez le lien</option>
-                <option value="parent">Parent</option>
+            <select
+                class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
+                id="relation" formControlName="relation">
+                <option value="" disabled selected>Sélectionnez le lien</option>
+                <option value="pere">Père</option>
+                <option value="mere">Mère</option>
+                <option value="frere">Frère</option>
+                <option value="soeur">Sœur</option>
                 <option value="conjoint">Conjoint(e)</option>
                 <option value="enfant">Enfant</option>
+                <option value="oncle">Oncle / Tante</option>
+                <option value="ami">Ami(e) proche</option>
                 <option value="autre">Autre</option>
             </select>
-            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
+            <span
+                class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
         </div>
+        @if (isInvalid('relation')) {
+        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+            <span class="material-symbols-outlined text-[14px]">error_outline</span>
+            Le lien de parenté est requis
+        </p>
+        }
     </div>
 </form>

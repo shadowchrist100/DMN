@@ -40,6 +40,7 @@ export class Register {
         if (this.isCurrentFormValid()) {
             this.store.nextStep();
             this.store.setSubmited(false);
+            this.store.setContinueSteps(false);
         }
     }
 
