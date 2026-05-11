@@ -21,9 +21,7 @@ export class StepTypeCompte implements OnInit {
     }
 
     toggleUser(userType: 'PATIENT' | 'PRACTITIONER') {
-        console.log(this.store.userType());
         this.store.setUserType(userType);
-        console.log(this.store.userType());
         this.checkValidation(this.acceptPolitic.value)
     }
 

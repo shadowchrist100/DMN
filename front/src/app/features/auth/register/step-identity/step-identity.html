@@ -6,18 +6,12 @@
     </p>
 </div>
 
-@if(serverError()){
-<div class="mb-8 p-4 rounded-2xl bg-error/5 border border-error/20 flex items-start gap-3 animate-in fade-in zoom-in duration-300"
-    role="alert">
-    <span class="material-symbols-outlined text-error mt-0.5">error</span>
-    <div class="grow">
-        <h4 class="text-sm font-bold text-error">Erreur de soumission</h4>
-        <p class="text-xs text-error/80 mt-1">{{ serverError() }}</p>
+@if(store.submited() && identityForm.invalid ){
+    <div
+        class="mb-stack-md flex items-center p-4 bg-error-container text-on-error-container rounded-lg border border-error/20">
+        <span class="material-symbols-outlined mr-3 text-error" data-icon="error">error</span>
+        <p class="font-body-sm font-medium"> Formulaire invalid </p>
     </div>
-    <button (click)="onErrorClose()" class="text-error/40 hover:text-error transition-colors">
-        <span class="material-symbols-outlined text-lg">close</span>
-    </button>
-</div>
 }
 
 <form class="space-y-10" enctype="multipart/form-data" [formGroup]="identityForm">
@@ -262,11 +256,29 @@
                         class="flex-1 h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
                         id="phone" formControlName="phone" placeholder="XX XX XX XX XX" type="tel" />
                 </div>
-                @if (isInvalid('phone')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    Le numéro de téléphone est requis
+                <p class="text-[11px] text-on-surface-variant/60 flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">info</span>
+                    {{ phoneHint() }}
                 </p>
+                @if (isInvalid('phonePrefix')) {
+                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                        L'indicatif est requis
+                    </p>
+                }
+                @if (isInvalid('phone')) {
+                    @if (identityForm.get('phone')?.hasError('required')) {
+                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                            Le numéro de téléphone est requis
+                        </p>
+                    }
+                    @else if (identityForm.get('phone')?.hasError('phoneInvalid')) {
+                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                            {{ identityForm.get('phone')?.errors?.['phoneInvalid']?.message }}
+                        </p>
+                    }
                 }
             </div>
 
@@ -295,10 +307,18 @@
                     </p>
                 </div>
                 @if (isInvalid('npi')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    Le numéro NPI est requis
-                </p>
+                    @if (identityForm.get('npi')?.hasError('required')) {
+                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                                Le numéro NPI est requis
+                        </p>
+                    }
+                    @else if (identityForm.get("npi")?.hasError('minlength') || identityForm.get('npi')?.hasError('maxlength')) {
+                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                            Le numéro NPI doit contenir 10 chiffres
+                        </p>
+                    }
                 }
             </div>
         </div>
@@ -341,6 +361,12 @@
                     <span
                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
                 </div>
+                @if (isInvalid('city')) {
+                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                        La ville  est requise
+                    </p>
+                }
             </div>
 
             <!-- Adresse -->
@@ -349,12 +375,19 @@
                     class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
                     for="address">
                     <span class="material-symbols-outlined text-[18px] opacity-40">home_pin</span>
-                    Adresse précise
+                    Adresse précise/ Quartier
                 </label>
                 <textarea
                     class="w-full px-5 py-4 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm min-h-25"
                     id="address" formControlName="address" placeholder="Ex: Lot 452, Quartier Zongo, Maison Kouandété"
-                    rows="3"></textarea>
+                    rows="3">
+                </textarea>
+                @if (isInvalid('address')) {
+                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                        L'address est requise
+                    </p>
+                }
             </div>
         </div>
     </div>

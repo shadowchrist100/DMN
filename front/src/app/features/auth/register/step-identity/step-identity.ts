@@ -1,6 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RegisterStore } from '../register.store';
+
+const PHONE_RULES: Record<string, { lentgh: number; label: string; pattern: RegExp }> = {
+    '+229': { label: 'Benin', lentgh: 10, pattern: /^[0-9]{10}$/ },
+    '+225': { label: 'Benin', lentgh: 10, pattern: /^[0-9]{10}$/ }
+}
 
 @Component({
     selector: 'app-step-identity',
@@ -9,9 +14,36 @@ import { RegisterStore } from '../register.store';
     styleUrl: './step-identity.css',
 })
 export class StepIdentity implements OnInit {
+
+    constructor() {
+        effect(() => {
+            console.log('submited');
+
+            if (this.store.submited()) {
+                if (this.identityForm.invalid) {
+                    this.identityForm.markAllAsTouched();
+                    this.store.setContinueSteps(false);
+                } else {
+                    this.store.setContinueSteps(true);
+                }
+
+                Object.keys(this.identityForm.controls).forEach(key => {
+                    console.log(this.identityForm.get(key)?.errors);
+
+                });
+                console.log('submited');
+                untracked(() => {
+                    this.store.setSubmited(false);
+                });
+            }
+        })
+    }
+
     identityForm!: FormGroup;
     store = RegisterStore;
-    serverError = signal<string>('');
+
+    // Message d'erreur dynamique selon le préfixe choisi
+    phoneHint = signal<string>('Entrez votre numéro sans indicatif');
 
     // Signals
     photoPreview = signal<string | null>(null);
@@ -22,31 +54,59 @@ export class StepIdentity implements OnInit {
     ngOnInit(): void {
         //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
         //Add 'implements OnInit' to the class.
+        this.store.setContinueSteps(false);
         this.identityForm = this.fb.group({
             firstName: ['', Validators.required],
             lastName: ['', [Validators.required]],
             gender: ['', [Validators.required]],
             birthDate: ['', [Validators.required, this.pastDateValidator()]],
-            npi: ['', [Validators.required]],
-            photoPath: ['', [Validators.required]],
-            matrimonialStatus: ['', [Validators.required]],
-            phone: ['', [Validators.required]],
-            speciality: ['', [this.setSpecilityRequired()]]
+            npi: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
+            photoPath: [null],
+            maritalStatus: ['', [Validators.required]],
+            phone: ['', [Validators.required, this.phoneByPrefixValidator()]],
+            phonePrefix: ['', [Validators.required]],
+            city: ['', [Validators.required]],
+            address: ['', [Validators.required]]
         }, { updateOn: 'blur' });
 
         this.identityForm.valueChanges.subscribe(() => {
             this.store.setContinueSteps(this.identityForm.valid)
+        });
+
+        this.identityForm.get("phonePrefix")!.valueChanges.subscribe((prefix: string) => {
+            this.identityForm.get('phone')!.updateValueAndValidity();
+            const rule = PHONE_RULES[prefix];
+
+            this.phoneHint.set(
+                rule ? `${rule.label} : ${rule.lentgh} chiffres requis` : 'Entrer votre numéro'
+            )
         })
 
     }
 
-    private setSpecilityRequired() {
-        return (control: AbstractControl) => {
-            if (this.store.userType() === "PRACTITIONER") {
-                control.setValidators(Validators.required);
-            }
+    private phoneByPrefixValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            // Remonte au FormGroup pour lire le préfixe
+            const prefix = control.parent?.get('phonePrefix')?.value as string;
+            const number = (control.value as string)?.replace(/\s/g, ''); // ignore les espaces
 
-        }
+            if (!number) return null;
+
+            const rule = PHONE_RULES[prefix];
+
+            if (!rule) return null; // préfixe inconnu → pas de règle à appliquer
+
+            if (!rule.pattern.test(number)) {
+                return {
+                    phoneInvalid: {
+                        expected: rule.lentgh,
+                        label: rule.label,
+                        message: `Numéro ${rule.label} invalide — ${rule.lentgh} chiffres requis`
+                    }
+                };
+            }
+            return null;
+        };
     }
 
     private pastDateValidator(): ValidatorFn {
@@ -61,21 +121,6 @@ export class StepIdentity implements OnInit {
         return !!(control?.invalid && control.touched)
     }
 
-    onErrorClose() {
-
-    }
-
-    onSubmited() {
-        if (this.store.submited()) {
-            if (this.identityForm.invalid) {
-                this.identityForm.markAllAsTouched();
-                this.store.setContinueSteps(false);
-            } else {
-                this.store.setContinueSteps(true);
-            }
-        }
-    }
-    
 
     onPhotoSelected(event: Event): void {
         const input = event.target as HTMLInputElement;
@@ -96,7 +141,12 @@ export class StepIdentity implements OnInit {
             return;
         }
 
+        this.identityForm.patchValue({
+            photoPath: file,
+        })
+
         this.photoFile.set(file);
+        this.identityForm.patchValue({ photoPath: file })
 
         // Génération de l'aperçu
         const reader = new FileReader();
@@ -108,6 +158,7 @@ export class StepIdentity implements OnInit {
         this.photoPreview.set(null);
         this.photoFile.set(null);
         this.photoError.set(null);
+        this.identityForm.patchValue({ photoPath: null });
     }
 
 }

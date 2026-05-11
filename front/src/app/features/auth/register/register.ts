@@ -33,12 +33,13 @@ export class Register {
         }
     })
 
+    isCurrentFormValid = computed(() =>{ return this.store.continueSteps() })
+
     handleContinue() {
         this.store.setSubmited(true);
-        if (this.store.continueSteps()) {
+        if (this.isCurrentFormValid()) {
             this.store.nextStep();
-        } else {
-
+            this.store.setSubmited(false);
         }
     }
 
