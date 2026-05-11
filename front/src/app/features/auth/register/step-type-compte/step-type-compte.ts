@@ -1,4 +1,4 @@
-import { Component, output, OnInit } from '@angular/core';
+import { Component, output, OnInit, signal } from '@angular/core';
 import { userType, RegisterStore } from '../register.store';
 import { FormControl, ReactiveFormsModule, Validators, } from '@angular/forms';
 
@@ -15,24 +15,16 @@ export class StepTypeCompte implements OnInit {
     ngOnInit(): void {
         // Initial emit if a type is already selected
         this.acceptPolitic = new FormControl(false, [Validators.requiredTrue])
-        this.acceptPolitic.valueChanges.subscribe(() => {
-            if (this.acceptPolitic.value && this.store.userType()) {
-                this.store.setContinueSteps(true)
-            }
+        this.acceptPolitic.valueChanges.subscribe((accepted) => {
+            this.checkValidation(accepted);
         })
     }
 
     toggleUser(userType: 'PATIENT' | 'PRACTITIONER') {
         console.log(this.store.userType());
-
-        if (this.store.userType() === userType) {
-
-            this.store.setUserType(null);
-        } else {
-            this.store.setUserType(userType);
-        }
+        this.store.setUserType(userType);
         console.log(this.store.userType());
-        
+        this.checkValidation(this.acceptPolitic.value)
     }
 
     checkValidation(isPoliticAccepted: boolean | null) {

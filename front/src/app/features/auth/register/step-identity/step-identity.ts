@@ -11,7 +11,12 @@ import { RegisterStore } from '../register.store';
 export class StepIdentity implements OnInit {
     identityForm!: FormGroup;
     store = RegisterStore;
-    serverError = signal<string>('')
+    serverError = signal<string>('');
+
+    // Signals
+    photoPreview = signal<string | null>(null);
+    photoFile = signal<File | null>(null);
+    photoError = signal<string | null>(null);
     fb = inject(FormBuilder);
 
     ngOnInit(): void {
@@ -21,13 +26,18 @@ export class StepIdentity implements OnInit {
             firstName: ['', Validators.required],
             lastName: ['', [Validators.required]],
             gender: ['', [Validators.required]],
-            birthDate: ['', [Validators.required, this.pastDateValidator() ]],
+            birthDate: ['', [Validators.required, this.pastDateValidator()]],
             npi: ['', [Validators.required]],
             photoPath: ['', [Validators.required]],
             matrimonialStatus: ['', [Validators.required]],
             phone: ['', [Validators.required]],
             speciality: ['', [this.setSpecilityRequired()]]
-        });
+        }, { updateOn: 'blur' });
+
+        this.identityForm.valueChanges.subscribe(() => {
+            this.store.setContinueSteps(this.identityForm.valid)
+        })
+
     }
 
     private setSpecilityRequired() {
@@ -39,20 +49,65 @@ export class StepIdentity implements OnInit {
         }
     }
 
-    private pastDateValidator(): ValidatorFn{
-        return (control : AbstractControl) : ValidationErrors | null => {
-            if(!control.value) return null;
-            return ( new Date() < new Date(control.value) ? {invalidDate: true} : null  );
+    private pastDateValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) return null;
+            return (new Date() < new Date(control.value) ? { invalidDate: true } : null);
         }
     }
 
-    isInvalid(field: string){
+    isInvalid(field: string) {
         const control = this.identityForm.get(field);
         return !!(control?.invalid && control.touched)
     }
+
+    onErrorClose() {
+
+    }
+
+    onSubmited() {
+        if (this.store.submited()) {
+            if (this.identityForm.invalid) {
+                this.identityForm.markAllAsTouched();
+                this.store.setContinueSteps(false);
+            } else {
+                this.store.setContinueSteps(true);
+            }
+        }
+    }
     
-    onErrorClose(){
-        
+
+    onPhotoSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        this.photoError.set(null);
+
+        if (!file) return;
+
+        // Validation format
+        if (!['image/jpeg', 'image/png'].includes(file.type)) {
+            this.photoError.set('Format non supporté. Utilisez JPG ou PNG.');
+            return;
+        }
+
+        // Validation taille (5 Mo)
+        if (file.size > 5 * 1024 * 1024) {
+            this.photoError.set('Fichier trop lourd. Maximum 5 Mo autorisé.');
+            return;
+        }
+
+        this.photoFile.set(file);
+
+        // Génération de l'aperçu
+        const reader = new FileReader();
+        reader.onload = (e) => this.photoPreview.set(e.target?.result as string);
+        reader.readAsDataURL(file);
+    }
+
+    removePhoto(): void {
+        this.photoPreview.set(null);
+        this.photoFile.set(null);
+        this.photoError.set(null);
     }
 
 }

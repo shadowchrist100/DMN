@@ -48,12 +48,7 @@
 
                 <nav class="flex-1 space-y-1">
                     <!-- Steps -->
-                    @for (step of [
-                    {id: 1, label: 'Type de compte', icon: 'person_search'},
-                    {id: 2, label: 'Identité', icon: 'badge'},
-                    {id: 3, label: 'Contact d\'urgence', icon: 'contact_emergency'},
-                    {id: 4, label: 'Sécurité & Accès', icon: 'lock_open'}
-                    ]; track step.id) {
+                    @for (step of steps() ; track step.id) {
                     <div class="flex items-center gap-4 py-2.5 px-4 rounded-xl  transition-all duration-300 relative group"
                         [class.bg-white/10]="store.currentStep() === step.id"
                         [class.opacity-50]="store.currentStep() < step.id"
@@ -92,7 +87,7 @@
                         class="absolute right-2 w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_10px_rgba(var(--color-secondary),0.8)]">
                     </div>
                     }
-        </div>
+                </div>
         }
         </nav>
 
@@ -134,7 +129,7 @@
                     @switch (store.currentStep()) {
                     @case (1) { <app-step-type-compte /> }
                     @case (2) { <app-step-identity /> }
-                    @case (3) { <app-step-emergency-contact /> }
+                    @case (3) { @if (store.userType() === "PATIENT" ) {<app-step-emergency-contact />} @else { <app-step-professional-info/> }  }
                     @case (4) { <app-step-auth /> }
                     }
                 </div>
@@ -142,7 +137,7 @@
                 <!-- Navigation Actions -->
                 <div
                     class="mt-16 pt-10 border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <button (click)="store.prevStep()" [disabled]="store.currentStep() === 1"
+                    <button (click)="handleBack()" [disabled]="store.currentStep() === 1"
                         class="w-full sm:w-auto px-8 py-3.5 text-body-md font-semibold text-on-surface-variant hover:text-primary disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center justify-center gap-3 rounded-xl hover:bg-surface-container">
                         <span class="material-symbols-outlined text-xl">arrow_back</span>
                         Retour
