@@ -105,8 +105,9 @@ export class StepIdentity implements OnInit {
 
     private maritalStatusValidator():ValidatorFn{
         return(control: AbstractControl): ValidationErrors | null => {
-            if (this.store.userType() === "PATIENT" ) {
-                return {required:true}
+            if (this.store.userType() === "PATIENT"  ) {
+                control.setValidators(Validators.required)
+                return null;
             }else{
                 return null;
             }
@@ -122,6 +123,10 @@ export class StepIdentity implements OnInit {
 
     isInvalid(field: string) {
         const control = this.identityForm.get(field);
+        console.log(control);
+        
+        console.log(control?.errors);
+        
         return !!(control?.invalid && control.touched)
     }
 
