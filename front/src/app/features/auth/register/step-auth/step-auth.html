@@ -1,7 +1,8 @@
 <div class="mb-10">
     <h2 class="text-h2 font-h2 text-primary mb-3">Sécurisation du compte</h2>
     <p class="text-body-md text-on-surface-variant max-w-2xl">
-        Définissez un mot de passe robuste pour protéger l'accès à vos données de santé. Votre sécurité est notre priorité absolue.
+        Définissez un mot de passe robuste pour protéger l'accès à vos données de santé. Votre sécurité est notre
+        priorité absolue.
     </p>
 </div>
 
@@ -11,41 +12,50 @@
         <div class="lg:col-span-7 space-y-8">
             <!-- Email Field -->
             <div class="space-y-2.5 group">
-                <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="email">
+                <label
+                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+                    for="email">
                     <span class="material-symbols-outlined text-[18px] opacity-40">mail</span>
                     Adresse Email de récupération
                 </label>
                 <div class="relative">
-                    <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                           id="email" formControlName="email" placeholder="dr.koffi@santebenin.bj" type="email" />
+                    <input
+                        class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
+                        id="email" formControlName="email" placeholder="dr.koffi@santebenin.bj" type="email" />
                 </div>
                 @if (isInvalid('email')) {
-                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
-                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                        @if (authForm.get('email')?.errors?.['required']) {
-                            L'adresse e-mail est requise
-                        } @else {
-                            Veuillez entrer une adresse e-mail valide
-                        }
-                    </p>
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    @if (authForm.get('email')?.errors?.['required']) {
+                    L'adresse e-mail est requise
+                    } @else {
+                    Veuillez entrer une adresse e-mail valide
+                    }
+                </p>
                 }
-                <p class="text-[11px] text-on-surface-variant/60 italic px-2">Cet email servira à la récupération de votre compte DMN.</p>
+                <p class="text-[11px] text-on-surface-variant/60 italic px-2">Cet email servira à la récupération de
+                    votre compte DMN.</p>
             </div>
 
             <!-- Password Field -->
             <div class="space-y-2.5">
-                <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="password">
+                <label
+                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+                    for="password">
                     <span class="material-symbols-outlined text-[18px] opacity-40">lock</span>
                     Nouveau mot de passe
                 </label>
                 <div class="relative">
-                    <input class="w-full h-14 px-5 pr-14 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-mono-data tracking-widest shadow-sm focus:shadow-md"
-                           id="password" formControlName="password" placeholder="••••••••••••" type="password" />
-                    <button class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-secondary transition-colors" type="button">
+                    <input
+                        class="w-full h-14 px-5 pr-14 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-mono-data tracking-widest shadow-sm focus:shadow-md"
+                        id="password" formControlName="password" placeholder="••••••••••••" type="password" />
+                    <button
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-secondary transition-colors"
+                        type="button">
                         <span class="material-symbols-outlined">visibility</span>
                     </button>
                 </div>
-                
+
                 <!-- Strength Indicator -->
                 <div class="space-y-2 px-1">
                     <div class="flex gap-1.5 h-1.5 w-full">
@@ -55,36 +65,42 @@
                         <div class="flex-1 bg-surface-container rounded-full"></div>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-black text-error uppercase tracking-tighter">Force : Trop faible</span>
-                        <span class="text-[10px] text-on-surface-variant font-medium">Saisissez au moins 8 caractères</span>
+                        <span class="text-[10px] font-black text-error uppercase tracking-tighter">Force : Trop
+                            faible</span>
+                        <span class="text-[10px] text-on-surface-variant font-medium">Saisissez au moins 8
+                            caractères</span>
                     </div>
                 </div>
 
                 @if (isInvalid('password')) {
-                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
-                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                        Le mot de passe ne respecte pas les critères
-                    </p>
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le mot de passe ne respecte pas les critères
+                </p>
                 }
             </div>
 
             <!-- Confirm Password Field -->
             <div class="space-y-2.5">
-                <label class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold" for="password_confirm">
+                <label
+                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+                    for="password_confirm">
                     <span class="material-symbols-outlined text-[18px] opacity-40">verified</span>
                     Confirmer le mot de passe
                 </label>
-                <input class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-mono-data tracking-widest shadow-sm focus:shadow-md"
-                       id="password_confirm" formControlName="confirmPassword" placeholder="••••••••••••" type="password" />
+                <input
+                    class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-mono-data tracking-widest shadow-sm focus:shadow-md"
+                    id="password_confirm" formControlName="confirmPassword" placeholder="••••••••••••"
+                    type="password" />
                 @if (isInvalid('confirmPassword') || authForm.errors?.['mismatch']) {
-                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
-                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                        @if (authForm.errors?.['mismatch']) {
-                            Les mots de passe ne correspondent pas
-                        } @else {
-                            La confirmation est requise
-                        }
-                    </p>
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    @if (authForm.errors?.['mismatch']) {
+                    Les mots de passe ne correspondent pas
+                    } @else {
+                    La confirmation est requise
+                    }
+                </p>
                 }
             </div>
         </div>
@@ -98,7 +114,8 @@
                 </h3>
                 <ul class="space-y-5">
                     <li class="flex items-start gap-4 text-body-sm group">
-                        <div class="w-6 h-6 rounded-full bg-error/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <div
+                            class="w-6 h-6 rounded-full bg-error/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined text-error text-[16px] font-bold">close</span>
                         </div>
                         <div class="space-y-0.5">
@@ -107,7 +124,8 @@
                         </div>
                     </li>
                     <li class="flex items-start gap-4 text-body-sm group opacity-50">
-                        <div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <div
+                            class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined text-on-surface-variant/40 text-[16px]">circle</span>
                         </div>
                         <div class="space-y-0.5">
@@ -116,7 +134,8 @@
                         </div>
                     </li>
                     <li class="flex items-start gap-4 text-body-sm group opacity-50">
-                        <div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <div
+                            class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined text-on-surface-variant/40 text-[16px]">circle</span>
                         </div>
                         <div class="space-y-0.5">
@@ -129,7 +148,8 @@
                 <div class="mt-10 p-5 bg-white/50 rounded-2xl border border-white flex gap-3">
                     <span class="material-symbols-outlined text-secondary text-xl">info</span>
                     <p class="text-[11px] leading-relaxed text-on-surface-variant">
-                        Nous utilisons un chiffrement <strong class="text-primary">AES-256</strong> de niveau militaire pour protéger vos identifiants.
+                        Nous utilisons un chiffrement <strong class="text-primary">AES-256</strong> de niveau militaire
+                        pour protéger vos identifiants.
                     </p>
                 </div>
             </div>
@@ -137,17 +157,21 @@
     </div>
 
     <!-- Encryption Notice Banner -->
-    <div class="mt-12 p-8 bg-primary-container text-white rounded-[32px] flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
-        <div class="relative z-10 w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-md">
+    <div
+        class="mt-12 p-8 bg-primary-container text-white rounded-[32px] flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+        <div
+            class="relative z-10 w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-md">
             <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">security</span>
         </div>
         <div class="relative z-10 text-center md:text-left">
             <h4 class="text-body-lg font-bold mb-1">Souveraineté des données</h4>
             <p class="text-body-sm text-white/70 leading-relaxed max-w-2xl">
-                Conformément aux directives de l'<strong>ASSI</strong> et de l'<strong>APDP</strong>, aucune information de santé n'est stockée en clair sur nos serveurs. Vos accès sont protégés par la loi béninoise.
+                Conformément aux directives de l'<strong>ASSI</strong> et de l'<strong>APDP</strong>, aucune information
+                de santé n'est stockée en clair sur nos serveurs. Vos accès sont protégés par la loi béninoise.
             </p>
         </div>
         <!-- Decorative Icon -->
-        <span class="absolute -right-10 -bottom-10 material-symbols-outlined text-[180px] text-white/5 rotate-12 group-hover:scale-110 transition-transform duration-700">shield</span>
+        <span
+            class="absolute -right-10 -bottom-10 material-symbols-outlined text-[180px] text-white/5 rotate-12 group-hover:scale-110 transition-transform duration-700">shield</span>
     </div>
 </form>

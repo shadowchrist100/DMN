@@ -1,6 +1,7 @@
 import { Component, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RegisterStore } from '../register.store';
+import { required } from '@angular/forms/signals';
 
 const PHONE_RULES: Record<string, { lentgh: number; label: string; pattern: RegExp }> = {
     '+229': { label: 'Benin', lentgh: 10, pattern: /^[0-9]{10}$/ },
@@ -55,7 +56,7 @@ export class StepIdentity implements OnInit {
             birthDate: ['', [Validators.required, this.pastDateValidator()]],
             npi: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
             photoPath: [null],
-            maritalStatus: ['', [Validators.required]],
+            maritalStatus: ['', [this.maritalStatusValidator()]],
             phone: ['', [Validators.required, this.phoneByPrefixValidator()]],
             phonePrefix: ['', [Validators.required]],
             city: ['', [Validators.required]],
@@ -100,6 +101,16 @@ export class StepIdentity implements OnInit {
             }
             return null;
         };
+    }
+
+    private maritalStatusValidator():ValidatorFn{
+        return(control: AbstractControl): ValidationErrors | null => {
+            if (this.store.userType() === "PATIENT" ) {
+                return {required:true}
+            }else{
+                return null;
+            }
+        }
     }
 
     private pastDateValidator(): ValidatorFn {

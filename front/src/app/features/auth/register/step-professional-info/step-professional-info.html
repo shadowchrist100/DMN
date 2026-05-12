@@ -57,12 +57,12 @@
                         Délivré par le Conseil National de l'Ordre des Médecins du Bénin (CNOMB) ou l'ordre compétent.
                     </p>
                 </div>
-                <!-- @if (isInvalid('orderNumber')) {
+                @if (isInvalid('orderNumber')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
                     Le numéro d'ordre est requis
                 </p>
-                } -->
+                }
             </div>
 
             <!-- Spécialité -->
@@ -108,12 +108,12 @@
                     <span
                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
                 </div>
-                <!-- @if (isInvalid('specialty')) {
+                @if (isInvalid('specialty')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
                     La spécialité est requise
                 </p>
-                } -->
+                }
             </div>
         </div>
     </div>
@@ -155,12 +155,12 @@
                         principalement.
                     </p>
                 </div>
-                <!-- @if (isOrganizationFieldInvalid('name')) {
+                @if (isOrganizationFieldInvalid('name')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
                     Le nom de l'établissement est requis
                 </p>
-                } -->
+                }
             </div>
 
             <!-- Type d'établissement -->
@@ -199,12 +199,12 @@
                     <span
                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
                 </div>
-                <!-- @if (isOrganizationFieldInvalid('type')) {
+                @if (isOrganizationFieldInvalid('type')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
                     Le type d'établissement est requis
                 </p>
-                } -->
+                }
             </div>
 
             <!-- Téléphone de l'établissement -->
@@ -264,12 +264,12 @@
                     <span
                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
                 </div>
-                <!-- @if (isOrganizationFieldInvalid('city')) {
+                @if (isOrganizationFieldInvalid('city')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
                     La ville est requise
                 </p>
-                } -->
+                }
             </div>
 
             <!-- Département -->
@@ -301,12 +301,12 @@
                     <span
                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
                 </div>
-                <!-- @if (isOrganizationFieldInvalid('department')) {
+                @if (isOrganizationFieldInvalid('department')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
                     Le département est requis
                 </p>
-                } -->
+                }
             </div>
 
             <!-- Adresse précise -->
@@ -318,7 +318,7 @@
                     Adresse précise
                 </label>
                 <textarea
-                    class="w-full px-5 py-4 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md min-h-[100px]"
+                    class="w-full px-5 py-4 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md min-h-25"
                     id="orgAddress" formControlName="address"
                     placeholder="Ex: Rue du Gouverneur Général Ponty, Quartier Ganhi, en face du marché Dantokpa"
                     rows="3"></textarea>
