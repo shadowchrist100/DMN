@@ -1,131 +1,148 @@
-<div class="min-h-screen bg-background text-on-background font-body-md">
-
-    <!-- Loader initial -->
-    @if (loading && !events.length) {
+<div class="min-h-full text-slate-900">
+    <!-- Loader -->
+    @if (loading() && !events.length) {
     <div class="flex items-center justify-center min-h-[60vh]">
         <div class="text-center">
-            <div
-                class="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-4">
+            <div class="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-4">
             </div>
-            <p class="text-slate-500">Chargement de l'historique médical...</p>
+            <p class="text-slate-500">
+                Chargement de l'historique médical...
+            </p>
         </div>
     </div>
     }
 
-    <!-- Contenu principal -->
-    @if (!loading) {
-    <div class="space-y-6 md:space-y-8">
-
-        <!-- ===== EN-TÊTE + FILTRES ===== -->
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-
-            <!-- Titre + Breadcrumb -->
+    @if (!loading()) {
+    <div class="max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-                <nav class="flex items-center gap-2 text-label-caps text-slate-500 mb-3 uppercase text-xs">
-                    <a routerLink="/dossiers" class="hover:text-secondary transition-colors font-medium">
+                <nav class="flex items-center gap-2 text-xs uppercase text-slate-500 mb-2">
+                    <a routerLink="/dossiers"
+                        class="font-medium hover:text-secondary transition-colors">
                         Dossiers
                     </a>
-                    <span class="material-symbols-outlined text-[14px] text-slate-300" aria-hidden="true">
+                    <span class="material-symbols-outlined text-[14px]">
                         chevron_right
                     </span>
-                    <a [routerLink]="'/patient/' + patientId"
-                        class="hover:text-secondary transition-colors font-medium truncate max-w-37.5 md:max-w-none">
+                    <a
+                        [routerLink]="'/patient/' + patientId"
+                        class="font-medium hover:text-secondary transition-colors">
                         {{ patientName }}
                     </a>
-                    <span class="material-symbols-outlined text-[14px] text-slate-300" aria-hidden="true">
+                    <span class="material-symbols-outlined text-[14px]">
                         chevron_right
                     </span>
-                    <span class="text-secondary font-bold">Timeline</span>
+                    <span class="font-bold text-secondary">
+                        Timeline
+                    </span>
+
                 </nav>
 
-                <h1 class="font-h1 text-primary text-2xl md:text-3xl">
+                <h1 class="text-3xl md:text-4xl font-bold text-[#002B5C] tracking-tight">
                     Chronologie Médicale
                 </h1>
-                <p class="text-body-md text-slate-500 mt-1 max-w-2xl">
+
+                <p class="text-slate-500 mt-2">
                     Historique complet du parcours de soins.
-                    <span class="text-secondary font-medium">{{ filteredCount }} événement(s)</span>
+                    <span class="text-secondary font-semibold">
+                        {{ filteredCount }} événement(s)
+                    </span>
                     affiché(s) sur {{ totalEvents }}.
                 </p>
             </div>
 
-            <!-- Contrôles de filtre -->
+            <!-- FILTRES -->
             <div
-                class="flex flex-wrap items-center gap-2 md:gap-3 bg-white p-2 rounded-xl border border-outline-variant shadow-sm no-scrollbar overflow-x-auto">
+                class="flex flex-wrap gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
 
-                <!-- Filtre période -->
-                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100 shrink-0">
-                    <span class="material-symbols-outlined text-slate-400 text-sm" aria-hidden="true">
+                <!-- période -->
+                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100">
+
+                    <span class="material-symbols-outlined text-slate-400">
                         calendar_month
                     </span>
-                    <select [(ngModel)]="filters.dateRange" (ngModelChange)="applyFilters()" class="border-none bg-transparent text-body-sm focus:ring-0 
-                        font-medium text-slate-700 cursor-pointer">
+
+                    <select
+                        [(ngModel)]="filters.dateRange"
+                        (ngModelChange)="applyFilters()"
+                        class="border-none bg-transparent text-sm font-medium text-slate-700 focus:ring-0">
+
                         <option value="all">Toute la période</option>
                         <option value="month">Dernier mois</option>
                         <option value="6months">6 derniers mois</option>
                         <option value="year">Année {{ currentYear }}</option>
-                        <option value="custom">Personnalisé...</option>
+
                     </select>
+
                 </div>
 
-                <!-- Filtre type d'événement -->
-                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100 shrink-0">
-                    <span class="material-symbols-outlined text-slate-400 text-sm" aria-hidden="true">
-                        category
+                <!-- type -->
+                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100">
+
+                    <span class="material-symbols-outlined text-slate-400">
+                        filter_list
                     </span>
-                    <select [(ngModel)]="selectedEventType" (ngModelChange)="applyFilters()" class="border-none bg-transparent text-body-sm focus:ring-0 
-                        font-medium text-slate-700 cursor-pointer">
+
+                    <select
+                        [(ngModel)]="selectedEventType"
+                        (ngModelChange)="applyFilters()"
+                        class="border-none bg-transparent text-sm font-medium text-slate-700 focus:ring-0">
+
                         <option [ngValue]="null">Tous les types</option>
                         <option value="consultation">Consultations</option>
                         <option value="prescription">Ordonnances</option>
                         <option value="lab_result">Analyses</option>
                         <option value="vaccination">Vaccinations</option>
                         <option value="hospitalization">Hospitalisations</option>
-                        <option value="alert">Alertes</option>
+
                     </select>
+
                 </div>
 
-                <!-- Toggle alertes uniquement -->
-                <label class="flex items-center gap-2 px-3 py-2 cursor-pointer shrink-0">
-                    <input type="checkbox" [(ngModel)]="filters.showOnlyAlerts" (ngModelChange)="applyFilters()"
-                        class="w-4 h-4 text-secondary border-slate-300 rounded focus:ring-secondary">
-                    <span class="text-body-sm text-slate-700 font-medium">Alertes uniquement</span>
-                </label>
+                <!-- recherche -->
+                <div class="relative min-w-62.5">
 
-                <!-- Recherche -->
-                <div class="relative flex-1 min-w-50">
-                    <input type="text" [(ngModel)]="filters.searchTerm" (ngModelChange)="onSearchChange()"
-                        placeholder="Rechercher..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-body-sm focus:ring-2 focus:ring-secondary focus:border-transparent
-                    placeholder:text-slate-400" aria-label="Rechercher dans la timeline">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" aria-hidden="true">
+                    <input
+                        type="text"
+                        [(ngModel)]="filters.searchTerm"
+                        (ngModelChange)="onSearchChange()"
+                        placeholder="Rechercher..."
+                        class="w-full bg-slate-100 rounded-lg border border-slate-200 py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#1E40AF]">
+
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
                         search
                     </span>
-                    @if (filters.searchTerm) {
-                    <button (click)="clearSearch()"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        aria-label="Effacer la recherche">
-                        <span class="material-symbols-outlined text-sm">close</span>
-                    </button>
-                    }
+
                 </div>
 
-                <!-- Bouton Export -->
-                <button (click)="exportTimeline()" [disabled]="isExporting || !filteredEvents.length"
-                    class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg 
-                    font-semibold text-body-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0" aria-label="Exporter la timeline">
-                    @if (!isExporting) {
-                    <span class="material-symbols-outlined text-sm" aria-hidden="true"> download </span>
+                <!-- export -->
+                <button
+                    (click)="exportTimeline()"
+                    [disabled]="isExporting() || !filteredEvents.length"
+                    class="bg-[#002B5C] text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-[#001f45] transition-all flex items-center gap-2">
+
+                    @if (!isExporting()) {
+                    <span class="material-symbols-outlined text-sm">
+                        download
+                    </span>
                     }
-                    @if (isExporting) {
+
+                    @if (isExporting()) {
                     <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    <span class="hidden sm:inline">{{ isExporting ? 'Préparation...' : 'Exporter' }}</span>
                     }
+
+                    {{ isExporting() ? 'Préparation...' : 'Exporter' }}
+
                 </button>
 
             </div>
+
         </div>
 
         <!-- ===== BANDEAU CONSENTEMENT (si requis) ===== -->
-        @if (consentBanner) {
+        <!-- @if (consentBanner) {
         <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-start gap-4">
             <div class="bg-indigo-600/10 p-2 rounded-full text-indigo-700 shrink-0">
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;" aria-hidden="true">
@@ -151,7 +168,7 @@
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
-        }
+        } -->
 
         <!-- ===== MESSAGE SI AUCUN RÉSULTAT ===== -->
         @if (!loading && filteredEvents.length === 0 ) {
@@ -187,12 +204,12 @@
         ===== PAGINATION / CHARGEMENT PLUS =====
         @if (hasMoreEvents) {
         <div class="text-center py-8">
-            <button (click)="loadMore()" [disabled]="loadingMore" class="px-8 py-3 bg-white border border-secondary text-secondary font-semibold 
+            <button (click)="loadMore()" [disabled]="loadingMore()" class="px-8 py-3 bg-white border border-secondary text-secondary font-semibold 
                 rounded-xl hover:bg-secondary/5 disabled:opacity-50 transition-colors flex items-center gap-2 mx-auto">
-                @if (loadingMore) {
+                @if (loadingMore()) {
                 <span class="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin"></span>
                 }
-                {{ loadingMore ? 'Chargement...' : 'Afficher plus d\'événements' }}
+                {{ loadingMore() ? 'Chargement...' : 'Afficher plus d\'événements' }}
             </button>
         </div>
         }

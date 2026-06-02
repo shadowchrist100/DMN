@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, NgModule } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, NgModule, signal } from '@angular/core';
 import { TimelineEvent, TimelineFilter, EventType } from '../../../models/timeline-event.model';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, Subject } from 'rxjs';
@@ -11,21 +11,21 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-time-lines',
-    imports: [RouterLink, DatePipe, TimeLineEvents, FormsModule ],
+    imports: [RouterLink, TimeLineEvents, FormsModule ],
     templateUrl: './time-lines.html',
     styleUrl: './time-lines.css',
 })
 export class TimeLines implements OnInit, OnDestroy {
     // État de la vue
-    loading = true;
-    loadingMore = false;
-    isExporting = false;
+    loading = signal<boolean>(true) ;
+    loadingMore = signal<boolean>(false) ;
+    isExporting = signal<boolean>(false) ;
 
     // Données
     patientId = '';
     patientName = '';
     userRole: 'patient' | 'practitioner' | 'admin' = 'practitioner';
-    events: TimelineEvent[] = [];
+    events = signal<TimelineEvent[]>([]) ;
     filteredEvents: TimelineEvent[] = [];
 
     // Pagination
@@ -99,16 +99,16 @@ export class TimeLines implements OnInit, OnDestroy {
     }
 
     private loadTimeline(): void {
-        this.loading = true;
+        this.loading.set(true);
 
         // En prod: this.timelineService.getTimeline(this.patientId, this.filters)
         // Pour la démo, on utilise les mock data
         setTimeout(() => {
-            this.events = this.timelineService.getMockTimeline();
+            this.events.set(this.timelineService.getMockTimeline()) ;
             this.totalEvents = this.events.length;
             this.hasMoreEvents = false;
             this.applyFilters();
-            this.loading = false;
+            this.loading.set(false) ;
         }, 600);
     }
 
@@ -126,7 +126,7 @@ export class TimeLines implements OnInit, OnDestroy {
     // ===== GESTION DES FILTRES =====
 
     applyFilters(): void {
-        let filtered = [...this.events];
+        let filtered = [...this.events()];
 
         // Filtre par période
         if (this.filters.dateRange !== 'all') {
@@ -206,16 +206,16 @@ export class TimeLines implements OnInit, OnDestroy {
     }
 
     loadMore(): void {
-        if (this.loadingMore) return;
+        if (this.loadingMore()) return;
 
-        this.loadingMore = true;
+        this.loadingMore.set(true) ;
 
         // Simulation chargement page suivante
         setTimeout(() => {
             // En prod: charger plus d'événements depuis l'API
             this.currentPage++;
             this.hasMoreEvents = false; // Pour la démo
-            this.loadingMore = false;
+            this.loadingMore.set(false) ;
         }, 800);
     }
 
@@ -238,7 +238,7 @@ export class TimeLines implements OnInit, OnDestroy {
 
         if (confirm('⚠️ Supprimer définitivement cet événement ?\n\nCette action ne peut pas être annulée.')) {
             // TODO: Appel API de suppression
-            this.events = this.events.filter(e => e.id !== eventId);
+            this.events.update(events => events.filter(e=> e.id !== eventId)) ;
             this.applyFilters();
             this.totalEvents--;
             this.showNotification('Événement supprimé', 'success');
@@ -269,9 +269,9 @@ export class TimeLines implements OnInit, OnDestroy {
     // ===== EXPORT =====
 
     async exportTimeline(): Promise<void> {
-        if (this.isExporting || !this.filteredEvents.length) return;
+        if (this.isExporting() || !this.filteredEvents.length) return;
 
-        this.isExporting = true;
+        this.isExporting.set(true) ;
         this.showNotification('Préparation de l\'export...', 'success');
 
         try {
@@ -301,7 +301,7 @@ export class TimeLines implements OnInit, OnDestroy {
             console.error('Erreur export:', error);
             this.showNotification('❌ Échec de l\'export. Veuillez réessayer.', 'error');
         } finally {
-            this.isExporting = false;
+            this.isExporting.set(false) ;
         }
     }
 
