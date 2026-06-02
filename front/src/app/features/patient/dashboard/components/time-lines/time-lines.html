@@ -1,0 +1,229 @@
+<div class="min-h-screen bg-background text-on-background font-body-md">
+
+    <!-- Loader initial -->
+    @if (loading && !events.length) {
+    <div class="flex items-center justify-center min-h-[60vh]">
+        <div class="text-center">
+            <div
+                class="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-4">
+            </div>
+            <p class="text-slate-500">Chargement de l'historique médical...</p>
+        </div>
+    </div>
+    }
+
+    <!-- Contenu principal -->
+    @if (!loading) {
+    <div class="space-y-6 md:space-y-8">
+
+        <!-- ===== EN-TÊTE + FILTRES ===== -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+
+            <!-- Titre + Breadcrumb -->
+            <div>
+                <nav class="flex items-center gap-2 text-label-caps text-slate-500 mb-3 uppercase text-xs">
+                    <a routerLink="/dossiers" class="hover:text-secondary transition-colors font-medium">
+                        Dossiers
+                    </a>
+                    <span class="material-symbols-outlined text-[14px] text-slate-300" aria-hidden="true">
+                        chevron_right
+                    </span>
+                    <a [routerLink]="'/patient/' + patientId"
+                        class="hover:text-secondary transition-colors font-medium truncate max-w-37.5 md:max-w-none">
+                        {{ patientName }}
+                    </a>
+                    <span class="material-symbols-outlined text-[14px] text-slate-300" aria-hidden="true">
+                        chevron_right
+                    </span>
+                    <span class="text-secondary font-bold">Timeline</span>
+                </nav>
+
+                <h1 class="font-h1 text-primary text-2xl md:text-3xl">
+                    Chronologie Médicale
+                </h1>
+                <p class="text-body-md text-slate-500 mt-1 max-w-2xl">
+                    Historique complet du parcours de soins.
+                    <span class="text-secondary font-medium">{{ filteredCount }} événement(s)</span>
+                    affiché(s) sur {{ totalEvents }}.
+                </p>
+            </div>
+
+            <!-- Contrôles de filtre -->
+            <div
+                class="flex flex-wrap items-center gap-2 md:gap-3 bg-white p-2 rounded-xl border border-outline-variant shadow-sm no-scrollbar overflow-x-auto">
+
+                <!-- Filtre période -->
+                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100 shrink-0">
+                    <span class="material-symbols-outlined text-slate-400 text-sm" aria-hidden="true">
+                        calendar_month
+                    </span>
+                    <select [(ngModel)]="filters.dateRange" (ngModelChange)="applyFilters()" class="border-none bg-transparent text-body-sm focus:ring-0 
+                        font-medium text-slate-700 cursor-pointer">
+                        <option value="all">Toute la période</option>
+                        <option value="month">Dernier mois</option>
+                        <option value="6months">6 derniers mois</option>
+                        <option value="year">Année {{ currentYear }}</option>
+                        <option value="custom">Personnalisé...</option>
+                    </select>
+                </div>
+
+                <!-- Filtre type d'événement -->
+                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100 shrink-0">
+                    <span class="material-symbols-outlined text-slate-400 text-sm" aria-hidden="true">
+                        category
+                    </span>
+                    <select [(ngModel)]="selectedEventType" (ngModelChange)="applyFilters()" class="border-none bg-transparent text-body-sm focus:ring-0 
+                        font-medium text-slate-700 cursor-pointer">
+                        <option [ngValue]="null">Tous les types</option>
+                        <option value="consultation">Consultations</option>
+                        <option value="prescription">Ordonnances</option>
+                        <option value="lab_result">Analyses</option>
+                        <option value="vaccination">Vaccinations</option>
+                        <option value="hospitalization">Hospitalisations</option>
+                        <option value="alert">Alertes</option>
+                    </select>
+                </div>
+
+                <!-- Toggle alertes uniquement -->
+                <label class="flex items-center gap-2 px-3 py-2 cursor-pointer shrink-0">
+                    <input type="checkbox" [(ngModel)]="filters.showOnlyAlerts" (ngModelChange)="applyFilters()"
+                        class="w-4 h-4 text-secondary border-slate-300 rounded focus:ring-secondary">
+                    <span class="text-body-sm text-slate-700 font-medium">Alertes uniquement</span>
+                </label>
+
+                <!-- Recherche -->
+                <div class="relative flex-1 min-w-50">
+                    <input type="text" [(ngModel)]="filters.searchTerm" (ngModelChange)="onSearchChange()"
+                        placeholder="Rechercher..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-body-sm focus:ring-2 focus:ring-secondary focus:border-transparent
+                    placeholder:text-slate-400" aria-label="Rechercher dans la timeline">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" aria-hidden="true">
+                        search
+                    </span>
+                    @if (filters.searchTerm) {
+                    <button (click)="clearSearch()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        aria-label="Effacer la recherche">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                    </button>
+                    }
+                </div>
+
+                <!-- Bouton Export -->
+                <button (click)="exportTimeline()" [disabled]="isExporting || !filteredEvents.length"
+                    class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg 
+                    font-semibold text-body-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0" aria-label="Exporter la timeline">
+                    @if (!isExporting) {
+                    <span class="material-symbols-outlined text-sm" aria-hidden="true"> download </span>
+                    }
+                    @if (isExporting) {
+                    <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span class="hidden sm:inline">{{ isExporting ? 'Préparation...' : 'Exporter' }}</span>
+                    }
+                </button>
+
+            </div>
+        </div>
+
+        <!-- ===== BANDEAU CONSENTEMENT (si requis) ===== -->
+        @if (consentBanner) {
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-start gap-4">
+            <div class="bg-indigo-600/10 p-2 rounded-full text-indigo-700 shrink-0">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;" aria-hidden="true">
+                    verified_user
+                </span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-bold text-indigo-900 text-sm">
+                    Affichage régi par consentement
+                </p>
+                <p class="text-indigo-700/80 text-sm mt-1">
+                    Vous visualisez ce dossier avec l'autorisation du patient donnée le
+                    <strong>{{ consentBanner.grantedDate | date:'dd/MM/yyyy' }}</strong>.
+                    Accès valable jusqu'au {{ consentBanner.expiryDate | date:'dd/MM/yyyy' }}.
+                </p>
+                <button (click)="viewConsentDetails()"
+                    class="mt-2 text-indigo-700 font-semibold text-sm hover:underline">
+                    Voir les détails du consentement →
+                </button>
+            </div>
+            <button (click)="dismissConsentBanner()" class="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg 
+                    transition-colors" aria-label="Masquer ce message">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        }
+
+        <!-- ===== MESSAGE SI AUCUN RÉSULTAT ===== -->
+        @if (!loading && filteredEvents.length === 0 ) {
+        <div class="text-center py-16 bg-white rounded-xl border border-dashed border-slate-300">
+            <span class="material-symbols-outlined text-5xl text-slate-300 mb-4 block" aria-hidden="true">
+                inbox
+            </span>
+            <h3 class="font-h3 text-primary mb-2">Aucun événement trouvé</h3>
+            <p class="text-slate-500 mb-6 max-w-md mx-auto">
+                Aucun événement ne correspond aux filtres sélectionnés.
+                Essayez d'élargir votre recherche ou de réinitialiser les filtres.
+            </p>
+            <button (click)="resetFilters()"
+                class="px-6 py-2.5 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 transition-colors">
+                Réinitialiser les filtres
+            </button>
+        </div>
+        }
+
+        <!-- ===== TIMELINE PRINCIPALE ===== -->
+        @if (filteredEvents.length > 0 ) {
+        <div class="relative timeline-track space-y-8 md:space-y-12 pb-12">
+            <!-- Événements -->
+            @for (event of filteredEvents; track $index) {
+            <app-time-line-events [event]="event" [isLast]="$index === filteredEvents.length - 1"
+                (viewDetails)="onViewEventDetails($event)" (editEvent)="onEditEvent($event)"
+                (deleteEvent)="onDeleteEvent($event)" (shareEvent)="onShareEvent($event)" class="block">
+            </app-time-line-events>
+            }
+        </div>
+        }
+
+        ===== PAGINATION / CHARGEMENT PLUS =====
+        @if (hasMoreEvents) {
+        <div class="text-center py-8">
+            <button (click)="loadMore()" [disabled]="loadingMore" class="px-8 py-3 bg-white border border-secondary text-secondary font-semibold 
+                rounded-xl hover:bg-secondary/5 disabled:opacity-50 transition-colors flex items-center gap-2 mx-auto">
+                @if (loadingMore) {
+                <span class="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin"></span>
+                }
+                {{ loadingMore ? 'Chargement...' : 'Afficher plus d\'événements' }}
+            </button>
+        </div>
+        }
+    </div>
+    }
+
+
+    <!-- ===== FAB: AJOUTER UN ÉVÉNEMENT (Praticiens uniquement) ===== -->
+    @if (userRole === 'practitioner' && !loading ) {
+    <button (click)="onAddNewEvent()" class="fixed right-6 bottom-24 lg:bottom-12 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center 
+        hover:scale-110 active:scale-95 transition-all z-40 no-print" aria-label="Ajouter un événement médical">
+        <span class="material-symbols-outlined text-3xl" aria-hidden="true">add</span>
+    </button>
+    }
+
+    <!-- ===== TOAST NOTIFICATIONS ===== -->
+    @if (notification) {
+    <div  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up no-print">
+        <div [class.bg-green-600]="notification.type === 'success'" [class.bg-red-600]="notification.type === 'error'"
+            [class.bg-amber-600]="notification.type === 'warning'"
+            class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white">
+            <span class="material-symbols-outlined" aria-hidden="true">
+                {{ notification.type === 'success' ? 'check_circle' : notification.type === 'error' ? 'error' :
+                'warning' }}
+            </span>
+            <span class="font-medium text-sm">{{ notification.message }}</span>
+            <button (click)="dismissNotification()" class="ml-2 p-1 hover:bg-white/20 rounded transition-colors"
+                aria-label="Fermer">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+    </div>
+    }
+</div>

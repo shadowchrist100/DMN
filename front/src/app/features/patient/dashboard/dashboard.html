@@ -31,10 +31,9 @@
                     <button class="p-2 hover:bg-slate-100 rounded-full transition-colors relative"
                         aria-label="Voir mes alertes" (click)="openAlertsPanel()">
                         <span class="material-symbols-outlined text-slate-500">notifications</span>
-                        <span *ngIf="alertCount > 0" class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white 
-                        text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
-                            {{ alertCount }}
-                        </span>
+                        @if (alertCount > 0 ) {
+                            <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse " > {{alertCount}} </span>
+                        } 
                     </button>
 
                     <!-- Aide -->
@@ -511,10 +510,6 @@
                                     <p class="text-sm text-blue-100/80">09:30 — Clinique Mahouna</p>
                                 </div>
                             </div>
-                            <button (click)="editAppointment()"
-                                class="w-full bg-white text-[#002B5C] font-semibold py-2.5 rounded-lg text-sm hover:bg-blue-50 transition-colors">
-                                Modifier le RDV
-                            </button>
                         </div>
 
                         <!-- Dernière Ordonnance -->

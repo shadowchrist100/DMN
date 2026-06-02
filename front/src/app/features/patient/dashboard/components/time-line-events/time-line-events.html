@@ -1,0 +1,402 @@
+<!-- timeline-event.component.html -->
+<div class="relative pl-8 md:pl-14 group timeline-event-enter" [attr.data-event-id]="event.id"
+    [attr.data-event-type]="event.type" [attr.data-priority]="event.priority">
+
+    <!-- Node de la timeline -->
+    <div class="absolute left-1 md:left-3 top-0 w-10 h-10 rounded-full 
+           flex items-center justify-center z-10 shadow-sm 
+           transition-transform duration-200 group-hover:scale-110
+           {{ getNodeColorClass(event.priority) }}">
+        <span class="material-symbols-outlined text-sm md:text-base" aria-hidden="true">
+            {{ event.icon }}
+        </span>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+
+        <!-- Timestamp (colonne gauche sur desktop) -->
+        <div class="w-full md:w-32 pt-1 md:pt-2 order-2 md:order-1">
+            <span class="text-label-caps text-slate-400 block mb-1 text-xs uppercase tracking-wide">
+                {{ event.date | date:'dd MMM yyyy' }}
+            </span>
+            <span class="font-h3 text-primary font-mono-data text-sm md:text-base">
+                {{ event.date | date:'HH:mm' }}
+            </span>
+            <!-- Badge priorité mobile -->
+            @if (event.priority === 'critical' || event.priority === 'high' ) {
+            <span class="md:hidden inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full
+                {{ event.priority === 'critical' ? 'badge-urgent' : 'badge-alert' }}">
+                {{ event.priority === 'critical' ? 'Urgent' : 'Important' }}
+            </span>
+            }
+        </div>
+
+        <!-- Card événement -->
+        <div class="flex-1 order-1 md:order-2">
+            <div class="event-card p-5 md:p-6" [class.priority-high]="event.priority === 'high'"
+                [class.priority-critical]="event.priority === 'critical'">
+
+                <!-- Header de la card -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 class="font-h2 text-primary text-base md:text-lg truncate">
+                                {{ event.title }}
+                            </h3>
+                            @if (event.badge) {
+                            <span
+                                class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase whitespace-nowrap {{ getBadgeClass(event.badge.type) }}">
+                                {{ event.badge.text }}
+                            </span>
+                            }
+
+                        </div>
+                        <p class="text-body-sm text-slate-500 flex items-center gap-1 text-sm">
+                            <span class="material-symbols-outlined text-sm" aria-hidden="true">location_on</span>
+                            <span class="truncate">{{ event.facility }}</span>
+                        </p>
+                    </div>
+
+                    <!-- Actions rapides -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        @if (event.actionLabel && event.actionType) {
+                        <button  (click)="onAction()" class="text-secondary font-semibold text-sm flex items-center gap-1 
+                            hover:underline focus:outline-none focus:ring-2 focus:ring-secondary rounded px-1"
+                            [attr.aria-label]="event.actionLabel">
+                            <span class="material-symbols-outlined text-sm" aria-hidden="true">
+                                {{ getActionIcon(event.actionType) }}
+                            </span>
+                            <span class="hidden sm:inline">{{ event.actionLabel }}</span>
+                        </button>
+                        }
+
+                        <!-- Menu plus d'options -->
+                        @if (event.isEditable || canShare(event) ) {
+                        <button (click)="toggleOptions($event)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg 
+                            transition-colors focus:outline-none focus:ring-2 focus:ring-secondary"
+                            aria-label="Plus d'options" #optionsTrigger>
+                            <span class="material-symbols-outlined text-sm">more_vert</span>
+                        </button>
+                        }
+
+                    </div>
+                </div>
+
+                <!-- Dropdown options -->
+                @if (showOptions) {
+                <div class="absolute right-4 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 
+                    py-1 z-20" [style.top.px]="optionsPosition.y" [style.left.px]="optionsPosition.x">
+                    @if (event.isEditable) {
+                    <button (click)="onEdit(); hideOptions()"
+                        class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                        Modifier
+                    </button>
+                    }
+                    @if (canShare(event)) {
+                    <button (click)="onShare(); hideOptions()"
+                        class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">share</span>
+                        Partager
+                    </button>
+                    }
+                    @if (event.isEditable) {
+                    <button (click)="onDelete(); hideOptions()"
+                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                        Supprimer
+                    </button>
+                    }
+                </div>
+                }
+
+                <!-- Contenu dynamique selon le type d'événement -->
+                @switch(event.type){
+                @case ('consultation') {
+                <!-- ========== CONSULTATION ========== -->
+                <div class="space-y-4">
+                    @if (event.description) {
+                    <p class="text-body-md text-slate-700">
+                        {{ event.description }}
+                    </p>
+                    }
+
+                    <!-- Signes vitaux -->
+                    @if (event.vitals) {
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 py-4 border-y border-outline-variant/20">
+                        @for (vital of event.vitals; track $index) {
+                        <div>
+                            <p class="text-label-caps text-slate-500 mb-1 text-xs uppercase tracking-wide">
+                                {{ vital.label }}
+                            </p>
+                            <p class="font-mono-data text-primary font-bold text-sm md:text-base">
+                                {{ vital.value }}
+                                <span class="text-slate-500 font-normal text-xs">{{ vital.unit }}</span>
+                                @if (vital.isAbnormal) {
+                                <span class="ml-2 text-[10px] text-red-600 font-bold bg-red-50 px-1.5 py-0.5 rounded">
+                                    ⚠️
+                                </span>
+                                }
+                            </p>
+                        </div>
+                        }
+                    </div>
+                    }
+
+                    <!-- Notes cliniques -->
+                    @if (event.notes) {
+                    <div>
+                        <p class="text-label-caps text-slate-500 mb-2 uppercase text-xs tracking-wide">
+                            Notes de consultation
+                        </p>
+                        <p class="text-body-sm text-slate-700 italic leading-relaxed">
+                            "{{ event.notes }}"
+                        </p>
+                    </div>
+                    }
+
+                    <!-- Diagnostic -->
+                    @if (event.diagnosis) {
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <p class="text-label-caps text-blue-700 mb-1 text-xs uppercase tracking-wide font-bold">
+                            Diagnostic
+                        </p>
+                        <p class="text-body-sm text-blue-900 font-medium">
+                            {{ event.diagnosis }}
+                        </p>
+                    </div>
+                    }
+                </div>
+                }
+                <!-- ========== RÉSULTATS LABO ========== -->
+                @case ('lab_result') {
+                <div class="space-y-4">
+                    @if (event.description) {
+                    <p class="text-body-md text-slate-700 mb-3">
+                        {{ event.description }}
+                    </p>
+                    }
+                    <!-- Résultats -->
+                    @if (event.labResults?.length) {
+                    <div class="space-y-3">
+                        @for (result of event.labResults; track $index) {
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+                                <span class="font-semibold text-primary text-sm">{{ result.name }}</span>
+                                <span [class.text-red-600]="result.isAbnormal"
+                                    [class.text-green-600]="!result.isAbnormal"
+                                    class="font-bold font-mono-data text-sm md:text-base">
+                                    {{ result.value }} {{ result.unit }}
+                                </span>
+                            </div>
+
+                            <!-- Barre de visualisation -->
+                            <div class="relative h-2 w-full bg-slate-200 rounded-full overflow-hidden mb-1">
+                                <!-- Zone normale -->
+                                <div class="absolute h-full bg-green-200/50 rounded-full"
+                                    [style.left.%]="(result.normalMin / result.normalMax) * 100"
+                                    [style.width.%]="((result.normalMax - result.normalMin) / result.normalMax) * 100">
+                                </div>
+                                <!-- Marqueur de la valeur -->
+                                <div class="absolute h-full w-1 bg-primary rounded-full -ml-0.5"
+                                    [style.left.%]="Math.min(Math.max((result.value / result.normalMax) * 100, 0), 100)">
+                                </div>
+                            </div>
+
+                            <!-- Légende -->
+                            <div class="flex justify-between items-center text-[10px] text-slate-400">
+                                <span>Normale: {{ result.normalMin }}-{{ result.normalMax }} {{ result.unit}}</span>
+                                @if (result.isAbnormal) {
+                                <span class="text-red-600 font-bold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[10px]">warning</span>
+                                    Hors limite
+                                </span>
+                                }
+
+                            </div>
+                        </div>
+                        }
+
+                    </div>
+                    }
+
+                    <!-- Interprétation / Notes -->
+                    @if (event.notes) {
+                    <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100 flex gap-2">
+                        <span class="material-symbols-outlined text-indigo-600 text-sm shrink-0 mt-0.5">info</span>
+                        <p class="text-body-sm text-indigo-800 leading-relaxed">{{ event.notes }}</p>
+                    </div>
+                    }
+
+                    <!-- Pièces jointes -->
+                    @if (event.attachments?.length) {
+                    <div class="mt-3">
+                        <p class="text-label-caps text-slate-500 mb-2 text-xs uppercase tracking-wide">
+                            Documents
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            @for (file of event.attachments; track $index) {
+                            <a [href]="file.url" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 
+                            rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:border-secondary 
+                            transition-colors">
+                                <span class="material-symbols-outlined text-sm text-secondary">description</span>
+                                {{ file.name }}
+                            </a>
+                            }
+                        </div>
+                    </div>
+                    }
+
+                </div>
+                }
+                <!-- ========== ORDONNANCE ========== -->
+                @case ('prescription') {
+                <div class="space-y-3">
+                    @for (med of event.medications; track $index) {
+                    <div  class="flex items-start justify-between p-4 border border-slate-100 rounded-lg 
+                        hover:bg-slate-50 transition-colors">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-blue-600 mt-0.5">medication</span>
+                            <div>
+                                <p class="font-semibold text-primary text-sm">{{ med.name }}</p>
+                                <p class="text-body-sm text-slate-500">{{ med.posology }}</p>
+                                @if (med.duration) {
+                                    <p  class="text-xs text-slate-400 mt-1">
+                                    Durée: {{ med.duration }}
+                                </p>
+                                }
+                            </div>
+                        </div>
+                        <span [class.text-green-600]="med.status === 'active'"
+                            [class.text-slate-400]="med.status === 'completed'"
+                            [class.text-red-500]="med.status === 'stopped'" class="material-symbols-outlined text-sm">
+                            {{ med.status === 'active' ? 'check_circle' : med.status === 'completed' ? 'archive' :
+                            'block' }}
+                        </span>
+                    </div>
+                    }
+                </div>
+                }
+                @case ('vaccination') {
+                <!-- ========== VACCINATION ========== -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-100">
+                        <span class="material-symbols-outlined text-green-600 text-lg">vaccines</span>
+                        <div>
+                            <p class="font-semibold text-green-900">Vaccination administrée</p>
+                            <p class="text-sm text-green-700">{{ event.notes }}</p>
+                        </div>
+                    </div>
+                </div>
+                }
+                @case('hospitalization'){
+                <!-- ========== HOSPITALISATION ========== -->
+                <div class="space-y-4">
+                    @if (event.description) {
+                    <p class="text-body-md text-slate-700">
+                        {{ event.description }}
+                    </p>
+                    }
+                    @if (event.diagnosis) {
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-100">
+                        <p class="text-label-caps text-red-700 mb-1 text-xs uppercase tracking-wide font-bold">
+                            Motif d'admission
+                        </p>
+                        <p class="text-body-sm text-red-900 font-medium">{{ event.diagnosis }}</p>
+                    </div>
+                    }
+                    @if (event.notes) {
+                    <div class="p-4 bg-slate-50 rounded-lg">
+                        <p class="text-label-caps text-slate-500 mb-2 text-xs uppercase tracking-wide">
+                            Évolution
+                        </p>
+                        <p class="text-body-sm text-slate-700 leading-relaxed">{{ event.notes }}</p>
+                    </div>
+                    }
+
+                    <!-- Tags -->
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-slate-100 rounded-full text-[11px] font-medium text-slate-700">
+                            {{ event.facility }}
+                        </span>
+                        <span class="px-3 py-1 bg-slate-100 rounded-full text-[11px] font-medium text-slate-700">
+                            {{ event.practitioner.role }}
+                        </span>
+                    </div>
+                </div>
+                }
+                @case('alert'){
+                <!-- ========== ALERTES ========== -->
+                <div class="space-y-3">
+                    <div class="p-4 bg-amber-50 rounded-lg border border-amber-200 flex gap-3">
+                        <span class="material-symbols-outlined text-amber-600 text-lg shrink-0">warning</span>
+                        <div>
+                            <p class="font-semibold text-amber-900 text-sm">{{ event.title }}</p>
+                            <p class="text-body-sm text-amber-800 mt-1">{{ event.description }}</p>
+                        </div>
+                    </div>
+                    @if (event.actionLabel) {
+                    <button (click)="onAction()" class="w-full bg-amber-600 text-white font-semibold py-2.5 rounded-lg 
+                           text-sm hover:bg-amber-700 transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm">{{ event.icon }}</span>
+                        {{ event.actionLabel }}
+                    </button>
+                    }
+                </div>
+                }
+                @default {
+                <!-- ========== DEFAULT / AUTRE ========== -->
+                <div>
+                    <p class="text-body-md text-slate-700">{{ event.description || event.notes }}</p>
+                </div>
+                }
+                }
+
+                <!-- Footer de la card -->
+                <div class="mt-5 pt-4 border-t border-outline-variant/20 
+                    flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+
+                    <!-- Info praticien -->
+                    <div class="flex items-center gap-3">
+                        @if (event.practitioner.avatar) {
+                        <img [src]="event.practitioner.avatar" [alt]="'Photo de ' + event.practitioner.name"
+                            class="w-8 h-8 rounded-full object-cover border border-slate-200" loading="lazy">
+                        }
+
+                        <div class="min-w-0">
+                            <p class="font-semibold text-primary text-sm truncate">
+                                {{ event.practitioner.name }}
+                            </p>
+                            <p class="text-xs text-slate-500 truncate">{{ event.practitioner.role }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Statut + Consentement -->
+                    <div class="flex items-center gap-3 text-xs">
+                        <span [class.text-green-600]="event.status === 'completed'"
+                            [class.text-amber-600]="event.status === 'pending'"
+                            [class.text-slate-400]="event.status === 'archived'"
+                            class="flex items-center gap-1 font-medium">
+                            <span class="material-symbols-outlined text-[14px]" aria-hidden="true">
+                                {{ event.status === 'completed' ? 'check_circle' : event.status === 'pending' ?
+                                'pending' : 'archive' }}
+                            </span>
+                            {{ getStatusLabel(event.status) }}
+                        </span>
+
+                        @if (event.consentRequired) {
+                        <span  class="flex items-center gap-1 text-indigo-600"
+                            title="Accès soumis à consentement patient">
+                            <span class="material-symbols-outlined text-[14px]" aria-hidden="true">verified_user</span>
+                        </span>
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

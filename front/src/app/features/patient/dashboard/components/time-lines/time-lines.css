@@ -1,0 +1,71 @@
+
+.timeline-track {
+    position: relative;
+}
+
+.timeline-track::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    /* 20px */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: theme('colors.outline-variant', '#c4c6d0');
+    z-index: 0;
+}
+
+@media (min-width: 768px) {
+    .timeline-track::before {
+        left: 2rem;
+        /* 32px */
+    }
+}
+
+/* Animation d'entrée pour les événements */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.timeline-event-enter {
+    animation: slideInLeft 0.3s ease-out forwards;
+}
+
+
+
+/* Carte d'événement */
+
+/* Scrollbar personnalisée pour les filtres horizontaux */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Impression */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .event-card {
+        break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    .timeline-track::before {
+        background: #cbd5e1 !important;
+    }
+}
