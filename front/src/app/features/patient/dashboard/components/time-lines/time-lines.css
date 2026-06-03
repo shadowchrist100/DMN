@@ -1,4 +1,120 @@
+/* ===== ANIMATIONS ===== */
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
 
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.3s ease-out forwards;
+}
+
+/* ===== TIMELINE VISUELLE ===== */
+.timeline-track {
+    position: relative;
+}
+
+/* Ligne verticale subtile */
+.timeline-track::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #002B5C20, transparent);
+    z-index: 0;
+}
+
+@media (min-width: 768px) {
+    .timeline-track::before {
+        left: 2rem;
+    }
+}
+
+
+
+@keyframes pulse-slow {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.95;
+    }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+}
+
+
+
+/* ===== MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 767px) {
+
+    /* Sticky headers plus compacts */
+    .sticky {
+        top: 72px;
+        /* Hauteur navbar mobile */
+    }
+
+    /* Cards plus compactes */
+
+    /* Masquer éléments non essentiels */
+    .hide-mobile {
+        display: none;
+    }
+}
+
+/* ===== ACCESSIBILITÉ ===== */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible pour navigation clavier */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+    @apply outline-none ring-2 ring-[#1E40AF] ring-offset-2;
+}
+
+/* ===== IMPRESSION ===== */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .event-card {
+        break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    .sticky {
+        position: static !important;
+    }
+}
+
+/* patient-timeline.component.css */
+
+/* Ligne verticale de la timeline */
 .timeline-track {
     position: relative;
 }
@@ -39,9 +155,6 @@
     animation: slideInLeft 0.3s ease-out forwards;
 }
 
-
-
-/* Carte d'événement */
 
 /* Scrollbar personnalisée pour les filtres horizontaux */
 .no-scrollbar::-webkit-scrollbar {

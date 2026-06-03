@@ -13,6 +13,9 @@ export type EventPriority = 'low' | 'medium' | 'high' | 'critical';
 
 export type EventStatus = 'completed' | 'pending' | 'cancelled' | 'archived';
 
+export type BadgeType = 'completed' | 'alert' | 'urgent' | 'archived';
+
+
 export interface VitalSign {
     label: string;
     value: string;
@@ -77,6 +80,8 @@ export interface TimelineEvent {
     actionType?: 'view' | 'edit' | 'download' | 'share';
 }
 
+
+
 export interface TimelineFilter {
     dateRange: 'all' | 'month' | '6months' | 'year' | 'custom';
     customStartDate?: Date;
@@ -86,4 +91,5 @@ export interface TimelineFilter {
     facilities: string[];
     searchTerm?: string;
     showOnlyAlerts?: boolean;
+    eventType: EventType | null
 }

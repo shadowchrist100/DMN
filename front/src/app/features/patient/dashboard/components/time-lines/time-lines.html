@@ -1,246 +1,651 @@
-<div class="min-h-full text-slate-900">
-    <!-- Loader -->
-    @if (loading() && !events.length) {
-    <div class="flex items-center justify-center min-h-[60vh]">
-        <div class="text-center">
-            <div class="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-4">
+<div class="min-h-full">
+
+    <!-- ===== SKELETON LOADER ===== -->
+    @if (loading() && !events().length) {
+    <div class="space-y-4 animate-pulse px-1">
+        <div class="h-28 bg-white rounded-2xl border border-slate-200"></div>
+        @for (i of [1,2,3,4]; track i) {
+        <div class="flex gap-4">
+            <div class="w-20 shrink-0 space-y-2">
+                <div class="h-3 bg-slate-200 rounded w-16"></div>
+                <div class="h-2 bg-slate-100 rounded w-12"></div>
             </div>
-            <p class="text-slate-500">
-                Chargement de l'historique médical...
-            </p>
+            <div class="flex-1 h-36 bg-white rounded-xl border border-slate-200"></div>
         </div>
+        }
     </div>
     }
 
     @if (!loading()) {
-    <div class="max-w-7xl mx-auto">
-        <!-- HEADER -->
-        <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-                <nav class="flex items-center gap-2 text-xs uppercase text-slate-500 mb-2">
-                    <a routerLink="/dossiers"
-                        class="font-medium hover:text-secondary transition-colors">
-                        Dossiers
-                    </a>
-                    <span class="material-symbols-outlined text-[14px]">
-                        chevron_right
-                    </span>
-                    <a
-                        [routerLink]="'/patient/' + patientId"
-                        class="font-medium hover:text-secondary transition-colors">
-                        {{ patientName }}
-                    </a>
-                    <span class="material-symbols-outlined text-[14px]">
-                        chevron_right
-                    </span>
-                    <span class="font-bold text-secondary">
-                        Timeline
-                    </span>
+    <div class="max-w-5xl mx-auto space-y-6">
 
-                </nav>
+        <!-- ===== HEADER ===== -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
-                <h1 class="text-3xl md:text-4xl font-bold text-[#002B5C] tracking-tight">
-                    Chronologie Médicale
-                </h1>
+            <!-- Bandeau top coloré -->
+            <div class="h-1.5 bg-linear-to-r from-[#002B5C] via-[#1E40AF] to-[#0ea5e9]"></div>
 
-                <p class="text-slate-500 mt-2">
-                    Historique complet du parcours de soins.
-                    <span class="text-secondary font-semibold">
-                        {{ filteredCount }} événement(s)
-                    </span>
-                    affiché(s) sur {{ totalEvents }}.
-                </p>
-            </div>
+            <div class="p-5 md:p-6">
+                <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
 
-            <!-- FILTRES -->
-            <div
-                class="flex flex-wrap gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                    <!-- Titre + fil d'ariane -->
+                    <div>
+                        <nav class="flex items-center gap-1.5 text-[11px] text-slate-400 mb-3 uppercase tracking-widest font-semibold"
+                            aria-label="Fil d'Ariane">
+                            <a routerLink="/dossiers" class="hover:text-[#002B5C] transition-colors">Dossiers</a>
+                            <span class="material-symbols-outlined text-[11px]">chevron_right</span>
+                            <a [routerLink]="'/patient/' + patientId()"
+                                class="hover:text-[#002B5C] transition-colors truncate max-w-40">
+                                {{ patientName() }}
+                            </a>
+                            <span class="material-symbols-outlined text-[11px]">chevron_right</span>
+                            <span class="text-[#1E40AF]">Chronologie</span>
+                        </nav>
 
-                <!-- période -->
-                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100">
+                        <h1 class="text-2xl md:text-3xl font-bold text-[#002B5C] tracking-tight leading-tight">
+                            Historique Médical
+                        </h1>
+                        <p class="text-slate-500 text-sm mt-1.5">
+                            <span class="font-bold text-[#1E40AF] text-base">{{ filteredCount() }}</span>
+                            événement(s) affiché(s) sur
+                            <span class="font-semibold text-slate-700">{{ totalEvents }}</span>
+                            — du
+                            <span class="font-medium text-slate-600">{{ earliestDate() | date:'MMMM yyyy' }}</span>
+                            à aujourd'hui
+                        </p>
+                    </div>
 
-                    <span class="material-symbols-outlined text-slate-400">
-                        calendar_month
-                    </span>
-
-                    <select
-                        [(ngModel)]="filters.dateRange"
-                        (ngModelChange)="applyFilters()"
-                        class="border-none bg-transparent text-sm font-medium text-slate-700 focus:ring-0">
-
-                        <option value="all">Toute la période</option>
-                        <option value="month">Dernier mois</option>
-                        <option value="6months">6 derniers mois</option>
-                        <option value="year">Année {{ currentYear }}</option>
-
-                    </select>
+                    <!-- Compteurs rapides -->
+                    <div class="flex flex-wrap gap-3 shrink-0">
+                        @for (stat of eventStats(); track stat.type) {
+                        <button (click)="quickFilterByType(stat.type)"
+                            class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl border transition-all text-sm font-medium"
+                            [class]="selectedEventType() === stat.type
+                ? 'bg-[#002B5C] text-white border-[#002B5C] shadow-md'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-[#1E40AF] hover:text-[#1E40AF]'">
+                            <span class="text-base">{{ stat.icon }}</span>
+                            <span class="font-semibold">{{ stat.count }}</span>
+                            <span class="hidden sm:inline text-[11px] uppercase tracking-wide opacity-75">{{ stat.label
+                                }}</span>
+                        </button>
+                        }
+                    </div>
 
                 </div>
 
-                <!-- type -->
-                <div class="flex items-center gap-2 px-3 py-2 border-r border-slate-100">
+                <!-- Barre de filtres -->
+                <div class="mt-5 pt-5 border-t border-slate-100 flex flex-wrap items-center gap-3">
 
-                    <span class="material-symbols-outlined text-slate-400">
-                        filter_list
-                    </span>
+                    <!-- Bouton filtres -->
+                    <button (click)="toggleFilters()"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border"
+                        [class]="showFilters()
+              ? 'bg-[#002B5C] text-white border-[#002B5C]'
+              : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'"
+                        [attr.aria-expanded]="showFilters()">
+                        <span class="material-symbols-outlined text-sm">
+                            {{ showFilters() ? 'filter_list_off' : 'tune' }}
+                        </span>
+                        Filtres
+                        @if (activeFiltersCount() > 0) {
+                        <span
+                            class="w-4.5 h-4.5 bg-[#e53e3e] text-white text-[10px] font-bold rounded-full flex items-center justify-center min-w-4">
+                            {{ activeFiltersCount() }}
+                        </span>
+                        }
+                    </button>
 
-                    <select
-                        [(ngModel)]="selectedEventType"
-                        (ngModelChange)="applyFilters()"
-                        class="border-none bg-transparent text-sm font-medium text-slate-700 focus:ring-0">
+                    <!-- Recherche -->
+                    <div class="relative flex-1 min-w-52">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                            search
+                        </span>
+                        <input type="text" [(ngModel)]="searchTermValue" (ngModelChange)="onSearchChange()"
+                            placeholder="Rechercher un événement, médecin, établissement..."
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-9 text-sm focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent transition-all"
+                            aria-label="Rechercher dans l'historique">
+                        @if (searchTermValue) {
+                        <button (click)="clearSearch()"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                            aria-label="Effacer">
+                            <span class="material-symbols-outlined text-sm">close</span>
+                        </button>
+                        }
+                    </div>
 
-                        <option [ngValue]="null">Tous les types</option>
-                        <option value="consultation">Consultations</option>
-                        <option value="prescription">Ordonnances</option>
-                        <option value="lab_result">Analyses</option>
-                        <option value="vaccination">Vaccinations</option>
-                        <option value="hospitalization">Hospitalisations</option>
-
-                    </select>
+                    <!-- Export -->
+                    <button (click)="exportTimeline()" [disabled]="isExporting() || !filteredEvents().length"
+                        class="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-[#002B5C] text-white rounded-xl hover:bg-[#001f45] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+                        aria-label="Exporter l'historique">
+                        @if (!isExporting()) {
+                        <span class="material-symbols-outlined text-sm">download</span>
+                        } @else {
+                        <span
+                            class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        }
+                        <span class="hidden sm:inline">{{ isExporting() ? 'Export…' : 'Exporter PDF' }}</span>
+                    </button>
 
                 </div>
 
-                <!-- recherche -->
-                <div class="relative min-w-62.5">
+                <!-- Panneau filtres avancés -->
+                @if (showFilters()) {
+                <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                    id="filters-panel">
 
-                    <input
-                        type="text"
-                        [(ngModel)]="filters.searchTerm"
-                        (ngModelChange)="onSearchChange()"
-                        placeholder="Rechercher..."
-                        class="w-full bg-slate-100 rounded-lg border border-slate-200 py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#1E40AF]">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Période</label>
+                        <div class="relative">
+                            <select [(ngModel)]="dateRangeValue" (ngModelChange)="applyFilters()"
+                                class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent cursor-pointer">
+                                <option value="all">Toute la période</option>
+                                <option value="month">Dernier mois</option>
+                                <option value="3months">3 derniers mois</option>
+                                <option value="6months">6 derniers mois</option>
+                                <option value="year">Année {{ currentYear }}</option>
+                            </select>
+                            <span
+                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+                                expand_more
+                            </span>
+                        </div>
+                    </div>
 
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Type
+                            d'événement</label>
+                        <div class="relative">
+                            <select [(ngModel)]="eventTypeValue" (ngModelChange)="onEventTypeChange()"
+                                class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent cursor-pointer">
+                                <option [ngValue]="null">Tous les types</option>
+                                <option value="consultation">🩺 Consultations</option>
+                                <option value="prescription">💊 Ordonnances</option>
+                                <option value="lab_result">🧪 Analyses</option>
+                                <option value="vaccination">💉 Vaccinations</option>
+                                <option value="hospitalization">🏥 Hospitalisations</option>
+                                <option value="alert">⚠️ Alertes</option>
+                            </select>
+                            <span
+                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+                                expand_more
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Priorité</label>
+                        <div class="relative">
+                            <select [(ngModel)]="priorityValue" (ngModelChange)="applyFilters()"
+                                class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent cursor-pointer">
+                                <option value="all">Toutes les priorités</option>
+                                <option value="critical">🔴 Critique</option>
+                                <option value="high">🟠 Haute</option>
+                                <option value="medium">🟡 Moyenne</option>
+                                <option value="low">🟢 Faible</option>
+                            </select>
+                            <span
+                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+                                expand_more
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 flex flex-col justify-end">
+                        <button (click)="resetAllFilters()"
+                            class="w-full py-2.5 px-4 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-semibold hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">restart_alt</span>
+                            Réinitialiser
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Chips filtres actifs -->
+                @if (activeFiltersCount() > 0) {
+                <div class="mt-3 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
+                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Actifs :</span>
+                    @if (dateRangeValue !== 'all') {
                     <span
-                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-                        search
+                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#002B5C]/10 text-[#002B5C] text-xs font-semibold rounded-full">
+                        {{ getPeriodLabel(dateRangeValue) }}
+                        <button (click)="resetDateFilter()" class="hover:bg-[#002B5C]/20 rounded-full p-0.5"
+                            aria-label="Retirer">
+                            <span class="material-symbols-outlined text-[11px]">close</span>
+                        </button>
                     </span>
-
+                    }
+                    @if (selectedEventType()) {
+                    <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1E40AF]/10 text-[#1E40AF] text-xs font-semibold rounded-full">
+                        {{ getEventTypeLabel(selectedEventType()!) }}
+                        <button (click)="resetTypeFilter()" class="hover:bg-[#1E40AF]/20 rounded-full p-0.5"
+                            aria-label="Retirer">
+                            <span class="material-symbols-outlined text-[11px]">close</span>
+                        </button>
+                    </span>
+                    }
+                    @if (searchTermValue) {
+                    <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-200 text-slate-700 text-xs font-semibold rounded-full">
+                        "{{ searchTermValue }}"
+                        <button (click)="clearSearch()" class="hover:bg-slate-300 rounded-full p-0.5"
+                            aria-label="Retirer">
+                            <span class="material-symbols-outlined text-[11px]">close</span>
+                        </button>
+                    </span>
+                    }
                 </div>
-
-                <!-- export -->
-                <button
-                    (click)="exportTimeline()"
-                    [disabled]="isExporting() || !filteredEvents.length"
-                    class="bg-[#002B5C] text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-[#001f45] transition-all flex items-center gap-2">
-
-                    @if (!isExporting()) {
-                    <span class="material-symbols-outlined text-sm">
-                        download
-                    </span>
-                    }
-
-                    @if (isExporting()) {
-                    <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    }
-
-                    {{ isExporting() ? 'Préparation...' : 'Exporter' }}
-
-                </button>
+                }
+                }
 
             </div>
-
         </div>
 
-        <!-- ===== BANDEAU CONSENTEMENT (si requis) ===== -->
-        <!-- @if (consentBanner) {
-        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-start gap-4">
-            <div class="bg-indigo-600/10 p-2 rounded-full text-indigo-700 shrink-0">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;" aria-hidden="true">
-                    verified_user
-                </span>
+        <!-- ===== BANDEAU CONSENTEMENT ===== -->
+        @if (consentBanner()) {
+        <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 flex items-start gap-4">
+            <div class="bg-indigo-100 p-2.5 rounded-xl text-indigo-700 shrink-0">
+                <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1"
+                    aria-hidden="true">verified_user</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-bold text-indigo-900 text-sm">
-                    Affichage régi par consentement
+                <p class="font-bold text-indigo-900 text-sm">Accès autorisé par le patient</p>
+                <p class="text-indigo-700/80 text-sm mt-0.5">
+                    Vous consultez ce dossier avec l'accord de
+                    <strong>{{ patientName() }}</strong>
+                    (valable jusqu'au {{ consentBanner()?.expiryDate | date:'dd/MM/yyyy' }}).
                 </p>
-                <p class="text-indigo-700/80 text-sm mt-1">
-                    Vous visualisez ce dossier avec l'autorisation du patient donnée le
-                    <strong>{{ consentBanner.grantedDate | date:'dd/MM/yyyy' }}</strong>.
-                    Accès valable jusqu'au {{ consentBanner.expiryDate | date:'dd/MM/yyyy' }}.
-                </p>
-                <button (click)="viewConsentDetails()"
-                    class="mt-2 text-indigo-700 font-semibold text-sm hover:underline">
-                    Voir les détails du consentement →
-                </button>
             </div>
-            <button (click)="dismissConsentBanner()" class="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg 
-                    transition-colors" aria-label="Masquer ce message">
+            <button (click)="dismissConsentBanner()"
+                class="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-xl transition-colors shrink-0"
+                aria-label="Masquer">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
-        } -->
+        }
 
-        <!-- ===== MESSAGE SI AUCUN RÉSULTAT ===== -->
-        @if (!loading && filteredEvents.length === 0 ) {
-        <div class="text-center py-16 bg-white rounded-xl border border-dashed border-slate-300">
-            <span class="material-symbols-outlined text-5xl text-slate-300 mb-4 block" aria-hidden="true">
-                inbox
-            </span>
-            <h3 class="font-h3 text-primary mb-2">Aucun événement trouvé</h3>
-            <p class="text-slate-500 mb-6 max-w-md mx-auto">
-                Aucun événement ne correspond aux filtres sélectionnés.
+        <!-- ===== AUCUN RÉSULTAT ===== -->
+        @if (!loading() && filteredEvents().length === 0) {
+        <div class="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
+            <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-4xl text-slate-300" aria-hidden="true">inbox</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Aucun événement trouvé</h3>
+            <p class="text-slate-500 mb-6 max-w-sm mx-auto text-sm">
                 Essayez d'élargir votre recherche ou de réinitialiser les filtres.
             </p>
-            <button (click)="resetFilters()"
-                class="px-6 py-2.5 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 transition-colors">
+            <button (click)="resetAllFilters()"
+                class="px-6 py-2.5 bg-[#002B5C] text-white font-semibold rounded-xl hover:bg-[#001f45] transition-colors text-sm shadow-sm">
                 Réinitialiser les filtres
             </button>
         </div>
         }
 
-        <!-- ===== TIMELINE PRINCIPALE ===== -->
-        @if (filteredEvents.length > 0 ) {
-        <div class="relative timeline-track space-y-8 md:space-y-12 pb-12">
-            <!-- Événements -->
-            @for (event of filteredEvents; track $index) {
-            <app-time-line-events [event]="event" [isLast]="$index === filteredEvents.length - 1"
-                (viewDetails)="onViewEventDetails($event)" (editEvent)="onEditEvent($event)"
-                (deleteEvent)="onDeleteEvent($event)" (shareEvent)="onShareEvent($event)" class="block">
-            </app-time-line-events>
+        <!-- ===== TIMELINE GROUPÉE ===== -->
+        @if (filteredEvents().length > 0) {
+        <div class="space-y-10">
+            @for (group of groupedEvents(); track group.period) {
+
+            <div class="space-y-3">
+
+                <!-- En-tête de période sticky -->
+                <div
+                    class="sticky top-16 z-10 -mx-2 px-2 py-2 backdrop-blur-sm bg-slate-50/90 border-b border-slate-200/70 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2.5 h-2.5 rounded-full bg-[#1E40AF] ring-2 ring-[#1E40AF]/20"></div>
+                        <h2 class="font-bold text-slate-600 text-xs uppercase tracking-widest">
+                            {{ group.period }}
+                        </h2>
+                        <span
+                            class="bg-[#1E40AF]/10 text-[#1E40AF] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                            {{ group.count }} événement{{ group.count > 1 ? 's' : '' }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Événements du groupe -->
+                <div class="relative space-y-3 pl-5 md:pl-7">
+
+                    <!-- Ligne de timeline -->
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-px bg-linear-to-b from-[#1E40AF]/40 via-[#1E40AF]/20 to-transparent">
+                    </div>
+
+                    @for (event of group.events; track event.id; let isLast = $last) {
+
+                    <!-- Dot de timeline -->
+                    <div class="absolute left-0 transform -translate-x-1/2 mt-6"
+                        >
+                    </div>
+
+                    <!-- ===== CARTE ÉVÉNEMENT ===== -->
+                    <div class="relative group">
+
+                        <!-- Point sur la ligne -->
+                        <div class="absolute -left-7 md:-left-9 top-5 w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center z-10 transition-transform group-hover:scale-125"
+                            [class]="getEventDotClass(event.type)">
+                        </div>
+
+                        <div class="bg-white rounded-2xl border transition-all duration-200 overflow-hidden group-hover:shadow-md group-hover:border-[#1E40AF]/30"
+                            [class]="getCardBorderClass(event.priority)">
+
+                            <!-- Bande de priorité -->
+                            <div class="h-1" [class]="getPriorityBarClass(event.priority)"></div>
+
+                            <!-- Corps de la carte -->
+                            <div class="p-4 md:p-5">
+
+                                <!-- En-tête carte -->
+                                <div class="flex items-start justify-between gap-3 mb-3">
+
+                                    <div class="flex items-start gap-3 flex-1 min-w-0">
+
+                                        <!-- Icône type -->
+                                        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg transition-transform group-hover:scale-110"
+                                            [class]="getEventIconBg(event.type)">
+                                            {{ getEventIcon(event.type) }}
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                                <h3
+                                                    class="font-bold text-slate-900 text-sm md:text-base leading-tight truncate max-w-80">
+                                                    {{ event.title }}
+                                                </h3>
+                                                <!-- Badge priorité -->
+                                                @if (event.priority === 'critical' || event.priority === 'high') {
+                                                <span
+                                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shrink-0"
+                                                    [class]="getPriorityBadgeClass(event.priority)">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-current opacity-80"></span>
+                                                    {{ event.priority === 'critical' ? 'Critique' : 'Urgent' }}
+                                                </span>
+                                                }
+                                                <!-- Badge type -->
+                                                <span
+                                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide shrink-0"
+                                                    [class]="getTypeBadgeClass(event.type)">
+                                                    {{ getEventTypeLabel(event.type) }}
+                                                </span>
+                                            </div>
+
+                                            <!-- Méta infos -->
+                                            <div
+                                                class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                                                <span class="flex items-center gap-1">
+                                                    <span
+                                                        class="material-symbols-outlined text-[13px] text-slate-400">calendar_today</span>
+                                                    {{ event.date | date:'dd MMM yyyy' }}
+                                                    <span class="text-slate-300 mx-0.5">·</span>
+                                                    {{ event.date | date:'HH:mm' }}
+                                                </span>
+                                                @if (event.facility) {
+                                                <span class="flex items-center gap-1">
+                                                    <span
+                                                        class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
+                                                    {{ event.facility }}
+                                                </span>
+                                                }
+                                                @if (event.practitioner.name) {
+                                                <span class="flex items-center gap-1">
+                                                    <span
+                                                        class="material-symbols-outlined text-[13px] text-slate-400">stethoscope</span>
+                                                    {{ event.practitioner.name }}
+                                                </span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Actions rapides -->
+                                    <div
+                                        class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button (click)="onViewEventDetails(event.id)"
+                                            class="p-1.5 text-slate-400 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition-colors"
+                                            aria-label="Voir les détails" title="Voir les détails">
+                                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+                                        </button>
+                                        @if (userRole() === 'practitioner') {
+                                        <button (click)="onEditEvent(event.id)"
+                                            class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                            aria-label="Modifier" title="Modifier">
+                                            <span class="material-symbols-outlined text-sm">edit</span>
+                                        </button>
+                                        <button (click)="onDeleteEvent(event.id)"
+                                            class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            aria-label="Supprimer" title="Supprimer">
+                                            <span class="material-symbols-outlined text-sm">delete</span>
+                                        </button>
+                                        }
+                                        <button (click)="onShareEvent(event.id)"
+                                            class="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                            aria-label="Partager" title="Partager">
+                                            <span class="material-symbols-outlined text-sm">share</span>
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                                <!-- Description -->
+                                @if (event.description) {
+                                <p class="text-sm text-slate-600 mb-3 leading-relaxed line-clamp-2">
+                                    {{ event.description }}
+                                </p>
+                                }
+
+                                <!-- ===== MESURES / BILAN — Barres de progression ===== -->
+                                @if (event.measurements && event.measurements.length > 0) {
+                                <div class="mt-3 p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+                                    <p
+                                        class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[13px]">analytics</span>
+                                        Mesures du bilan
+                                    </p>
+                                    @for (measure of event.measurements; track measure.name) {
+                                    <div class="space-y-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-semibold text-slate-700">{{ measure.name }}</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-bold" [class]="getMeasureValueClass(measure)">
+                                                    {{ measure.value }} {{ measure.unit }}
+                                                </span>
+                                                @if (measure.normalMin !== undefined && measure.normalMax !== undefined)
+                                                {
+                                                <span class="text-[10px] text-slate-400 font-medium">
+                                                    ({{ measure.normalMin }}–{{ measure.normalMax }})
+                                                </span>
+                                                }
+                                                <span
+                                                    class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+                                                    [class]="getMeasureStatusBg(measure)">
+                                                    <span class="material-symbols-outlined text-[11px]"
+                                                        [class]="getMeasureStatusIcon(measure) === 'check' ? 'text-green-700' : 'text-red-700'">
+                                                        {{ getMeasureStatusIcon(measure) }}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                            <div class="h-full rounded-full transition-all duration-700 ease-out"
+                                                [class]="getMeasureBarClass(measure)"
+                                                [style.width.%]="getMeasurePercent(measure)">
+                                            </div>
+                                        </div>
+                                        @if (measure.normalMin !== undefined && measure.normalMax !== undefined) {
+                                        <p class="text-[10px] text-slate-400">
+                                            Plage normale : {{ measure.normalMin }} – {{ measure.normalMax }} {{
+                                            measure.unit }}
+                                        </p>
+                                        }
+                                    </div>
+                                    }
+                                </div>
+                                }
+
+                                <!-- ===== MÉDICAMENTS (Ordonnance) ===== -->
+                                @if (event.type === 'prescription' && event.medications && event.medications.length > 0)
+                                {
+                                <div class="mt-3 p-3.5 bg-blue-50/50 rounded-xl border border-blue-100 space-y-2">
+                                    <p
+                                        class="text-[11px] font-bold text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[13px]">medication</span>
+                                        Médicaments prescrits
+                                    </p>
+                                    <div class="flex flex-wrap gap-2">
+                                        @for (med of event.medications; track med.name) {
+                                        <div
+                                            class="flex items-center gap-2 bg-white border border-blue-100 rounded-lg px-3 py-1.5 text-xs">
+                                            <span class="text-blue-600 font-bold">{{ med.name }}</span>
+                                            @if (med.dosage) {
+                                            <span class="text-slate-400">·</span>
+                                            <span class="text-slate-600">{{ med.dosage }}</span>
+                                            }
+                                            @if (med.frequency) {
+                                            <span class="text-slate-400">·</span>
+                                            <span class="text-slate-500">{{ med.frequency }}</span>
+                                            }
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                                }
+
+                                <!-- ===== VACCIN ===== -->
+                                @if (event.type === 'vaccination' && event.vaccine) {
+                                <div class="mt-3 p-3.5 bg-green-50/50 rounded-xl border border-green-100">
+                                    <div class="flex items-center justify-between flex-wrap gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <span
+                                                class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-sm">💉</span>
+                                            <div>
+                                                <p class="text-xs font-bold text-green-800">{{ event.vaccine.name }}</p>
+                                                @if (event.vaccine.lot) {
+                                                <p class="text-[10px] text-green-600">Lot : {{ event.vaccine.lot }}</p>
+                                                }
+                                            </div>
+                                        </div>
+                                        @if (event.vaccine.nextDoseDate) {
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-slate-500 font-medium">Prochain rappel</p>
+                                            <p class="text-xs font-bold text-green-700">
+                                                {{ event.vaccine.nextDoseDate | date:'dd MMM yyyy' }}
+                                            </p>
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                                }
+
+                                <!-- ===== PIÈCES JOINTES & ACTIONS ===== -->
+                                @if (event.attachments && event.attachments.length > 0 || event.type === 'prescription'
+                                || event.type === 'consultation') {
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+
+                                    <!-- Bouton ordonnance -->
+                                    @if (event.type === 'prescription') {
+                                    <button (click)="viewPrescription(event)"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-semibold hover:bg-[#001f45] transition-colors shadow-sm">
+                                        <span class="material-symbols-outlined text-[13px]">description</span>
+                                        Voir l'ordonnance
+                                    </button>
+                                    }
+
+                                    <!-- Bouton compte rendu -->
+                                    @if (event.type === 'consultation' || event.type === 'hospitalization') {
+                                    <button (click)="viewReport(event)"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 hover:border-slate-300 transition-colors">
+                                        <span class="material-symbols-outlined text-[13px]">summarize</span>
+                                        Compte rendu
+                                    </button>
+                                    }
+
+                                    <!-- Pièces jointes -->
+                                    @for (attachment of event.attachments; track attachment.id) {
+                                    <button (click)="openAttachment(attachment)"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-xs font-medium hover:bg-slate-50 transition-colors">
+                                        <span class="material-symbols-outlined text-[13px]">
+                                            {{ attachment.type === 'pdf' ? 'picture_as_pdf' : attachment.type ===
+                                            'image' ? 'image' : 'attach_file' }}
+                                        </span>
+                                        {{ attachment.name }}
+                                    </button>
+                                    }
+
+                                    <!-- Résultats d'analyses -->
+                                    @if (event.type === 'lab_result') {
+                                    <button (click)="viewLabResults(event)"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold hover:bg-purple-700 transition-colors shadow-sm">
+                                        <span class="material-symbols-outlined text-[13px]">science</span>
+                                        Résultats complets
+                                    </button>
+                                    }
+
+                                    <button (click)="onShareEvent(event.id)"
+                                        class="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-slate-500 hover:text-[#1E40AF] rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors">
+                                        <span class="material-symbols-outlined text-[13px]">ios_share</span>
+                                        Partager
+                                    </button>
+
+                                </div>
+                                }
+
+                            </div>
+                        </div>
+
+                    </div>
+                    }
+                </div>
+
+            </div>
             }
         </div>
         }
 
-        ===== PAGINATION / CHARGEMENT PLUS =====
-        @if (hasMoreEvents) {
-        <div class="text-center py-8">
-            <button (click)="loadMore()" [disabled]="loadingMore()" class="px-8 py-3 bg-white border border-secondary text-secondary font-semibold 
-                rounded-xl hover:bg-secondary/5 disabled:opacity-50 transition-colors flex items-center gap-2 mx-auto">
+        <!-- ===== CHARGER PLUS ===== -->
+        @if (hasMoreEvents()) {
+        <div class="text-center py-6">
+            <button (click)="loadMore()" [disabled]="loadingMore()"
+                class="inline-flex items-center gap-2.5 px-8 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm shadow-sm">
                 @if (loadingMore()) {
-                <span class="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin"></span>
+                <span class="w-4 h-4 border-2 border-[#002B5C] border-t-transparent rounded-full animate-spin"></span>
+                } @else {
+                <span class="material-symbols-outlined text-lg">expand_more</span>
                 }
-                {{ loadingMore() ? 'Chargement...' : 'Afficher plus d\'événements' }}
+                {{ loadingMore() ? 'Chargement…' : 'Afficher plus d\'événements' }}
             </button>
         </div>
         }
+
     </div>
     }
 
-
-    <!-- ===== FAB: AJOUTER UN ÉVÉNEMENT (Praticiens uniquement) ===== -->
-    @if (userRole === 'practitioner' && !loading ) {
-    <button (click)="onAddNewEvent()" class="fixed right-6 bottom-24 lg:bottom-12 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center 
-        hover:scale-110 active:scale-95 transition-all z-40 no-print" aria-label="Ajouter un événement médical">
-        <span class="material-symbols-outlined text-3xl" aria-hidden="true">add</span>
+    <!-- ===== FAB AJOUTER ===== -->
+    @if (userRole() === 'practitioner' && !loading()) {
+    <button (click)="onAddNewEvent()"
+        class="fixed right-5 md:right-8 bottom-24 md:bottom-8 bg-[#002B5C] text-white w-14 h-14 rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 no-print"
+        aria-label="Ajouter un événement médical">
+        <span class="material-symbols-outlined text-2xl" aria-hidden="true">add</span>
     </button>
     }
 
-    <!-- ===== TOAST NOTIFICATIONS ===== -->
-    @if (notification) {
-    <div  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up no-print">
-        <div [class.bg-green-600]="notification.type === 'success'" [class.bg-red-600]="notification.type === 'error'"
-            [class.bg-amber-600]="notification.type === 'warning'"
-            class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white">
+    <!-- ===== TOAST ===== -->
+    @if (notification()) {
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up no-print">
+        <div class="flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white text-sm font-medium"
+            [class]="notification()!.type === 'success' ? 'bg-green-600' : notification()!.type === 'error' ? 'bg-red-600' : 'bg-amber-600'">
             <span class="material-symbols-outlined" aria-hidden="true">
-                {{ notification.type === 'success' ? 'check_circle' : notification.type === 'error' ? 'error' :
+                {{ notification()!.type === 'success' ? 'check_circle' : notification()!.type === 'error' ? 'error' :
                 'warning' }}
             </span>
-            <span class="font-medium text-sm">{{ notification.message }}</span>
-            <button (click)="dismissNotification()" class="ml-2 p-1 hover:bg-white/20 rounded transition-colors"
+            <span>{{ notification()!.message }}</span>
+            <button (click)="dismissNotification()" class="ml-1 p-1 hover:bg-white/20 rounded-lg transition-colors"
                 aria-label="Fermer">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
     </div>
     }
+
 </div>

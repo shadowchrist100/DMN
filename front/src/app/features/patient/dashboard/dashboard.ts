@@ -2,11 +2,12 @@ import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DashboardComponent } from "./components/dashboardComponent/dashboardComponent";
-import { TimeLines } from "./components/time-lines/time-lines";
+import {  TimeLinesComponent } from "./components/time-lines/time-lines";
+import { Prescriptions } from "./components/prescriptions/prescriptions";
 
 @Component({
     selector: 'app-dashboard',
-    imports: [DashboardComponent, TimeLines],
+    imports: [DashboardComponent, TimeLinesComponent, Prescriptions],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css',
 })
