@@ -23,11 +23,17 @@
                 <span class="material-symbols-outlined" data-icon="medication">medication</span>
                 Prescriptions
             </a>
-            <a [class]="view() === 'analyses' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
+            <a [class]="view() === 'examens' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
                 class=" py-3 px-4 flex items-center gap-3 "
-                (click)="view.set('analyses')">
+                (click)="view.set('examens')">
                 <span class="material-symbols-outlined" data-icon="biotech">biotech</span>
-                Analyses
+                Examens
+            </a>
+            <a [class]="view() === 'allergies' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
+                class=" py-3 px-4 flex items-center gap-3 "
+                (click)="view.set('allergies')">
+                <span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+                Allergies
             </a>
             <a  [class]="view() === 'consentements' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
                 class=" py-3 px-4 flex items-center gap-3 "
@@ -145,8 +151,14 @@
             @case ('prescriptions') {
                 <app-prescriptions/>
             }
-            @case ('analyses') {
-
+            @case ('examens') {
+                <app-examens/>
+            }
+            @case ('allergies') {
+                <app-allergies/>
+            }
+            @case ('consentements') {
+                <app-consentements/>
             }
             }
         </div>

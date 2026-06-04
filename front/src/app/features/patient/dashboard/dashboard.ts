@@ -4,10 +4,13 @@ import { Subscription } from 'rxjs';
 import { DashboardComponent } from "./components/dashboardComponent/dashboardComponent";
 import {  TimeLinesComponent } from "./components/time-lines/time-lines";
 import { Prescriptions } from "./components/prescriptions/prescriptions";
+import { Consentements } from "./components/consentements/consentements";
+import { Allergies } from "../dashboard/components/allergies/allergies";
+import { Examens } from "./components/examens/examens";
 
 @Component({
     selector: 'app-dashboard',
-    imports: [DashboardComponent, TimeLinesComponent, Prescriptions],
+    imports: [DashboardComponent, TimeLinesComponent, Prescriptions, Consentements, Allergies, Examens],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css',
 })

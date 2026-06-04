@@ -1,0 +1,312 @@
+<!-- ┌─────────────────────────────────────────────────────────────┐
+     │  app-allergies — s'intègre dans le <main> du layout parent  │
+     └─────────────────────────────────────────────────────────────┘ -->
+
+<div class="p-6 md:p-8 max-w-[1440px] mx-auto">
+
+    <!-- ── Breadcrumb & En-tête ─────────────────────────────────────────────── -->
+    <div class="mb-8">
+        <nav class="flex text-xs text-slate-500 mb-2 font-medium tracking-wide uppercase">
+            <a class="hover:text-secondary" href="#">Dossier Médical</a>
+            <span class="mx-2">/</span>
+            <span class="text-primary font-bold">Allergies et Intolérances</span>
+        </nav>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+            <div>
+                <h3 class="font-['Public_Sans'] text-3xl font-extrabold text-primary leading-tight">
+                    Allergies &amp; Intolérances
+                </h3>
+                <p class="text-slate-500 text-sm mt-1">
+                    Registre complet des sensibilités et réactions indésirables du patient.
+                </p>
+            </div>
+            <button class="bg-primary text-white px-5 py-2.5 rounded text-sm font-bold flex items-center gap-2
+               hover:bg-[#002b5c] transition-colors shadow-sm whitespace-nowrap">
+                <span class="material-symbols-outlined text-lg">add_circle</span>
+                DÉCLARER UNE ALLERGIE
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Bento Grid ────────────────────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- ════════════════════════════════════════════
+         COLONNE GAUCHE  (3/4)
+    ════════════════════════════════════════════ -->
+        <div class="lg:col-span-3 space-y-6">
+
+            <!-- Alertes criticité élevée ─────────────────────────────────────────── -->
+            @if (critiquesAlerts().length > 0) {
+            <div class="bg-red-50 border-l-4 border-red-600 p-6 rounded shadow-sm">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-red-600 text-2xl">warning</span>
+                    <h4 class="font-['Public_Sans'] font-bold text-red-900 uppercase tracking-wider text-sm">
+                        Alertes de Criticité Élevée
+                    </h4>
+                </div>
+
+                @for (allergie of critiquesAlerts(); track allergie.id) {
+                <div class="bg-white border border-red-100 rounded p-4
+                        flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3 last:mb-0">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-red-600 text-white p-3 rounded">
+                            <span class="material-symbols-outlined">{{ allergie.icon }}</span>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-primary text-lg">{{ allergie.substance }}</h5>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                <span
+                                    class="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-black uppercase rounded">
+                                    {{ allergie.statut }}
+                                </span>
+                                <span
+                                    class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase rounded">
+                                    {{ allergie.type }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:items-end">
+                        <div class="flex items-center gap-2 text-red-600 font-black text-xs uppercase mb-1">
+                            <span class="material-symbols-outlined text-sm">priority_high</span>
+                            Criticité : Élevée
+                        </div>
+                        <div class="text-xs text-slate-500 font-medium">
+                            Réaction : {{ allergie.reactions[0] }}
+                        </div>
+                    </div>
+                    <button (click)="openDetail(allergie.id)" class="border border-slate-200 text-slate-600 px-4 py-2 text-xs font-bold
+                       uppercase rounded hover:bg-slate-50 transition-colors">
+                        Détails
+                    </button>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- Registre complet ────────────────────────────────────────────────── -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <h4 class="font-['Public_Sans'] font-bold text-slate-400 uppercase tracking-widest text-[10px]">
+                        Registre complet ({{ allergies.length }})
+                    </h4>
+                    <select [ngModel]="sortOption()" (ngModelChange)="onSortChange($event)" class="text-[10px] font-bold uppercase tracking-widest border border-slate-200
+                   rounded px-2 py-1 bg-white text-slate-500 focus:ring-1 focus:ring-secondary/30 cursor-pointer">
+                        <option value="criticite">Trier par Criticité</option>
+                        <option value="date">Trier par Date</option>
+                        <option value="statut">Trier par Statut</option>
+                    </select>
+                </div>
+
+                @for (allergie of listeTriee(); track allergie.id) {
+                <div class="bg-white border border-slate-200 rounded p-5
+                   flex flex-col md:flex-row md:items-center justify-between gap-6
+                   hover:shadow-md transition-all border-l-4 cursor-pointer"
+                    [class]="criticiteClasses(allergie.criticite).border" (click)="openDetail(allergie.id)">
+
+                    <!-- Infos principales -->
+                    <div class="flex items-start gap-4 flex-1">
+                        <div class="p-3 rounded flex-shrink-0"
+                            [class]="typeIconClasses(allergie.type).bg + ' ' + typeIconClasses(allergie.type).text">
+                            <span class="material-symbols-outlined">{{ allergie.icon }}</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 flex-1">
+                            <div>
+                                <h5 class="font-bold text-primary text-base">{{ allergie.substance }}</h5>
+                                <span class="text-[10px] font-bold uppercase text-slate-400">
+                                    {{ allergie.type }} • {{ allergie.sousType }}
+                                </span>
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1">Réactions
+                                    Cliniques</span>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    {{ allergie.reactions.join(', ') }}.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Badge criticité + statut -->
+                    <div class="flex flex-col md:items-end min-w-[130px] gap-1.5">
+                        <span class="px-2 py-1 text-[10px] font-black uppercase rounded"
+                            [class]="criticiteClasses(allergie.criticite).badge">
+                            Criticité : {{ allergie.criticite }}
+                        </span>
+                        <span class="text-[10px] text-slate-500 font-mono">Statut : {{ allergie.statut }}</span>
+                        <span class="text-[10px] text-slate-400 font-medium">{{ allergie.dateDeclaration }}</span>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════
+         COLONNE DROITE  (1/4)
+    ════════════════════════════════════════════ -->
+        <div class="space-y-6">
+
+            <!-- Alerte IA ──────────────────────────────────────────────────────── -->
+            <div
+                class="bg-gradient-to-br from-indigo-900 to-primary text-white p-6 rounded shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="material-symbols-outlined text-indigo-300">smart_toy</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Alerte IA
+                            Préventive</span>
+                    </div>
+                    <p class="text-xs leading-relaxed text-blue-100 mb-4 italic">
+                        "✦ Une corrélation a été détectée entre l'allergie à la Pénicilline et un risque potentiel
+                        de réaction croisée avec les Céphalosporines."
+                    </p>
+                    <button class="w-full bg-white/10 hover:bg-white/20 py-2 rounded text-[10px] font-bold
+                         uppercase tracking-widest transition-colors border border-white/20">
+                        En savoir plus
+                    </button>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-10">
+                    <span class="material-symbols-outlined text-8xl">verified_user</span>
+                </div>
+            </div>
+
+            <!-- Récapitulatif ──────────────────────────────────────────────────── -->
+            <div class="bg-white border border-slate-200 p-6 rounded">
+                <h4 class="font-['Public_Sans'] font-bold text-primary text-xs uppercase tracking-widest
+                   mb-4 border-b border-slate-100 pb-2">Récapitulatif</h4>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 font-medium">Total enregistrements</span>
+                        <span class="font-mono text-sm font-bold text-primary">{{ stats.total | number:'2.0-0' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 font-medium">Allergies Actives</span>
+                        <span class="font-mono text-sm font-bold text-red-600">{{ stats.actives | number:'2.0-0'
+                            }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 font-medium">Intolérances</span>
+                        <span class="font-mono text-sm font-bold text-blue-600">{{ stats.intolerances | number:'2.0-0'
+                            }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 font-medium">Suspectées</span>
+                        <span class="font-mono text-sm font-bold text-yellow-600">{{ stats.suspectees | number:'2.0-0'
+                            }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guide clinique ─────────────────────────────────────────────────── -->
+            <div class="bg-slate-50 border border-slate-200 p-6 rounded">
+                <div class="flex items-center gap-2 mb-3 text-primary">
+                    <span class="material-symbols-outlined text-xl">info</span>
+                    <span class="text-xs font-bold uppercase">Guide Clinique</span>
+                </div>
+                <p class="text-[11px] text-slate-500 leading-relaxed">
+                    Les informations affichées ici sont cruciales pour votre sécurité. Toute nouvelle réaction
+                    suspecte doit être signalée immédiatement à votre médecin traitant ou via le bouton de
+                    déclaration ci-dessus.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL DÉTAIL ALLERGIE
+══════════════════════════════════════════════════════════ -->
+@if (showModal() && selectedAllergie()) {
+<!-- Backdrop -->
+<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+    (click)="closeModal()">
+
+    <!-- Panel -->
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden" (click)="$event.stopPropagation()">
+
+        <!-- Header modal -->
+        <div class="flex items-start justify-between p-6 border-b border-slate-100"
+            [class]="'border-l-4 ' + criticiteClasses(selectedAllergie()!.criticite).border">
+            <div class="flex items-center gap-3">
+                <div class="p-3 rounded"
+                    [class]="typeIconClasses(selectedAllergie()!.type).bg + ' ' + typeIconClasses(selectedAllergie()!.type).text">
+                    <span class="material-symbols-outlined text-xl">{{ selectedAllergie()!.icon }}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] font-bold uppercase text-slate-400">
+                        {{ selectedAllergie()!.type }} • {{ selectedAllergie()!.sousType }}
+                    </span>
+                    <h3 class="text-lg font-bold text-primary">{{ selectedAllergie()!.substance }}</h3>
+                </div>
+            </div>
+            <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors ml-4">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Body modal -->
+        <div class="p-6 space-y-5">
+
+            <!-- Badges statut / criticité -->
+            <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 text-xs font-black uppercase rounded"
+                    [class]="criticiteClasses(selectedAllergie()!.criticite).badge">
+                    Criticité : {{ selectedAllergie()!.criticite }}
+                </span>
+                <span class="px-3 py-1 text-xs font-bold uppercase rounded bg-slate-100 text-slate-600">
+                    {{ selectedAllergie()!.statut }}
+                </span>
+            </div>
+
+            <!-- Réactions -->
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Réactions cliniques</p>
+                <ul class="space-y-1.5">
+                    @for (reaction of selectedAllergie()!.reactions; track $index) {
+                    <li class="flex items-start gap-2 bg-slate-50 rounded px-3 py-2">
+                        <span class="material-symbols-outlined text-sm text-slate-400 mt-0.5">arrow_right</span>
+                        <span class="text-xs text-slate-700">{{ reaction }}</span>
+                    </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Méta ─────────────────────────────────────────────────────────── -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-50 rounded p-3">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Date de déclaration</p>
+                    <p class="text-sm font-semibold text-slate-800">{{ selectedAllergie()!.dateDeclaration }}</p>
+                </div>
+                <div class="bg-slate-50 rounded p-3">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Déclaré par</p>
+                    <p class="text-sm font-semibold text-slate-800">{{ selectedAllergie()!.declarePar }}</p>
+                </div>
+            </div>
+
+            <!-- Notes ─────────────────────────────────────────────────────────── -->
+            @if (selectedAllergie()!.notes) {
+            <div class="bg-indigo-50 border border-indigo-100 p-4 rounded flex gap-3">
+                <span class="material-symbols-outlined text-indigo-600"
+                    style="font-variation-settings: 'FILL' 1">auto_awesome</span>
+                <div>
+                    <p class="text-[10px] font-bold text-indigo-900 uppercase mb-1">Notes cliniques &amp; IA</p>
+                    <p class="text-xs text-indigo-800 leading-relaxed">{{ selectedAllergie()!.notes }}</p>
+                </div>
+            </div>
+            }
+        </div>
+
+        <!-- Footer modal -->
+        <div class="px-6 pb-6 flex justify-end gap-3">
+            <button (click)="closeModal()"
+                class="border border-slate-200 text-slate-600 px-4 py-2 text-xs font-bold uppercase rounded hover:bg-slate-50 transition-colors">
+                Fermer
+            </button>
+            <button
+                class="bg-primary text-white px-4 py-2 text-xs font-bold uppercase rounded hover:bg-[#002b5c] transition-colors">
+                Modifier
+            </button>
+        </div>
+    </div>
+</div>
+}
