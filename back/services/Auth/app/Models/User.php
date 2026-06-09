@@ -11,8 +11,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-
-#[Fillable(['name', 'email', 'password'])]
+['est_actif', 'firstName', 'email', 'lastName', 'npi', 'genre', 'birthDate', 'photo_path', 'password', 'user_type', 'phone'];
+#[Fillable(['first_name', 'last_name', 'email', 'password', 'npi', 'genre', 'birth_date', 'photo_path', 'role', 'phone', 'death_date', 'matrimonial_status', 'multiple_birth', 'status_account', ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements JWTSubject
 {
@@ -49,6 +49,9 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'role' => $this->role,
+            'name' => $this->first_name.' '.$this->last_name
+        ];
     }
 }
