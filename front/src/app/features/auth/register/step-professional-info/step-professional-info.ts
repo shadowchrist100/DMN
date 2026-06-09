@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { RegisterStore } from '../register.store';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -10,7 +10,16 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class StepProfessionalInfo {
     constructor() {
-
+        effect( ()=>{
+            if (this.store.submited()) {
+                if (this.professionalInfoForm.invalid) {
+                    this.professionalInfoForm.markAllAsTouched();
+                    this.store.setContinueSteps(false);
+                }else{
+                    this.store.setContinueSteps(true);
+                }
+            }
+        } )
     }
 
     store = RegisterStore;
@@ -32,6 +41,10 @@ export class StepProfessionalInfo {
                 departpement: ['', Validators.required],
                 address: []
             }),
+        }, {updateOn: 'blur'} );
+
+        this.professionalInfoForm.valueChanges.subscribe( ()=> {
+            this.store.setContinueSteps(this.professionalInfoForm.valid);
         })
     }
 

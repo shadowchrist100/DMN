@@ -1,12 +1,8 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import {
-    AbstractControl, FormBuilder, FormGroup,
-    ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators
-} from '@angular/forms';
-import { PASSWORD_REGEX } from '../../../../core/constants/PASSWORD_REGEX';
+import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RegisterStore } from '../register.store';
 
-// ── Critères de force du mot de passe ──────────────────────────────
 interface PasswordCriterion {
     label: string;
     hint: string;
@@ -14,69 +10,50 @@ interface PasswordCriterion {
 }
 
 const PASSWORD_CRITERIA: PasswordCriterion[] = [
-    {
-        label: '8 caractères minimum',
-        hint: "Plus c'est long, mieux c'est.",
-        test: (v) => v.length >= 8,
-    },
-    {
-        label: 'Lettre majuscule',
-        hint: 'Au moins un (A-Z).',
-        test: (v) => /[A-Z]/.test(v),
-    },
-    {
-        label: 'Chiffre & Symbole',
-        hint: '0-9 et @#$!%...',
-        test: (v) => /[0-9]/.test(v) && /[@#$!%*?&^()_\-+=]/.test(v),
-    },
+    { label: '8 caractères minimum', hint: "Plus c'est long, mieux c'est.", test: (v) => v.length >= 8 },
+    { label: 'Lettre majuscule', hint: 'Au moins une (A-Z).', test: (v) => /[A-Z]/.test(v) },
+    { label: 'Chiffre & Symbole', hint: '0-9 et @#$!%...', test: (v) => /[0-9]/.test(v) && /[@#$!%*?&^()_\-+=]/.test(v) },
 ];
 
-// ── Labels et couleurs selon la force ──────────────────────────────
 const STRENGTH_CONFIG = [
-    { label: 'Trop faible', color: 'text-error', bars: 1 },
+    { label: 'Très faible', color: 'text-error', bars: 1 },
     { label: 'Faible', color: 'text-error', bars: 1 },
     { label: 'Moyen', color: 'text-warning', bars: 2 },
     { label: 'Fort', color: 'text-success', bars: 3 },
     { label: 'Très fort', color: 'text-success', bars: 4 },
 ] as const;
 
-const BAR_COLORS = [
-    '',                                          // 0 — vide
-    'bg-error',                                  // 1 — très faible
-    'bg-warning',                                // 2 — moyen
-    'bg-success',                                // 3 — fort
-    'bg-success',                                // 4 — très fort
-];
+const BAR_COLORS = ['', 'bg-error', 'bg-warning', 'bg-success', 'bg-success'];
 
 @Component({
     selector: 'app-step-auth',
+    standalone: true,
     imports: [ReactiveFormsModule],
     templateUrl: './step-auth.html',
     styleUrl: './step-auth.css',
 })
 export class StepAuth implements OnInit {
     private fb = inject(FormBuilder);
+    private destroyRef = inject(DestroyRef);
     store = RegisterStore;
 
     authForm!: FormGroup;
 
-    // Visibilité des champs
+    // Signaux d'état d'interface (UI State)
     showPassword = signal(false);
     showConfirmPassword = signal(false);
-
-    // Force du mot de passe (0-4)
     passwordStrength = signal(0);
-
-    // Critères exposés au template
-    readonly criteria = PASSWORD_CRITERIA;
-
-    // Tableau de booléens : quel critère est satisfait ?
     criteriaStatus = signal<boolean[]>([false, false, false]);
 
-    // Config strength courante
+    // État d'accès aux fichiers pour raccourcis template légers
+    files = signal<{ identityFile: File | null; medicalCardFile: File | null }>({
+        identityFile: null,
+        medicalCardFile: null
+    });
+
+    readonly criteria = PASSWORD_CRITERIA;
     strengthConfig = computed(() => STRENGTH_CONFIG[this.passwordStrength()]);
 
-    // Couleur de chaque barre (4 barres)
     strengthBars = computed(() => {
         const filled = this.passwordStrength();
         return Array.from({ length: 4 }, (_, i) =>
@@ -87,35 +64,58 @@ export class StepAuth implements OnInit {
     ngOnInit(): void {
         this.store.setContinueSteps(false);
 
+        // Initialisation de base du formulaire
         this.authForm = this.fb.group(
             {
                 email: ['', [Validators.required, Validators.email]],
-                password: ['', [Validators.required, Validators.pattern(PASSWORD_REGEX)]],
+                password: ['', [Validators.required, Validators.minLength(8)]],
                 confirmPassword: ['', [Validators.required]],
+                identityDocType: ['', [Validators.required]],
+                identityFile: [null, [Validators.required]],
+                medicalCardFile: [null] // Configuré conditionnellement juste après
             },
-            { updateOn: 'blur', validators: this.passwordMismatchValidator() }
+            {
+                validators: this.passwordMismatchValidator()
+            }
         );
 
-        // Suivi de la force en temps réel (pas updateOn: blur)
-        this.authForm.get('password')!.valueChanges.subscribe((value: string) => {
-            this.updateStrength(value ?? '');
-        });
+        // Ajustement des règles si professionnel médical
+        this.setupRoleBasedValidators();
 
-        this.authForm.valueChanges.subscribe(() => {
-            this.store.setContinueSteps(this.authForm.valid);
-        });
+        // Calculateur de force réactif en temps réel
+        this.authForm.get('password')!.valueChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((value: string) => {
+                this.updateStrength(value ?? '');
+            });
 
+        // Validation globale pour l'activation du passage à l'étape suivante dans le Store
+        this.authForm.statusChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((status) => {
+                this.store.setContinueSteps(status === 'VALID');
+            });
+
+        // Traitement initial si déjà soumis (comportement d'édition/re-validation)
         if (this.store.submited()) {
             if (this.authForm.invalid) {
                 this.authForm.markAllAsTouched();
                 this.store.setContinueSteps(false);
-            } else {
-                this.store.setContinueSteps(true);
             }
         }
     }
 
-    // ── Force du mot de passe ────────────────────────────────────────
+    private setupRoleBasedValidators(): void {
+        const medicalControl = this.authForm.get('medicalCardFile');
+        if (this.store.userType() === 'PRACTITIONER') {
+            medicalControl?.setValidators([Validators.required]);
+        } else {
+            medicalControl?.clearValidators();
+            medicalControl?.setValue(null);
+        }
+        medicalControl?.updateValueAndValidity();
+    }
+
     private updateStrength(value: string): void {
         const statuses = PASSWORD_CRITERIA.map((c) => c.test(value));
         this.criteriaStatus.set(statuses);
@@ -125,14 +125,48 @@ export class StepAuth implements OnInit {
             return;
         }
 
-        const passed = statuses.filter(Boolean).length; // 0-3
-
-        // Bonus si tous les critères + longueur >= 12
+        const passed = statuses.filter(Boolean).length;
         const score = passed === 3 && value.length >= 12 ? 4 : passed;
         this.passwordStrength.set(score);
+
+        // Validation additionnelle manuelle si la force est insuffisante (ex: exiger au moins Moyen)
+        const passwordControl = this.authForm.get('password');
+        if (score < 2 && passwordControl?.valid) {
+            passwordControl.setErrors({ weakPassword: true });
+        }
     }
 
-    // ── Validateur mismatch ──────────────────────────────────────────
+    // Gestionnaire de sélection de documents
+    onFileSelected(event: Event, controlName: 'identityFile' | 'medicalCardFile'): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            const file = input.files[0];
+
+            // Vérification de sécurité (taille maximale 5 Mo)
+            if (file.size > 5 * 1024 * 1024) {
+                this.authForm.get(controlName)?.setErrors({ maxSizeExceeded: true });
+                return;
+            }
+
+            // Injection du fichier dans le contrôle réactif
+            this.authForm.get(controlName)?.setValue(file);
+            this.authForm.get(controlName)?.markAsTouched();
+            this.authForm.get(controlName)?.updateValueAndValidity();
+
+            // Mise à jour du signal pour affichage immédiat
+            this.files.update(state => ({ ...state, [controlName]: file }));
+        }
+    }
+
+    removeFile(controlName: 'identityFile' | 'medicalCardFile', event: Event): void {
+        event.stopPropagation(); // Évite le déclenchement du click sur la zone parente
+        this.authForm.get(controlName)?.setValue(null);
+        this.authForm.get(controlName)?.markAsTouched();
+        this.authForm.get(controlName)?.updateValueAndValidity();
+
+        this.files.update(state => ({ ...state, [controlName]: null }));
+    }
+
     private passwordMismatchValidator(): ValidatorFn {
         return (group: AbstractControl): ValidationErrors | null => {
             const password = group.get('password');
@@ -141,30 +175,17 @@ export class StepAuth implements OnInit {
             if (!password || !confirmPassword) return null;
 
             if (password.value !== confirmPassword.value) {
-                confirmPassword.setErrors({ ...confirmPassword.errors, mismatch: true });
                 return { mismatch: true };
-            } else {
-                if (confirmPassword.hasError('mismatch')) {
-                    const { mismatch, ...remaining } = confirmPassword.errors ?? {};
-                    confirmPassword.setErrors(Object.keys(remaining).length ? remaining : null);
-                }
             }
-
             return null;
         };
     }
 
-    // ── Helpers template ─────────────────────────────────────────────
     isInvalid(field: string): boolean {
         const control = this.authForm.get(field);
-        return !!(control?.invalid && control.touched);
+        return !!(control?.invalid && (control.touched || this.store.submited()));
     }
 
-    togglePassword(): void {
-        this.showPassword.update((v) => !v);
-    }
-
-    toggleConfirmPassword(): void {
-        this.showConfirmPassword.update((v) => !v);
-    }
+    togglePassword(): void { this.showPassword.update((v) => !v); }
+    toggleConfirmPassword(): void { this.showConfirmPassword.update((v) => !v); }
 }

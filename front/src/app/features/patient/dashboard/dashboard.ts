@@ -1,144 +1,210 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { DashboardComponent } from "./components/dashboardComponent/dashboardComponent";
-import {  TimeLinesComponent } from "./components/time-lines/time-lines";
+import { TimeLinesComponent } from "./components/time-lines/time-lines";
 import { Prescriptions } from "./components/prescriptions/prescriptions";
-import { Consentements } from "./components/consentements/consentements";
-import { Allergies } from "../dashboard/components/allergies/allergies";
 import { Examens } from "./components/examens/examens";
+import { Allergies } from "./components/allergies/allergies";
+import { Consentements } from "./components/consentements/consentements";
+import { NavIconPipe } from '../pipes/nav-icon-pipe';
+import { NavLabelPipe } from '../pipes/nav-label-pipe';
+
+export type ViewKey =
+    | 'dashboard' | 'historique' | 'prescriptions'
+    | 'examens' | 'allergies' | 'pathologies' | 'consentements';
+
+export interface NavItem {
+    key: ViewKey;
+    label: string;
+    icon: string;
+}
+
+export interface HealthProfile {
+    nom: string;
+    prenom: string;
+    age: number;
+    dateNaissance: string;
+    sexe: string;
+    groupeSanguin: string;
+    rhesus: string;
+    poids: number;   // kg
+    taille: number;   // cm
+    imc: number;
+    statutImc: string;
+    allergiePrincipale: string;
+    pathologiesChroni: string[];
+    dernierePrise: string;
+    avatar: string;
+    nin: string;   // Numéro d'identification national
+}
+
+export interface AlerteItem {
+    type: 'prescription' | 'urgence' | 'examen' | 'info';
+    message: string;
+    date: string;
+    auteur?: string;
+}
+
+
+export interface AccesRecent {
+    qui: string;
+    role: string;
+    date: string;
+    icon: string;
+}
 
 @Component({
     selector: 'app-dashboard',
-    imports: [DashboardComponent, TimeLinesComponent, Prescriptions, Consentements, Allergies, Examens],
+    standalone: true,
+    imports: [CommonModule, TimeLinesComponent, Prescriptions, Examens, Allergies, Consentements, NavIconPipe, NavLabelPipe],
     templateUrl: './dashboard.html',
-    styleUrl: './dashboard.css',
+    styleUrls: ['./dashboard.css'],
 })
 export class Dashboard implements OnInit, OnDestroy {
-    // État UI
-    isMobile = window.innerWidth < 1024;
+
+    // ── UI state ─────────────────────────────────────────────────────────────
+    view = signal<ViewKey>('dashboard');
     profileMenuOpen = false;
-    loadingAudit = true;
-    isDownloading = false;
+    sidebarOpen = false;
+    isMobile = false;
+    alertPanelOpen = false;
+    alertCount = 3;
 
-    // Données utilisateur
-    userName = '';
-    userAvatar = '';
+    // ── Navigation ────────────────────────────────────────────────────────────
+    readonly navItems: NavItem[] = [
+        { key: 'dashboard', label: 'Tableau de bord', icon: 'dashboard' },
+        { key: 'historique', label: 'Historique Médical', icon: 'history' },
+        { key: 'prescriptions', label: 'Prescriptions', icon: 'medication' },
+        { key: 'examens', label: 'Examens', icon: 'biotech' },
+        { key: 'allergies', label: 'Allergies', icon: 'allergy' },
+        { key: 'pathologies', label: 'Pathologies', icon: 'stethoscope' },
+        { key: 'consentements', label: 'Consentements', icon: 'verified_user' },
+    ];
 
+    // ── Données patient (à remplacer par un service) ──────────────────────────
+    patient: HealthProfile = {
+        nom: 'AGOSSOU',
+        prenom: 'Kofi Emmanuel',
+        age: 47,
+        dateNaissance: '12 Mars 1977',
+        sexe: 'Masculin',
+        groupeSanguin: 'O',
+        rhesus: '+',
+        poids: 82,
+        taille: 178,
+        imc: 25.9,
+        statutImc: 'Surpoids léger',
+        allergiePrincipale: 'Pénicilline G',
+        pathologiesChroni: ['Hypertension artérielle', 'Hypercholestérolémie'],
+        dernierePrise: '14 Septembre 2023',
+        avatar: 'https://i.pravatar.cc/150?img=68',
+        nin: 'BJ-2024-00047821',
+    };
 
-    // Compteurs
-    alertCount = 0;
+    get imc(): number { return this.patient.imc; }
+    get imcClass(): string {
+        const i = this.imc;
+        if (i < 18.5) return 'text-blue-600';
+        if (i < 25) return 'text-emerald-600';
+        if (i < 30) return 'text-amber-600';
+        return 'text-red-600';
+    }
+
+    alertes: AlerteItem[] = [
+        {
+            type: 'prescription',
+            message: 'Nouvelle prescription émise : Amlodipine 5 mg — 1 cp/jour pendant 30 jours',
+            date: '03/06/2026',
+            auteur: 'Dr. Kouandété Koffi'
+        },
+        {
+            type: 'urgence',
+            message: 'Accès au dossier via protocole d\'urgence — Urgences CHU Cotonou',
+            date: '28/05/2026',
+            auteur: 'Dr. F. Adjovi (garde)'
+        },
+        {
+            type: 'examen',
+            message: 'Résultat d\'examen disponible : Bilan lipidique complet — LDL à 1,62 g/L',
+            date: '24/05/2026',
+            auteur: 'Labo Central Cotonou'
+        },
+        {
+            type: 'info',
+            message: 'Consentement de partage de dossier renouvelé pour Dr. Aïssatou Bello',
+            date: '15/05/2026',
+            auteur: 'Patient'
+        },
+    ];
+
+    accesRecents: AccesRecent[] = [
+        { qui: 'Dr. Kouandété Koffi', role: 'Cardiologue', date: 'Aujourd\'hui 10:45', icon: 'cardiology' },
+        { qui: 'Dr. Aïssatou Bello', role: 'Médecine Interne', date: 'Hier 14:20', icon: 'stethoscope' },
+        { qui: 'Labo Central Cotonou', role: 'Laboratoire', date: '24/05/2024', icon: 'biotech' },
+    ];
+
+    quickStats = [
+        { label: 'Examens', value: '11', icon: 'biotech', color: 'bg-blue-50 text-blue-600', route: 'examens' },
+        { label: 'Prescriptions', value: '4', icon: 'medication', color: 'bg-violet-50 text-violet-600', route: 'prescriptions' },
+        { label: 'Allergies', value: '4', icon: 'allergy', color: 'bg-red-50 text-red-600', route: 'allergies' },
+        { label: 'Consentements', value: '2', icon: 'verified_user', color: 'bg-emerald-50 text-emerald-600', route: 'consentements' },
+    ];
 
     private routeSub!: Subscription;
-    private auditSub!: Subscription;
-
     private router = inject(Router);
 
-    view = signal<String>('dashboard');
-
-    constructor(
-        // private router: Router,
-        // private navService: NavigationService,
-        // private auditService: AuditService,
-        // private userService: UserService
-    ) { }
-
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
     ngOnInit(): void {
-        // Charger le profil utilisateur
-        this.loadUserProfile();
-
-        // Charger le journal d'accès
-        this.loadAuditLog();
-
-        // Suivre les changements de route pour mettre à jour l'état actif
-        // this.routeSub = this.router.events
-        //     .pipe(filter(event => event instanceof NavigationEnd))
-        //     .subscribe((event: NavigationEnd) => {
-        //         this.currentRoute = event.urlAfterRedirects.split('?')[0];
-        //         this.profileMenuOpen = false; // Fermer le menu profil après navigation
-        //     });
-
-        // Gestion responsive
         this.checkScreenSize();
     }
 
     ngOnDestroy(): void {
         this.routeSub?.unsubscribe();
-        this.auditSub?.unsubscribe();
     }
 
-    // @HostListener('window:resize', ['$event'])
-    // onResize(): void {
-    //     this.checkScreenSize();
-    // }
+    @HostListener('window:resize')
+    onResize(): void { this.checkScreenSize(); }
 
     private checkScreenSize(): void {
         this.isMobile = window.innerWidth < 1024;
+        if (!this.isMobile) this.sidebarOpen = false;
     }
 
-    private loadUserProfile(): void {
-        // const user: UserProfile = this.userService.getCurrentUser();
-        // this.userName = user.firstName;
-        // this.userAvatar = user.avatarUrl || 'assets/images/default-avatar.png';
-        // this.userRole = user.role;
+    // ── Actions ───────────────────────────────────────────────────────────────
+    setView(key: String): void {
+        this.view.set(key as ViewKey);
+        this.sidebarOpen = false;
+        this.profileMenuOpen = false;
     }
 
-    private loadAuditLog(): void {
-        this.loadingAudit = true;
-        // this.auditSub = this.auditService.getRecentAccesses(5)
-        //     .subscribe({
-        //         next: (logs) => {
-        //             this.recentAccesses = logs;
-        //             this.loadingAudit = false;
-        //         },
-        //         error: (err) => {
-        //             console.error('Erreur chargement audit:', err);
-        //             this.loadingAudit = false;
-        //             // Fallback: afficher message d'erreur dans la vue
-        //         }
-        //     });
-    }
+    toggleSidebar(): void { this.sidebarOpen = !this.sidebarOpen; }
+    toggleProfileMenu(): void { this.profileMenuOpen = !this.profileMenuOpen; }
+    toggleAlertPanel(): void { this.alertPanelOpen = !this.alertPanelOpen; }
 
-
-    openSettings(): void {
-        // this.router.navigate(['/parametres']);
-    }
-    
     onSearchWithinDossier(event: Event): void {
         // const query = (event.target as HTMLInputElement).value;
-        // if (query.length >= 2) {
-        //     this.router.navigate(['/recherche'], {
-        //         queryParams: { q: query, scope: 'mon-dossier' }
-        //     });
-        // }
     }
 
-    toggleView(view: String){
-        this.view.set(view);
+    openHelp(): void { window.open('https://dmn.benin/help', '_blank'); }
+    openSettings(): void { /* router.navigate(['/parametres']) */ }
+    onLogout(): void { /* userService.logout() */ }
+
+    alertBadge(type: AlerteItem['type']): string {
+        return {
+            prescription: 'bg-violet-100 text-violet-700 border-violet-200',
+            urgence: 'bg-red-100 text-red-700 border-red-200',
+            examen: 'bg-blue-100 text-blue-700 border-blue-200',
+            info: 'bg-slate-100 text-slate-600 border-slate-200',
+        }[type];
     }
 
-    // ===== ACTIONS UTILISATEUR =====
-    toggleProfileMenu(): void {
-        this.profileMenuOpen = !this.profileMenuOpen;
+    alertIcon(type: AlerteItem['type']): string {
+        return {
+            prescription: 'medication',
+            urgence: 'emergency',
+            examen: 'biotech',
+            info: 'info',
+        }[type];
     }
-
-    onLogout(): void {
-        // this.userService.logout();
-        // this.router.navigate(['/login']);
-    }
-
-    // ===== GESTION ALERTES =====
-    openAlertsPanel(): void {
-        this.router.navigate(['/alertes']);
-    }
-
-    // ===== AUTRES ACTIONS =====
-    openNotifications(): void {
-        // this.router.navigate(['/notifications']);
-    }
-
-    openHelp(): void {
-        window.open('https://dmn.benin/help', '_blank');
-    }
-
 }

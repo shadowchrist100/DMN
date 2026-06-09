@@ -1,131 +1,153 @@
-<div class="min-h-screen bg-slate-50 text-slate-900 font-['Public_Sans'] antialiased">
-    <aside
-        class="hidden lg:flex flex-col h-screen fixed left-0 top-0 z-40 bg-[#002B5C] text-white w-64 border-r border-white/10 font-['Public_Sans'] text-sm tracking-wide">
-        <div class="px-6 py-8">
-            <h1 class="text-lg font-black text-white uppercase tracking-tighter">DMN Portal</h1>
-            <p class="text-blue-100/70 text-xs mt-1">République du Bénin</p>
+<!--    ╔══════════════════════════════════════════════════════════════════╗
+        ║  app-dashboard  —  layout principal avec sidebar + header        ║
+        ╚══════════════════════════════════════════════════════════════════╝ -->
+<div class="min-h-screen bg-[#f8f9ff] text-slate-900 font-['Public_Sans'] antialiased flex">
+
+    <!-- ══════════════════════════════════════════
+        SIDEBAR (desktop fixe / mobile overlay)
+    ══════════════════════════════════════════ -->
+    <!-- Overlay mobile -->
+    @if (sidebarOpen && isMobile) {
+    <div class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden" (click)="toggleSidebar()"></div>
+    }
+
+    <aside class="fixed left-0 top-0 z-40 h-screen w-64 bg-[#002B5C] text-white flex flex-col
+        border-r border-white/10 transition-transform duration-300 overflow-hidden"
+        [class.translate-x-0]="!isMobile || sidebarOpen" [class.-translate-x-full]="isMobile && !sidebarOpen">
+
+        <!-- Logo -->
+        <div class="px-6 py-2 border-b border-white/10">
+            <h1 class="text-lg font-black uppercase tracking-tighter text-white">DMN Portal</h1>
+            <p class="text-blue-100/60 text-[10px] mt-0.5 uppercase tracking-widest">République du Bénin</p>
         </div>
-        <nav class="flex-1 overflow-y-auto px-2 space-y-1">
-            <a [class]=" view() === 'dashboard' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5'] " 
-            class="py-3 px-4 flex items-center gap-3" (click)="view.set('dashboard')">
-                <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-                Tableau de bord
-            </a>
-            <a [class]=" view() === 'historique' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5'] "
-                class=" py-3 px-4 flex items-center gap-3 "
-                (click)="view.set('historique')">
-                <span class="material-symbols-outlined" data-icon="Description">description</span>
-                Historique Médical
-            </a>
-            <a [class]="view() === 'prescriptions' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
-                class="py-3 px-4 flex items-center gap-3"
-                (click)="view.set('prescriptions')">
-                <span class="material-symbols-outlined" data-icon="medication">medication</span>
-                Prescriptions
-            </a>
-            <a [class]="view() === 'examens' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
-                class=" py-3 px-4 flex items-center gap-3 "
-                (click)="view.set('examens')">
-                <span class="material-symbols-outlined" data-icon="biotech">biotech</span>
-                Examens
-            </a>
-            <a [class]="view() === 'allergies' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
-                class=" py-3 px-4 flex items-center gap-3 "
-                (click)="view.set('allergies')">
-                <span class="material-symbols-outlined" data-icon="biotech">biotech</span>
-                Allergies
-            </a>
-            <a  [class]="view() === 'consentements' ?  ['sidebar-active'] : ['transition-all','text-blue-100/70', 'hover:bg-white/5']"
-                class=" py-3 px-4 flex items-center gap-3 "
-                (click)="view.set('consentements')">
-                <span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
-                Consentements
-            </a>
-        </nav>
-        <div class="p-4 border-t border-white/10 space-y-1 mb-6">
-            <button
-                class="w-full bg-secondary text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-4 hover:bg-opacity-90 transition-all">
-                <span class="material-symbols-outlined" data-icon="add">add</span>
-                Nouveau Dossier
+
+        <!-- ── Mini profil patient dans la sidebar ── -->
+        <div class="px-4 py-4 border-b border-white/10">
+            <div class="flex items-center gap-3 bg-white/5 rounded-xl px-3 py-3">
+                <img [src]="patient.avatar" [alt]="patient.prenom"
+                    class="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0">
+                <div class="min-w-0">
+                    <p class="text-xs font-black text-white truncate">{{ patient.prenom }}</p>
+                    <p class="text-[10px] text-blue-100/60 truncate">{{ patient.nom }}</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span class="text-[9px] text-emerald-300 font-bold uppercase">Dossier actif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-hidden">
+            @for (item of navItems; track item.key) {
+            <button (click)="setView(item.key)"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all text-left"
+                [class.bg-white]="view() === item.key" [class.text-primary]="view() === item.key"
+                [class.font-bold]="view() === item.key" [class.shadow-sm]="view() === item.key"
+                [class.text-blue-100\/70]="view() !== item.key" [class.hover\:bg-white\/8]="view() !== item.key">
+                <span class="material-symbols-outlined text-[20px]" [class.text-secondary]="view() === item.key">{{
+                    item.icon }}</span>
+                {{ item.label }}
+                @if (item.key === 'allergies') {
+                <span class="ml-auto bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">4</span>
+                }
             </button>
-            <a class="text-blue-100/70 hover:bg-white/5 py-2 px-4 flex items-center gap-3 transition-all text-xs"
-                href="#">
-                <span class="material-symbols-outlined text-sm" data-icon="support_agent">support_agent</span>
-                Support
+            }
+        </nav>
+
+        <!-- Footer sidebar -->
+        <div class="p-4 border-t border-white/10 space-y-1">
+            <a class="flex items-center gap-3 py-2 px-3 text-blue-100/60 hover:text-white hover:bg-white/5
+                rounded-lg transition-all text-xs" href="#">
+                <span class="material-symbols-outlined text-sm">support_agent</span> Support
             </a>
-            <a class="text-blue-100/70 hover:bg-white/5 py-2 px-4 flex items-center gap-3 transition-all text-xs"
-                href="#">
-                <span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
-                Déconnexion
-            </a>
+            <button (click)="onLogout()" class="w-full flex items-center gap-3 py-2 px-3 text-blue-100/60 hover:text-white hover:bg-white/5
+                rounded-lg transition-all text-xs text-left">
+                <span class="material-symbols-outlined text-sm">logout</span> Déconnexion
+            </button>
         </div>
     </aside>
 
-    <!-- ========== CONTENU PRINCIPAL ========== -->
-    <main class="lg:ml-64 min-h-screen flex flex-col">
+    <!-- ══════════════════════════════════════════
+        ZONE PRINCIPALE
+    ══════════════════════════════════════════ -->
+    <div class="flex-1 lg:ml-64 flex flex-col min-h-screen">
 
-        <!-- ----- TOP NAVBAR ----- -->
-        <header class="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 md:px-6 py-3 shadow-sm">
-            <div class="flex justify-between items-center">
+        <!-- ─── TOP HEADER ──────────────────────────────────────────────────── -->
+        <header class="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+            <div class="flex justify-between items-center px-4 md:px-6 py-3">
 
-                <!-- Logo + Menu Mobile -->
+                <!-- Gauche : burger + titre -->
                 <div class="flex items-center gap-3">
-                    <h1 class="text-lg md:text-xl font-bold text-[#002B5C]">DMN Bénin</h1>
+                    <button (click)="toggleSidebar()"
+                        class="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-slate-600">menu</span>
+                    </button>
+                    <div class="hidden lg:flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-lg">
+                            {{ navItems | navIcon : view() }}
+                        </span>
+                        <h2 class="font-black text-[#002B5C] text-base uppercase tracking-wide">
+                            {{ view() === 'dashboard' ? 'Tableau de bord' : (navItems | navLabel : view()) }}
+                        </h2>
+                    </div>
+                    <h2 class="lg:hidden font-black text-[#002B5C] text-base">DMN Bénin</h2>
                 </div>
 
-                <!-- Actions Droite -->
-                <div class="flex items-center gap-2 md:gap-4">
-
-                    <!-- Recherche dans MON dossier uniquement -->
+                <!-- Droite : recherche + actions -->
+                <div class="flex items-center gap-2 md:gap-3">
                     <div class="hidden md:flex relative">
-                        <input type="text" placeholder="Rechercher dans mon dossier..." class="bg-slate-100 border-none rounded-full py-2 pl-10 pr-4 w-48 md:w-64 
-                    text-sm focus:ring-2 focus:ring-[#1E40AF] focus:bg-white transition-all"
-                            aria-label="Rechercher dans mon dossier médical" (input)="onSearchWithinDossier($event)">
+                        <input type="text" placeholder="Rechercher dans mon dossier…"
+                            (input)="onSearchWithinDossier($event)" class="bg-slate-50 border border-slate-200 rounded-full py-2 pl-10 pr-4 w-52 lg:w-64
+                        text-sm focus:ring-2 focus:ring-secondary/30 focus:bg-white transition-all">
                         <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">
                             search
                         </span>
                     </div>
 
-                    <!-- 🔔 Notifications avec badge -->
-                    <button class="p-2 hover:bg-slate-100 rounded-full transition-colors relative"
-                        aria-label="Voir mes alertes" (click)="openAlertsPanel()">
+                    <!-- Alertes -->
+                    <button (click)="toggleAlertPanel()"
+                        class="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <span class="material-symbols-outlined text-slate-500">notifications</span>
-                        @if (alertCount > 0 ) {
-                        <span
-                            class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse ">
-                            {{alertCount}} </span>
+                        @if (alertCount > 0) {
+                        <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white
+                            text-[10px] font-black rounded-full flex items-center justify-center animate-pulse">
+                            {{ alertCount }}
+                        </span>
                         }
                     </button>
 
-                    <!-- Aide -->
-                    <button class="p-2 hover:bg-slate-100 rounded-full" aria-label="Aide" (click)="openHelp()">
+                    <button (click)="openHelp()"
+                        class="hidden md:flex p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <span class="material-symbols-outlined text-slate-500">help</span>
                     </button>
-
-                    <!-- Paramètres -->
-                    <button class="p-2 hover:bg-slate-100 rounded-full" aria-label="Paramètres"
-                        (click)="openSettings()">
+                    <button (click)="openSettings()"
+                        class="hidden md:flex p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <span class="material-symbols-outlined text-slate-500">settings</span>
                     </button>
 
-                    <!-- Profil -->
+                    <!-- Avatar + menu -->
                     <div class="relative">
-                        <button class="flex items-center gap-2 p-1 hover:bg-slate-100 rounded-full"
-                            (click)="toggleProfileMenu()">
-                            <img [src]="userAvatar" [alt]="'Photo de ' + userName"
-                                class="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border-2 border-slate-200">
-                            <span class="hidden md:block text-sm font-medium text-slate-700">{{ userName }}</span>
+                        <button (click)="toggleProfileMenu()"
+                            class="flex items-center gap-2 p-1 hover:bg-slate-100 rounded-full transition-colors">
+                            <img [src]="patient.avatar" [alt]="patient.prenom"
+                                class="w-8 h-8 rounded-full object-cover border-2 border-slate-200">
+                            <span class="hidden md:block text-sm font-semibold text-slate-700">
+                                {{ patient.prenom }}
+                            </span>
+                            <span
+                                class="material-symbols-outlined text-slate-400 text-base hidden md:block">expand_more</span>
                         </button>
-
-                        <!-- Dropdown -->
                         @if (profileMenuOpen) {
                         <div
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-50">
-                            <a href="/profil" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Mon
-                                Profil</a>
-                            <a href="/parametres"
-                                class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Paramètres</a>
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p class="text-xs font-bold text-slate-800">{{ patient.prenom }} {{ patient.nom }}</p>
+                                <p class="text-[10px] text-slate-400 font-mono">NIN : {{ patient.nin }}</p>
+                            </div>
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Mon Profil</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Paramètres</a>
                             <hr class="my-1 border-slate-100">
                             <button (click)="onLogout()"
                                 class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
@@ -133,68 +155,318 @@
                             </button>
                         </div>
                         }
-
                     </div>
                 </div>
             </div>
+
+            <!-- Panel alertes dropdown -->
+            @if (alertPanelOpen) {
+            <div
+                class="absolute right-4 top-16 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-fadeIn">
+                <div class="px-5 py-3 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <span class="text-xs font-black uppercase text-slate-600">Mes alertes</span>
+                    <button (click)="toggleAlertPanel()" class="text-slate-400 hover:text-slate-600">
+                        <span class="material-symbols-outlined text-base">close</span>
+                    </button>
+                </div>
+                <div class="divide-y divide-slate-100 max-h-72 overflow-y-auto">
+                    @for (a of alertes; track a.message) {
+                    <div class="px-4 py-3 flex gap-3 items-start hover:bg-slate-50">
+                        <span class="material-symbols-outlined text-base mt-0.5"
+                            [class.text-red-500]="a.type === 'urgence'"
+                            [class.text-amber-500]="a.type === 'prescription'"
+                            [class.text-blue-500]="a.type === 'info'">{{ alertIcon(a.type) }}</span>
+                        <div>
+                            <p class="text-xs text-slate-700 leading-snug">{{ a.message }}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">{{ a.date }}</p>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
         </header>
 
-        <!-- ===== CONTENU ===== -->
-        <div class="flex-1 p-4 md:p-6 lg:p-8">
-            @switch (view()) {
-            @case ('dashboard') {
-            <app-dashboard-component />
-            }
-            @case ('historique'){
-            <app-time-lines />
-            }
-            @case ('prescriptions') {
-                <app-prescriptions/>
-            }
-            @case ('examens') {
-                <app-examens/>
-            }
-            @case ('allergies') {
-                <app-allergies/>
-            }
-            @case ('consentements') {
-                <app-consentements/>
-            }
-            }
-        </div>
+        <!-- ─── CONTENU PRINCIPAL ───────────────────────────────────────────── -->
+        <main class="flex-1 p-4 md:p-6 lg:p-8 space-y-6 overflow-y-auto">
 
-    </main>
-</div>
-<footer class="mt-12 pt-8 border-t border-slate-200">
+            <!-- ════════════════════════════════════════════
+            VUE DASHBOARD (page d'accueil du dossier)
+        ════════════════════════════════════════════ -->
+            @if (view() === 'dashboard') {
 
-    <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-400">
-
-        <div>
-            <p class="font-bold uppercase tracking-widest text-[10px] text-slate-500">
-                Protection des Données
-            </p>
-            <div class="flex items-center gap-4 mt-2">
-                <span class="flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">
-                        verified
-                    </span>
-                    Conforme APDP Bénin
-                </span>
-                <span class="flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">
-                        lock
-                    </span>
-                    Certifié PSSIE
+            <!-- Salutation -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                <div>
+                    <p class="text-slate-400 text-sm">Bienvenue sur votre espace santé,</p>
+                    <h2 class="font-['Public_Sans'] font-extrabold text-2xl md:text-3xl text-[#002B5C]">
+                        Bonjour, {{ patient.prenom }} 👋
+                    </h2>
+                </div>
+                <span class="text-xs bg-white border border-slate-200 shadow-sm px-3 py-1.5 rounded-full
+                        text-slate-500 font-medium flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">update</span>
+                    Dossier mis à jour le {{ patient.dernierePrise }}
                 </span>
             </div>
-        </div>
-        <div class="text-center md:text-right">
-            <p>
-                © 2026 Ministère de la Santé - Gouvernement du Bénin
-            </p>
-            <p class="text-[11px] italic mt-1">
-                Toutes les données sont chiffrées de bout en bout (AES-256).
-            </p>
-        </div>
-    </div>
-</footer>
+
+            <!-- ── CARD PROFIL PATIENT ─────────────────────────────────────── -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                <!-- Bandeau supérieur dégradé -->
+                <div class="h-20 bg-linear-to-r mb-2 from-[#002B5C] via-[#004b99] to-[#0059bb] relative">
+                    <div class="absolute inset-0 opacity-10"
+                        style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.05) 10px, rgba(255,255,255,.05) 11px)">
+                    </div>
+                    <div class="absolute bottom-0 right-6 flex items-center gap-2 pb-2">
+                        <span class="material-symbols-outlined text-white/40 text-sm">verified</span>
+                        <span class="text-white/50 text-[10px] uppercase tracking-widest font-bold">Certifié PSSIE
+                            Bénin</span>
+                    </div>
+                </div>
+
+                <div class="px-6 pb-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-10 mb-6">
+                        <!-- Avatar -->
+                        <div class="relative">
+                            <img [src]="patient.avatar" [alt]="patient.prenom"
+                                class="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg">
+                            <span
+                                class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 border-2 border-white rounded-full"></span>
+                        </div>
+                        <!-- Identité -->
+                        <div class="flex-1 min-w-0 pb-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-0.5">
+                                <h3 class="font-['Public_Sans'] font-extrabold text-xl text-[#002B5C]">
+                                    {{ patient.prenom }} {{ patient.nom }}
+                                </h3>
+                                <span
+                                    class="bg-blue-50 text-secondary text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100">
+                                    {{ patient.sexe }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-slate-500">{{ patient.age }} ans · Né(e) le {{ patient.dateNaissance
+                                }}</p>
+                            <p class="text-[10px] font-mono text-slate-400 mt-0.5">NIN : {{ patient.nin }}</p>
+                        </div>
+                        <button (click)="setView('historique')" class="shrink-0  bg-[#002B5C] text-white px-4 py-2 rounded-xl text-xs font-bold
+                        flex items-center gap-1.5 hover:bg-[#004b99] transition-colors">
+                            <span class="material-symbols-outlined text-sm">history</span>
+                            Voir l'historique
+                        </button>
+                    </div>
+
+                    <!-- ── Constantes vitales ─────────────────────────────────── -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+
+                        <!-- Groupe sanguin -->
+                        <div class="col-span-1 flex flex-col items-center justify-center bg-red-50 border border-red-100
+                            rounded-xl p-4 text-center">
+                            <span class="material-symbols-outlined text-red-500 text-2xl mb-1"
+                                style="font-variation-settings: 'FILL' 1">bloodtype</span>
+                            <p class="text-2xl font-black text-red-600">
+                                {{ patient.groupeSanguin }}{{ patient.rhesus }}
+                            </p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Groupe sanguin</p>
+                        </div>
+
+                        <!-- Poids -->
+                        <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
+                            rounded-xl p-4 text-center">
+                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">weight</span>
+                            <p class="text-2xl font-black text-slate-800">{{ patient.poids }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">kg · Poids</p>
+                        </div>
+
+                        <!-- Taille -->
+                        <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
+                            rounded-xl p-4 text-center">
+                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">height</span>
+                            <p class="text-2xl font-black text-slate-800">{{ patient.taille }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">cm · Taille</p>
+                        </div>
+
+                        <!-- IMC -->
+                        <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
+                            rounded-xl p-4 text-center">
+                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">fitness_center</span>
+                            <p class="text-2xl font-black" [class]="imcClass">{{ patient.imc }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">IMC</p>
+                            <p class="text-[9px] font-semibold mt-0.5" [class]="imcClass">{{ patient.statutImc }}</p>
+                        </div>
+
+                        <!-- Âge -->
+                        <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
+                            rounded-xl p-4 text-center">
+                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">cake</span>
+                            <p class="text-2xl font-black text-slate-800">{{ patient.age }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">ans · Âge</p>
+                        </div>
+
+                        <!-- Allergie critique -->
+                        <div class="flex flex-col items-center justify-center bg-red-50 border border-red-100
+                            rounded-xl p-4 text-center">
+                            <span class="material-symbols-outlined text-red-500 text-xl mb-1">allergy</span>
+                            <p class="text-xs font-black text-red-600 leading-tight">{{ patient.allergiePrincipale }}
+                            </p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Allergie critique</p>
+                        </div>
+                    </div>
+
+                    <!-- ── Pathologies chroniques ────────────────────────────── -->
+                    @if (patient.pathologiesChroni.length > 0) {
+                    <div class="flex flex-wrap gap-2">
+                        <p class="w-full text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
+                            Pathologies chroniques
+                        </p>
+                        @for (p of patient.pathologiesChroni; track p) {
+                        <span class="flex items-center gap-1.5 bg-[#002B5C]/5 text-[#002B5C] border border-[#002B5C]/10
+                                text-xs font-semibold px-3 py-1.5 rounded-full">
+                            <span class="material-symbols-outlined text-sm">stethoscope</span>
+                            {{ p }}
+                        </span>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- ── Stats rapides ──────────────────────────────────────────── -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                @for (stat of quickStats; track stat.label) {
+                <button (click)="setView(stat.route)" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md
+                        hover:-translate-y-0.5 transition-all text-left group">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="h-10 w-10 rounded-xl flex items-center justify-center" [class]="stat.color">
+                            <span class="material-symbols-outlined">{{ stat.icon }}</span>
+                        </div>
+                        <span
+                            class="material-symbols-outlined text-slate-200 group-hover:text-secondary transition-colors">
+                            arrow_forward
+                        </span>
+                    </div>
+                    <p class="text-3xl font-black text-[#002B5C]">{{ stat.value }}</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mt-0.5">{{ stat.label }}</p>
+                </button>
+                }
+            </div>
+
+            <!-- ── Alertes + Accès récents ────────────────────────────────── -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Alertes IA -->
+                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <!-- <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4"> -->
+                        <h3 class="text-base md:text-lg font-bold text-[#002B5C] flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-500"
+                                style="font-variation-settings: 'FILL' 1;">
+                                warning
+                            </span>
+                            Mes Alertes Médicales
+                            <!-- <span *ngIf="activeAlertsCount > 0"
+                                class="ml-2 text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                {{ activeAlertsCount }}
+                            </span> -->
+                        </h3>
+                        <div class="divide-y divide-slate-100">
+                            @for (a of alertes; track a.message) {
+                            <div class="px-5 py-4 flex items-start gap-3">
+                                <div class="mt-0.5 w-7 h-7 shrink-0 rounded-lg flex items-center justify-center"
+                                    [class.bg-violet-50]="a.type === 'prescription'"
+                                    [class.bg-red-50]="a.type === 'urgence'" [class.bg-blue-50]="a.type === 'examen'"
+                                    [class.bg-slate-50]="a.type === 'info'">
+                                    <span class="material-symbols-outlined text-sm"
+                                        [class.text-violet-500]="a.type === 'prescription'"
+                                        [class.text-red-500]="a.type === 'urgence'"
+                                        [class.text-blue-500]="a.type === 'examen'"
+                                        [class.text-slate-400]="a.type === 'info'">
+                                        {{ alertIcon(a.type) }}
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm text-slate-700 leading-snug">{{ a.message }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">
+                                        {{ a.date }}
+                                        @if (a.auteur) { · <span class="font-medium">{{ a.auteur }}</span> }
+                                    </p>
+                                </div>
+                                <span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border"
+                                    [class]="alertBadge(a.type)">
+                                    {{ a.type }}
+                                </span>
+                            </div>
+                            }
+                        </div>
+                </section>
+
+                <!-- Accès récents -->
+                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 border-b border-slate-100 px-5 py-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-slate-500 text-lg">manage_history</span>
+                        <h4 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Accès récents à mon dossier
+                        </h4>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                        @for (a of accesRecents; track a.qui) {
+                        <div class="px-5 py-4 flex items-center gap-3">
+                            <div class="h-9 w-9 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-secondary text-lg">{{ a.icon }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-800 truncate">{{ a.qui }}</p>
+                                <p class="text-[10px] text-slate-400">{{ a.role }}</p>
+                            </div>
+                            <p class="text-[10px] text-slate-400 whitespace-nowrap">{{ a.date }}</p>
+                        </div>
+                        }
+                    </div>
+                    <div class="px-5 py-3 bg-slate-50 border-t border-slate-100">
+                        <button class="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+                            Voir le journal complet
+                        </button>
+                    </div>
+                </section>
+            </div>
+            } <!-- /dashboard -->
+
+            <!-- ════════════════════════════════════════════
+           AUTRES VUES (composants enfants)
+      ════════════════════════════════════════════ -->
+            @if (view() === 'historique') { <app-time-lines /> }
+            @if (view() === 'prescriptions') { <app-prescriptions /> }
+            @if (view() === 'examens') { <app-examens /> }
+            @if (view() === 'allergies') { <app-allergies /> }
+            @if (view() === 'pathologies') { <p class="text-slate-400 p-8">Composant Pathologies à venir…</p> }
+            @if (view() === 'consentements') { <app-consentements /> }
+
+        </main>
+
+        <!-- ─── FOOTER ──────────────────────────────────────────────────────── -->
+        <footer class="bg-white border-t border-slate-200 px-6 md:px-8 py-5">
+            <div
+                class="max-w-360 mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Protection des
+                        Données</p>
+                    <div class="flex items-center gap-4">
+                        <span class="flex items-center gap-1 text-xs">
+                            <span class="material-symbols-outlined text-sm">verified</span>
+                            Conforme APDP Bénin
+                        </span>
+                        <span class="flex items-center gap-1 text-xs">
+                            <span class="material-symbols-outlined text-sm">lock</span>
+                            Certifié PSSIE
+                        </span>
+                    </div>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-xs">© 2026 Ministère de la Santé — Gouvernement du Bénin</p>
+                    <p class="text-[10px] italic mt-0.5">Toutes les données sont chiffrées de bout en bout (AES-256).
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+    </div><!-- /main zone -->
+</div>

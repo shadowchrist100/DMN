@@ -1,9 +1,9 @@
 <!-- ══════════════════════════════════════════════════════════════════════════
-     prescriptions-page.component.html
-     CORRIGÉ : suppression de lg:ml-64 et pt-16 (gérés par le composant parent)
-     ══════════════════════════════════════════════════════════════════════ -->
+    prescriptions-page.component.html
+    CORRIGÉ : suppression de lg:ml-64 et pt-16 (gérés par le composant parent)
+    ══════════════════════════════════════════════════════════════════════ -->
 
-<div class="pb-24 min-h-full bg-[#f8f9ff]">
+<div class="pb-7 min-h-full bg-[#f8f9ff]">
 
     <!-- ── SKELETON ──────────────────────────────────────────────────────── -->
     @if (loading()) {
@@ -19,11 +19,11 @@
     }
 
     @if (!loading()) {
-    <div class="px-4 md:px-6 py-6 max-w-7xl mx-auto space-y-8">
+    <div class="px-4 md:px-6 max-w-7xl mx-auto space-y-8">
 
         <!-- ══════════════════════════════════════════════════════════════════
-         EN-TÊTE DE PAGE
-         ══════════════════════════════════════════════════════════════════ -->
+        EN-TÊTE DE PAGE
+        ══════════════════════════════════════════════════════════════════ -->
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
                 <nav

@@ -7,11 +7,11 @@
 </div>
 
 @if(store.submited() && identityForm.invalid ){
-    <div
-        class="mb-stack-md flex items-center p-4 bg-error-container text-on-error-container rounded-lg border border-error/20">
-        <span class="material-symbols-outlined mr-3 text-error" data-icon="error">error</span>
-        <p class="font-body-sm font-medium"> Formulaire invalid </p>
-    </div>
+<div
+    class="mb-stack-md flex items-center p-4 bg-error-container text-on-error-container rounded-lg border border-error/20">
+    <span class="material-symbols-outlined mr-3 text-error" data-icon="error">error</span>
+    <p class="font-body-sm font-medium"> Formulaire invalid </p>
+</div>
 }
 
 <form class="space-y-10" enctype="multipart/form-data" [formGroup]="identityForm">
@@ -139,6 +139,78 @@
                 }
             </div>
 
+            <!-- Multiple Birth -->
+            <div
+                class="space-y-2.5 md:col-span-2 bg-surface-container-low/40 p-5 rounded-2xl border border-outline-variant/60">
+                <label
+                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold">
+                    <span class="material-symbols-outlined text-[18px] opacity-40">groups</span>
+                    Issu d'une naissance multiple ? (Jumeau / Triplé...) <span class="text-error">*</span>
+                </label>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="group cursor-pointer">
+                        <input class="sr-only peer" formControlName="isMultipleBirth" type="radio" [value]="false" />
+                        <div class="h-14 flex items-center justify-between px-5 border-2 border-outline-variant rounded-2xl transition-all font-semibold text-sm bg-surface-container-lowest
+                        peer-checked:bg-secondary/10 peer-checked:text-secondary peer-checked:border-secondary
+                        hover:border-secondary/40">
+                            <span>Non, naissance unique</span>
+                            <span
+                                class="material-symbols-outlined opacity-0 peer-checked:opacity-100 text-secondary transition-opacity">check_circle</span>
+                        </div>
+                    </label>
+
+                    <label class="group cursor-pointer">
+                        <input class="sr-only peer" formControlName="isMultipleBirth" type="radio" [value]="true" />
+                        <div class="h-14 flex items-center justify-between px-5 border-2 border-outline-variant rounded-2xl transition-all font-semibold text-sm bg-surface-container-lowest
+                        peer-checked:bg-secondary/10 peer-checked:text-secondary peer-checked:border-secondary
+                        hover:border-secondary/40">
+                            <span>Oui (Jumeau, Triplé, etc.)</span>
+                            <span
+                                class="material-symbols-outlined opacity-0 peer-checked:opacity-100 text-secondary transition-opacity">check_circle</span>
+                        </div>
+                    </label>
+                </div>
+
+                @if (isInvalid('isMultipleBirth')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2 mt-1">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Veuillez préciser si vous êtes issu d'une naissance multiple.
+                </p>
+                }
+
+                @if (identityForm.get('isMultipleBirth')?.value === true) {
+                <div class="mt-4 space-y-2.5 animate-fadeIn">
+                    <label
+                        class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
+                        for="birthOrder">
+                        <span class="material-symbols-outlined text-[18px] opacity-40">format_list_numbered</span>
+                        Votre rang de naissance <span class="text-error">*</span>
+                    </label>
+                    <div class="relative">
+                        <select
+                            class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
+                            id="birthOrder" formControlName="birthOrder">
+                            <option value="" disabled selected>Sélectionnez votre ordre de naissance</option>
+                            <option value="1">1er né (Aîné de la fratrie)</option>
+                            <option value="2">2ème né</option>
+                            <option value="3">3ème né</option>
+                            <option value="4">4ème né ou plus</option>
+                        </select>
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
+                    </div>
+
+                    @if (isInvalid('birthOrder')) {
+                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                        Le rang de naissance est requis pour les jumeaux/triplés.
+                    </p>
+                    }
+                </div>
+                }
+            </div>
+
             <!-- Date de naissance -->
             <div class="space-y-2.5">
                 <label
@@ -210,7 +282,7 @@
                     <select
                         class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
                         id="maritalStatus" formControlName="maritalStatus">
-                        <option value=""  selected>Sélectionnez votre statut</option>
+                        <option value="" selected>Sélectionnez votre statut</option>
                         <option value="single">Célibataire</option>
                         <option value="married">Marié(e)</option>
                         <option value="divorced">Divorcé(e)</option>
@@ -243,10 +315,10 @@
                             class="h-14 pl-4 pr-10 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
                             formControlName="phonePrefix">
                             <option value="+229">🇧🇯 +229</option>
-                            <option value="+225">🇨🇮 +225</option>
+                            <!-- <option value="+225">🇨🇮 +225</option>
                             <option value="+228">🇹🇬 +228</option>
                             <option value="+234">🇳🇬 +234</option>
-                            <option value="+33">🇫🇷 +33</option>
+                            <option value="+33">🇫🇷 +33</option> -->
                         </select>
                         <span
                             class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40 text-[16px]">expand_more</span>
@@ -261,24 +333,24 @@
                     {{ phoneHint() }}
                 </p>
                 @if (isInvalid('phonePrefix')) {
-                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                        L'indicatif est requis
-                    </p>
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    L'indicatif est requis
+                </p>
                 }
                 @if (isInvalid('phone')) {
-                    @if (identityForm.get('phone')?.hasError('required')) {
-                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                            Le numéro de téléphone est requis
-                        </p>
-                    }
-                    @else if (identityForm.get('phone')?.hasError('phoneInvalid')) {
-                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                            {{ identityForm.get('phone')?.errors?.['phoneInvalid']?.message }}
-                        </p>
-                    }
+                @if (identityForm.get('phone')?.hasError('required')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le numéro de téléphone est requis
+                </p>
+                }
+                @else if (identityForm.get('phone')?.hasError('phoneInvalid')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    {{ identityForm.get('phone')?.errors?.['phoneInvalid']?.message }}
+                </p>
+                }
                 }
             </div>
 
@@ -307,18 +379,19 @@
                     </p>
                 </div>
                 @if (isInvalid('npi')) {
-                    @if (identityForm.get('npi')?.hasError('required')) {
-                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                                Le numéro NPI est requis
-                        </p>
-                    }
-                    @else if (identityForm.get("npi")?.hasError('minlength') || identityForm.get('npi')?.hasError('maxlength')) {
-                        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                            <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                            Le numéro NPI doit contenir 10 chiffres
-                        </p>
-                    }
+                @if (identityForm.get('npi')?.hasError('required')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le numéro NPI est requis
+                </p>
+                }
+                @else if (identityForm.get("npi")?.hasError('minlength') ||
+                identityForm.get('npi')?.hasError('maxlength')) {
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Le numéro NPI doit contenir 10 chiffres
+                </p>
+                }
                 }
             </div>
         </div>
@@ -362,10 +435,10 @@
                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
                 </div>
                 @if (isInvalid('city')) {
-                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                        La ville  est requise
-                    </p>
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    La ville est requise
+                </p>
                 }
             </div>
 
@@ -383,10 +456,10 @@
                     rows="3">
                 </textarea>
                 @if (isInvalid('address')) {
-                    <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                        <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                        L'address est requise
-                    </p>
+                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    L'address est requise
+                </p>
                 }
             </div>
         </div>

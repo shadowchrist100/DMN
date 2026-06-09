@@ -5,7 +5,7 @@ import { required } from '@angular/forms/signals';
 
 const PHONE_RULES: Record<string, { lentgh: number; label: string; pattern: RegExp }> = {
     '+229': { label: 'Benin', lentgh: 10, pattern: /^[0-9]{10}$/ },
-    '+225': { label: 'Benin', lentgh: 10, pattern: /^[0-9]{10}$/ }
+    // '+225': { label: 'Benin', lentgh: 10, pattern: /^[0-9]{10}$/ }
 }
 
 @Component({
@@ -21,14 +21,15 @@ export class StepIdentity implements OnInit {
 
             if (this.store.submited()) {
                 if (this.identityForm.invalid) {
+                    console.log(this.identityForm);
+                    
                     this.identityForm.markAllAsTouched();
                     this.store.setContinueSteps(false);
                 } else {
                     this.store.setContinueSteps(true);
                 }
 
-                untracked(() => {
-                    this.store.setSubmited(false);
+                untracked(() => {this.store.setSubmited(false);
                 });
             }
         })
@@ -60,7 +61,11 @@ export class StepIdentity implements OnInit {
             phone: ['', [Validators.required, this.phoneByPrefixValidator()]],
             phonePrefix: ['', [Validators.required]],
             city: ['', [Validators.required]],
-            address: ['', [Validators.required]]
+            address: ['', [Validators.required]],
+
+            // Nouvelle gestion de la gémellité
+            isMultipleBirth: [null, [Validators.required]], // null au départ pour forcer le choix
+            birthOrder: [{ value: '', disabled: true }] // Désactivé par défaut
         }, { updateOn: 'blur' });
 
         this.identityForm.valueChanges.subscribe(() => {
@@ -76,6 +81,7 @@ export class StepIdentity implements OnInit {
             )
         })
 
+        this.watchMultipleBirth();
     }
 
     private phoneByPrefixValidator(): ValidatorFn {
@@ -103,12 +109,12 @@ export class StepIdentity implements OnInit {
         };
     }
 
-    private maritalStatusValidator():ValidatorFn{
-        return(control: AbstractControl): ValidationErrors | null => {
-            if (this.store.userType() === "PATIENT"  ) {
+    private maritalStatusValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (this.store.userType() === "PATIENT") {
                 control.setValidators(Validators.required)
                 return null;
-            }else{
+            } else {
                 return null;
             }
         }
@@ -121,12 +127,31 @@ export class StepIdentity implements OnInit {
         }
     }
 
+    private watchMultipleBirth(): void {
+        this.identityForm.get('isMultipleBirth')?.valueChanges.subscribe((isMultiple: boolean) => {
+            const birthOrderControl = this.identityForm.get('birthOrder');
+
+            if (isMultiple) {
+                // Si oui, le rang devient obligatoire et le champ est activé
+                birthOrderControl?.enable();
+                birthOrderControl?.setValidators([Validators.required]);
+            } else {
+                // Si non, on réinitialise la valeur, on retire les règles et on désactive le champ
+                birthOrderControl?.setValue('');
+                birthOrderControl?.clearValidators();
+                birthOrderControl?.disable();
+            }
+            // Forcer la mise à jour des états de validation du champ
+            birthOrderControl?.updateValueAndValidity();
+        });
+    }
+
     isInvalid(field: string) {
         const control = this.identityForm.get(field);
-        console.log(control);
-        
-        console.log(control?.errors);
-        
+        // console.log(control);
+
+        // console.log(control?.errors);
+
         return !!(control?.invalid && control.touched)
     }
 

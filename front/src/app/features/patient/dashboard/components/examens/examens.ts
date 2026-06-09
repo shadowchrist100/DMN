@@ -147,7 +147,7 @@ const MOCK_EXAMENS: Examen[] = [
 const TYPE_CONFIG: Record<TypeExamen, { icon: string; bg: string; text: string; border: string }> = {
     'Biologie': { icon: 'biotech', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
     'Imagerie': { icon: 'radiology', bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200' },
-    'Radiologie': { icon: 'radiography', bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200' },
+    'Radiologie': { icon: 'radiology', bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200' },
     'Échographie': { icon: 'monitor_heart', bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200' },
     'Cardiologie': { icon: 'ecg_heart', bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
     'Autre': { icon: 'science', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
