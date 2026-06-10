@@ -7,51 +7,46 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-['est_actif', 'firstName', 'email', 'lastName', 'npi', 'genre', 'birthDate', 'photo_path', 'password', 'user_type', 'phone'];
-#[Fillable(['first_name', 'last_name', 'email', 'password', 'npi', 'genre', 'birth_date', 'photo_path', 'role', 'phone', 'death_date', 'matrimonial_status', 'multiple_birth', 'status_account', ])]
+#[Fillable([
+    'first_name', 'last_name', 'email', 'password', 'npi', 'genre',
+    'birth_date', 'photo_path', 'role', 'phone', 'matrimonial_status',
+    'status_account', 'city', 'address',
+])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
+            'birth_date' => 'date',
             'password' => 'hashed',
         ];
     }
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
+    public function identityDocuments(): HasMany
+    {
+        return $this->hasMany(IdentityDocument::class);
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
     public function getJWTCustomClaims()
     {
         return [
             'role' => $this->role,
-            'name' => $this->first_name.' '.$this->last_name
+            'name' => $this->first_name . ' ' . $this->last_name,
         ];
     }
 }
