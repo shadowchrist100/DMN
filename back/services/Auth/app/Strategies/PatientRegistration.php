@@ -20,14 +20,6 @@ class PatientRegistration implements UserRegistration
     {
         return [
             'user_id'     => (string) $user->id,
-            'first_name'  => $user->first_name,
-            'last_name'   => $user->last_name,
-            'gender'      => $user->gender,
-            'birth_date'  => $user->birth_date?->format('Y-m-d'),
-            'phone'       => $user->phone,
-            'city'        => $user->city,
-            'address'     => $user->address,
-            'role'        => 'patient',
             'emergency_contact' => [
                 'first_name'    => $data['emergencyContact']['firstName'] ?? null,
                 'last_name'     => $data['emergencyContact']['lastName'] ?? null,
