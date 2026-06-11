@@ -3,30 +3,52 @@
 namespace App\Strategies;
 
 use App\Models\User;
-use App\Models\IdentityDocument;
-use Illuminate\Support\Facades\Storage;
+use App\Traits\HandlesDocumentUploads;
 
 class PractitionerRegistration implements UserRegistration
 {
+    use HandlesDocumentUploads;
+
     public function create(User $user, array $data): User
     {
-        $user->update([
-            'role' => 'practitioner',
-            'status_account' => 'unverified',
-        ]);
-
-        if (isset($data['documents']) && is_array($data['documents'])) {
-            foreach ($data['documents'] as $doc) {
-                if (isset($doc['file']) && isset($doc['type_document'])) {
-                    $path = $doc['file']->store('documents', 'public');
-                    $user->identityDocuments()->create([
-                        'type_document' => $doc['type_document'],
-                        'file_path' => $path,
-                    ]);
-                }
-            }
-        }
+        $this->storeDocuments($user, $data);
 
         return $user;
+    }
+
+    public function getMedicalPayload(User $user, array $data): array
+    {
+        return [
+            'user_id'         => (string) $user->id,
+            'first_name'      => $user->first_name,
+            'last_name'       => $user->last_name,
+            'gender'          => $user->gender,
+            'birth_date'      => $user->birth_date?->format('Y-m-d'),
+            'phone'           => $user->phone,
+            'city'            => $user->city,
+            'address'         => $user->address,
+            'role'            => 'practitioner',
+            'specialty'       => $data['speciality'] ?? null,
+            'order_number'    => $data['order_number'] ?? null,
+            'organization_id' => $data['organization_id'] ?? null,
+        ];
+    }
+
+    private function storeDocuments(User $user, array $data): void
+    {
+        if (!isset($data['documents']) || !is_array($data['documents'])) {
+            return;
+        }
+
+        foreach ($data['documents'] as $doc) {
+            if (!isset($doc['file']) || !isset($doc['type_document'])) {
+                continue;
+            }
+            $path = $this->storeDocumentFile($doc['file'], $doc['type_document']);
+            $user->identityDocuments()->create([
+                'type_document' => $doc['type_document'],
+                'file_path' => $path,
+            ]);
+        }
     }
 }

@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 #[Fillable([
-    'first_name', 'last_name', 'email', 'password', 'npi', 'genre',
+    'first_name', 'last_name', 'email', 'password', 'npi', 'gender',
     'birth_date', 'photo_path', 'role', 'phone', 'matrimonial_status',
     'status_account', 'city', 'address',
 ])]
@@ -46,7 +46,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'role' => $this->role,
+            'status_account' => $this->status_account,
             'name' => $this->first_name . ' ' . $this->last_name,
+            'npi' => $this->npi,
+            'gender' => $this->gender,
         ];
     }
 }

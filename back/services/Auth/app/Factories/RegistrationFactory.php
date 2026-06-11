@@ -8,12 +8,12 @@ use App\Strategies\PractitionerRegistration;
 
 class RegistrationFactory
 {
-    public function getStrategy(string $user_type): UserRegistration
+    public function getStrategy(string $role): UserRegistration
     {
-        return match ($user_type) {
+        return match ($role) {
             'patient' => new PatientRegistration(),
             'practitioner' => new PractitionerRegistration(),
-            default => throw new \InvalidArgumentException("Type d'utilisateur inconnu : $user_type"),
+            default => throw new \InvalidArgumentException("Type d'utilisateur inconnu : $role"),
         };
     }
 }

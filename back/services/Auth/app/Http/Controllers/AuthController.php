@@ -22,30 +22,41 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'user_type' => ['required', Rule::in(['patient', 'practitioner'])],
-
+            'role' => ['required', Rule::in(['patient', 'practitioner', 'admin'])],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', Password::min(8)->letters()->mixedCase()->numbers()],
-            'genre' => ['required', 'string', Rule::in(['homme', 'femme'])],
+            'gender' => ['required', 'string', Rule::in(['homme', 'femme'])],
             'birth_date' => ['required', 'date'],
             'matrimonial_status' => ['required', 'string'],
             'phone' => ['required', 'string'],
-            'npi' => ['nullable', 'string'],
+            'npi' => ['required', 'string'],
             'photo_path' => ['nullable', 'string'],
             'city' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
-            'documents' => ['required_if', 'array', 'min:1'],
-            'documents.*.type_document' => ['required_with:documents', 'string'],
-            'documents.*.file' => ['required_with:documents', 'file', 'mimes:pdf,jpg,png', 'max:5120'],
 
-            'order_number' => ['required_if:user_type,practitioner', 'string'],
-            'speciality' => ['required_if:user_type,practitioner', 'string'],
-            'organization_name' => ['required_if:user_type,practitioner', 'string'],
+            'documents' => ['required', 'array', 'min:1'],
+            'documents.*.type_document' => [
+                'required', 'string',
+                Rule::in(['diplome', 'carte_ordre', 'piece_identite']),
+            ],
+            'documents.*.file' => [
+                'required',
+                'file',
+                'mimetypes:application/pdf,image/jpeg,image/png',
+                'max:5120',
+            ],
+
+            'order_number' => ['required_if:role,practitioner', 'string'],
+            'speciality' => ['required_if:role,practitioner', 'string'],
+            'organization_id' => ['required_if:role,practitioner', 'string'],
+
+            'emergencyContact.firstName' => ['required_if:role,patient', 'string'],
+            'emergencyContact.lastName' => ['required_if:role,patient', 'string'],
+            'emergencyContact.phone' => ['required_if:role,patient', 'string'],
+            'emergencyContact.code_relation' => ['required_if:role,patient', 'string'],
         ]);
-
-        $data['password'] = bcrypt($data['password']);
 
         $user = $this->userService->register($data);
 
@@ -107,9 +118,13 @@ class AuthController extends Controller
         ]);
     }
 
-    public function verify(int $userId): JsonResponse
+    public function verify(Request $request, User $user): JsonResponse
     {
-        $user = $this->userService->verifyUser($userId);
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Action non autorisée.'], 403);
+        }
+
+        $user = $this->userService->verifyUser((string) $user->id);
 
         return response()->json([
             'message' => 'Compte vérifié avec succès.',
