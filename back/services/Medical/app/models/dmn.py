@@ -1,7 +1,7 @@
 import uuid
-from sqlmodel import Field, SQLModel, Relationship
 from typing import Optional
-from datetime import date
+from sqlmodel import Field, SQLModel, Relationship
+from datetime import datetime
 
 
 class DMN(SQLModel, table=True):
@@ -9,9 +9,9 @@ class DMN(SQLModel, table=True):
         default_factory=uuid.uuid4,
         primary_key=True,
     )
+    date_creation: datetime = Field(default_factory=datetime.utcnow)
+    blood_type: Optional[str] = None
+    rhesus_factor: Optional[str] = None
     patient_id: Optional[uuid.UUID] = Field(
         default=None, foreign_key="patient.id"
     )
-    date_creation: date
-    blood_type: Optional[str] = None
-    rhesus_factor: Optional[str] = None

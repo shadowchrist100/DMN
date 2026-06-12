@@ -1,20 +1,7 @@
 import uuid
 from sqlmodel import Field, SQLModel
 from typing import Optional
-from enum import Enum
-
-
-class Speciality(str, Enum):
-    MEDECIN = "medecin"
-    INFIRMIER = "infirmier"
-    CHIRURGIEN = "chirurgien"
-    PEDIATRE = "pediatre"
-    GYNECOLOGUE = "gynecologue"
-    RADIOLOGUE = "radiologue"
-    BIOLOGISTE = "biologiste"
-    PHARMACIEN = "pharmacien"
-    DENTISTE = "dentiste"
-    AUTRE = "autre"
+from app.types.enums import Speciality
 
 
 class Practitioner(SQLModel, table=True):

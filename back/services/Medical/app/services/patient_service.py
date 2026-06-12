@@ -1,35 +1,29 @@
-from uuid import UUID
 from sqlmodel import Session
+from app.schemas.patient import CreatePatientReq, PatientResp, EmergencyContactResp
+from app.repositories.patient_repository import PatientRepository
+from app.repositories.emergency_contact_repository import EmergencyContactRepository
+from app.exceptions import conflict
 from app.models.patient import Patient
-from app.models.emergencyContacts import EmergencyContact
-from datetime import date
 
 
-def create_patient(
-    session: Session,
-    user_id: str,
-    emergency_contact: dict | None = None,
-) -> Patient:
-    patient = Patient(
-        user_id=user_id,
-    )
-    session.add(patient)
-    session.flush()
+class PatientService:
 
-    if emergency_contact:
-        contact = EmergencyContact(
-            patient_id=patient.id,
-            first_name=emergency_contact.get("first_name"),
-            last_name=emergency_contact.get("last_name"),
-            phone=emergency_contact.get("phone"),
-            code_relation=emergency_contact.get("code_relation"),
-        )
-        session.add(contact)
+    @staticmethod
+    def create(session: Session, req: CreatePatientReq) -> Patient:
+        if PatientRepository.exists_by_user_id(session, req.user_id):
+            conflict("Un patient avec ce user_id existe déjà")
 
-    session.commit()
-    session.refresh(patient)
-    return patient
+        patient = PatientRepository.create(session, req.user_id)
 
+        if req.emergency_contact:
+            EmergencyContactRepository.create(
+                session, patient.id, req.emergency_contact
+            )
 
-def get_patient_by_user_id(session: Session, user_id: str) -> Patient | None:
-    return session.query(Patient).where(Patient.user_id == user_id).first()
+        session.commit()
+        session.refresh(patient)
+        return patient
+
+    @staticmethod
+    def get_by_user_id(session: Session, user_id: str) -> Patient | None:
+        return PatientRepository.get_by_user_id(session, user_id)

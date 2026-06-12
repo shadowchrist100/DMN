@@ -1,5 +1,33 @@
 from .patient import Patient
-from .emergencyContacts import EmergencyContact
+from .emergency_contact import EmergencyContact
+from .practitioner import Practitioner
+from .dmn import DMN
+from .consents import Consents
+from .care_episode import CareEpisode
+from .diagnosis import Diagnosis
+from .medical_act import MedicalAct
+from .prescriptions import Prescription
+from .medicament import Medicament
+from .maladie import Maladie
+from .related_person import RelatedPerson
+from .vital_constants import VitalConstants
+from .vitals_constants_ref import VitalsConstantsRefs
+from .immunisation import Immunisation
 
-# Liste de tous les modèles pour faciliter l'accès extérieur
-__all__ = ["Patient", "EmergencyContact"]
+__all__ = [
+    "Patient",
+    "EmergencyContact",
+    "Practitioner",
+    "DMN",
+    "Consents",
+    "CareEpisode",
+    "Diagnosis",
+    "MedicalAct",
+    "Prescription",
+    "Medicament",
+    "Maladie",
+    "RelatedPerson",
+    "VitalConstants",
+    "VitalsConstantsRefs",
+    "Immunisation",
+]

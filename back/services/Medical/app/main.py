@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.database import init_db
-from app.routers.medical import router as medical_router
+from app.routers.patient import router as patient_router
+from app.routers.practitioner import router as practitioner_router
 
 app = FastAPI(
     title="Medical Service",
@@ -14,7 +15,8 @@ def on_startup():
     init_db()
 
 
-app.include_router(medical_router)
+app.include_router(patient_router)
+app.include_router(practitioner_router)
 
 
 @app.get("/")

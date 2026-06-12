@@ -19,4 +19,4 @@ class Patient(SQLModel, table=True):
     )
 
 
-from app.models.emergencyContacts import EmergencyContact
+from app.models.emergency_contact import EmergencyContact

@@ -9,8 +9,8 @@ class Perimeter(str, Enum):
     PRESCRIPTIONS = "prescriptions"
 
 class Duration(str, Enum):
-    "30min" = "30min"
-    "1h" = "1h"
+    MIN_30 = "30min"
+    H_1 = "1h"
 
 
 class Consents(SQLModel, table=True):

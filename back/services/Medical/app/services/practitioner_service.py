@@ -1,25 +1,29 @@
 from sqlmodel import Session
-from app.models.practitioner import Practitioner, Speciality
+from app.schemas.practitioner import CreatePractitionerReq
+from app.repositories.practitioner_repository import PractitionerRepository
+from app.exceptions import conflict
+from app.models.practitioner import Practitioner
 
 
-def create_practitioner(
-    session: Session,
-    user_id: str,
-    speciality: Speciality,
-    order_number: str | None = None,
-    organization_id: str | None = None,
-) -> Practitioner:
-    practitioner = Practitioner(
-        user_id=user_id,
-        speciality=speciality,
-        order_number=order_number,
-        organization_id=organization_id,
-    )
-    session.add(practitioner)
-    session.commit()
-    session.refresh(practitioner)
-    return practitioner
+class PractitionerService:
 
+    @staticmethod
+    def create(session: Session, req: CreatePractitionerReq) -> Practitioner:
+        if PractitionerRepository.exists_by_user_id(session, req.user_id):
+            conflict("Un praticien avec ce user_id existe déjà")
 
-def get_practitioner_by_user_id(session: Session, user_id: str) -> Practitioner | None:
-    return session.query(Practitioner).where(Practitioner.user_id == user_id).first()
+        practitioner = PractitionerRepository.create(
+            session,
+            user_id=req.user_id,
+            speciality=req.specialty,
+            order_number=req.order_number,
+            organization_id=req.organization_id,
+        )
+
+        session.commit()
+        session.refresh(practitioner)
+        return practitioner
+
+    @staticmethod
+    def get_by_user_id(session: Session, user_id: str) -> Practitioner | None:
+        return PractitionerRepository.get_by_user_id(session, user_id)
