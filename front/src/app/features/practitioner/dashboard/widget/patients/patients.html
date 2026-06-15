@@ -1,0 +1,418 @@
+<body class="font-['Public_Sans'] text-slate-900 bg-slate-50">
+    <div class="flex min-h-screen">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside
+            class="hidden lg:flex flex-col h-screen sticky top-0 left-0 bg-[#002B5C] text-white w-64 border-r border-white/10 font-['Public_Sans'] text-sm tracking-tight">
+
+            <!-- Logo -->
+            <div class="p-6 border-b border-white/10">
+                <h1 class="text-white font-black text-lg uppercase tracking-tighter">DMN Praticien</h1>
+                <p class="text-blue-100/50 text-[10px] uppercase tracking-widest mt-1">Portail Santé Bénin</p>
+            </div>
+
+            <!-- Profil praticien -->
+            <div class="p-4 border-b border-white/10">
+                <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl">
+                    <img [src]="practitioner.avatar" [alt]="'Photo de ' + practitioner.name"
+                        class="w-10 h-10 rounded-full border-2 border-white/20 object-cover">
+                    <div class="overflow-hidden flex-1">
+                        <p class="text-xs font-bold truncate">{{ practitioner.name }}</p>
+                        <p class="text-[10px] text-blue-100/60 truncate">{{ practitioner.specialty }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+                <button (click)="navigateTo('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                             text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Tableau de bord
+                </button>
+
+                <!-- Active: Patients -->
+                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                             bg-white text-[#002B5C] font-bold">
+                    <span class="material-symbols-outlined">group</span>
+                    Mes Patients
+                    <span class="ml-auto bg-[#002B5C]/10 text-[#002B5C] text-[10px] font-bold 
+                               px-2 py-0.5 rounded-full">
+                        {{ totalPatients() }}
+                    </span>
+                </button>
+
+                <button (click)="navigateTo('reports')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                             text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">description</span>
+                    Rapports à clôturer
+                    @if (pendingReports() > 0) {
+                    <span class="ml-auto bg-amber-500 text-white text-[10px] font-bold 
+                                   px-2 py-0.5 rounded-full">
+                        {{ pendingReports() }}
+                    </span>
+                    }
+                </button>
+
+                <button (click)="navigateTo('prescriptions')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                             text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">medication</span>
+                    Prescriptions
+                </button>
+
+                <button (click)="navigateTo('analyses')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                             text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">biotech</span>
+                    Analyses
+                </button>
+
+                <button (click)="navigateTo('audit')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                             text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">history</span>
+                    Journal d'activité
+                </button>
+            </nav>
+
+            <!-- Footer sidebar -->
+            <div class="p-4 border-t border-white/10 space-y-2">
+                <div class="text-[10px] text-blue-100/40 text-center uppercase tracking-widest">
+                    RPPS: {{ practitioner.rpps }}
+                </div>
+                <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs 
+                             text-blue-100/60 hover:bg-white/5 transition-colors">
+                    <span class="material-symbols-outlined text-sm">settings</span>
+                    Paramètres
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs 
+                             text-red-300/80 hover:bg-red-500/10 transition-colors">
+                    <span class="material-symbols-outlined text-sm">logout</span>
+                    Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="flex-1 flex flex-col min-w-0">
+
+            <!-- Top Navbar -->
+            <header class="flex justify-between items-center px-6 h-16 w-full sticky top-0 z-40 
+                         bg-white border-b border-slate-200 font-['Public_Sans'] text-sm">
+                <div class="flex items-center gap-4 flex-1">
+                    <span class="lg:hidden text-[#002B5C] font-black text-lg">DMN Bénin</span>
+                    <div class="relative w-full max-w-md">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 
+                                   text-slate-400 text-sm">search</span>
+                        <input class="w-full bg-slate-100 border-none rounded-full pl-10 pr-4 py-2.5 
+                                    text-sm focus:ring-2 focus:ring-[#1E40AF] focus:bg-white transition-all"
+                            placeholder="Rechercher par Nom, Prénom ou NPI..." type="text" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        @if (notificationCount() > 0) {
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        }
+                    </button>
+                    <button class="text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
+                    <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+                        <img [src]="practitioner.avatar" [alt]="'Photo de ' + practitioner.name"
+                            class="w-9 h-9 rounded-full object-cover border-2 border-slate-200" />
+                        <div class="hidden sm:block">
+                            <p class="font-bold text-[#002B5C] text-sm">{{ practitioner.name }}</p>
+                            <p class="text-xs text-slate-500">{{ practitioner.specialty }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="p-6 md:p-8 max-w-7xl mx-auto w-full flex-1">
+
+                <!-- Page Header -->
+                <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 uppercase tracking-wide">
+                            <a class="hover:text-[#002B5C] font-medium transition-colors" href="#">
+                                Dashboard
+                            </a>
+                            <span class="material-symbols-outlined text-[12px] text-slate-300">chevron_right</span>
+                            <span class="text-[#002B5C] font-bold">Mes Patients</span>
+                        </nav>
+                        <h2 class="text-2xl md:text-3xl font-black text-[#002B5C] tracking-tight">
+                            Mes Patients Suivis
+                        </h2>
+                        <p class="text-slate-500 mt-1 text-sm">
+                            <span class="font-semibold text-[#1E40AF]">{{ filteredCount() }}</span>
+                            patient(s) affiché(s) sur {{ totalPatients() }}
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button class="flex items-center gap-2 bg-[#002B5C] text-white px-5 py-2.5 
+                                     rounded-xl font-bold hover:bg-[#001f42] transition-colors text-sm shadow-sm">
+                            <span class="material-symbols-outlined text-sm">person_add</span>
+                            Nouveau Patient
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bandeau Conformité (Discret) -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 
+                            p-4 mb-6 rounded-xl flex items-center gap-3">
+                    <div class="bg-blue-600/10 p-2 rounded-lg shrink-0">
+                        <span class="material-symbols-outlined text-blue-700 text-lg"
+                            style="font-variation-settings: 'FILL' 1;">
+                            verified_user
+                        </span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-blue-900 text-sm">
+                            Accès autorisé uniquement aux patients avec consentement actif
+                        </p>
+                        <p class="text-blue-700/80 text-xs mt-0.5">
+                            Conformité APDP & PSSIE • Toutes les consultations sont tracées
+                        </p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <span class="bg-white/80 text-blue-700 px-2.5 py-1 rounded-lg text-[10px] 
+                                   font-bold border border-blue-200">APDP</span>
+                        <span class="bg-white/80 text-blue-700 px-2.5 py-1 rounded-lg text-[10px] 
+                                   font-bold border border-blue-200">PSSIE</span>
+                    </div>
+                </div>
+
+                <!-- Filtres Avancés -->
+                <div class="bg-white p-5 border border-slate-200 rounded-2xl shadow-sm mb-6">
+                    <div class="flex flex-col lg:flex-row gap-4">
+
+                        <!-- Recherche principale -->
+                        <div class="flex-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2 block">
+                                Rechercher
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 
+                                           text-slate-400 text-sm">search</span>
+                                <input class="w-full border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 
+                                            text-sm focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                                    placeholder="Nom, prénom, NPI ou pathologie..." type="text" />
+                            </div>
+                        </div>
+
+                        <!-- Filtre pathologie -->
+                        <div class="lg:w-48">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2 block">
+                                Pathologie
+                            </label>
+                            <select class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm 
+                                         focus:ring-2 focus:ring-[#1E40AF] cursor-pointer">
+                                <option>Toutes</option>
+                                <option>HTA (I10)</option>
+                                <option>Diabète (E11)</option>
+                                <option>Asthme (J45)</option>
+                                <option>Cardiopathie</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtre urgence -->
+                        <div class="lg:w-48">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2 block">
+                                Priorité
+                            </label>
+                            <select class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm 
+                                         focus:ring-2 focus:ring-[#1E40AF] cursor-pointer">
+                                <option>Toutes</option>
+                                <option>🔴 Critique</option>
+                                <option>🟠 Élevée</option>
+                                <option>🟡 Moyenne</option>
+                                <option>🟢 Normale</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtre dernier contact -->
+                        <div class="lg:w-48">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2 block">
+                                Dernier contact
+                            </label>
+                            <select class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm 
+                                         focus:ring-2 focus:ring-[#1E40AF] cursor-pointer">
+                                <option>Tous</option>
+                                <option>Moins d'un mois</option>
+                                <option>1-3 mois</option>
+                                <option>3-6 mois</option>
+                                <option>Plus de 6 mois</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Patient Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                    @for (patient of patients(); track patient.npi) {
+                    <article class="bg-white border border-slate-200 rounded-2xl p-5 
+                                      hover:border-[#1E40AF] hover:shadow-md transition-all duration-200 
+                                      cursor-pointer group relative overflow-hidden"
+                        [class.border-l-4]="patient.priority === 'critical'"
+                        [class.border-l-red-500]="patient.priority === 'critical'"
+                        [class.border-l-amber-500]="patient.priority === 'high'" (click)="openPatientFile(patient.npi)">
+
+                        <!-- Header Card: Avatar + Nom -->
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0
+                                          bg-gradient-to-br from-blue-100 to-blue-200 
+                                          border-2 border-white shadow-sm">
+                                <span class="text-[#002B5C] font-black text-lg">
+                                    {{ patient.initials }}
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-0.5">
+                                    <h3 class="font-bold text-[#002B5C] text-base truncate">
+                                        {{ patient.name }}
+                                    </h3>
+                                    @if (patient.isCritical) {
+                                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0"
+                                        title="Patient critique"></span>
+                                    }
+                                </div>
+                                <p class="text-xs text-slate-500">
+                                    {{ patient.age }} ans • {{ patient.gender }} •
+                                    <span class="font-mono text-slate-400">NPI: {{ patient.npi }}</span>
+                                </p>
+                            </div>
+
+                            <!-- Flèche -->
+                            <span class="material-symbols-outlined text-slate-300 
+                                           group-hover:text-[#002B5C] transition-colors shrink-0">
+                                arrow_forward
+                            </span>
+                        </div>
+
+                        <!-- Infos Cliniques -->
+                        <div class="space-y-3 mb-4">
+
+                            <!-- Diagnostic principal -->
+                            @if (patient.primaryDiagnosis) {
+                            <div class="flex items-center gap-2 p-2.5 bg-slate-50 rounded-lg">
+                                <span class="material-symbols-outlined text-slate-500 text-sm">
+                                    medical_information
+                                </span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold">
+                                        Diagnostic principal
+                                    </p>
+                                    <p class="text-xs text-slate-800 font-medium truncate">
+                                        {{ patient.primaryDiagnosis.label }}
+                                        <span class="text-slate-400 font-mono text-[10px]">
+                                            ({{ patient.primaryDiagnosis.code }})
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            }
+
+                            <!-- Prochain RDV -->
+                            @if (patient.nextAppointment) {
+                            <div class="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg border border-blue-100">
+                                <span class="material-symbols-outlined text-[#1E40AF] text-sm">
+                                    event
+                                </span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[10px] text-blue-700 uppercase font-bold">
+                                        Prochain RDV
+                                    </p>
+                                    <p class="text-xs text-blue-900 font-medium">
+                                        {{ patient.nextAppointment.date | date:'dd/MM/yyyy' }}
+                                        à {{ patient.nextAppointment.time }}
+                                    </p>
+                                </div>
+                            </div>
+                            }
+
+                            <!-- Ordonnance active -->
+                            @if (patient.activePrescriptions > 0) {
+                            <div class="flex items-center gap-2 p-2.5 bg-green-50 rounded-lg border border-green-100">
+                                <span class="material-symbols-outlined text-green-700 text-sm">
+                                    medication
+                                </span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[10px] text-green-700 uppercase font-bold">
+                                        Ordonnance active
+                                    </p>
+                                    <p class="text-xs text-green-900 font-medium">
+                                        {{ patient.activePrescriptions }} traitement(s) en cours
+                                    </p>
+                                </div>
+                            </div>
+                            }
+
+                        </div>
+
+                        <!-- Footer Card: Métadonnées -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3 text-xs">
+                                <div class="flex items-center gap-1 text-slate-500">
+                                    <span class="material-symbols-outlined text-sm">calendar_today</span>
+                                    <span>Dernier: {{ patient.lastContact | date:'dd/MM/yyyy' }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Badge priorité -->
+                            <span class="text-[10px] font-bold px-2 py-1 rounded-full uppercase
+                                           {{ getPriorityBadgeClass(patient.priority) }}">
+                                {{ getPriorityLabel(patient.priority) }}
+                            </span>
+                        </div>
+
+                    </article>
+                    } @empty {
+                    <div
+                        class="col-span-full text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                        <span class="material-symbols-outlined text-5xl text-slate-300 mb-4 block">
+                            group_off
+                        </span>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Aucun patient trouvé</h3>
+                        <p class="text-slate-500 text-sm">Modifiez vos filtres ou créez un nouveau patient</p>
+                    </div>
+                    }
+
+                </div>
+
+                <!-- Pagination -->
+                @if (hasMorePatients()) {
+                <div class="mt-8 flex flex-col items-center gap-3">
+                    <p class="text-sm text-slate-500">
+                        Affichage de {{ displayedCount() }} sur {{ totalPatients() }} patients
+                    </p>
+                    <button (click)="loadMorePatients()" class="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 
+                            text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors">
+                        <span class="material-symbols-outlined text-lg">expand_more</span>
+                        Afficher plus de patients
+                    </button>
+                </div>
+                }
+
+            </main>
+
+            <!-- Footer -->
+            <footer class="flex flex-col md:flex-row justify-between items-center px-8 w-full py-6 
+                         bg-white border-t border-slate-200 text-xs uppercase tracking-wider">
+                <div class="text-slate-600 mb-4 md:mb-0">
+                    © 2026 DMN Bénin • Ministère de la Santé
+                </div>
+                <div class="flex flex-wrap gap-6 justify-center">
+                    <a class="text-slate-500 hover:text-[#002B5C] transition-colors" href="#">Support</a>
+                    <a class="text-slate-500 hover:text-[#002B5C] transition-colors" href="#">Mentions légales</a>
+                    <a class="text-slate-500 hover:text-[#002B5C] transition-colors" href="#">Politique de
+                        confidentialité</a>
+                    <a class="text-slate-500 hover:text-[#002B5C] transition-colors" href="#">Contact</a>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+</body>

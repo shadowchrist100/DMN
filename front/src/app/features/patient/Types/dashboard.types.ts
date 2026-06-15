@@ -8,7 +8,12 @@ export type ViewKey =
     | 'examens'
     | 'allergies'
     | 'pathologies'
-    | 'consentements';
+    | 'consentements'
+    | 'profil'
+    | 'contacts'
+    | 'contact-edit'
+    | 'profil-edit'
+    | 'acte';
 
 export interface NavItem {
     key: ViewKey;

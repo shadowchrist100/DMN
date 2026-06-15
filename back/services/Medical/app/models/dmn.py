@@ -9,7 +9,7 @@ class DMN(SQLModel, table=True):
         default_factory=uuid.uuid4,
         primary_key=True,
     )
-    date_creation: datetime = Field(default_factory=datetime.utcnow)
+    date_creation: datetime = Field(default_factory=datetime.now())
     blood_type: Optional[str] = None
     rhesus_factor: Optional[str] = None
     patient_id: Optional[uuid.UUID] = Field(

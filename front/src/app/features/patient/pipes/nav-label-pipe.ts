@@ -6,6 +6,6 @@ import { NavItem } from '../Types/dashboard.types';
 })
 export class NavLabelPipe implements PipeTransform {
   transform(navItems: NavItem[], view: String): string {
-    return navItems.find(item => item.key === view)?.icon ?? 'dashboard';
+    return navItems.find(item => item.key === view)?.label ?? 'Dashboard';
   }
 }

@@ -1,467 +1,487 @@
-<div class="bg-background text-on-background font-body-md">
-    <!-- SideNavBar (Desktop) -->
-    <aside
-        class="hidden lg:flex flex-col h-screen fixed left-0 top-0 z-40 bg-[#002B5C]  h-screen w-64 border-r border-white/10 none font-['Public_Sans'] text-sm tracking-wide text-white">
-        <div class="px-6 py-8">
-            <h1 class="text-lg font-black text-white">DMN Portal</h1>
-            <p class="text-xs text-blue-200/60 uppercase tracking-widest mt-1">République du Bénin</p>
+<div class="min-h-screen bg-[#f8f9ff] flex font-['Public_Sans']">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="w-64 bg-[#002B5C] text-white flex flex-col fixed h-screen z-40">
+        <div class="p-6 border-b border-white/10">
+            <h1 class="text-lg font-black uppercase tracking-tighter">DMN Praticien</h1>
+            <p class="text-[10px] text-blue-100/50 uppercase tracking-widest">Portail Santé Bénin</p>
         </div>
-        <nav class="flex-1 px-2 space-y-1">
-            <a class="flex items-center bg-blue-800/50 border-l-4 border-white text-white font-semibold py-3 px-4 duration-200 ease-in-out"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+
+        <!-- Profil praticien -->
+        <div class="p-4 border-b border-white/10">
+            <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl">
+                <img [src]="practitioner()?.avatar" [alt]="'Photo de ' + practitioner.name"
+                    class="w-10 h-10 rounded-full border-2 border-white/20 object-cover">
+                <div class="overflow-hidden flex-1">
+                    <p class="text-xs font-bold truncate">{{ practitioner()?.name }}</p>
+                    <p class="text-[10px] text-blue-100/60 truncate">{{ practitioner()?.specialty }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+            <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                         bg-white text-[#002B5C] font-bold">
+                <span class="material-symbols-outlined">dashboard</span>
                 Tableau de bord
-            </a>
-            <a class="flex items-center text-blue-100/70 hover:bg-white/5 py-3 px-4 transition-all duration-200 ease-in-out hover:text-white hover:bg-white/10"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="group">group</span>
-                Patients
-            </a>
-            <a class="flex items-center text-blue-100/70 hover:bg-white/5 py-3 px-4 transition-all duration-200 ease-in-out hover:text-white hover:bg-white/10"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="Description">description</span>
-                Dossiers Médicaux
-            </a>
-            <a class="flex items-center text-blue-100/70 hover:bg-white/5 py-3 px-4 transition-all duration-200 ease-in-out hover:text-white hover:bg-white/10"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="medication">medication</span>
-                Prescriptions
-            </a>
-            <a class="flex items-center text-blue-100/70 hover:bg-white/5 py-3 px-4 transition-all duration-200 ease-in-out hover:text-white hover:bg-white/10"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="biotech">biotech</span>
-                Analyses
-            </a>
-            <a class="flex items-center text-blue-100/70 hover:bg-white/5 py-3 px-4 transition-all duration-200 ease-in-out hover:text-white hover:bg-white/10"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="verified_user">verified_user</span>
-                Consentement
-            </a>
-            <a class="flex items-center text-blue-100/70 hover:bg-white/5 py-3 px-4 transition-all duration-200 ease-in-out hover:text-white hover:bg-white/10"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="clinical_notes">clinical_notes</span>
-                Alertes IA
-            </a>
+            </button>
+            <button (click)="navigateTo('patients')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                         text-blue-100/70 hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined">group</span>
+                Mes Patients
+                @if (stats().followedPatients > 0) {
+                <span class="ml-auto bg-white/20 text-white text-[10px] font-bold 
+                               px-2 py-0.5 rounded-full">
+                    {{ stats().followedPatients }}
+                </span>
+                }
+            </button>
+            <button (click)="navigateTo('requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                         text-blue-100/70 hover:bg-white/5 transition-colors relative">
+                <span class="material-symbols-outlined">verified_user</span>
+                Demandes d'accès
+                @if (pendingAccessRequests().length > 0) {
+                <span class="ml-auto bg-red-500 text-white text-[10px] font-bold 
+                               px-2 py-0.5 rounded-full animate-pulse">
+                    {{ pendingAccessRequests().length }}
+                </span>
+                }
+            </button>
+            <!-- <button (click)="navigateTo('reports')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                         text-blue-100/70 hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined">description</span>
+                Rapports à clôturer
+                @if (stats().pendingReports > 0) {
+                <span class="ml-auto bg-amber-500 text-white text-[10px] font-bold 
+                               px-2 py-0.5 rounded-full">
+                    {{ stats().pendingReports }}
+                </span>
+                }
+            </button> -->
+            <button (click)="navigateTo('audit')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                         text-blue-100/70 hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined">history</span>
+                Journal d'activité
+            </button>
+            <button (click)="navigateTo('organizations')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm 
+                         text-blue-100/70 hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined">apartment</span>
+                Mes Établissements
+            </button>
         </nav>
-        <div class="px-4 py-6 border-t border-white/10">
-            <button
-                class="w-full bg-secondary-container text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                <span class="material-symbols-outlined" data-icon="add">add</span>
-                Nouveau Dossier
+
+        <!-- Footer sidebar -->
+        <div class="p-4 border-t border-white/10 space-y-2">
+            <div class="text-[10px] text-blue-100/40 text-center uppercase tracking-widest">
+                RPPS: {{ practitioner()?.rpps }}
+            </div>
+            <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs 
+                         text-blue-100/60 hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined text-sm">settings</span>
+                Paramètres
+            </button>
+            <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs 
+                         text-red-300/80 hover:bg-red-500/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                Déconnexion
             </button>
         </div>
-        <div class="px-2 pb-6 space-y-1">
-            <a class="flex items-center text-blue-100/70 hover:bg-white/5 py-3 px-4 transition-all duration-200 ease-in-out"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="support_agent">support_agent</span>
-                Support
-            </a>
-            <a class="flex items-center text-red-300/70 hover:bg-red-500/10 py-3 px-4 transition-all duration-200 ease-in-out"
-                href="#">
-                <span class="material-symbols-outlined mr-3" data-icon="logout">logout</span>
-                Déconnexion
-            </a>
-        </div>
     </aside>
-    <!-- TopNavBar -->
-    <header
-        class="lg:ml-64 fixed top-0 right-0 left-0 lg:left-auto bg-white  border-b border-slate-200  shadow-sm dark:shadow-none z-30 font-['Public_Sans'] font-medium antialiased">
-        <div class="flex justify-between items-center w-full px-6 py-3">
-            <div class="flex items-center gap-4 flex-1">
-                <span class="lg:hidden material-symbols-outlined text-primary cursor-pointer"
-                    data-icon="menu">menu</span>
-                <div class="max-w-md w-full relative">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                        data-icon="search">search</span>
-                    <input
-                        class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-secondary transition-all"
-                        placeholder="Rechercher un patient par nom ou NPI..." type="text" />
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <div
-                    class="hidden md:flex items-center gap-2 px-4 py-1.5 bg-blue-50  rounded-full border border-blue-100 ">
-                    <span class="material-symbols-outlined text-blue-700 text-lg" data-icon="clinical_notes"
-                        style="font-variation-settings: 'FILL' 1;">clinical_notes</span>
-                    <span class="text-xs font-bold text-blue-700 dark:text-blue-300">IA ACTIVE</span>
-                </div>
-                <div class="flex items-center gap-3 border-l border-slate-200 pl-4 ml-2">
-                    <span
-                        class="material-symbols-outlined text-slate-500 cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-colors"
-                        data-icon="notifications">notifications</span>
-                    <span
-                        class="material-symbols-outlined text-slate-500 cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-colors"
-                        data-icon="settings">settings</span>
-                    <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-secondary-container">
-                        <img alt="User profile photo" class="w-full h-full object-cover"
-                            data-alt="A professional headshot of a Western African male doctor in his late 40s, wearing a clean white lab coat and a stethoscope around his neck. The lighting is soft and clinical, set against a blurred medical office background with subtle blue accents. The portrait conveys authority, warmth, and professional competence in a high-key, modern UI style."
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6BnrM-aTPMxiWqqIn7fCcVLkUihZAHymfs9MYfGe90zxpV7Muul9Qw6ng9N2zkjGu680b3dsX1L-2WOQ5WNAaTFAC2awOWSRqaaFXsZXykzl0KlnKRiGgITfDoX0bmJ6TRLG0XXR9_mBlKJUuc9CzbTQzqsL9QIBMWO-srX1BsfCniDJMOiiMA63k39ge8Qw7cFJnG9iScwpMJmfSM-G48dX4rSkVoF5EIUhKaoOvZqwUt8mvDkTRBN_0POt2h-9uKFtXe3yyqvuD" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-    <!-- Main Content -->
-    <main class="lg:ml-64 pt-20 pb-24 lg:pb-10 px-6 max-w-7xl mx-auto">
-        <!-- Welcome Header -->
-        <div class="mb-stack-lg flex flex-col md:flex-row md:items-end justify-between gap-4">
+
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <main class="flex-1 ml-64 p-8">
+
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
             <div>
-                <h2 class="font-h1 text-h1 text-primary">Tableau de bord</h2>
-                <p class="text-on-surface-variant font-body-md mt-1">Bonjour Dr. Bio, voici le résumé des priorités
-                    cliniques pour ce matin.</p>
+                <h2 class="text-2xl font-black text-[#002B5C] uppercase tracking-tight">
+                    Bonjour, {{ practitioner()?.firstName }} 👋
+                </h2>
+                <p class="text-slate-500 text-sm mt-1">
+                    {{ today | date:'EEEE dd MMMM yyyy' }} •
+                    <span class="text-[#002B5C] font-medium">{{ practitioner()?.primaryFacility }}</span>
+                </p>
             </div>
-            <div class="flex gap-3">
-                <div class="bg-white border border-outline-variant px-4 py-2 rounded-xl flex items-center gap-3">
-                    <div class="p-2 bg-surface-container-high rounded-lg text-secondary">
-                        <span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-label-caps text-on-surface-variant">DATE DU JOUR</p>
-                        <p class="text-sm font-bold">24 Octobre 2023</p>
-                    </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Recherche patient -->
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 
+                               text-slate-400 text-sm">search</span>
+                    <input type="text" placeholder="Rechercher un patient (NPI, Nom)..."
+                        (input)="onSearchPatient($event)" class="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full 
+                                  text-sm w-80 focus:ring-2 focus:ring-[#002B5C] outline-none">
+                </div>
+
+                <!-- Bouton nouvelle consultation -->
+                <button (click)="onNewConsultation()" class="bg-[#002B5C] text-white px-5 py-2.5 rounded-full text-sm font-bold 
+                               flex items-center gap-2 hover:bg-[#001f42] transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    Nouvelle consultation
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== STATS CARDS ===== -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+            <!-- Patients suivis -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm 
+                        hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                        Patients suivis
+                    </p>
+                    <span class="material-symbols-outlined text-blue-600 text-xl">group</span>
+                </div>
+                <p class="text-3xl font-black text-[#002B5C]">{{ stats().followedPatients }}</p>
+                <div class="mt-2 text-[10px] text-slate-500 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs text-green-600">trending_up</span>
+                    <span class="text-green-600 font-bold">+{{ stats().newPatientsThisMonth }}</span>
+                    ce mois
                 </div>
             </div>
+
+            <!-- Demandes d'accès en attente -->
+            <button (click)="navigateTo('requests')" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm 
+                           hover:shadow-md transition-shadow text-left group">
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                        Demandes d'accès
+                    </p>
+                    <span class="material-symbols-outlined text-amber-500 text-xl">verified_user</span>
+                </div>
+                <p class="text-3xl font-black text-amber-600">
+                    {{ pendingAccessRequests().length }}
+                </p>
+                <p class="mt-2 text-[10px] text-slate-500 group-hover:text-amber-600 transition-colors">
+                    Consentements à valider →
+                </p>
+            </button>
+
+            <!-- Consultations semaine -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm 
+                        hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                        Consultations (7j)
+                    </p>
+                    <span class="material-symbols-outlined text-green-600 text-xl">stethoscope</span>
+                </div>
+                <p class="text-3xl font-black text-[#002B5C]">{{ stats().consultationsThisWeek }}</p>
+                <div class="mt-2 text-[10px] text-slate-500">
+                    <span class="font-bold text-green-600">{{ stats().completedVisits }}</span> terminées •
+                    <span class="font-bold text-blue-600">{{ stats().upcomingVisits }}</span> à venir
+                </div>
+            </div>
+
+            <!-- Rapports à clôturer -->
+            <button (click)="navigateTo('reports')" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm 
+                           hover:shadow-md transition-shadow text-left group">
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                        Rapports à signer
+                    </p>
+                    <span class="material-symbols-outlined text-slate-600 text-xl">description</span>
+                </div>
+                <p class="text-3xl font-black text-slate-700">{{ stats().pendingReports }}</p>
+                <p class="mt-2 text-[10px] text-slate-500 group-hover:text-[#002B5C] transition-colors">
+                    En attente de signature →
+                </p>
+            </button>
         </div>
-        <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-stack-lg">
-            <div class="bg-white p-6 rounded-xl border border-outline-variant shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
-                    <span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
-                </div>
-                <div>
-                    <p class="text-xs font-label-caps text-on-surface-variant">VISITES DU MOIS</p>
-                    <p class="text-2xl font-h2 text-primary">142</p>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-xl border border-outline-variant shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
-                    <span class="material-symbols-outlined" data-icon="prescriptions">prescriptions</span>
-                </div>
-                <div>
-                    <p class="text-xs font-label-caps text-on-surface-variant">ORDONNANCES</p>
-                    <p class="text-2xl font-h2 text-primary">86</p>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-xl border border-outline-variant shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
-                    <span class="material-symbols-outlined" data-icon="priority_high">priority_high</span>
-                </div>
-                <div>
-                    <p class="text-xs font-label-caps text-on-surface-variant">ALERTES IA</p>
-                    <p class="text-2xl font-h2 text-primary">04</p>
-                </div>
-            </div>
-            <div
-                class="bg-white p-6 rounded-xl border border-outline-variant shadow-sm flex items-center gap-4 border-l-4 border-l-secondary-container">
-                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-secondary">
-                    <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
-                </div>
-                <div>
-                    <p class="text-xs font-label-caps text-on-surface-variant">PATIENTS ACTIFS</p>
-                    <p class="text-2xl font-h2 text-primary">28</p>
-                </div>
-            </div>
-        </div>
-        <!-- Main Bento Grid -->
-        <div class="grid grid-cols-12 gap-6">
-            <!-- Patients Prioritaires (AI Driven) -->
-            <div class="col-span-12 lg:col-span-8 space-y-6">
-                <section class="bg-white rounded-xl border border-outline-variant overflow-hidden">
-                    <div
-                        class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-slate-50/50">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary" data-icon="clinical_notes"
-                                style="font-variation-settings: 'FILL' 1;">clinical_notes</span>
-                            <h3 class="font-h3 text-h3 text-primary">Patients prioritaires (Alertes IA)</h3>
-                        </div>
-                        <button class="text-secondary text-sm font-bold flex items-center gap-1 hover:underline">
-                            Voir tout <span class="material-symbols-outlined text-sm"
-                                data-icon="arrow_forward">arrow_forward</span>
+
+        <!-- ===== GRILLE PRINCIPALE ===== -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- ===== COLONNE GAUCHE : Patients Suivis ===== -->
+            <section class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm 
+                             flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600">group</span>
+                        Mes Patients Suivis
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <select [(ngModel)]="patientFilter" (ngModelChange)="applyPatientFilter()" class="text-xs border border-slate-200 rounded-lg px-2 py-1 
+                                       focus:ring-2 focus:ring-[#002B5C] outline-none">
+                            <option value="all">Tous</option>
+                            <option value="recent">Récents</option>
+                            <option value="critical">Critiques</option>
+                            <option value="follow_up">Suivi régulier</option>
+                        </select>
+                        <button (click)="navigateTo('patients')"
+                            class="text-xs font-bold text-[#002B5C] hover:underline">
+                            Voir tout →
                         </button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-background/50">
-                                    <th
-                                        class="px-6 py-3 text-[11px] font-label-caps text-on-surface-variant border-b border-outline-variant">
-                                        PATIENT</th>
-                                    <th
-                                        class="px-6 py-3 text-[11px] font-label-caps text-on-surface-variant border-b border-outline-variant">
-                                        URGENCE IA</th>
-                                    <th
-                                        class="px-6 py-3 text-[11px] font-label-caps text-on-surface-variant border-b border-outline-variant">
-                                        DERNIÈRE ANOMALIE</th>
-                                    <th
-                                        class="px-6 py-3 text-[11px] font-label-caps text-on-surface-variant border-b border-outline-variant">
-                                        ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-outline-variant">
-                                <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-secondary text-xs">
-                                                KD</div>
-                                            <div>
-                                                <p class="font-bold text-sm text-primary">Koffi DAGBA</p>
-                                                <p class="text-xs text-on-surface-variant">NPI: 128903445</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                <div class="h-full bg-error w-[92%]"></div>
-                                            </div>
-                                            <span class="text-xs font-bold text-error">CRITIQUE</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-1 text-on-surface-variant">
-                                            <span class="material-symbols-outlined text-error text-sm"
-                                                data-icon="emergency_home"
-                                                style="font-variation-settings: 'FILL' 1;">emergency_home</span>
-                                            <span class="text-xs">Arythmie détectée (ECG)</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button
-                                            class="px-3 py-1.5 bg-primary-container text-white text-xs font-bold rounded-lg hover:opacity-90">Ouvrir</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-secondary text-xs">
-                                                AS</div>
-                                            <div>
-                                                <p class="font-bold text-sm text-primary">Amina SOUROU</p>
-                                                <p class="text-xs text-on-surface-variant">NPI: 902344112</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                <div class="h-full bg-amber-500 w-[65%]"></div>
-                                            </div>
-                                            <span class="text-xs font-bold text-amber-600">ÉLEVÉ</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-1 text-on-surface-variant">
-                                            <span class="material-symbols-outlined text-amber-500 text-sm"
-                                                data-icon="blood_pressure"
-                                                style="font-variation-settings: 'FILL' 1;">blood_pressure</span>
-                                            <span class="text-xs">Pics de glycémie récurrents</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button
-                                            class="px-3 py-1.5 bg-primary-container text-white text-xs font-bold rounded-lg hover:opacity-90">Ouvrir</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-secondary text-xs">
-                                                JB</div>
-                                            <div>
-                                                <p class="font-bold text-sm text-primary">Jean BIAOU</p>
-                                                <p class="text-xs text-on-surface-variant">NPI: 772300192</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                <div class="h-full bg-secondary w-[40%]"></div>
-                                            </div>
-                                            <span class="text-xs font-bold text-secondary">MODÉRÉ</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-1 text-on-surface-variant">
-                                            <span class="material-symbols-outlined text-secondary text-sm"
-                                                data-icon="history"
-                                                style="font-variation-settings: 'FILL' 1;">history</span>
-                                            <span class="text-xs">Renouvellement traitement requis</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button
-                                            class="px-3 py-1.5 bg-primary-container text-white text-xs font-bold rounded-lg hover:opacity-90">Ouvrir</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-                <!-- Agenda Trends & Health Charts -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl border border-outline-variant">
-                        <div class="flex justify-between items-start mb-6">
-                            <h3 class="font-bold text-primary">Visites vs Capacité</h3>
-                            <span class="material-symbols-outlined text-slate-300"
-                                data-icon="more_vert">more_vert</span>
-                        </div>
-                        <div class="h-32 flex items-end justify-between gap-2 px-2">
-                            <div class="w-full bg-surface-container rounded-t-sm h-[40%]"></div>
-                            <div class="w-full bg-surface-container rounded-t-sm h-[65%]"></div>
-                            <div class="w-full bg-secondary rounded-t-sm h-[90%]"></div>
-                            <div class="w-full bg-surface-container rounded-t-sm h-[50%]"></div>
-                            <div class="w-full bg-surface-container rounded-t-sm h-[70%]"></div>
-                            <div class="w-full bg-surface-container rounded-t-sm h-[30%]"></div>
-                            <div class="w-full bg-surface-container rounded-t-sm h-[80%]"></div>
-                        </div>
-                        <div class="flex justify-between mt-4 text-[10px] font-label-caps text-on-surface-variant">
-                            <span>LUN</span><span>MAR</span><span>MER</span><span>JEU</span><span>VEN</span><span>SAM</span><span>DIM</span>
-                        </div>
-                    </div>
-                    <div class="bg-primary text-white p-6 rounded-xl relative overflow-hidden">
-                        <div class="relative z-10">
-                            <h3 class="font-bold mb-2">Performance IA</h3>
-                            <p class="text-blue-200 text-xs mb-4">Précision des diagnostics assistés</p>
-                            <div class="text-3xl font-black">98.4%</div>
-                            <p class="text-[10px] mt-1 text-emerald-400 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs"
-                                    data-icon="trending_up">trending_up</span> +2.1% ce mois
-                            </p>
-                        </div>
-                        <span
-                            class="material-symbols-outlined absolute -right-4 -bottom-4 text-[100px] text-white/5 rotate-12"
-                            data-icon="auto_awesome">auto_awesome</span>
-                    </div>
                 </div>
-            </div>
-            <!-- Sidebar Agenda & Notifications -->
-            <div class="col-span-12 lg:col-span-4 space-y-6">
-                <!-- Agenda du Jour -->
-                <section class="bg-white rounded-xl border border-outline-variant p-6 shadow-sm">
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary" data-icon="event">event</span>
-                            <h3 class="font-bold text-primary">Agenda du jour</h3>
-                        </div>
-                        <span
-                            class="text-xs bg-surface-container-high text-secondary font-bold px-2 py-1 rounded-full">08
-                            TOTAL</span>
-                    </div>
-                    <div class="space-y-4">
-                        <div
-                            class="flex gap-4 items-start relative pb-4 after:content-[''] after:absolute after:left-[11px] after:top-6 after:bottom-0 after:w-[1px] after:bg-slate-200 last:after:hidden">
-                            <div
-                                class="w-6 h-6 rounded-full border-2 border-slate-300 bg-white z-10 flex items-center justify-center">
-                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+
+                <div class="divide-y divide-slate-50 max-h-[500px] overflow-y-auto">
+                    @for (patient of followedPatients(); track patient.npi) {
+                    <div class="px-6 py-4 hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                        (click)="onOpenDossier(patient.npi)">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 flex-1 min-w-0">
+                                <!-- Avatar -->
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 
+                                                to-blue-200 flex items-center justify-center shrink-0
+                                                border-2 border-white shadow-sm">
+                                    <span class="text-blue-700 font-black text-sm">
+                                        {{ patient.initials }}
+                                    </span>
+                                </div>
+
+                                <!-- Infos patient -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-0.5">
+                                        <p class="font-bold text-slate-800 text-sm truncate">
+                                            {{ patient.name }}
+                                        </p>
+                                        @if (patient.isCritical) {
+                                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"
+                                            title="Patient critique"></span>
+                                        }
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 font-mono">
+                                        NPI: {{ patient.npi }} • {{ patient.age }} ans
+                                    </p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[10px] text-slate-500">
+                                            {{ patient.lastVisit | date:'dd/MM/yyyy' }}
+                                        </span>
+                                        @if (patient.primaryDiagnosis) {
+                                        <span class="text-[10px] bg-blue-50 text-blue-700 
+                                                           px-2 py-0.5 rounded font-medium">
+                                            {{ patient.primaryDiagnosis }}
+                                        </span>
+                                        }
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-xs text-on-surface-variant font-bold">08:30 - 09:00</p>
-                                <p class="font-bold text-sm text-primary">Moussa TOURE</p>
-                                <span
-                                    class="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded uppercase font-bold">Terminé</span>
-                            </div>
-                        </div>
-                        <div
-                            class="flex gap-4 items-start relative pb-4 after:content-[''] after:absolute after:left-[11px] after:top-6 after:bottom-0 after:w-[1px] after:bg-slate-200 last:after:hidden">
-                            <div
-                                class="w-6 h-6 rounded-full border-2 border-emerald-500 bg-white z-10 flex items-center justify-center">
-                                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            </div>
-                            <div class="flex-1 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-                                <p class="text-xs text-emerald-700 font-bold">09:15 - 09:45</p>
-                                <p class="font-bold text-sm text-emerald-900">Fatoumata ZOSSOU</p>
-                                <span
-                                    class="text-[10px] px-2 py-0.5 bg-emerald-500 text-white rounded uppercase font-bold">En
-                                    cours</span>
-                            </div>
-                        </div>
-                        <div
-                            class="flex gap-4 items-start relative pb-4 after:content-[''] after:absolute after:left-[11px] after:top-6 after:bottom-0 after:w-[1px] after:bg-slate-200 last:after:hidden">
-                            <div
-                                class="w-6 h-6 rounded-full border-2 border-blue-500 bg-white z-10 flex items-center justify-center">
-                                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-xs text-on-surface-variant font-bold">10:00 - 10:30</p>
-                                <p class="font-bold text-sm text-primary">Yao KPODAR</p>
-                                <span
-                                    class="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-600 rounded uppercase font-bold">Planifié</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 items-start">
-                            <div
-                                class="w-6 h-6 rounded-full border-2 border-slate-300 bg-white z-10 flex items-center justify-center">
-                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-xs text-on-surface-variant font-bold">11:00 - 11:30</p>
-                                <p class="font-bold text-sm text-primary">Sandra AKPO</p>
-                                <span
-                                    class="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-600 rounded uppercase font-bold">Planifié</span>
-                            </div>
+
+                            <!-- Action -->
+                            <span class="material-symbols-outlined text-slate-300 
+                                           group-hover:text-[#002B5C] transition-colors">
+                                arrow_forward
+                            </span>
                         </div>
                     </div>
-                    <button
-                        class="w-full mt-6 py-2 text-secondary font-bold text-sm border border-secondary/20 rounded-lg hover:bg-secondary/5">
-                        Consulter l'agenda complet
-                    </button>
+                    } @empty {
+                    <div class="px-6 py-12 text-center text-slate-400">
+                        <span class="material-symbols-outlined text-4xl mb-2 block">group_off</span>
+                        <p class="text-sm">Aucun patient suivi pour le moment</p>
+                    </div>
+                    }
+                </div>
+            </section>
+
+            <!-- ===== COLONNE DROITE ===== -->
+            <div class="space-y-6">
+
+                <!-- Demandes d'accès en attente -->
+                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-amber-50/30">
+                        <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm 
+                                 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-500">verified_user</span>
+                            Demandes d'accès
+                        </h3>
+                        @if (pendingAccessRequests().length > 0) {
+                        <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 
+                                       rounded-full animate-pulse">
+                            {{ pendingAccessRequests().length }}
+                        </span>
+                        }
+                    </div>
+
+                    <div class="divide-y divide-slate-50 max-h-[280px] overflow-y-auto">
+                        @for (request of pendingAccessRequests(); track request.id) {
+                        <div class="p-4 hover:bg-slate-50/80 transition-colors">
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center 
+                                                justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-amber-700 text-lg">
+                                        person
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-slate-800 text-sm truncate">
+                                        {{ request.patientName }}
+                                    </p>
+                                    <p class="text-[10px] text-slate-400 font-mono">
+                                        NPI: {{ request.patientNpi }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 rounded-lg p-3 mb-3">
+                                <p class="text-[10px] text-slate-500 mb-1">Motif de la demande :</p>
+                                <p class="text-xs text-slate-700 font-medium">
+                                    {{ request.reason }}
+                                </p>
+                                <p class="text-[10px] text-slate-400 mt-2">
+                                    Demandé le {{ request.requestedAt | date:'dd/MM/yyyy à HH:mm' }}
+                                </p>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button (click)="onAcceptAccess(request, $event)" class="flex-1 bg-green-600 text-white text-xs font-bold 
+                                                   py-2 rounded-lg hover:bg-green-700 transition-colors
+                                                   flex items-center justify-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">check</span>
+                                    Accepter
+                                </button>
+                                <button (click)="onDeclineAccess(request, $event)" class="flex-1 bg-white border border-slate-200 text-slate-700 
+                                                   text-xs font-bold py-2 rounded-lg hover:bg-slate-50 
+                                                   transition-colors flex items-center justify-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">close</span>
+                                    Refuser
+                                </button>
+                            </div>
+                        </div>
+                        } @empty {
+                        <div class="px-6 py-8 text-center text-slate-400">
+                            <span class="material-symbols-outlined text-3xl mb-2 block text-green-500">
+                                check_circle
+                            </span>
+                            <p class="text-xs">Aucune demande en attente</p>
+                        </div>
+                        }
+                    </div>
                 </section>
-                <!-- Dernière Anomalies IA -->
-                <section class="bg-surface-container-low rounded-xl border border-outline-variant p-6">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="material-symbols-outlined text-secondary" data-icon="psychology">psychology</span>
-                        <h3 class="font-bold text-primary">Anomalies récentes</h3>
+
+                <!-- Mes Établissements -->
+                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm 
+                                 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-600">apartment</span>
+                            Mes Établissements
+                        </h3>
+                        <button (click)="navigateTo('organizations')"
+                            class="text-xs font-bold text-[#002B5C] hover:underline">
+                            Gérer
+                        </button>
                     </div>
-                    <div class="space-y-3">
-                        <div class="bg-white p-3 rounded-lg border border-outline-variant flex gap-3 items-center">
-                            <span class="material-symbols-outlined text-error" data-icon="warning"
-                                style="font-variation-settings: 'FILL' 1;">warning</span>
-                            <div>
-                                <p class="text-xs font-bold text-primary">Interaction médicamenteuse</p>
-                                <p class="text-[10px] text-on-surface-variant">Dossier #9283 - Il y a 10 min</p>
+
+                    <div class="p-4 space-y-2">
+                        @for (org of organizations(); track org.id) {
+                        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 
+                                        hover:border-[#002B5C]/20 hover:bg-slate-50/50 transition-all cursor-pointer"
+                            [class.border-l-4]="org.isPrimary" [class.border-l-[#002B5C]]="org.isPrimary"
+                            (click)="switchOrganization(org.id)">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                                [class.bg-[#002B5C]]="org.isPrimary" [class.text-white]="org.isPrimary"
+                                [class.bg-slate-100]="!org.isPrimary" [class.text-slate-600]="!org.isPrimary">
+                                <span class="material-symbols-outlined text-lg">
+                                    {{ org.type === 'hospital' ? 'local_hospital' :
+                                    org.type === 'clinic' ? 'clinic_medical' : 'medical_services' }}
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-slate-800 text-sm truncate">
+                                        {{ org.name }}
+                                    </p>
+                                    @if (org.isPrimary) {
+                                    <span class="text-[9px] bg-[#002B5C] text-white px-1.5 py-0.5 
+                                                       rounded font-black uppercase">
+                                        Principal
+                                    </span>
+                                    }
+                                </div>
+                                <p class="text-[10px] text-slate-500 truncate">
+                                    {{ org.role }} • Depuis {{ org.since | date:'MMM yyyy' }}
+                                </p>
                             </div>
                         </div>
-                        <div class="bg-white p-3 rounded-lg border border-outline-variant flex gap-3 items-center">
-                            <span class="material-symbols-outlined text-amber-500" data-icon="monitor_heart"
-                                style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
-                            <div>
-                                <p class="text-xs font-bold text-primary">Tachycardie nocturne</p>
-                                <p class="text-[10px] text-on-surface-variant">Dossier #1044 - Il y a 2h</p>
-                            </div>
-                        </div>
+                        }
                     </div>
                 </section>
+
             </div>
         </div>
+
+        <!-- ===== JOURNAL D'ACTIVITÉ RÉCENTE ===== -->
+        <section class="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm 
+                         flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">history</span>
+                    Mon Activité Récente
+                </h3>
+                <button (click)="navigateTo('audit')" class="text-xs font-bold text-[#002B5C] hover:underline">
+                    Voir tout l'historique →
+                </button>
+            </div>
+
+            <div class="divide-y divide-slate-50">
+                @for (activity of recentActivities(); track activity.id) {
+                <div class="px-6 py-3 flex items-center gap-4 hover:bg-slate-50/50 transition-colors">
+                    <!-- Icône selon le type -->
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                        [class.bg-blue-100]="activity.type === 'consultation'"
+                        [class.text-blue-700]="activity.type === 'consultation'"
+                        [class.bg-green-100]="activity.type === 'prescription'"
+                        [class.text-green-700]="activity.type === 'prescription'"
+                        [class.bg-purple-100]="activity.type === 'lab_result'"
+                        [class.text-purple-700]="activity.type === 'lab_result'"
+                        [class.bg-amber-100]="activity.type === 'consent'"
+                        [class.text-amber-700]="activity.type === 'consent'">
+                        <span class="material-symbols-outlined text-lg">
+                            {{ getActivityIcon(activity.type) }}
+                        </span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-slate-800">
+                            <span class="font-semibold">{{ activity.action }}</span>
+                            @if (activity.patientName) {
+                            <span class="text-slate-500"> pour </span>
+                            <span class="font-semibold text-[#002B5C]">
+                                {{ activity.patientName }}
+                            </span>
+                            }
+                        </p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">
+                            {{ activity.facility }} • {{ activity.timestamp | date:'dd/MM/yyyy à HH:mm' }}
+                        </p>
+                    </div>
+
+                    <!-- Badge -->
+                    @if (activity.badge) {
+                    <span class="text-[10px] font-bold px-2 py-1 rounded-full
+                                       {{ getActivityBadgeClass(activity.badge.type) }}">
+                        {{ activity.badge.text }}
+                    </span>
+                    }
+                </div>
+                }
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 
+                       text-[10px] text-slate-400 uppercase tracking-widest">
+            <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">lock</span>
+                    Chiffrement AES-256
+                </span>
+                <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">verified</span>
+                    Conforme APDP
+                </span>
+                <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">shield</span>
+                    Certifié PSSIE
+                </span>
+            </div>
+            <p>© 2026 Ministère de la Santé - République du Bénin</p>
+        </footer>
+
     </main>
-    <!-- BottomNavBar (Mobile Only) -->
-    <nav
-        class="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe pt-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] font-['Public_Sans'] text-[10px] font-bold text-blue-900">
-        <a class="flex flex-col items-center text-blue-900 dark:text-blue-400 scale-105" href="#">
-            <span class="material-symbols-outlined" data-icon="home"
-                style="font-variation-settings: 'FILL' 1;">home</span>
-            Accueil
-        </a>
-        <a class="flex flex-col items-center text-slate-400 dark:text-slate-500" href="#">
-            <span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
-            Santé
-        </a>
-        <a class="flex flex-col items-center text-slate-400 dark:text-slate-500" href="#">
-            <span class="material-symbols-outlined" data-icon="history">history</span>
-            Timeline
-        </a>
-        <a class="flex flex-col items-center text-slate-400 dark:text-slate-500" href="#">
-            <span class="material-symbols-outlined" data-icon="person">person</span>
-            Profil
-        </a>
-    </nav>
-    <!-- Contextual FAB (Mobile) -->
-    <button
-        class="lg:hidden fixed bottom-20 right-6 w-14 h-14 bg-primary-container text-white rounded-full shadow-lg flex items-center justify-center z-40 active:scale-95 transition-transform">
-        <span class="material-symbols-outlined" data-icon="add">add</span>
-    </button>
 </div>

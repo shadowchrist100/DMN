@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TimeLineEvents } from './time-line-events';
+import { Contacts } from './contacts';
 
-describe('TimeLineEvents', () => {
-  let component: TimeLineEvents;
-  let fixture: ComponentFixture<TimeLineEvents>;
+describe('Contacts', () => {
+  let component: Contacts;
+  let fixture: ComponentFixture<Contacts>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TimeLineEvents],
+      imports: [Contacts],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TimeLineEvents);
+    fixture = TestBed.createComponent(Contacts);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

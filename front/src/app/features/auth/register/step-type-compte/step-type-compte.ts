@@ -1,5 +1,5 @@
 import { Component, output, OnInit, signal } from '@angular/core';
-import { userType, RegisterStore } from '../register.store';
+import { RegisterStore } from '../register.store';
 import { FormControl, ReactiveFormsModule, Validators, } from '@angular/forms';
 
 @Component({

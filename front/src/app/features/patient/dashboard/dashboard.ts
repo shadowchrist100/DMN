@@ -7,12 +7,18 @@ import { Prescriptions } from "./components/prescriptions/prescriptions";
 import { Examens } from "./components/examens/examens";
 import { Allergies } from "./components/allergies/allergies";
 import { Consentements } from "./components/consentements/consentements";
+import { Profil } from "./components/profil/profil";
+import { Contacts } from "./components/contacts/contacts";
+import { ContactEdit } from "./components/contact-edit/contact-edit";
+import { ProfilEdit } from "./components/profil-edit/profil-edit";
+import { ActeView } from "./components/acte-view/acte-view";
 import { NavIconPipe } from '../pipes/nav-icon-pipe';
 import { NavLabelPipe } from '../pipes/nav-label-pipe';
 
 export type ViewKey =
     | 'dashboard' | 'historique' | 'prescriptions'
-    | 'examens' | 'allergies' | 'pathologies' | 'consentements';
+    | 'examens' | 'allergies' | 'pathologies' | 'consentements'
+    | 'profil' | 'contacts' | 'contact-edit' | 'profil-edit' | 'acte';
 
 export interface NavItem {
     key: ViewKey;
@@ -57,7 +63,7 @@ export interface AccesRecent {
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, TimeLinesComponent, Prescriptions, Examens, Allergies, Consentements, NavIconPipe, NavLabelPipe],
+    imports: [CommonModule, TimeLinesComponent, Prescriptions, Examens, Allergies, Consentements, Profil, Contacts, ContactEdit, ProfilEdit, ActeView, NavIconPipe, NavLabelPipe],
     templateUrl: './dashboard.html',
     styleUrls: ['./dashboard.css'],
 })
@@ -80,6 +86,7 @@ export class Dashboard implements OnInit, OnDestroy {
         { key: 'allergies', label: 'Allergies', icon: 'allergy' },
         { key: 'pathologies', label: 'Pathologies', icon: 'stethoscope' },
         { key: 'consentements', label: 'Consentements', icon: 'verified_user' },
+        { key: 'profil', label: 'Mon Profil', icon: 'person' },
     ];
 
     // ── Données patient (à remplacer par un service) ──────────────────────────

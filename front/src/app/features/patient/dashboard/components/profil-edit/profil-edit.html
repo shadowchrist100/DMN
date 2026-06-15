@@ -1,0 +1,122 @@
+<div class="p-2 md:py-2 max-w-4xl mx-auto space-y-6">
+
+    <!-- En-tête -->
+    <div>
+        <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+            <span>Dossier Médical</span>
+            <span class="mx-2">/</span>
+            <span class="text-primary">Modifier le profil</span>
+        </nav>
+        <h1 class="font-['Public_Sans'] text-3xl font-extrabold text-primary leading-tight">Modifier les informations civiles</h1>
+        <p class="text-sm text-slate-500 mt-1">Veuillez assurer l'exactitude des données conformément à la pièce d'identité nationale.</p>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div class="px-8 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="font-bold text-primary">Formulaire d'identification</h2>
+            <div class="bg-blue-50 px-4 py-1.5 rounded-full flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-secondary text-sm">verified_user</span>
+                <span class="text-[10px] font-bold text-secondary">NPI: {{ npi }}</span>
+            </div>
+        </div>
+
+        <form class="p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nom de Famille</label>
+                    <input type="text" [(ngModel)]="formData.nom" name="nom"
+                        class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Prénoms</label>
+                    <input type="text" [(ngModel)]="formData.prenoms" name="prenoms"
+                        class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date de Naissance</label>
+                    <input type="date" [(ngModel)]="formData.dateNaissance" name="dateNaissance"
+                        class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sexe</label>
+                    <select [(ngModel)]="formData.sexe" name="sexe"
+                        class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30">
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                        <option value="O">Autre</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">État Civil</label>
+                    <select [(ngModel)]="formData.civil" name="civil"
+                        class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30">
+                        <option value="celibataire">Célibataire</option>
+                        <option value="marie">Marié(e)</option>
+                        <option value="divorce">Divorcé(e)</option>
+                        <option value="veuf">Veuf/Veuve</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5 flex flex-col justify-center">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Naissances Multiples</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" [(ngModel)]="formData.naissanceMultiple" name="naissanceMultiple" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+                        <span class="ml-3 text-sm text-slate-500">Le patient est issu d'une naissance multiple</span>
+                    </label>
+                </div>
+                <div class="md:col-span-2 space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Adresse Complète</label>
+                    <textarea [(ngModel)]="formData.adresse" name="adresse" rows="3"
+                        class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30"></textarea>
+                </div>
+            </div>
+
+            <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg flex gap-3">
+                <span class="material-symbols-outlined text-indigo-600 text-sm mt-0.5">info</span>
+                <div>
+                    <p class="text-sm font-medium text-indigo-900">Validation APDP (Protection des Données)</p>
+                    <p class="text-xs text-indigo-700">Toutes les modifications sont journalisées et soumises aux protocoles de sécurité de l'Agence de Protection des Données Personnelles du Bénin.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 border-t border-slate-100">
+                <button type="button" class="px-6 py-2.5 rounded-lg border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors">Annuler</button>
+                <button type="submit" (click)="onSave()"
+                    class="px-8 py-2.5 rounded-lg bg-[#002B5C] text-white text-sm font-bold shadow-sm hover:bg-[#001f45] transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">save</span>
+                    Sauvegarder les modifications
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Infos contextuelles -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white border border-slate-200 p-4 rounded-xl">
+            <div class="flex items-center gap-2 text-slate-500 mb-1">
+                <span class="material-symbols-outlined text-sm">history</span>
+                <span class="text-[10px] font-bold uppercase">Dernière mise à jour</span>
+            </div>
+            <div class="text-sm font-semibold text-primary">12 Octobre 2023</div>
+            <div class="text-xs text-slate-400">Par Dr. Lawson (CHU MEL)</div>
+        </div>
+        <div class="bg-white border border-slate-200 p-4 rounded-xl">
+            <div class="flex items-center gap-2 text-slate-500 mb-1">
+                <span class="material-symbols-outlined text-sm">lock</span>
+                <span class="text-[10px] font-bold uppercase">Niveau d'accès</span>
+            </div>
+            <div class="text-sm font-semibold text-primary">Administration Standard</div>
+            <div class="text-xs text-slate-400">Journalisation active</div>
+        </div>
+        <div class="bg-white border border-slate-200 p-4 rounded-xl">
+            <div class="flex items-center gap-2 text-slate-500 mb-1">
+                <span class="material-symbols-outlined text-sm">how_to_reg</span>
+                <span class="text-[10px] font-bold uppercase">Statut d'identité</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-sm font-semibold text-primary">Vérifié par l'ANIP</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,237 +1,189 @@
-<div class="p-6 space-y-gutter max-w-7xl mx-auto">
-    <!-- Metadata Bento Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
-        <!-- Primary Visit Card -->
+<div class="p-2 md:py-2 space-y-6 max-w-7xl mx-auto">
+
+    <!-- En-tête -->
+    <div>
+        <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+            <span>Dossier Médical</span>
+            <span class="mx-2">/</span>
+            <span class="text-primary">Acte médical</span>
+        </nav>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Carte visite principale -->
         <div class="md:col-span-3 bg-white border border-slate-200 rounded-xl p-6 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
             <div class="flex flex-col md:flex-row justify-between gap-6">
                 <div class="space-y-4">
                     <div>
-                        <h3 class="font-h3 text-primary mb-1">Consultation de Cardiologie</h3>
-                        <p class="text-slate-500 font-body-sm">ID Visite: #VIS-2023-98421</p>
+                        <h3 class="font-bold text-primary text-lg">{{ visite.titre }}</h3>
+                        <p class="text-slate-500 text-sm">ID Visite: {{ visite.id }}</p>
                     </div>
-                    <div class="flex flex-wrap gap-6 items-center">
+                    <div class="flex flex-wrap gap-6">
                         <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary"
-                                data-icon="calendar_today">calendar_today</span>
+                            <span class="material-symbols-outlined text-secondary text-sm">calendar_today</span>
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">Date de visite</p>
-                                <p class="font-body-md font-semibold">14 Septembre 2023</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Date</p>
+                                <p class="text-sm font-semibold">{{ visite.date }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary"
-                                data-icon="location_on">location_on</span>
+                            <span class="material-symbols-outlined text-secondary text-sm">location_on</span>
                             <div>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase">Établissement</p>
-                                <p class="font-body-md font-semibold">CNHU-HKM, Cotonou</p>
+                                <p class="text-sm font-semibold">{{ visite.etablissement }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-col items-start md:items-end justify-between">
-                    <span
-                        class="bg-blue-50 text-secondary px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 border border-blue-100">
-                        <span class="material-symbols-outlined text-sm" data-icon="check_circle"
-                            style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="bg-blue-50 text-secondary px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 border border-blue-100">
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
                         VISITE FINALISÉE
                     </span>
                     <div class="mt-4 text-left md:text-right">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Motif de consultation</p>
-                        <p class="font-body-md text-primary italic font-medium">"Douleurs thoraciques atypiques et
-                            essoufflement à l'effort depuis 2 semaines."</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Motif</p>
+                        <p class="text-sm text-primary italic font-medium">"{{ visite.motif }}"</p>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Practitioner Profile -->
+
+        <!-- Médecin -->
         <div class="bg-white border border-slate-200 rounded-xl p-6 flex flex-col items-center text-center">
-            <div
-                class="h-16 w-16 rounded-full bg-slate-100 mb-4 flex items-center justify-center border-2 border-slate-50">
-                <span class="material-symbols-outlined text-3xl text-secondary" data-icon="person_filled">person</span>
+            <div class="h-16 w-16 rounded-full bg-slate-100 mb-4 flex items-center justify-center border-2 border-slate-50">
+                <span class="material-symbols-outlined text-3xl text-secondary">person</span>
             </div>
             <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Médecin traitant</p>
-            <h4 class="font-body-md font-bold text-primary">Dr. Kouandété Koffi</h4>
-            <p class="text-body-sm text-slate-500">Cardiologue Spécialiste</p>
+            <h4 class="font-bold text-primary">{{ visite.medecin }}</h4>
+            <p class="text-sm text-slate-500">{{ visite.specialite }}</p>
             <button class="mt-4 text-secondary text-xs font-bold hover:underline">Voir le profil</button>
         </div>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-        <!-- Left Column: Observations & Diagnoses -->
-        <div class="lg:col-span-2 space-y-gutter">
-            <!-- Clinical Observations -->
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Colonne gauche (2/3) -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Observations cliniques -->
             <section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
-                    <h3 class="font-h3 text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-secondary" data-icon="monitoring">monitoring</span>
+                <div class="bg-slate-50 border-b border-slate-100 px-6 py-4 flex justify-between items-center">
+                    <h3 class="font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">monitoring</span>
                         Observations cliniques
                     </h3>
                     <span class="text-xs font-bold text-slate-400">Dernière mise à jour : 10:45</span>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Vital Sign Card -->
+                        @for (obs of observations; track obs.label) {
                         <div class="p-4 border border-slate-100 rounded-lg bg-slate-50/50">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Tension Artérielle</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">{{ obs.label }}</p>
                             <div class="flex items-baseline gap-2 mt-1">
-                                <span class="text-2xl font-black text-primary">145/92</span>
-                                <span class="text-xs font-medium text-slate-500">mmHg</span>
+                                <span class="text-2xl font-black text-primary">{{ obs.valeur }}</span>
+                                <span class="text-xs font-medium text-slate-500">{{ obs.unite }}</span>
                             </div>
                             <div class="mt-3 flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-error"></span>
-                                <span class="text-xs font-bold text-error">HORS NORME (ÉLEVÉ)</span>
+                                <span class="w-2 h-2 rounded-full" [class.bg-red-500]="obs.statut === 'hors_norme'" [class.bg-emerald-500]="obs.statut === 'normal'"></span>
+                                <span class="text-xs font-bold" [class.text-error]="obs.statut === 'hors_norme'" [class.text-emerald-600]="obs.statut === 'normal'">
+                                    {{ obs.statut === 'hors_norme' ? 'HORS NORME' : 'NORMAL' }}
+                                </span>
                             </div>
                         </div>
-                        <!-- Vital Sign Card -->
-                        <div class="p-4 border border-slate-100 rounded-lg bg-slate-50/50">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Fréquence Cardiaque</p>
-                            <div class="flex items-baseline gap-2 mt-1">
-                                <span class="text-2xl font-black text-primary">88</span>
-                                <span class="text-xs font-medium text-slate-500">BPM</span>
-                            </div>
-                            <div class="mt-3 flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span class="text-xs font-bold text-green-600">NORMAL</span>
-                            </div>
-                        </div>
-                        <!-- Vital Sign Card -->
-                        <div class="p-4 border border-slate-100 rounded-lg bg-slate-50/50">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Saturation O2</p>
-                            <div class="flex items-baseline gap-2 mt-1">
-                                <span class="text-2xl font-black text-primary">98</span>
-                                <span class="text-xs font-medium text-slate-500">%</span>
-                            </div>
-                            <div class="mt-3 flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span class="text-xs font-bold text-green-600">NORMAL</span>
-                            </div>
-                        </div>
+                        }
                     </div>
                     <div class="mt-6 space-y-4">
                         <div class="border-l-4 border-slate-200 pl-4 py-1">
-                            <p class="text-body-sm font-semibold text-primary">Notes cliniques :</p>
-                            <p class="text-body-sm text-slate-600 mt-1 leading-relaxed">
-                                Patient conscient et orienté. Auscultation cardiaque révèle un souffle systolique léger
-                                au foyer mitral. Murmure vésiculaire normal. Pas d'oedèmes des membres inférieurs.
+                            <p class="text-sm font-semibold text-primary">Notes cliniques :</p>
+                            <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+                                Patient conscient et orienté. Auscultation cardiaque révèle un souffle systolique léger au foyer mitral. Murmure vésiculaire normal. Pas d'oedèmes des membres inférieurs.
                             </p>
                         </div>
                         <div class="bg-indigo-50/50 border border-indigo-100 p-4 rounded-lg flex gap-3">
-                            <span class="material-symbols-outlined text-indigo-600" data-icon="auto_awesome"
-                                style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                            <span class="material-symbols-outlined text-indigo-600" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
                             <div>
-                                <p class="text-xs font-bold text-indigo-900 uppercase">Analyse IA Predictive</p>
-                                <p class="text-xs text-indigo-800 mt-1">Légère corrélation détectée entre la tension
-                                    artérielle actuelle et les antécédents familiaux de grade 2. Surveillance accrue
-                                    recommandée.</p>
+                                <p class="text-xs font-bold text-indigo-900 uppercase">Analyse IA Prédictive</p>
+                                <p class="text-xs text-indigo-800 mt-1">Légère corrélation détectée entre la tension artérielle actuelle et les antécédents familiaux de grade 2. Surveillance accrue recommandée.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-            <!-- Diagnosed Conditions (CIM-10) -->
+
+            <!-- Diagnostics -->
             <section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4">
-                    <h3 class="font-h3 text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-secondary"
-                            data-icon="medical_information">medical_information</span>
+                <div class="bg-slate-50 border-b border-slate-100 px-6 py-4">
+                    <h3 class="font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">medical_information</span>
                         Diagnostics (CIM-10)
                     </h3>
                 </div>
                 <div class="divide-y divide-slate-100">
+                    @for (d of diagnostics; track d.code) {
                     <div class="p-6 flex justify-between items-start">
                         <div>
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="bg-primary text-white text-[10px] font-mono px-2 py-0.5 rounded">I10</span>
-                                <h4 class="font-body-md font-bold text-primary">Hypertension artérielle essentielle</h4>
+                                <span class="bg-primary text-white text-[10px] font-mono px-2 py-0.5 rounded">{{ d.code }}</span>
+                                <h4 class="font-semibold text-primary">{{ d.libelle }}</h4>
                             </div>
-                            <p class="text-body-sm text-slate-500">Statut : Confirmé | Sévérité : Modérée</p>
+                            <p class="text-xs text-slate-500">Statut : {{ d.statut }} | Sévérité : {{ d.severite }}</p>
                         </div>
-                        <span class="material-symbols-outlined text-slate-300" data-icon="info">info</span>
                     </div>
-                    <div class="p-6 flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span
-                                    class="bg-primary text-white text-[10px] font-mono px-2 py-0.5 rounded">E78.0</span>
-                                <h4 class="font-body-md font-bold text-primary">Hypercholestérolémie pure</h4>
-                            </div>
-                            <p class="text-body-sm text-slate-500">Statut : En cours de traitement | Sévérité : Légère
-                            </p>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-300" data-icon="info">info</span>
-                    </div>
+                    }
                 </div>
             </section>
         </div>
-        <!-- Right Column: Reports & Prescriptions -->
-        <div class="space-y-gutter">
-            <!-- Finalized Diagnostic Reports -->
+
+        <!-- Colonne droite (1/3) -->
+        <div class="space-y-6">
+
+            <!-- Rapports -->
             <section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4">
-                    <h3 class="font-h3 text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-secondary" data-icon="assignment">assignment</span>
+                <div class="bg-slate-50 border-b border-slate-100 px-6 py-4">
+                    <h3 class="font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">assignment</span>
                         Rapports d'examen
                     </h3>
                 </div>
                 <div class="p-4 space-y-3">
-                    <div
-                        class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group">
+                    @for (r of rapports; track r.nom) {
+                    <div class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group">
                         <div class="flex items-center gap-3">
                             <div class="h-10 w-10 bg-blue-100 rounded flex items-center justify-center text-secondary">
-                                <span class="material-symbols-outlined" data-icon="ecg">ecg</span>
+                                <span class="material-symbols-outlined">{{ r.icon }}</span>
                             </div>
                             <div>
-                                <p class="font-bold text-primary text-sm">ECG de repos</p>
-                                <p class="text-[10px] text-slate-400">Finalisé le 14/09/2023</p>
+                                <p class="font-bold text-primary text-sm">{{ r.nom }}</p>
+                                <p class="text-[10px] text-slate-400">Finalisé le {{ r.date }}</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-slate-400 group-hover:text-secondary"
-                            data-icon="download">download</span>
+                        <span class="material-symbols-outlined text-slate-400 group-hover:text-secondary">download</span>
                     </div>
-                    <div
-                        class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 bg-blue-100 rounded flex items-center justify-center text-secondary">
-                                <span class="material-symbols-outlined" data-icon="radiology">radiology</span>
-                            </div>
-                            <div>
-                                <p class="font-bold text-primary text-sm">Radio Thorax (Face)</p>
-                                <p class="text-[10px] text-slate-400">Finalisé le 14/09/2023</p>
-                            </div>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-400 group-hover:text-secondary"
-                            data-icon="download">download</span>
-                    </div>
+                    }
                 </div>
             </section>
-            <!-- Issued Prescriptions -->
+
+            <!-- Prescriptions -->
             <section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
-                    <h3 class="font-h3 text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-secondary" data-icon="pill">pill</span>
+                <div class="bg-slate-50 border-b border-slate-100 px-6 py-4 flex justify-between items-center">
+                    <h3 class="font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">pill</span>
                         Prescriptions
                     </h3>
                     <button class="bg-secondary text-white text-[10px] font-bold px-3 py-1 rounded">IMPRIMER</button>
                 </div>
-                <div class="p-6">
-                    <div class="space-y-6">
-                        <div class="relative pl-6 border-l-2 border-slate-100">
-                            <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-secondary"></div>
-                            <h4 class="font-body-md font-bold text-primary">AMLODIPINE 5mg</h4>
-                            <p class="text-body-sm text-slate-500 mt-1">1 comprimé chaque matin</p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Durée : 3 mois</p>
-                        </div>
-                        <div class="relative pl-6 border-l-2 border-slate-100">
-                            <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-secondary"></div>
-                            <h4 class="font-body-md font-bold text-primary">ASPEGIC 100mg</h4>
-                            <p class="text-body-sm text-slate-500 mt-1">1 sachet au milieu du déjeuner</p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Durée : 1 mois</p>
-                        </div>
+                <div class="p-6 space-y-6">
+                    @for (p of prescriptions; track p.nom) {
+                    <div class="relative pl-6 border-l-2 border-slate-100">
+                        <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-secondary"></div>
+                        <h4 class="font-bold text-primary">{{ p.nom }}</h4>
+                        <p class="text-sm text-slate-500 mt-1">{{ p.posologie }}</p>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Durée : {{ p.duree }}</p>
                     </div>
-                    <div class="mt-8 pt-6 border-t border-slate-100">
+                    }
+                    <div class="pt-6 border-t border-slate-100">
                         <div class="flex items-center gap-2 text-slate-400 text-[10px] italic">
-                            <span class="material-symbols-outlined text-sm" data-icon="lock"
-                                style="font-variation-settings: 'FILL' 1;">lock</span>
+                            <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">lock</span>
                             Signature numérique vérifiée par DMN PSSIE
                         </div>
                     </div>
