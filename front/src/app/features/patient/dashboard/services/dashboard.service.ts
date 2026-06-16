@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { MedicalService, AllergyDTO, ExamenDTO } from '../../services/medical.service';
 
 export type TypeExamen =
     | 'Biologie' | 'Imagerie' | 'Radiologie'
@@ -44,24 +45,123 @@ export interface Allergie {
     notes?: string;
 }
 
+const CATEGORIE_TO_TYPE: Record<string, TypeAllergie> = {
+    'Médicaments': 'Médicaments',
+    'Alimentation': 'Alimentation',
+    'Alimentaire': 'Alimentation',
+    'Environnement': 'Environnement',
+    'Environnemental': 'Environnement',
+};
+
+const CRITICITE_MAP: Record<string, Criticite> = {
+    'haute': 'Élevée',
+    'élevée': 'Élevée',
+    'elevee': 'Élevée',
+    'high': 'Élevée',
+    'modérée': 'Modérée',
+    'moderee': 'Modérée',
+    'medium': 'Modérée',
+    'basse': 'Basse',
+    'low': 'Basse',
+};
+
+const STATUT_CLINIQUE_MAP: Record<string, StatutAllergie> = {
+    'active': 'Allergie Active',
+    'actif': 'Allergie Active',
+    'confirmé': 'Confirmé',
+    'confirme': 'Confirmé',
+    'suspecté': 'Suspecté',
+    'suspecte': 'Suspecté',
+    'résolu': 'Résolu',
+    'resolu': 'Résolu',
+};
+
+const STATUT_VERIF_MAP: Record<string, StatutAllergie> = {
+    'CONFIRMED': 'Confirmé',
+    'SUSPECTED': 'Suspecté',
+    'REJECTED': 'Résolu',
+};
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
 
-    // ── Allergies ─────────────────────────────────────────────────────────
+    private medical = inject(MedicalService);
 
-    getAllergies(): Observable<Allergie[]> {
-        return of(MOCK_ALLERGIES).pipe(delay(300));
+    getAllergies(userId?: string): Observable<Allergie[]> {
+        if (!userId) return of(MOCK_ALLERGIES);
+        return this.medical.getAllergies(userId).pipe(
+            map(dtos => dtos.map((dto, index) => this.mapAllergie(dto, index))),
+        );
     }
 
-    // ── Examens ──────────────────────────────────────────────────────────
+    getExamens(userId?: string): Observable<Examen[]> {
+        if (!userId) return of(MOCK_EXAMENS);
+        return this.medical.getExamens(userId).pipe(
+            map(dtos => dtos.map(dto => this.mapExamen(dto))),
+        );
+    }
 
-    getExamens(): Observable<Examen[]> {
-        return of(MOCK_EXAMENS).pipe(delay(400));
+    private mapAllergie(dto: AllergyDTO, index: number): Allergie {
+        const rawType = dto.categorie || '';
+        const type: TypeAllergie = CATEGORIE_TO_TYPE[rawType] || 'Autre';
+        const criticite: Criticite = CRITICITE_MAP[dto.criticite.toLowerCase()] || 'Inconnue';
+        const statutClinique = STATUT_CLINIQUE_MAP[dto.statut_clinique.toLowerCase()];
+        const statutVerif = STATUT_VERIF_MAP[dto.statut_verification];
+        const statut: StatutAllergie = statutClinique || statutVerif || 'Actif';
+
+        return {
+            id: index + 1,
+            substance: dto.substance,
+            type,
+            sousType: rawType,
+            icon: type === 'Médicaments' ? 'medication'
+                : type === 'Alimentation' ? 'restaurant'
+                : type === 'Environnement' ? 'psychology' : 'warning',
+            criticite,
+            statut,
+            reactions: dto.reactions || [],
+            dateDeclaration: dto.date_declaration,
+            declarePar: '',
+            notes: dto.notes || undefined,
+        };
+    }
+
+    private mapExamen(dto: ExamenDTO): Examen {
+        const type_examen = this.toTypeExamen(dto.type_examen);
+        const statut = dto.valeur && dto.valeur !== '—' && dto.valeur !== ''
+            ? 'Résultat disponible' as StatutExamen
+            : 'En attente' as StatutExamen;
+
+        return {
+            uuid: dto.uuid,
+            libelle_examen: dto.libelle_examen,
+            type_examen,
+            statut,
+            date_realisation: dto.date_realisation ? new Date(dto.date_realisation) : new Date(),
+            code_loinc: dto.code_loinc,
+            valeur: dto.valeur,
+            unite: '',
+            valeur_min_normal: null,
+            valeur_max_normal: null,
+            interpretation: dto.interpretation,
+            image_path: dto.image_path,
+        };
+    }
+
+    private toTypeExamen(raw: string): TypeExamen {
+        const lower = raw.toLowerCase();
+        if (lower.includes('biologie') || lower.includes('labo')) return 'Biologie';
+        if (lower.includes('radiologie') || lower.includes('radio')) return 'Radiologie';
+        if (lower.includes('échographie') || lower.includes('echo')) return 'Échographie';
+        if (lower.includes('cardiologie') || lower.includes('ecg')) return 'Cardiologie';
+        if (lower.includes('imagerie') || lower.includes('irm') || lower.includes('scanner')) return 'Imagerie';
+        if (lower.includes('analyse')) return 'Biologie';
+        return 'Autre';
     }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//  MOCK DATA — aucun contenu IA
+//  MOCK DATA (fallback quand userId n'est pas fourni)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const MOCK_ALLERGIES: Allergie[] = [
