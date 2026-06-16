@@ -6,7 +6,7 @@ import { StepIdentity } from "./step-identity/step-identity";
 import { StepEmergencyContact } from "./step-emergency-contact/step-emergency-contact";
 import { StepAuth } from "./step-auth/step-auth";
 import { StepProfessionalInfo } from "./step-professional-info/step-professional-info";
-import { AuthService } from '../../../core/auth/auth-service';
+import { AuthService, RegisterPayload, mapSpeciality } from '../../../core/auth/auth-service';
 import { AuthStore } from '../../../core/auth/auth.store';
 
 @Component({
@@ -18,6 +18,7 @@ import { AuthStore } from '../../../core/auth/auth.store';
 export class Register {
     store = RegisterStore;
     continue = signal<boolean>(false);
+    error = signal<string>('');
     private router = inject(Router);
     private authService = inject(AuthService);
     private authStore = AuthStore;
@@ -57,21 +58,51 @@ export class Register {
 
     private async submitRegistration() {
         const user = this.store.user();
+        const userType = this.store.userType();
         if (!user?.auth.email) return;
 
-        try {
-            const response = await this.authService.register({
-                userType: this.store.userType(),
-                identity: user.identity,
-                contact: user.contact ?? undefined,
-                practitioner: user.practitioner ?? undefined,
-                auth: user.auth,
-            });
+        this.error.set('');
 
-            this.authStore.setAuth(response.user, response.token);
-            this.router.navigateByUrl(`/${this.store.userType() === 'PATIENT' ? 'patient' : 'practitioner'}/dashboard`);
-        } catch {
-            console.error('Erreur lors de l\'inscription');
+        try {
+            const payload: RegisterPayload = {
+                role: userType === 'PATIENT' ? 'patient' : 'practitioner',
+                first_name: user.identity.firstName,
+                last_name: user.identity.lastName,
+                email: user.auth.email,
+                password: user.auth.password,
+                gender: user.identity.gender === 'male' ? 'homme' : 'femme',
+                birth_date: user.identity.birthDate.toISOString().split('T')[0],
+                matrimonial_status: user.identity.maritalStatus,
+                phone: user.identity.phone,
+                npi: String(user.identity.npi),
+                city: user.identity.city,
+                address: user.identity.address,
+            };
+
+            if (userType === 'PATIENT' && user.contact) {
+                payload.emergencyContact = {
+                    firstName: user.contact.firstName,
+                    lastName: user.contact.lastName,
+                    phone: user.contact.phone,
+                    code_relation: user.contact.relation,
+                };
+            }
+
+            if (userType === 'PRACTITIONER' && user.practitioner) {
+                payload.order_number = String(user.practitioner.orderNumber);
+                payload.speciality = mapSpeciality(user.practitioner.speciality);
+                if (user.practitioner.organizations?.length) {
+                    payload.organization_id = user.practitioner.organizations[0].organizationId;
+                }
+            }
+
+            const response = await this.authService.register(payload);
+
+            this.authStore.setAuth(response.user, response.access_token);
+            this.router.navigateByUrl(`/${userType === 'PATIENT' ? 'patient' : 'practitioner'}/dashboard`);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Erreur lors de l\'inscription';
+            this.error.set(msg);
         }
     }
 

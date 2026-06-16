@@ -6,10 +6,7 @@ from datetime import datetime
 if TYPE_CHECKING:
     from .patient import Patient
     from .practitioner import Practitioner
-    from .medical_act import MedicalAct
     from .authorization import Authorization
-    from .emergency_authorization import EmergencyAuthorization
-    from .standard_authorization import StandardAuthorization
     from .consent import Consent
     from .consultation import Consultation
     from .prescription import Prescription
@@ -34,4 +31,3 @@ class DMN(SQLModel, table=True):
     patient: Optional["Patient"] = Relationship(back_populates="dmn")
 
     authorizations: List["Authorization"] = Relationship(back_populates="dmn")
-    medical_acts: List["MedicalAct"] = Relationship(back_populates="dmn")

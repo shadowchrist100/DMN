@@ -16,7 +16,7 @@ class Patient(SQLModel, table=True):
     )
     user_id: str = Field(unique=True, index=True)
     emergency_contacts: List["EmergencyContact"] = Relationship(
-        back_populates="patient",
+        back_populates="patients",
         link_model=RelatedPerson
     )
 

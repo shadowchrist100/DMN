@@ -36,7 +36,7 @@ class AuthController extends Controller
             'city' => ['required_if:role,patient,practitioner', 'string', 'max:255'],
             'address' => ['required_if:role,patient,practitioner', 'string', 'max:255'],
 
-            'documents' => ['required_if:role,patient,practitioner', 'array', 'min:1'],
+            'documents' => ['nullable', 'array', 'min:1'],
             'documents.*.type_document' => [
                 'required', 'string',
                 Rule::in(['diplome', 'carte_ordre', 'piece_identite']),
@@ -84,8 +84,12 @@ class AuthController extends Controller
 
         $user = auth()->user();
 
+        $message = $user->status_account === 'unverified'
+            ? 'Connexion réussie. Votre compte est en attente de vérification.'
+            : 'Connexion réussie.';
+
         return response()->json([
-            'message' => 'Connexion réussie.',
+            'message' => $message,
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'bearer',

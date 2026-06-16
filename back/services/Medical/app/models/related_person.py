@@ -11,7 +11,7 @@ class RelatedPerson(SQLModel, table=True):
     )
     emergency_contact_id: Optional[uuid.UUID] = Field(
         default=None,
-        foreign_key="emergency_contact.id",
+        foreign_key="emergencycontact.id",
         primary_key=True
     )
     code_relation: str

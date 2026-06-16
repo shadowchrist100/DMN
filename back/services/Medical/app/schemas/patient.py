@@ -19,10 +19,14 @@ class EmergencyContactResp(BaseModel):
     first_name: str
     last_name: str
     phone: str
+
+
+class RelatedPersonResp(BaseModel):
+    emergency_contact: EmergencyContactResp
     code_relation: str
 
 
 class PatientResp(BaseModel):
     id: str
     user_id: str
-    emergency_contacts: list[EmergencyContactResp]
+    emergency_contacts: list[RelatedPersonResp]

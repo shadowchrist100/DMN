@@ -16,5 +16,6 @@ class Practitioner(SQLModel, table=True):
     user_id: str = Field(unique=True, index=True)
     speciality: Speciality
     order_number: Optional[str] = None
+    organization_id: Optional[str] = None
     authorizations: List["Authorization"] = Relationship(back_populates="practitioner")
     roles: List["PractitionerRole"] = Relationship(back_populates="practitioner")
