@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import date
 
@@ -10,12 +10,15 @@ class Patient(SQLModel, table=True):
         primary_key=True,
     )
     user_id: str = Field(unique=True, index=True)
-    death_date: Optional[date] = None
-    multiple_birth: Optional[bool] = None
+    emergency_contacts: List["EmergencyContact"] = Relationship(
+        back_populates="patients",
+        link_model = RelatedPerson
+    )
 
-    emergency_contacts: list["EmergencyContact"] = Relationship(
-        back_populates="patient",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    # relations
+    dmn:Optional["DMN"] = Relationship(
+        back_populates = "patient" ,
+        sa_relationship_kwargs={'uselist': False}
     )
 
 

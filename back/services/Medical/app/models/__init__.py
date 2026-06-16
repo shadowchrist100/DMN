@@ -5,12 +5,12 @@ from .dmn import DMN
 from .consents import Consents
 from .care_episode import CareEpisode
 from .diagnosis import Diagnosis
-from .medical_act import MedicalAct
-from .prescriptions import Prescription
-from .medicament import Medicament
+from .medical_acts import MedicalAct
+from .prescription import Prescription
+from .ordonance_medicament import Medicament
 from .maladie import Maladie
 from .related_person import RelatedPerson
-from .vital_constants import VitalConstants
+from .vital_constant import VitalConstants
 from .vitals_constants_ref import VitalsConstantsRefs
 from .immunisation import Immunisation
 

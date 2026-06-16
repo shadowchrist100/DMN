@@ -13,3 +13,5 @@ class CareEpisode(SQLModel, table=True):
     severity: str
     start_date: date
     end_date: date
+    diagnosis_id : Optional[uuid.UUID] = Field(default=None, foreign_key="diagnosis.id", unique=True)
+    diagnosis: Optional["Diagnosis"] = Relationship(back_populates="care_episode")

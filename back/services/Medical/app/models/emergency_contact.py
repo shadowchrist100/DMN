@@ -1,6 +1,6 @@
 import uuid
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional
+from typing import Optional, List
 
 
 class EmergencyContact(SQLModel, table=True):
@@ -8,15 +8,15 @@ class EmergencyContact(SQLModel, table=True):
         default_factory=uuid.uuid4,
         primary_key=True,
     )
-    patient_id: Optional[uuid.UUID] = Field(
-        default=None, foreign_key="patient.id"
-    )
     first_name: str
     last_name: str
+    email: str
     phone: str
-    code_relation: str
 
-    patient: Optional["Patient"] = Relationship(back_populates="emergency_contacts")
+    patients: List["Patient"] = Relationship(
+        back_populates="emergency_contacts",
+        link_model = RelatedPerson    
+    )
 
 
 from app.models.patient import Patient

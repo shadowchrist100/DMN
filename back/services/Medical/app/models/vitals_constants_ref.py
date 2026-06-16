@@ -2,11 +2,11 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 
 
-class VitalsConstantsRefs(SQLModel, table=True):
+class VitalsConstantsRef(SQLModel, table=True):
+    # La clé primaire est un code unique standardisé (ex: "TEMP", "WEIGHT", "BP_SYS")
     code: str = Field(primary_key=True)
-    poids: Optional[float] = None
-    taille: Optional[float] = None
-    tension_systolique: Optional[float] = None
-    tension_diastolique: Optional[float] = None
-    temperature_celsius: Optional[float] = None
-    frequence_cardiaque: Optional[float] = None
+    nom: str          # Ex: "Température corporelle"
+    unite_mesure: str # Ex: "°C", "kg", "mmHg"
+
+    # Relation vers les mesures réelles prises sur le terrain
+    mesures: List["VitalConstant"] = Relationship(back_populates="constant_ref")

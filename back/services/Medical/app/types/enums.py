@@ -45,3 +45,30 @@ class Speciality(str, Enum):
     PHARMACIEN = "pharmacien"
     DENTISTE = "dentiste"
     AUTRE = "autre"
+
+class Perimeter(str, Enum):
+    ALL = "all"
+    PRESCRIPTIONS = "prescriptions"
+
+class Duration(str, Enum):
+    MIN_30 = "30min"
+    H_1 = "1h"
+
+class DiagnosisVerification(str, Enum):
+    CONFIRMED = "confirmed"
+    SUSPECTED = "suspected"
+    REJECTED = "rejected"
+
+class TypePrescription(str, Enum):
+    VACCIN = "vaccin"
+    EXAMINATION = "examination"
+
+class TypeDirective(str, Enum):
+    MEDICAMENT = "medicament"
+    SOINS_REED_KINE = "soins_reed_kine" # Kiné, rééducation, infirmiers...
+    MODE_DE_VIE = "mode_de_vie"
+
+class NatureExamination(str, Enum):
+    labo = "LABORATOIRE"
+    analyse = "ANALYSE"
+    radiographie = "radiographie"

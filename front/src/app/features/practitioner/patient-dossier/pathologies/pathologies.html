@@ -1,14 +1,382 @@
-<section class="space-y-4">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm flex items-center gap-2">
-      <span class="material-symbols-outlined text-[#1E40AF]">medical_information</span>
-      Pathologies
-    </h3>
-  </div>
+<!-- ===== SECTION PATHOLOGIES & DIAGNOSTICS ===== -->
+<section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
 
-  <div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
-    <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">medical_information</span>
-    <h4 class="text-lg font-bold text-slate-500 mb-2">Module des pathologies</h4>
-    <p class="text-sm text-slate-400">Les pathologies et antécédents médicaux s'afficheront ici.</p>
-  </div>
+    <!-- ===== HEADER ===== -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-blue-50/50 to-white">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#1E40AF]">medical_information</span>
+                    Pathologies & Diagnostics (CIM-10)
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">
+                    Historique des diagnostics posés •
+                    <span class="font-semibold text-[#1E40AF]">2 pathologies chroniques actives</span> sous surveillance
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <button class="flex items-center gap-1.5 px-4 py-2 bg-[#002B5C] text-white 
+                         rounded-lg text-xs font-bold hover:bg-[#001f42] transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-sm">add</span>
+                Ajouter un diagnostic
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== STATS SYNTHÉTIQUES ===== -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 border-b border-slate-100 bg-slate-50/30">
+
+        <!-- Chroniques Actives -->
+        <div class="bg-white p-4 rounded-xl border border-blue-200 bg-blue-50/30">
+            <div class="flex items-center justify-between mb-2">
+                <span class="material-symbols-outlined text-blue-600 text-lg">monitoring</span>
+                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            </div>
+            <p class="text-2xl font-black text-[#002B5C]">2</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Chroniques actives</p>
+        </div>
+
+        <!-- Aiguës Récentes -->
+        <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-amber-300 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="material-symbols-outlined text-amber-600 text-lg">sick</span>
+            </div>
+            <p class="text-2xl font-black text-[#002B5C]">1</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Épisodes aigus (< 6 mois)</p>
+        </div>
+
+        <!-- Résolues / Antécédents -->
+        <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="material-symbols-outlined text-slate-500 text-lg">history</span>
+            </div>
+            <p class="text-2xl font-black text-[#002B5C]">3</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Résolues / Antécédents</p>
+        </div>
+
+        <!-- Dernière mise à jour -->
+        <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-col justify-center">
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mb-1">Dernière mise à jour</p>
+            <p class="text-sm font-bold text-[#002B5C]">12 Oct 2023</p>
+            <p class="text-[10px] text-slate-500">Dr. S. AGOSSA</p>
+        </div>
+    </div>
+
+    <!-- ===== FILTRES & TABS ===== -->
+    <div class="px-6 py-3 border-b border-slate-100 bg-white sticky top-[120px] z-10">
+        <div class="flex flex-wrap items-center gap-2">
+            <button class="px-4 py-2 bg-[#002B5C] text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">list</span>
+                Actives
+                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">3</span>
+            </button>
+            <button
+                class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-slate-500">archive</span>
+                Résolues / Antécédents
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">3</span>
+            </button>
+
+            <div class="ml-auto flex items-center gap-2">
+                <div class="relative">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                    <input type="text" placeholder="Rechercher par code CIM-10 ou nom..."
+                        class="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent w-64">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONTENU : LISTE DES PATHOLOGIES ===== -->
+    <div class="p-6 space-y-5">
+
+        <!-- ====== GROUPE : PATHOLOGIES CHRONIQUES ACTIVES ====== -->
+        <div>
+            <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
+                <span class="material-symbols-outlined text-blue-600">monitoring</span>
+                <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">
+                    Pathologies Chroniques Actives
+                </h4>
+            </div>
+
+            <!-- Pathologie 1 : HTA -->
+            <article
+                class="bg-white border-l-4 border-l-blue-600 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
+                <div class="p-5">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
+                        <div class="flex items-start gap-4 flex-1">
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-blue-700 text-2xl">favorite</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-wrap items-center gap-2 mb-2">
+                                    <span
+                                        class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">I10</span>
+                                    <h5 class="font-black text-[#002B5C] text-lg">Hypertension artérielle essentielle
+                                    </h5>
+                                    <span
+                                        class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200 uppercase">
+                                        Chronique
+                                    </span>
+                                    <span
+                                        class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200 uppercase">
+                                        Sévérité : Modérée
+                                    </span>
+                                </div>
+                                <p class="text-sm text-slate-600">
+                                    Diagnostiquée en 2018. Sous traitement antihypertenseur. Objectif tensionnel <
+                                        140/90 mmHg. Surveillance annuelle du fond d'œil et de la fonction rénale
+                                        recommandée. </p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:items-end gap-2 shrink-0">
+                            <span class="text-[10px] text-slate-500 text-right">
+                                Diagnostiqué le : <strong class="text-slate-700">15/03/2018</strong><br>
+                                Par : Dr. Mensah (HZ Calavi)
+                            </span>
+                            <div class="flex gap-2">
+                                <button
+                                    class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                                    Modifier
+                                </button>
+                                <button
+                                    class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
+                                    Voir le protocole
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liens cliniques (La vraie valeur du DMN) -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                        <p
+                            class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">link</span>
+                            Prise en charge actuelle liée à ce diagnostic
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Lien Prescription -->
+                            <div
+                                class="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-green-700 text-sm">medication</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold text-slate-900 truncate">Amlodipine 5mg</p>
+                                    <p class="text-[10px] text-slate-500">Traitement actif • Renouvelable</p>
+                                </div>
+                                <span class="material-symbols-outlined text-slate-400 text-sm">arrow_forward</span>
+                            </div>
+                            <!-- Lien Examen -->
+                            <div
+                                class="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer">
+                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-purple-700 text-sm">biotech</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold text-slate-900 truncate">Bilan Rénal (Créatinine)</p>
+                                    <p class="text-[10px] text-slate-500">Dernier : 15/01/2024 • Normal</p>
+                                </div>
+                                <span class="material-symbols-outlined text-slate-400 text-sm">arrow_forward</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Pathologie 2 : Hypercholestérolémie -->
+            <article
+                class="bg-white border-l-4 border-l-blue-600 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all mt-4">
+                <div class="p-5">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div class="flex items-start gap-4 flex-1">
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-blue-700 text-2xl">water_drop</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-wrap items-center gap-2 mb-2">
+                                    <span
+                                        class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">E78.0</span>
+                                    <h5 class="font-black text-[#002B5C] text-lg">Hypercholestérolémie pure</h5>
+                                    <span
+                                        class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200 uppercase">
+                                        Chronique
+                                    </span>
+                                    <span
+                                        class="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded border border-green-200 uppercase">
+                                        Sévérité : Contrôlée
+                                    </span>
+                                </div>
+                                <p class="text-sm text-slate-600">
+                                    Dyslipidémie mixte. Sous statines. Dernier bilan lipidique (Jan 2024) montre un LDL
+                                    légèrement
+                                    au-dessus de la cible, nécessitant un maintien du traitement actuel et une
+                                    surveillance diététique.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:items-end gap-2 shrink-0">
+                            <span class="text-[10px] text-slate-500 text-right">
+                                Diagnostiqué le : <strong class="text-slate-700">20/08/2020</strong><br>
+                                Par : Dr. S. AGOSSA
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Liens cliniques simplifiés -->
+                    <div
+                        class="mt-4 flex items-center gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="material-symbols-outlined text-sm text-green-600">medication</span>
+                        <span>Traitement lié :</span>
+                        <strong class="text-[#002B5C]">Atorvastatine 20mg</strong>
+                        <span class="text-slate-400">|</span>
+                        <span class="material-symbols-outlined text-sm text-purple-600">biotech</span>
+                        <span>Dernier suivi :</span>
+                        <strong class="text-[#002B5C]">Bilan lipidique (28/01/2024)</strong>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- ====== GROUPE : PATHOLOGIES AIGUËS RÉCENTES ====== -->
+        <div>
+            <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
+                <span class="material-symbols-outlined text-amber-600">sick</span>
+                <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">
+                    Épisodes Aigus Récents (< 6 mois) </h4>
+            </div>
+
+            <article
+                class="bg-white border-l-4 border-l-amber-500 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
+                <div class="p-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div class="flex items-start gap-4 flex-1">
+                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-amber-700 text-2xl">back_hand</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span
+                                    class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">M54.5</span>
+                                <h5 class="font-bold text-slate-900 text-lg">Lombalgie aiguë commune</h5>
+                                <span
+                                    class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200 uppercase">
+                                    Aiguë
+                                </span>
+                                <span
+                                    class="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded border border-green-200 uppercase">
+                                    Résolu
+                                </span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">
+                                Épisode de douleur lombaire basse sans signe de gravité (pas de syndrome de la queue de
+                                cheval).
+                                Traité par repos relatif, AINS et paracétamol. Résolution complète des symptômes en 10
+                                jours.
+                            </p>
+                            <div class="flex items-center gap-4 text-[10px] text-slate-500">
+                                <span class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
+                                    15 Jan 2024 - 25 Jan 2024
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">person</span>
+                                    Dr. S. AGOSSA
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- ====== GROUPE : ANTÉCÉDENTS / RÉSOLUS (Collapsible) ====== -->
+        <div>
+            <button
+                class="w-full flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group">
+                <div class="flex items-center gap-3">
+                    <span
+                        class="material-symbols-outlined text-slate-500 group-hover:text-[#002B5C] transition-colors">history</span>
+                    <span class="font-bold text-slate-700 text-sm">Antécédents médico-chirurgicaux et pathologies
+                        résolues
+                        (3)</span>
+                </div>
+                <span
+                    class="material-symbols-outlined text-slate-400 group-hover:text-[#002B5C] transition-transform group-hover:rotate-180">expand_more</span>
+            </button>
+
+            <!-- Contenu (simulé déplié pour la démo) -->
+            <div class="mt-3 space-y-3">
+
+                <!-- Antécédent chirurgical -->
+                <article
+                    class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-80 hover:opacity-100 transition-opacity">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-slate-600">surgery</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span
+                                    class="font-mono text-[10px] font-black bg-slate-600 text-white px-1.5 py-0.5 rounded">K35.8</span>
+                                <h5 class="font-bold text-slate-700 text-sm line-through">Appendicite aiguë</h5>
+                                <span
+                                    class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded uppercase">
+                                    Résolu (Chirurgical)
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600">
+                                Appendicectomie par laparoscopie le 15/03/2024 au CNHU-HKM. Suites opératoires simples.
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Antécédent personnel -->
+                <article
+                    class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-80 hover:opacity-100 transition-opacity">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-slate-600">coronavirus</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span
+                                    class="font-mono text-[10px] font-black bg-slate-600 text-white px-1.5 py-0.5 rounded">U07.1</span>
+                                <h5 class="font-bold text-slate-700 text-sm line-through">COVID-19 (Confirmé)</h5>
+                                <span
+                                    class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded uppercase">
+                                    Résolu
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600">
+                                Infection en Novembre 2021. Forme modérée, traitée en ambulatoire. Aucune séquelle
+                                respiratoire
+                                rapportée.
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== FOOTER SECTION ===== -->
+    <div
+        class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-3">
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span class="material-symbols-outlined text-sm">info</span>
+            <span>Les diagnostics sont codifiés selon la <strong class="text-slate-700">Classification Internationale
+                    des
+                    Maladies (CIM-10)</strong> pour assurer l'interopérabilité des données de santé.</span>
+        </div>
+        <button
+            class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors">
+            <span class="material-symbols-outlined text-sm">download</span>
+            Exporter la liste des diagnostics
+        </button>
+    </div>
+
 </section>

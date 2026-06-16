@@ -1,662 +1,756 @@
 <div class="flex min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
 
-  <!-- ===== SIDEBAR ===== -->
-  <aside class="hidden lg:flex flex-col h-screen fixed left-0 top-0 z-40 bg-[#002B5C] text-white w-64 border-r border-white/10 text-sm tracking-tight">
+    <!-- ===== SIDEBAR ===== -->
+    <aside
+        class="hidden lg:flex flex-col h-screen fixed left-0 top-0 z-40 bg-[#002B5C] text-white w-64 border-r border-white/10 text-sm tracking-tight">
 
-    <!-- Logo -->
-    <div class="p-6 border-b border-white/10">
-      <h1 class="text-white font-black text-lg uppercase tracking-tighter">DMN Praticien</h1>
-      <p class="text-blue-100/50 text-[10px] uppercase tracking-widest mt-1">Portail Santé Bénin</p>
-    </div>
-
-    <!-- Profil praticien -->
-    <div class="p-4 border-b border-white/10">
-      <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_wbjSaptTJKnjj2Bd47-SBu-2ObqC9jJf6SDutNa5WlR3u3TwTyY62noEzF4i7NoYP-MKAm88NdtyTSQ24xrCtWA_U9EsUWKEw5uHO3f1uSHpRXVGmBry10LOpsuuGqAFl4uFYqD0KUsonVl0e0yzQB4UIwyXHlPG3VIS8NGTyEo5iNlm1ZatJUQg1Q_08apL2idCqnhfHSZV2b4DlUeycHFXbwCxa-oV6xbDQ_st83VFk1OBr-c-aQPzLHmpNRgfW18TRlF1Qaq_"
-          alt="Photo Dr. AGOSSA" class="w-10 h-10 rounded-full border-2 border-white/20 object-cover">
-        <div class="overflow-hidden flex-1">
-          <p class="text-xs font-bold truncate">Dr. Sarah AGOSSA</p>
-          <p class="text-[10px] text-blue-100/60 truncate">Médecine Générale</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
-        <span class="material-symbols-outlined">dashboard</span>
-        Tableau de bord
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
-        <span class="material-symbols-outlined">group</span>
-        Mes Patients
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm bg-white text-[#002B5C] font-bold">
-        <span class="material-symbols-outlined">description</span>
-        Dossier Médical
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
-        <span class="material-symbols-outlined">medication</span>
-        Prescriptions
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
-        <span class="material-symbols-outlined">biotech</span>
-        Analyses
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
-        <span class="material-symbols-outlined">verified_user</span>
-        Consentements
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
-        <span class="material-symbols-outlined">history</span>
-        Journal d'activité
-      </a>
-    </nav>
-
-    <!-- Footer sidebar -->
-    <div class="p-4 border-t border-white/10 space-y-2">
-      <div class="text-[10px] text-blue-100/40 text-center uppercase tracking-widest">
-        RPPS: 1000456789
-      </div>
-      <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg text-xs text-blue-100/60 hover:bg-white/5 transition-colors">
-        <span class="material-symbols-outlined text-sm">settings</span>
-        Paramètres
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg text-xs text-red-300/80 hover:bg-red-500/10 transition-colors">
-        <span class="material-symbols-outlined text-sm">logout</span>
-        Déconnexion
-      </a>
-    </div>
-  </aside>
-
-  <!-- ===== MAIN CONTENT ===== -->
-  <main class="flex-1 lg:ml-64 flex flex-col min-w-0">
-
-    <!-- Top Navbar -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-      <div class="flex justify-between items-center w-full px-6 py-3">
-        <div class="flex items-center gap-4 flex-1">
-          <span class="lg:hidden text-[#002B5C] font-black text-lg">DMN Bénin</span>
-          <div class="hidden md:flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
-            <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
-            <input class="bg-transparent border-none focus:ring-0 text-sm w-64 outline-none"
-              placeholder="Rechercher un patient..." type="text" />
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors relative">
-            <span class="material-symbols-outlined">notifications</span>
-            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-          </button>
-          <button class="text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors">
-            <span class="material-symbols-outlined">help</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- ===== PATIENT HEADER BANNER ===== -->
-    <section class="bg-white border-b border-slate-200 px-6 py-6">
-      <div class="max-w-7xl mx-auto">
-        <!-- Breadcrumb + Actions -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
-          <nav class="flex items-center gap-2 text-xs text-slate-500 uppercase tracking-wide">
-            <a href="#" class="hover:text-[#002B5C] font-medium">Patients</a>
-            <span class="material-symbols-outlined text-[12px] text-slate-300">chevron_right</span>
-            <span class="text-[#002B5C] font-bold">KOFFI Jean-Baptiste</span>
-          </nav>
-          <div class="flex flex-wrap gap-2">
-            <button class="flex items-center gap-1.5 bg-[#002B5C] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#001f42] transition-colors shadow-sm">
-              <span class="material-symbols-outlined text-sm">stethoscope</span>
-              Nouvelle consultation
-            </button>
-            <button class="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">
-              <span class="material-symbols-outlined text-sm">medication</span>
-              Prescrire
-            </button>
-            <button class="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">
-              <span class="material-symbols-outlined text-sm">biotech</span>
-              Demande analyse
-            </button>
-          </div>
+        <!-- Logo -->
+        <div class="p-6 border-b border-white/10">
+            <h1 class="text-white font-black text-lg uppercase tracking-tighter">DMN Praticien</h1>
+            <p class="text-blue-100/50 text-[10px] uppercase tracking-widest mt-1">Portail Santé Bénin</p>
         </div>
 
-        <!-- Patient Identity -->
-        <div class="flex flex-col md:flex-row md:items-center gap-6">
-          <div class="relative shrink-0">
-            <img alt="Photo de KOFFI Jean-Baptiste"
-              class="w-24 h-24 rounded-2xl object-cover clinical-shadow border-2 border-white"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA21jGo4_fNt8zCsrrYgs__jw63tbPU9grylSx3M_n-pB4emhx4uUPhM1Z240tCRNC2kQRADrdIT-eHZMzzWWQn1Lr0w-XMrSDz1g0X-7v__VmR9blm12B3F6OrJQPnNDYauYFn5OMLyPz0j5zrVHVFBRCauuN81DpWcsxcV0LEjJ-uuQ07Zot3T84zW4M7-1vYY3-bilTUiJsQTWN0cMQv7upiUWn8GiNka_M4rBHnbRd7Cw6CXGrH57_cbU9hZwwsQgjKNSExfBYM" />
-            <div class="absolute -bottom-2 -right-2 bg-green-500 w-7 h-7 rounded-full border-4 border-white flex items-center justify-center shadow-md"
-              title="Identité vérifiée par ANIP">
-              <span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+        <!-- Profil praticien -->
+        <div class="p-4 border-b border-white/10">
+            <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_wbjSaptTJKnjj2Bd47-SBu-2ObqC9jJf6SDutNa5WlR3u3TwTyY62noEzF4i7NoYP-MKAm88NdtyTSQ24xrCtWA_U9EsUWKEw5uHO3f1uSHpRXVGmBry10LOpsuuGqAFl4uFYqD0KUsonVl0e0yzQB4UIwyXHlPG3VIS8NGTyEo5iNlm1ZatJUQg1Q_08apL2idCqnhfHSZV2b4DlUeycHFXbwCxa-oV6xbDQ_st83VFk1OBr-c-aQPzLHmpNRgfW18TRlF1Qaq_"
+                    alt="Photo Dr. AGOSSA" class="w-10 h-10 rounded-full border-2 border-white/20 object-cover">
+                <div class="overflow-hidden flex-1">
+                    <p class="text-xs font-bold truncate">Dr. Sarah AGOSSA</p>
+                    <p class="text-[10px] text-blue-100/60 truncate">Médecine Générale</p>
+                </div>
             </div>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center gap-3 mb-2">
-              <h1 class="text-2xl md:text-3xl font-black text-[#002B5C] tracking-tight">
-                KOFFI Jean-Baptiste
-              </h1>
-              <span class="bg-blue-50 text-[#1E40AF] px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-blue-200">
-                Masculin
-              </span>
-              <span class="bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-amber-200 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                Suivi chronique
-              </span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">dashboard</span>
+                Tableau de bord
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">group</span>
+                Mes Patients
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm bg-white text-[#002B5C] font-bold">
+                <span class="material-symbols-outlined">description</span>
+                Dossier Médical
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">medication</span>
+                Prescriptions
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">biotech</span>
+                Analyses
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">verified_user</span>
+                Consentements
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-blue-100/70 hover:bg-white/5 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">history</span>
+                Journal d'activité
+            </a>
+        </nav>
+
+        <!-- Footer sidebar -->
+        <div class="p-4 border-t border-white/10 space-y-2">
+            <div class="text-[10px] text-blue-100/40 text-center uppercase tracking-widest">
+                RPPS: 1000456789
             </div>
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
-              <span class="flex items-center gap-1.5 font-mono">
-                <span class="material-symbols-outlined text-sm text-slate-400">fingerprint</span>
-                <span class="font-semibold">NPI:</span> 1024 8839 2004 12
-              </span>
-              <span class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-slate-400">calendar_today</span>
-                14/05/1962 <span class="text-slate-400">(61 ans)</span>
-              </span>
-              <span class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-slate-400">bloodtype</span>
-                <span class="font-bold text-red-600">O+</span>
-              </span>
-              <span class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-slate-400">person</span>
-                Médecin traitant: <strong class="text-[#002B5C]">Dr. AGOSSA</strong>
-              </span>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-2 rounded-lg text-xs text-blue-100/60 hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined text-sm">settings</span>
+                Paramètres
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-2 rounded-lg text-xs text-red-300/80 hover:bg-red-500/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                Déconnexion
+            </a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="flex-1 lg:ml-64 flex flex-col min-w-0">
+
+        <!-- Top Navbar -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="flex justify-between items-center w-full px-6 py-3">
+                <div class="flex items-center gap-4 flex-1">
+                    <span class="lg:hidden text-[#002B5C] font-black text-lg">DMN Bénin</span>
+                    <div class="hidden md:flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
+                        <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+                        <input class="bg-transparent border-none focus:ring-0 text-sm w-64 outline-none"
+                            placeholder="Rechercher un patient..." type="text" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    </button>
+                    <button class="text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors">
+                        <span class="material-symbols-outlined">help</span>
+                    </button>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
+        </header>
 
-    <!-- ===== BANDEAU CONSENTEMENT ===== -->
-    <div class="px-6 py-3 bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-100">
-      <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="bg-indigo-600/10 p-2 rounded-lg shrink-0">
-            <span class="material-symbols-outlined text-indigo-700" style="font-variation-settings: 'FILL' 1;">verified_user</span>
-          </div>
-          <div>
-            <p class="font-bold text-indigo-900 text-sm">
-              Accès autorisé par le patient
-            </p>
-            <p class="text-indigo-700/80 text-xs">
-              Consentement actif depuis le 15/10/2023 • Expire le 15/10/2024
-              <a href="#" class="underline font-semibold hover:text-indigo-900 ml-1">Voir détails</a>
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2 text-xs text-slate-500 bg-white/60 px-3 py-1.5 rounded-lg border border-indigo-100">
-          <span class="material-symbols-outlined text-sm text-slate-400">history</span>
-          <span>Dernier accès: <strong class="text-slate-700">Dr. Kouandété</strong> le 12/10/2023 à 14:30</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== TABS NAVIGATION (FIXE) ===== -->
-    <nav class="bg-white border-b border-slate-200 px-6 sticky top-[60px] z-20">
-      <div class="max-w-7xl mx-auto flex gap-1 overflow-x-auto no-scrollbar">
-        @for (tab of tabs; track tab.id) {
-          <button (click)="selectTab(tab.id)"
-            class="py-4 px-4 border-b-2 flex items-center gap-2 whitespace-nowrap text-sm transition-colors cursor-pointer"
-            [class.border-[#002B5C]]="selectedTab() === tab.id"
-            [class.border-transparent]="selectedTab() !== tab.id"
-            [class.text-[#002B5C]]="selectedTab() === tab.id"
-            [class.font-bold]="selectedTab() === tab.id"
-            [class.text-slate-500]="selectedTab() !== tab.id"
-            [class.hover:text-[#002B5C]]="selectedTab() !== tab.id">
-            <span class="material-symbols-outlined text-sm">{{ tab.icon }}</span>
-            {{ tab.label }}
-            @if (tab.badge) {
-              <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold {{ tab.badge.class }}">
-                {{ tab.badge.text }}
-              </span>
-            }
-          </button>
-        }
-      </div>
-    </nav>
-
-    <!-- ===== CONTENU DYNAMIQUE ===== -->
-    <div class="p-6 flex-1">
-      <div class="max-w-7xl mx-auto">
-        @switch (selectedTab()) {
-          @case ('overview') {
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <!-- ===== COLONNE GAUCHE : Timeline Clinique ===== -->
-              <div class="lg:col-span-8 space-y-6">
-                <!-- Alerte Allergies -->
-                <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-4 clinical-shadow">
-                  <div class="flex items-center gap-2 mb-3">
-                    <span class="material-symbols-outlined text-red-600" style="font-variation-settings: 'FILL' 1;">warning</span>
-                    <h3 class="font-black text-red-900 uppercase text-sm tracking-wide">
-                      Allergies connues — Vérifier avant toute prescription
-                    </h3>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    <span class="inline-flex items-center gap-1.5 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
-                      <span class="material-symbols-outlined text-sm">close</span>
-                      Pénicilline — Anaphylaxie
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 bg-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
-                      <span class="material-symbols-outlined text-sm">error</span>
-                      Arachides — Cutanée
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
-                      <span class="material-symbols-outlined text-sm">info</span>
-                      Aspirine — Digestive
-                    </span>
-                  </div>
+        <!-- ===== PATIENT HEADER BANNER ===== -->
+        <section class="bg-white border-b border-slate-200 px-6 py-6">
+            <div class="max-w-7xl mx-auto">
+                <!-- Breadcrumb + Actions -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+                    <nav class="flex items-center gap-2 text-xs text-slate-500 uppercase tracking-wide">
+                        <a href="#" class="hover:text-[#002B5C] font-medium">Patients</a>
+                        <span class="material-symbols-outlined text-[12px] text-slate-300">chevron_right</span>
+                        <span class="text-[#002B5C] font-bold">KOFFI Jean-Baptiste</span>
+                    </nav>
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            class="flex items-center gap-1.5 bg-[#002B5C] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#001f42] transition-colors shadow-sm">
+                            <span class="material-symbols-outlined text-sm">stethoscope</span>
+                            Nouvelle consultation
+                        </button>
+                        <button
+                            class="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">
+                            <span class="material-symbols-outlined text-sm">medication</span>
+                            Prescrire
+                        </button>
+                        <button
+                            class="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">
+                            <span class="material-symbols-outlined text-sm">biotech</span>
+                            Demande analyse
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Pathologies chroniques -->
-                <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
-                  <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm flex items-center gap-2">
-                      <span class="material-symbols-outlined text-[#1E40AF]">medical_information</span>
-                      Pathologies suivies
-                    </h3>
-                    <button class="text-xs font-bold text-[#1E40AF] hover:underline">Gérer</button>
-                  </div>
-                  <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                      <span class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">I10</span>
-                      <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-sm text-slate-900 truncate">Hypertension essentielle</p>
-                        <p class="text-[10px] text-slate-500">Depuis 2018 • Modérée</p>
-                      </div>
-                      <span class="w-2 h-2 rounded-full bg-amber-500" title="Active"></span>
-                    </div>
-                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                      <span class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">E78.0</span>
-                      <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-sm text-slate-900 truncate">Hypercholestérolémie</p>
-                        <p class="text-[10px] text-slate-500">Depuis 2020 • Légère</p>
-                      </div>
-                      <span class="w-2 h-2 rounded-full bg-green-500" title="Contrôlée"></span>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- Timeline des entrées cliniques -->
-                <section>
-                  <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm flex items-center gap-2">
-                      <span class="material-symbols-outlined text-[#1E40AF]">timeline</span>
-                      Historique clinique récent
-                    </h3>
-                    <a href="#" class="text-xs font-bold text-[#1E40AF] hover:underline flex items-center gap-1">
-                      Voir toute la chronologie
-                      <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
-                  </div>
-
-                  <!-- Entry 1: Consultation -->
-                  <article class="bg-white border border-slate-200 rounded-2xl clinical-shadow overflow-hidden hover:shadow-md transition-shadow mb-4">
-                    <div class="bg-slate-50 px-6 py-3 flex justify-between items-center border-b border-slate-100">
-                      <div class="flex items-center gap-3">
-                        <span class="bg-blue-100 text-[#1E40AF] p-1.5 rounded-lg">
-                          <span class="material-symbols-outlined text-[20px]">stethoscope</span>
-                        </span>
-                        <div>
-                          <span class="font-bold text-[#002B5C] text-sm">Consultation Générale</span>
-                          <p class="text-[10px] text-slate-500">Suivi HTA • CIM-10: I10</p>
+                <!-- Patient Identity -->
+                <div class="flex flex-col md:flex-row md:items-center gap-6">
+                    <div class="relative shrink-0">
+                        <img alt="Photo de KOFFI Jean-Baptiste"
+                            class="w-24 h-24 rounded-2xl object-cover clinical-shadow border-2 border-white"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA21jGo4_fNt8zCsrrYgs__jw63tbPU9grylSx3M_n-pB4emhx4uUPhM1Z240tCRNC2kQRADrdIT-eHZMzzWWQn1Lr0w-XMrSDz1g0X-7v__VmR9blm12B3F6OrJQPnNDYauYFn5OMLyPz0j5zrVHVFBRCauuN81DpWcsxcV0LEjJ-uuQ07Zot3T84zW4M7-1vYY3-bilTUiJsQTWN0cMQv7upiUWn8GiNka_M4rBHnbRd7Cw6CXGrH57_cbU9hZwwsQgjKNSExfBYM" />
+                        <div class="absolute -bottom-2 -right-2 bg-green-500 w-7 h-7 rounded-full border-4 border-white flex items-center justify-center shadow-md"
+                            title="Identité vérifiée par ANIP">
+                            <span class="material-symbols-outlined text-white text-sm"
+                                style="font-variation-settings: 'FILL' 1;">check</span>
                         </div>
-                      </div>
-                      <span class="font-mono text-xs text-slate-500">12 Oct 2023 • 14:30</span>
                     </div>
-                    <div class="p-6 space-y-4">
-                      <div>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Motif</p>
-                        <p class="text-sm text-slate-800 font-medium">Suivi hypertension artérielle et fatigue persistante.</p>
-                      </div>
-                      <div class="grid grid-cols-3 gap-3 py-3 border-y border-slate-100">
-                        <div class="bg-red-50 p-3 rounded-lg border border-red-100">
-                          <p class="text-[10px] font-bold text-red-700 uppercase">Tension</p>
-                          <p class="text-lg font-black text-red-900 font-mono mt-1">145/92 <span class="text-xs font-normal">mmHg</span></p>
-                          <p class="text-[10px] text-red-600 font-bold mt-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[10px]">arrow_upward</span> ÉLEVÉ
-                          </p>
-                        </div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                          <p class="text-[10px] font-bold text-slate-500 uppercase">Pouls</p>
-                          <p class="text-lg font-black text-slate-900 font-mono mt-1">78 <span class="text-xs font-normal">bpm</span></p>
-                          <p class="text-[10px] text-green-600 font-bold mt-1">Normal</p>
-                        </div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                          <p class="text-[10px] font-bold text-slate-500 uppercase">Poids</p>
-                          <p class="text-lg font-black text-slate-900 font-mono mt-1">82.5 <span class="text-xs font-normal">kg</span></p>
-                          <p class="text-[10px] text-slate-500 mt-1">IMC: 26.8</p>
-                        </div>
-                      </div>
-                      <div>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Notes cliniques</p>
-                        <p class="text-sm text-slate-700 italic leading-relaxed border-l-4 border-slate-200 pl-3">
-                          "Patient stable mais signale des céphalées matinales. Observance du traitement (Amlodipine) confirmée. Augmentation de l'activité physique recommandée."
-                        </p>
-                      </div>
-                    </div>
-                    <div class="bg-slate-50 px-6 py-3 flex justify-between items-center text-xs border-t border-slate-100">
-                      <span class="flex items-center gap-1.5 text-slate-600">
-                        <span class="material-symbols-outlined text-sm">person</span>
-                        <strong>Dr. S. AGOSSA</strong> • Hôpital de Zone Calavi
-                      </span>
-                      <span class="flex items-center gap-1 text-green-700 font-bold">
-                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                        Finalisé
-                      </span>
-                    </div>
-                  </article>
-
-                  <!-- Entry 2: Analyse -->
-                  <article class="bg-white border border-slate-200 rounded-2xl clinical-shadow overflow-hidden hover:shadow-md transition-shadow mb-4">
-                    <div class="bg-slate-50 px-6 py-3 flex justify-between items-center border-b border-slate-100">
-                      <div class="flex items-center gap-3">
-                        <span class="bg-purple-100 text-purple-700 p-1.5 rounded-lg">
-                          <span class="material-symbols-outlined text-[20px]">biotech</span>
-                        </span>
-                        <div>
-                          <span class="font-bold text-[#002B5C] text-sm">Analyse de Sang - Glycémie</span>
-                          <p class="text-[10px] text-slate-500">Bilan trimestriel</p>
-                        </div>
-                      </div>
-                      <span class="font-mono text-xs text-slate-500">05 Oct 2023 • 08:15</span>
-                    </div>
-                    <div class="p-6">
-                      <div class="flex items-center justify-between mb-4">
-                        <div class="flex-1">
-                          <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Résultat</p>
-                          <div class="flex items-baseline gap-2">
-                            <span class="text-3xl font-black text-[#002B5C] font-mono">1.12</span>
-                            <span class="text-slate-600 font-medium">g/L</span>
-                            <span class="bg-red-100 text-red-700 text-[10px] font-black px-2 py-0.5 rounded ml-2 flex items-center gap-1 border border-red-200">
-                              <span class="material-symbols-outlined text-[10px]">arrow_upward</span>
-                              HORS NORME
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-3 mb-2">
+                            <h1 class="text-2xl md:text-3xl font-black text-[#002B5C] tracking-tight">
+                                KOFFI Jean-Baptiste
+                            </h1>
+                            <span
+                                class="bg-blue-50 text-[#1E40AF] px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-blue-200">
+                                Masculin
                             </span>
-                          </div>
+                            <span
+                                class="bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-amber-200 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                Suivi chronique
+                            </span>
                         </div>
-                        <div class="w-48">
-                          <div class="relative h-3 w-full bg-slate-100 rounded-full overflow-hidden">
-                            <div class="absolute left-[30%] right-[30%] h-full bg-green-200"></div>
-                            <div class="absolute left-[70%] w-1 h-full bg-red-600 z-10"></div>
-                          </div>
-                          <div class="flex justify-between text-[9px] text-slate-400 mt-1">
-                            <span>0.70</span>
-                            <span class="text-green-600 font-bold">Normale</span>
-                            <span>1.10</span>
-                          </div>
+                        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
+                            <span class="flex items-center gap-1.5 font-mono">
+                                <span class="material-symbols-outlined text-sm text-slate-400">fingerprint</span>
+                                <span class="font-semibold">NPI:</span> 1024 8839 2004 12
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm text-slate-400">calendar_today</span>
+                                14/05/1962 <span class="text-slate-400">(61 ans)</span>
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm text-slate-400">bloodtype</span>
+                                <span class="font-bold text-red-600">O+</span>
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm text-slate-400">person</span>
+                                Médecin traitant: <strong class="text-[#002B5C]">Dr. AGOSSA</strong>
+                            </span>
                         </div>
-                      </div>
-                      <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-[#1E40AF] flex gap-2">
-                        <span class="material-symbols-outlined text-[#1E40AF] text-sm shrink-0 mt-0.5">note</span>
-                        <div>
-                          <p class="text-xs font-bold text-[#002B5C] mb-0.5">Commentaire du biologiste</p>
-                          <p class="text-xs text-slate-700 leading-relaxed">
-                            Résultat en légère hausse par rapport au trimestre précédent (1.05 g/L). Surveillance diététique recommandée. Contrôle dans 3 mois.
-                          </p>
-                          <p class="text-[10px] text-slate-500 mt-1 italic">— Dr. A. SOUMANOU, Laboratoire National de Santé Publique</p>
-                        </div>
-                      </div>
                     </div>
-                    <div class="bg-slate-50 px-6 py-3 flex justify-between items-center text-xs border-t border-slate-100">
-                      <span class="flex items-center gap-1.5 text-slate-600">
-                        <span class="material-symbols-outlined text-sm">lab_profile</span>
-                        Laboratoire National de Santé Publique
-                      </span>
-                      <div class="flex items-center gap-3">
-                        <button class="text-[#1E40AF] font-bold hover:underline flex items-center gap-1">
-                          <span class="material-symbols-outlined text-sm">download</span> PDF
-                        </button>
-                        <span class="flex items-center gap-1 text-green-700 font-bold">
-                          <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                          Validé
-                        </span>
-                      </div>
-                    </div>
-                  </article>
-
-                  <!-- Entry 3: Prescription -->
-                  <article class="bg-white border border-slate-200 rounded-2xl clinical-shadow overflow-hidden hover:shadow-md transition-shadow">
-                    <div class="bg-slate-50 px-6 py-3 flex justify-between items-center border-b border-slate-100">
-                      <div class="flex items-center gap-3">
-                        <span class="bg-green-100 text-green-700 p-1.5 rounded-lg">
-                          <span class="material-symbols-outlined text-[20px]">medication</span>
-                        </span>
-                        <div>
-                          <span class="font-bold text-[#002B5C] text-sm">Renouvellement Ordonnance</span>
-                          <p class="text-[10px] text-slate-500">HTA + Hypercholestérolémie</p>
-                        </div>
-                      </div>
-                      <span class="font-mono text-xs text-slate-500">15 Sep 2023 • 10:00</span>
-                    </div>
-                    <div class="p-6 space-y-2">
-                      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Médicaments prescrits</p>
-                      <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                        <span class="material-symbols-outlined text-green-700">medication</span>
-                        <div class="flex-1">
-                          <p class="font-semibold text-sm text-slate-900">Amlodipine 5mg</p>
-                          <p class="text-xs text-slate-600">1 cp/jour le matin • 3 mois</p>
-                        </div>
-                        <span class="text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full font-bold">ACTIF</span>
-                      </div>
-                      <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                        <span class="material-symbols-outlined text-green-700">medication</span>
-                        <div class="flex-1">
-                          <p class="font-semibold text-sm text-slate-900">Atorvastatine 20mg</p>
-                          <p class="text-xs text-slate-600">1 cp/jour le soir • 6 mois</p>
-                        </div>
-                        <span class="text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full font-bold">ACTIF</span>
-                      </div>
-                    </div>
-                    <div class="bg-slate-50 px-6 py-3 flex justify-between items-center text-xs border-t border-slate-100">
-                      <span class="flex items-center gap-1.5 text-slate-600">
-                        <span class="material-symbols-outlined text-sm">person</span>
-                        <strong>Dr. S. AGOSSA</strong>
-                      </span>
-                      <div class="flex items-center gap-3">
-                        <span class="flex items-center gap-1 text-slate-500">
-                          <span class="material-symbols-outlined text-sm">lock</span>
-                          Signé numériquement
-                        </span>
-                      </div>
-                    </div>
-                  </article>
-                </section>
-              </div>
-
-              <!-- ===== COLONNE DROITE : Infos Complémentaires ===== -->
-              <aside class="lg:col-span-4 space-y-6">
-                <!-- Infos d'urgence -->
-                <section class="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-5 clinical-shadow">
-                  <h4 class="font-black text-red-900 uppercase tracking-wide text-xs flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency</span>
-                    Informations d'urgence
-                  </h4>
-                  <div class="space-y-3">
-                    <div class="flex items-center justify-between p-2.5 bg-white rounded-lg">
-                      <span class="text-xs text-slate-600 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm text-red-600">bloodtype</span>
-                        Groupe sanguin
-                      </span>
-                      <span class="font-black text-red-700 text-lg">O+</span>
-                    </div>
-                    <div class="p-2.5 bg-white rounded-lg">
-                      <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Contact d'urgence</p>
-                      <p class="text-sm font-semibold text-slate-900">KOFFI Marie (épouse)</p>
-                      <p class="text-xs text-slate-600 flex items-center gap-1 mt-0.5">
-                        <span class="material-symbols-outlined text-xs">phone</span>
-                        +229 97 00 00 00
-                      </p>
-                    </div>
-                    <div class="p-2.5 bg-white rounded-lg">
-                      <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Antécédents familiaux</p>
-                      <p class="text-xs text-slate-700">Père: HTA + Diabète type 2</p>
-                      <p class="text-xs text-slate-700">Mère: AVC à 72 ans</p>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- Traitements en cours -->
-                <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
-                  <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-xs flex items-center gap-2">
-                      <span class="material-symbols-outlined text-green-600">medication</span>
-                      Traitements actifs
-                    </h4>
-                    <span class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-full">3</span>
-                  </div>
-                  <div class="p-4 space-y-2">
-                    <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
-                      <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-green-700 text-sm">medication</span>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-xs text-slate-900 truncate">Amlodipine 5mg</p>
-                        <p class="text-[10px] text-slate-500">Jusqu'au 14/12/2023</p>
-                      </div>
-                      <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                    </div>
-                    <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
-                      <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-green-700 text-sm">medication</span>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-xs text-slate-900 truncate">Atorvastatine 20mg</p>
-                        <p class="text-[10px] text-slate-500">Jusqu'au 15/03/2024</p>
-                      </div>
-                      <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                    </div>
-                    <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
-                      <div class="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-amber-700 text-sm">medication</span>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-xs text-slate-900 truncate">Aspégic 100mg</p>
-                        <p class="text-[10px] text-amber-700 font-medium">⚠️ Expire le 15/10/2023</p>
-                      </div>
-                      <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- Prochain RDV -->
-                <section class="bg-gradient-to-br from-[#002B5C] to-[#1E40AF] text-white rounded-2xl p-5 clinical-shadow relative overflow-hidden">
-                  <div class="absolute -right-4 -bottom-4 opacity-10">
-                    <span class="material-symbols-outlined text-[120px]">calendar_month</span>
-                  </div>
-                  <h4 class="text-[10px] font-black uppercase tracking-widest text-blue-200 mb-3">Prochain rendez-vous</h4>
-                  <div class="flex items-center gap-3 mb-4 relative">
-                    <div class="bg-white/10 backdrop-blur-sm border border-white/20 p-3 rounded-xl text-center min-w-[60px]">
-                      <p class="text-[10px] uppercase font-bold text-blue-200">Oct</p>
-                      <p class="text-2xl font-black">24</p>
-                    </div>
-                    <div>
-                      <p class="font-bold">Suivi Cardiologie</p>
-                      <p class="text-xs text-blue-100/80">09:30 • CNHU-HKM</p>
-                      <p class="text-[10px] text-blue-200 mt-0.5">Dr. Kouandété Koffi</p>
-                    </div>
-                  </div>
-                  <button class="w-full bg-white text-[#002B5C] font-bold py-2 rounded-lg text-xs hover:bg-blue-50 transition-colors relative">
-                    Voir le dossier de visite
-                  </button>
-                </section>
-
-                <!-- Couverture vaccinale -->
-                <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
-                  <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-xs flex items-center gap-2">
-                      <span class="material-symbols-outlined text-[#1E40AF]">vaccines</span>
-                      Vaccinations
-                    </h4>
-                  </div>
-                  <div class="p-4 space-y-2">
-                    <div class="flex items-center justify-between p-2">
-                      <span class="text-xs text-slate-700">COVID-19 (3 doses)</span>
-                      <span class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">À JOUR</span>
-                    </div>
-                    <div class="flex items-center justify-between p-2">
-                      <span class="text-xs text-slate-700">Fièvre Jaune</span>
-                      <span class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">VALIDE</span>
-                    </div>
-                    <div class="flex items-center justify-between p-2 bg-red-50 rounded-lg border border-red-100">
-                      <span class="text-xs text-red-900 font-semibold">Tétanos</span>
-                      <span class="text-[10px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-200 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[10px]">warning</span>
-                        RAPPEL DÛ
-                      </span>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- Conformité -->
-                <section class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                  <div class="flex items-start gap-3 mb-3">
-                    <div class="bg-[#002B5C]/10 p-2 rounded-lg shrink-0">
-                      <span class="material-symbols-outlined text-[#002B5C]" style="font-variation-settings: 'FILL' 1;">shield</span>
-                    </div>
-                    <div>
-                      <p class="font-bold text-[#002B5C] text-xs uppercase tracking-wide">Données sécurisées</p>
-                      <p class="text-[10px] text-slate-600 mt-1 leading-relaxed">
-                        Hébergement conforme aux lois de la République du Bénin. Chiffrement AES-256. Certifié PSSIE & APDP.
-                      </p>
-                    </div>
-                  </div>
-                  <div class="flex gap-2">
-                    <span class="bg-white text-slate-600 text-[9px] font-bold px-2 py-1 rounded border border-slate-200">ISO 27001</span>
-                    <span class="bg-white text-slate-600 text-[9px] font-bold px-2 py-1 rounded border border-slate-200">ISO 27701</span>
-                    <span class="bg-white text-slate-600 text-[9px] font-bold px-2 py-1 rounded border border-slate-200">HDS</span>
-                  </div>
-                </section>
-              </aside>
+                </div>
             </div>
-          }
+        </section>
 
-          @case ('historiques') {
-            <app-historiques />
-          }
-
-          @case ('analyses') {
-            <app-analyses />
-          }
-
-          @case ('traitements') {
-            <app-traitements />
-          }
-
-          @case ('pathologies') {
-            <app-pathologies />
-          }
-
-          @case ('vaccins') {
-            <app-vaccins />
-          }
-
-          @case ('documents') {
-            <app-documents />
-          }
-        }
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 px-8 py-4 mt-auto">
-      <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 text-[10px] text-slate-500 uppercase tracking-wider">
-        <div class="flex flex-wrap gap-4 items-center">
-          <span class="flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">lock</span>
-            AES-256
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">verified</span>
-            APDP
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">shield</span>
-            PSSIE
-          </span>
+        <!-- ===== BANDEAU CONSENTEMENT ===== -->
+        <div class="px-6 py-3 bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-100">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-600/10 p-2 rounded-lg shrink-0">
+                        <span class="material-symbols-outlined text-indigo-700"
+                            style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-900 text-sm">
+                            Accès autorisé par le patient
+                        </p>
+                        <p class="text-indigo-700/80 text-xs">
+                            Consentement actif depuis le 15/10/2023 • Expire le 15/10/2024
+                            <a href="#" class="underline font-semibold hover:text-indigo-900 ml-1">Voir détails</a>
+                        </p>
+                    </div>
+                </div>
+                <div
+                    class="flex items-center gap-2 text-xs text-slate-500 bg-white/60 px-3 py-1.5 rounded-lg border border-indigo-100">
+                    <span class="material-symbols-outlined text-sm text-slate-400">history</span>
+                    <span>Dernier accès: <strong class="text-slate-700">Dr. Kouandété</strong> le 12/10/2023 à
+                        14:30</span>
+                </div>
+            </div>
         </div>
-        <p>© 2026 Ministère de la Santé - République du Bénin</p>
-      </div>
-    </footer>
 
-  </main>
+        <!-- ===== TABS NAVIGATION (FIXE) ===== -->
+        <nav class="bg-white border-b border-slate-200 px-6 sticky top-[60px] z-20">
+            <div class="max-w-7xl mx-auto flex gap-1 overflow-x-auto no-scrollbar">
+                @for (tab of tabs; track tab.id) {
+                <button (click)="selectTab(tab.id)"
+                    class="py-4 px-4 border-b-2 flex items-center gap-2 whitespace-nowrap text-sm transition-colors cursor-pointer"
+                    [class.border-[#002B5C]]="selectedTab() === tab.id"
+                    [class.border-transparent]="selectedTab() !== tab.id"
+                    [class.text-[#002B5C]]="selectedTab() === tab.id" [class.font-bold]="selectedTab() === tab.id"
+                    [class.text-slate-500]="selectedTab() !== tab.id"
+                    [class.hover:text-[#002B5C]]="selectedTab() !== tab.id">
+                    <span class="material-symbols-outlined text-sm">{{ tab.icon }}</span>
+                    {{ tab.label }}
+                    @if (tab.badge) {
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold {{ tab.badge.class }}">
+                        {{ tab.badge.text }}
+                    </span>
+                    }
+                </button>
+                }
+            </div>
+        </nav>
+
+        <!-- ===== CONTENU DYNAMIQUE ===== -->
+        <div class="p-6 flex-1">
+            <div class="max-w-7xl mx-auto">
+                @switch (selectedTab()) {
+                @case ('overview') {
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- ===== COLONNE GAUCHE : Timeline Clinique ===== -->
+                    <div class="lg:col-span-8 space-y-6">
+                        <!-- Alerte Allergies -->
+                        <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-4 clinical-shadow">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="material-symbols-outlined text-red-600"
+                                    style="font-variation-settings: 'FILL' 1;">warning</span>
+                                <h3 class="font-black text-red-900 uppercase text-sm tracking-wide">
+                                    Allergies connues — Vérifier avant toute prescription
+                                </h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    class="inline-flex items-center gap-1.5 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
+                                    <span class="material-symbols-outlined text-sm">close</span>
+                                    Pénicilline — Anaphylaxie
+                                </span>
+                                <span
+                                    class="inline-flex items-center gap-1.5 bg-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
+                                    <span class="material-symbols-outlined text-sm">error</span>
+                                    Arachides — Cutanée
+                                </span>
+                                <span
+                                    class="inline-flex items-center gap-1.5 bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
+                                    <span class="material-symbols-outlined text-sm">info</span>
+                                    Aspirine — Digestive
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Pathologies chroniques -->
+                        <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                                <h3
+                                    class="font-black text-[#002B5C] uppercase tracking-wide text-sm flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[#1E40AF]">medical_information</span>
+                                    Pathologies suivies
+                                </h3>
+                                <button class="text-xs font-bold text-[#1E40AF] hover:underline">Gérer</button>
+                            </div>
+                            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span
+                                        class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">I10</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-sm text-slate-900 truncate">Hypertension
+                                            essentielle</p>
+                                        <p class="text-[10px] text-slate-500">Depuis 2018 • Modérée</p>
+                                    </div>
+                                    <span class="w-2 h-2 rounded-full bg-amber-500" title="Active"></span>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span
+                                        class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">E78.0</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-sm text-slate-900 truncate">Hypercholestérolémie
+                                        </p>
+                                        <p class="text-[10px] text-slate-500">Depuis 2020 • Légère</p>
+                                    </div>
+                                    <span class="w-2 h-2 rounded-full bg-green-500" title="Contrôlée"></span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Timeline des entrées cliniques -->
+                        <section>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3
+                                    class="font-black text-[#002B5C] uppercase tracking-wide text-sm flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[#1E40AF]">timeline</span>
+                                    Historique clinique récent
+                                </h3>
+                                <a href="#"
+                                    class="text-xs font-bold text-[#1E40AF] hover:underline flex items-center gap-1">
+                                    Voir toute la chronologie
+                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+
+                            <!-- Entry 1: Consultation -->
+                            <article
+                                class="bg-white border border-slate-200 rounded-2xl clinical-shadow overflow-hidden hover:shadow-md transition-shadow mb-4">
+                                <div
+                                    class="bg-slate-50 px-6 py-3 flex justify-between items-center border-b border-slate-100">
+                                    <div class="flex items-center gap-3">
+                                        <span class="bg-blue-100 text-[#1E40AF] p-1.5 rounded-lg">
+                                            <span class="material-symbols-outlined text-[20px]">stethoscope</span>
+                                        </span>
+                                        <div>
+                                            <span class="font-bold text-[#002B5C] text-sm">Consultation Générale</span>
+                                            <p class="text-[10px] text-slate-500">Suivi HTA • CIM-10: I10</p>
+                                        </div>
+                                    </div>
+                                    <span class="font-mono text-xs text-slate-500">12 Oct 2023 • 14:30</span>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">
+                                            Motif</p>
+                                        <p class="text-sm text-slate-800 font-medium">Suivi hypertension artérielle et
+                                            fatigue persistante.</p>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3 py-3 border-y border-slate-100">
+                                        <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                                            <p class="text-[10px] font-bold text-red-700 uppercase">Tension</p>
+                                            <p class="text-lg font-black text-red-900 font-mono mt-1">145/92 <span
+                                                    class="text-xs font-normal">mmHg</span></p>
+                                            <p class="text-[10px] text-red-600 font-bold mt-1 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[10px]">arrow_upward</span>
+                                                ÉLEVÉ
+                                            </p>
+                                        </div>
+                                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                            <p class="text-[10px] font-bold text-slate-500 uppercase">Pouls</p>
+                                            <p class="text-lg font-black text-slate-900 font-mono mt-1">78 <span
+                                                    class="text-xs font-normal">bpm</span></p>
+                                            <p class="text-[10px] text-green-600 font-bold mt-1">Normal</p>
+                                        </div>
+                                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                            <p class="text-[10px] font-bold text-slate-500 uppercase">Poids</p>
+                                            <p class="text-lg font-black text-slate-900 font-mono mt-1">82.5 <span
+                                                    class="text-xs font-normal">kg</span></p>
+                                            <p class="text-[10px] text-slate-500 mt-1">IMC: 26.8</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">
+                                            Notes cliniques</p>
+                                        <p
+                                            class="text-sm text-slate-700 italic leading-relaxed border-l-4 border-slate-200 pl-3">
+                                            "Patient stable mais signale des céphalées matinales. Observance du
+                                            traitement (Amlodipine) confirmée. Augmentation de l'activité physique
+                                            recommandée."
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-slate-50 px-6 py-3 flex justify-between items-center text-xs border-t border-slate-100">
+                                    <span class="flex items-center gap-1.5 text-slate-600">
+                                        <span class="material-symbols-outlined text-sm">person</span>
+                                        <strong>Dr. S. AGOSSA</strong> • Hôpital de Zone Calavi
+                                    </span>
+                                    <span class="flex items-center gap-1 text-green-700 font-bold">
+                                        <span class="material-symbols-outlined text-sm"
+                                            style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                        Finalisé
+                                    </span>
+                                </div>
+                            </article>
+
+                            <!-- Entry 2: Analyse -->
+                            <article
+                                class="bg-white border border-slate-200 rounded-2xl clinical-shadow overflow-hidden hover:shadow-md transition-shadow mb-4">
+                                <div
+                                    class="bg-slate-50 px-6 py-3 flex justify-between items-center border-b border-slate-100">
+                                    <div class="flex items-center gap-3">
+                                        <span class="bg-purple-100 text-purple-700 p-1.5 rounded-lg">
+                                            <span class="material-symbols-outlined text-[20px]">biotech</span>
+                                        </span>
+                                        <div>
+                                            <span class="font-bold text-[#002B5C] text-sm">Analyse de Sang -
+                                                Glycémie</span>
+                                            <p class="text-[10px] text-slate-500">Bilan trimestriel</p>
+                                        </div>
+                                    </div>
+                                    <span class="font-mono text-xs text-slate-500">05 Oct 2023 • 08:15</span>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex-1">
+                                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Résultat</p>
+                                            <div class="flex items-baseline gap-2">
+                                                <span class="text-3xl font-black text-[#002B5C] font-mono">1.12</span>
+                                                <span class="text-slate-600 font-medium">g/L</span>
+                                                <span
+                                                    class="bg-red-100 text-red-700 text-[10px] font-black px-2 py-0.5 rounded ml-2 flex items-center gap-1 border border-red-200">
+                                                    <span
+                                                        class="material-symbols-outlined text-[10px]">arrow_upward</span>
+                                                    HORS NORME
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="w-48">
+                                            <div class="relative h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                <div class="absolute left-[30%] right-[30%] h-full bg-green-200"></div>
+                                                <div class="absolute left-[70%] w-1 h-full bg-red-600 z-10"></div>
+                                            </div>
+                                            <div class="flex justify-between text-[9px] text-slate-400 mt-1">
+                                                <span>0.70</span>
+                                                <span class="text-green-600 font-bold">Normale</span>
+                                                <span>1.10</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-[#1E40AF] flex gap-2">
+                                        <span
+                                            class="material-symbols-outlined text-[#1E40AF] text-sm shrink-0 mt-0.5">note</span>
+                                        <div>
+                                            <p class="text-xs font-bold text-[#002B5C] mb-0.5">Commentaire du biologiste
+                                            </p>
+                                            <p class="text-xs text-slate-700 leading-relaxed">
+                                                Résultat en légère hausse par rapport au trimestre précédent (1.05 g/L).
+                                                Surveillance diététique recommandée. Contrôle dans 3 mois.
+                                            </p>
+                                            <p class="text-[10px] text-slate-500 mt-1 italic">— Dr. A. SOUMANOU,
+                                                Laboratoire National de Santé Publique</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-slate-50 px-6 py-3 flex justify-between items-center text-xs border-t border-slate-100">
+                                    <span class="flex items-center gap-1.5 text-slate-600">
+                                        <span class="material-symbols-outlined text-sm">lab_profile</span>
+                                        Laboratoire National de Santé Publique
+                                    </span>
+                                    <div class="flex items-center gap-3">
+                                        <button
+                                            class="text-[#1E40AF] font-bold hover:underline flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">download</span> PDF
+                                        </button>
+                                        <span class="flex items-center gap-1 text-green-700 font-bold">
+                                            <span class="material-symbols-outlined text-sm"
+                                                style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                            Validé
+                                        </span>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <!-- Entry 3: Prescription -->
+                            <article
+                                class="bg-white border border-slate-200 rounded-2xl clinical-shadow overflow-hidden hover:shadow-md transition-shadow">
+                                <div
+                                    class="bg-slate-50 px-6 py-3 flex justify-between items-center border-b border-slate-100">
+                                    <div class="flex items-center gap-3">
+                                        <span class="bg-green-100 text-green-700 p-1.5 rounded-lg">
+                                            <span class="material-symbols-outlined text-[20px]">medication</span>
+                                        </span>
+                                        <div>
+                                            <span class="font-bold text-[#002B5C] text-sm">Renouvellement
+                                                Ordonnance</span>
+                                            <p class="text-[10px] text-slate-500">HTA + Hypercholestérolémie</p>
+                                        </div>
+                                    </div>
+                                    <span class="font-mono text-xs text-slate-500">15 Sep 2023 • 10:00</span>
+                                </div>
+                                <div class="p-6 space-y-2">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">
+                                        Médicaments prescrits</p>
+                                    <div
+                                        class="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
+                                        <span class="material-symbols-outlined text-green-700">medication</span>
+                                        <div class="flex-1">
+                                            <p class="font-semibold text-sm text-slate-900">Amlodipine 5mg</p>
+                                            <p class="text-xs text-slate-600">1 cp/jour le matin • 3 mois</p>
+                                        </div>
+                                        <span
+                                            class="text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full font-bold">ACTIF</span>
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
+                                        <span class="material-symbols-outlined text-green-700">medication</span>
+                                        <div class="flex-1">
+                                            <p class="font-semibold text-sm text-slate-900">Atorvastatine 20mg</p>
+                                            <p class="text-xs text-slate-600">1 cp/jour le soir • 6 mois</p>
+                                        </div>
+                                        <span
+                                            class="text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full font-bold">ACTIF</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-slate-50 px-6 py-3 flex justify-between items-center text-xs border-t border-slate-100">
+                                    <span class="flex items-center gap-1.5 text-slate-600">
+                                        <span class="material-symbols-outlined text-sm">person</span>
+                                        <strong>Dr. S. AGOSSA</strong>
+                                    </span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex items-center gap-1 text-slate-500">
+                                            <span class="material-symbols-outlined text-sm">lock</span>
+                                            Signé numériquement
+                                        </span>
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
+                    </div>
+
+                    <!-- ===== COLONNE DROITE : Infos Complémentaires ===== -->
+                    <aside class="lg:col-span-4 space-y-6">
+                        <!-- Infos d'urgence -->
+                        <section
+                            class="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-5 clinical-shadow">
+                            <h4
+                                class="font-black text-red-900 uppercase tracking-wide text-xs flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined"
+                                    style="font-variation-settings: 'FILL' 1;">emergency</span>
+                                Informations d'urgence
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2.5 bg-white rounded-lg">
+                                    <span class="text-xs text-slate-600 flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-sm text-red-600">bloodtype</span>
+                                        Groupe sanguin
+                                    </span>
+                                    <span class="font-black text-red-700 text-lg">O+</span>
+                                </div>
+                                <div class="p-2.5 bg-white rounded-lg">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Contact d'urgence</p>
+                                    <p class="text-sm font-semibold text-slate-900">KOFFI Marie (épouse)</p>
+                                    <p class="text-xs text-slate-600 flex items-center gap-1 mt-0.5">
+                                        <span class="material-symbols-outlined text-xs">phone</span>
+                                        +229 97 00 00 00
+                                    </p>
+                                </div>
+                                <div class="p-2.5 bg-white rounded-lg">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Antécédents familiaux
+                                    </p>
+                                    <p class="text-xs text-slate-700">Père: HTA + Diabète type 2</p>
+                                    <p class="text-xs text-slate-700">Mère: AVC à 72 ans</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Traitements en cours -->
+                        <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
+                            <div
+                                class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                                <h4
+                                    class="font-black text-[#002B5C] uppercase tracking-wide text-xs flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-green-600">medication</span>
+                                    Traitements actifs
+                                </h4>
+                                <span
+                                    class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-full">3</span>
+                            </div>
+                            <div class="p-4 space-y-2">
+                                <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div
+                                        class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-green-700 text-sm">medication</span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-xs text-slate-900 truncate">Amlodipine 5mg</p>
+                                        <p class="text-[10px] text-slate-500">Jusqu'au 14/12/2023</p>
+                                    </div>
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                </div>
+                                <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div
+                                        class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-green-700 text-sm">medication</span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-xs text-slate-900 truncate">Atorvastatine 20mg</p>
+                                        <p class="text-[10px] text-slate-500">Jusqu'au 15/03/2024</p>
+                                    </div>
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                </div>
+                                <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <div
+                                        class="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-amber-700 text-sm">medication</span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-xs text-slate-900 truncate">Aspégic 100mg</p>
+                                        <p class="text-[10px] text-amber-700 font-medium">⚠️ Expire le 15/10/2023</p>
+                                    </div>
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Prochain RDV -->
+                        <section
+                            class="bg-gradient-to-br from-[#002B5C] to-[#1E40AF] text-white rounded-2xl p-5 clinical-shadow relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 opacity-10">
+                                <span class="material-symbols-outlined text-[120px]">calendar_month</span>
+                            </div>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-blue-200 mb-3">Prochain
+                                rendez-vous</h4>
+                            <div class="flex items-center gap-3 mb-4 relative">
+                                <div
+                                    class="bg-white/10 backdrop-blur-sm border border-white/20 p-3 rounded-xl text-center min-w-[60px]">
+                                    <p class="text-[10px] uppercase font-bold text-blue-200">Oct</p>
+                                    <p class="text-2xl font-black">24</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold">Suivi Cardiologie</p>
+                                    <p class="text-xs text-blue-100/80">09:30 • CNHU-HKM</p>
+                                    <p class="text-[10px] text-blue-200 mt-0.5">Dr. Kouandété Koffi</p>
+                                </div>
+                            </div>
+                            <button
+                                class="w-full bg-white text-[#002B5C] font-bold py-2 rounded-lg text-xs hover:bg-blue-50 transition-colors relative">
+                                Voir le dossier de visite
+                            </button>
+                        </section>
+
+                        <!-- Couverture vaccinale -->
+                        <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
+                            <div
+                                class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                                <h4
+                                    class="font-black text-[#002B5C] uppercase tracking-wide text-xs flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[#1E40AF]">vaccines</span>
+                                    Vaccinations
+                                </h4>
+                            </div>
+                            <div class="p-4 space-y-2">
+                                <div class="flex items-center justify-between p-2">
+                                    <span class="text-xs text-slate-700">COVID-19 (3 doses)</span>
+                                    <span
+                                        class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">À
+                                        JOUR</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2">
+                                    <span class="text-xs text-slate-700">Fièvre Jaune</span>
+                                    <span
+                                        class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">VALIDE</span>
+                                </div>
+                                <div
+                                    class="flex items-center justify-between p-2 bg-red-50 rounded-lg border border-red-100">
+                                    <span class="text-xs text-red-900 font-semibold">Tétanos</span>
+                                    <span
+                                        class="text-[10px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-200 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[10px]">warning</span>
+                                        RAPPEL DÛ
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Conformité -->
+                        <section class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="bg-[#002B5C]/10 p-2 rounded-lg shrink-0">
+                                    <span class="material-symbols-outlined text-[#002B5C]"
+                                        style="font-variation-settings: 'FILL' 1;">shield</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-[#002B5C] text-xs uppercase tracking-wide">Données
+                                        sécurisées</p>
+                                    <p class="text-[10px] text-slate-600 mt-1 leading-relaxed">
+                                        Hébergement conforme aux lois de la République du Bénin. Chiffrement AES-256.
+                                        Certifié PSSIE & APDP.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <span
+                                    class="bg-white text-slate-600 text-[9px] font-bold px-2 py-1 rounded border border-slate-200">ISO
+                                    27001</span>
+                                <span
+                                    class="bg-white text-slate-600 text-[9px] font-bold px-2 py-1 rounded border border-slate-200">ISO
+                                    27701</span>
+                                <span
+                                    class="bg-white text-slate-600 text-[9px] font-bold px-2 py-1 rounded border border-slate-200">HDS</span>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+                }
+
+                @case ('historiques') {
+                <app-historiques />
+                }
+
+                @case ('analyses') {
+                <app-examens />
+                }
+
+                @case ('traitements') {
+                <app-traitements />
+                }
+
+                @case ('pathologies') {
+                <app-pathologies />
+                }
+
+                @case ('vaccins') {
+                <app-vaccins />
+                }
+
+                @case ('documents') {
+                <app-documents />
+                }
+                }
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-slate-200 px-8 py-4 mt-auto">
+            <div
+                class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 text-[10px] text-slate-500 uppercase tracking-wider">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">lock</span>
+                        AES-256
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">verified</span>
+                        APDP
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">shield</span>
+                        PSSIE
+                    </span>
+                </div>
+                <p>© 2026 Ministère de la Santé - République du Bénin</p>
+            </div>
+        </footer>
+
+    </main>
 </div>

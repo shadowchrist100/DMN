@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Historiques } from './historiques/historiques';
-import { Analyses } from './analyses/analyses';
+import { Examens } from './examens/examens';
 import { Traitements } from './traitements/traitements';
 import { Pathologies } from './pathologies/pathologies';
 import { Vaccins } from './vaccins/vaccins';
@@ -11,7 +11,7 @@ export type TabId = 'overview' | 'historiques' | 'analyses' | 'traitements' | 'p
 
 @Component({
   selector: 'app-patient-dossier',
-  imports: [CommonModule, Historiques, Analyses, Traitements, Pathologies, Vaccins, Documents],
+  imports: [CommonModule, Historiques, Examens, Traitements, Pathologies, Vaccins, Documents],
   templateUrl: './patient-dossier.html',
   styleUrl: './patient-dossier.css',
 })
