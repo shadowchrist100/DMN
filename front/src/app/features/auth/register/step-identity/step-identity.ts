@@ -68,8 +68,23 @@ export class StepIdentity implements OnInit {
             birthOrder: [{ value: '', disabled: true }] // Désactivé par défaut
         }, { updateOn: 'blur' });
 
-        this.identityForm.valueChanges.subscribe(() => {
-            this.store.setContinueSteps(this.identityForm.valid)
+        this.identityForm.valueChanges.subscribe((val) => {
+            this.store.setContinueSteps(this.identityForm.valid);
+            if (this.identityForm.valid) {
+                this.store.setUserIdentity({
+                    lastName: val.lastName,
+                    firstName: val.firstName,
+                    birthDate: new Date(val.birthDate),
+                    gender: val.gender,
+                    npi: Number(val.npi),
+                    maritalStatus: val.maritalStatus ?? 'single',
+                    multipleBirth: val.isMultipleBirth ? Number(val.birthOrder) : null,
+                    phone: `${val.phonePrefix} ${val.phone}`,
+                    city: val.city,
+                    address: val.address,
+                    photoPath: val.photoPath ? URL.createObjectURL(val.photoPath) : '',
+                });
+            }
         });
 
         this.identityForm.get("phonePrefix")!.valueChanges.subscribe((prefix: string) => {

@@ -41,7 +41,6 @@ export interface Prescription {
     visite_id?: string;                 // référence à la visite / consultation
     renouvelable?: boolean;
     ordonnance_url?: string;            // lien PDF
-    verifie_ia?: boolean;               // flag IA DMN
 }
 
 // ─── Filtre & pagination ───────────────────────────────────────────────────────
@@ -79,7 +78,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         date_fin: new Date('2023-10-24'),
         visite_id: 'VST-4022',
         renouvelable: false,
-        verifie_ia: true,
         ordonnance_url: '/ordonnances/presc-001.pdf',
     },
     {
@@ -101,7 +99,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         date_fin: new Date('2023-10-22'),
         visite_id: 'VST-4022',
         renouvelable: false,
-        verifie_ia: true,
     },
     // ── EXAMENS / ANALYSES ────────────────────────────────────────────────
     {
@@ -116,7 +113,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         specialite_prescripteur: 'Médecine générale',
         date_prescription: new Date('2023-10-20'),
         visite_id: 'VST-4030',
-        verifie_ia: false,
     },
     {
         uuid: 'presc-004',
@@ -129,7 +125,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         specialite_prescripteur: 'Cardiologie',
         date_prescription: new Date('2023-09-14'),
         visite_id: 'VST-3900',
-        verifie_ia: true,
         ordonnance_url: '/ordonnances/presc-004.pdf',
     },
     {
@@ -144,7 +139,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         specialite_prescripteur: 'Gastro-entérologie',
         date_prescription: new Date('2023-10-18'),
         visite_id: 'VST-4025',
-        verifie_ia: false,
     },
     // ── HISTORIQUE ────────────────────────────────────────────────────────
     {
@@ -164,7 +158,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         date_prescription: new Date('2023-09-12'),
         visite_id: 'VST-3880',
         renouvelable: false,
-        verifie_ia: true,
         ordonnance_url: '/ordonnances/presc-006.pdf',
     },
     {
@@ -178,7 +171,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         prescripteur: 'Dr. Koffi Mensah',
         specialite_prescripteur: 'Cardiologie',
         date_prescription: new Date('2023-08-05'),
-        verifie_ia: true,
         ordonnance_url: '/ordonnances/presc-007.pdf',
     },
     {
@@ -198,7 +190,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         date_prescription: new Date('2023-08-05'),
         visite_id: 'VST-3800',
         renouvelable: true,
-        verifie_ia: false,
         ordonnance_url: '/ordonnances/presc-008.pdf',
     },
     {
@@ -218,7 +209,6 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         date_prescription: new Date('2023-05-20'),
         visite_id: 'VST-3500',
         renouvelable: true,
-        verifie_ia: false,
     },
     {
         uuid: 'presc-010',
@@ -230,6 +220,5 @@ export const MOCK_PRESCRIPTIONS: Prescription[] = [
         prescripteur: 'Dr. Gaston Dossou',
         specialite_prescripteur: 'Pneumologie',
         date_prescription: new Date('2023-06-15'),
-        verifie_ia: false,
     },
 ];

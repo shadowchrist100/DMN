@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, OnDestroy,
+    Component, OnInit, OnDestroy, inject,
     signal, computed, Signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -14,8 +14,8 @@ import {
     PrescriptionStatut,
     PrescriptionFilter,
     PrescriptionPeriod,
-    MOCK_PRESCRIPTIONS,
 } from './prescription.model';
+import { PrescriptionService } from './prescription.service';
 
 // ─── Constantes de mapping ──────────────────────────────────────────────────
 
@@ -96,6 +96,8 @@ const STATUT_DOT: Record<PrescriptionStatut, string> = {
     templateUrl: './prescriptions.html',
 })
 export class Prescriptions implements OnInit, OnDestroy {
+
+    private prescriptionService = inject(PrescriptionService);
 
     // ── Signaux d'état ──────────────────────────────────────────────────
     loading = signal<boolean>(true);
@@ -182,11 +184,11 @@ export class Prescriptions implements OnInit, OnDestroy {
             distinctUntilChanged(),
         ).subscribe(v => { this.searchValue.set(v); this.applyFilters(); });
 
-        setTimeout(() => {
-            this.allPrescriptions.set(MOCK_PRESCRIPTIONS);
+        this.prescriptionService.getPrescriptions().subscribe((data: Prescription[]) => {
+            this.allPrescriptions.set(data);
             this.applyFilters();
             this.loading.set(false);
-        }, 500);
+        });
     }
 
     ngOnDestroy(): void {

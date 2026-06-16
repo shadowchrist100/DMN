@@ -1,4 +1,8 @@
-import { Gender, MaritalStatus, userRole } from "../types/user.types"
+export interface PractitionerOrganization {
+    organizationId: string;
+    organizationName: string;
+    role: string;
+}
 
 export interface Iuser {
     identity: {
@@ -8,7 +12,7 @@ export interface Iuser {
         gender: Gender,
         npi: number,
         maritalStatus: MaritalStatus,
-        multipleBirth: null | number ,
+        multipleBirth: null | number,
         phone: string,
         city: string,
         address: string,
@@ -16,18 +20,26 @@ export interface Iuser {
     },
     practitioner: {
         orderNumber: number,
-        speciality: string,
-        organizationName: string
-    } | null ,
+        speciality: string;
+        organizations: PractitionerOrganization[];
+    } | null,
     contact: {
         firstName: string,
         lastName: string,
         phone: string,
         relation: string
-    }| null,
+    } | null,
     auth: {
         email: string,
-        password:string
+        password: string
     },
     role: userRole,
+}
+
+export interface AvailableOrganization {
+    id: string;
+    name: string;
+    type: string;
+    city: string;
+    department: string;
 }

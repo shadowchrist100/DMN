@@ -1,8 +1,14 @@
 import uuid
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional
+from typing import Optional, List, TYPE_CHECKING
 from datetime import date
 from app.types.enums import DiagnosisVerification
+
+if TYPE_CHECKING:
+    from .medical_act import MedicalAct
+    from .diagnosis_reference import DiagnosisReference
+    from .care_episode import CareEpisode
+    from .prescription import Prescription
 
 
 class Diagnosis(SQLModel, table=True):
@@ -14,13 +20,13 @@ class Diagnosis(SQLModel, table=True):
     date: date = Field(default_factory=date.today)
     note_clinique: Optional[str] = None
 
-    mediacal_act_id: Optional[uuid.UUID] = Field(
-        default = None,    
-        foreign_key="medicalacts.id",
+    medical_act_id: Optional[uuid.UUID] = Field(
+        default=None,
+        foreign_key="medical_act.id",
     )
     diagnosis_ref_id: Optional[uuid.UUID] = Field(
-        default = None,
-        foreign_key = "diagnosisref.id",
+        default=None,
+        foreign_key="diagnosis_reference.id",
     )
 
     type: str
@@ -29,12 +35,11 @@ class Diagnosis(SQLModel, table=True):
         "polymorphic_identity": "standard"
     }
 
-    medical_act: MedicalActs = Relationship(back_populates = "diagnoses" )
-    diagnosis_ref: Optional[DiagnosisRef] = Relationship (back_populates = "diagnoses")
-    care_episode: Optional["CareEpisode"] = Relationship (
+    medical_act: Optional["MedicalAct"] = Relationship(back_populates="diagnoses")
+    diagnosis_ref: Optional["DiagnosisReference"] = Relationship(back_populates="diagnoses")
+    care_episode: Optional["CareEpisode"] = Relationship(
         back_populates="diagnosis",
         sa_relationship_kwargs={"uselist": False}
     )
-    
-    # Un diagnostic engendre plusieurs prescriptions (Examens, Vaccins)
+
     prescriptions: List["Prescription"] = Relationship(back_populates="diagnosis")

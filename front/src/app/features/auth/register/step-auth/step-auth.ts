@@ -89,11 +89,18 @@ export class StepAuth implements OnInit {
                 this.updateStrength(value ?? '');
             });
 
-        // Validation globale pour l'activation du passage à l'étape suivante dans le Store
         this.authForm.statusChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((status) => {
                 this.store.setContinueSteps(status === 'VALID');
+            });
+
+        this.authForm.valueChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((val) => {
+                if (this.authForm.valid) {
+                    this.store.setUserAuth({ email: val.email, password: val.password });
+                }
             });
 
         // Traitement initial si déjà soumis (comportement d'édition/re-validation)

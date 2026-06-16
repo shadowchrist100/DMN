@@ -1,6 +1,10 @@
 import uuid
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
+from app.models.related_person import RelatedPerson
+
+if TYPE_CHECKING:
+    from .patient import Patient
 
 
 class EmergencyContact(SQLModel, table=True):
@@ -15,8 +19,5 @@ class EmergencyContact(SQLModel, table=True):
 
     patients: List["Patient"] = Relationship(
         back_populates="emergency_contacts",
-        link_model = RelatedPerson    
+        link_model=RelatedPerson
     )
-
-
-from app.models.patient import Patient

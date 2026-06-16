@@ -6,21 +6,7 @@
     </p>
 </div>
 
-<!-- @if(serverError()){
-<div class="mb-8 p-4 rounded-2xl bg-error/5 border border-error/20 flex items-start gap-3 animate-in fade-in zoom-in duration-300"
-    role="alert">
-    <span class="material-symbols-outlined text-error mt-0.5">error</span>
-    <div class="grow">
-        <h4 class="text-sm font-bold text-error">Erreur de soumission</h4>
-        <p class="text-xs text-error/80 mt-1">{{ serverError() }}</p>
-    </div>
-    <button (click)="onErrorClose()" class="text-error/40 hover:text-error transition-colors">
-        <span class="material-symbols-outlined text-lg">close</span>
-    </button>
-</div>
-} -->
-
-<form class="space-y-10" >
+<form class="space-y-10" [formGroup]="professionalInfoForm">
 
     <!-- ─── Section 1 : Identité professionnelle ────────────────── -->
     <div>
@@ -76,7 +62,7 @@
                 <div class="relative">
                     <select
                         class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
-                        id="specialty" formControlName="specialty">
+                        id="speciality" formControlName="speciality">
                         <option value="" disabled selected>Sélectionnez une spécialité</option>
                         <optgroup label="Médecine">
                             <option value="general">Médecine générale</option>
@@ -108,7 +94,7 @@
                     <span
                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
                 </div>
-                @if (isInvalid('specialty')) {
+                @if (isInvalid('speciality')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
                     La spécialité est requise
@@ -118,213 +104,78 @@
         </div>
     </div>
 
-    <!-- ─── Section 2 : Organisation / Établissement ─────────────── -->
-    <div formGroupName="organization">
+    <!-- ─── Section 2 : Organisations / Établissements ─────────────── -->
+    <div>
         <div class="flex items-center gap-3 mb-6">
             <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <span class="material-symbols-outlined text-secondary text-[18px]">apartment</span>
             </div>
-            <h3 class="text-h3 font-h3 text-primary">Organisation / Établissement</h3>
+            <h3 class="text-h3 font-h3 text-primary">Organisations / Établissements</h3>
             <div class="flex-1 h-px bg-outline-variant ml-2"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
-
-            <!-- Nom de l'établissement -->
-            <div class="md:col-span-2 space-y-2.5">
-                <label
-                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
-                    for="orgName">
-                    <span class="material-symbols-outlined text-[18px] opacity-40">domain</span>
-                    Nom de l'établissement <span class="text-error">*</span>
-                </label>
-                <div class="relative group">
-                    <input
-                        class="w-full h-14 px-5 pr-14 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                        id="orgName" formControlName="name"
-                        placeholder="Ex: CNHU-HKM, Clinique Sainte Marie, Cabinet Médical du Centre…" type="text" />
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2">
-                        <span
-                            class="material-symbols-outlined text-secondary opacity-40 group-focus-within:opacity-100 transition-opacity text-[20px]">local_hospital</span>
-                    </div>
-                </div>
-                <div class="flex items-start gap-2 px-2">
-                    <span class="material-symbols-outlined text-[16px] text-secondary mt-0.5">info</span>
-                    <p class="text-[11px] text-on-surface-variant/80 italic leading-tight">
-                        Indiquez le nom complet de l'hôpital, de la clinique ou du cabinet au sein duquel vous exercez
-                        principalement.
-                    </p>
-                </div>
-                @if (isOrganizationFieldInvalid('name')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    Le nom de l'établissement est requis
-                </p>
-                }
-            </div>
-
-            <!-- Type d'établissement -->
-            <div class="space-y-2.5">
-                <label
-                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
-                    for="orgType">
-                    <span class="material-symbols-outlined text-[18px] opacity-40">category</span>
-                    Type d'établissement <span class="text-error">*</span>
-                </label>
-                <div class="relative">
-                    <select
-                        class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
-                        id="orgType" formControlName="type">
-                        <option value="" disabled selected>Sélectionnez un type</option>
-                        <optgroup label="Public">
-                            <option value="chu">CHU / CNHU</option>
-                            <option value="departmental">Hôpital départemental</option>
-                            <option value="zone">Hôpital de zone</option>
-                            <option value="cscom">Centre de santé communautaire</option>
-                            <option value="dispensary">Dispensaire</option>
-                        </optgroup>
-                        <optgroup label="Privé">
-                            <option value="clinic">Clinique privée</option>
-                            <option value="cabinet">Cabinet médical</option>
-                            <option value="pharmacy">Pharmacie</option>
-                            <option value="lab">Laboratoire d'analyses</option>
-                            <option value="imaging">Centre d'imagerie médicale</option>
-                        </optgroup>
-                        <optgroup label="Autre">
-                            <option value="ngo">ONG / Association sanitaire</option>
-                            <option value="international">Organisation internationale</option>
-                            <option value="other">Autre</option>
-                        </optgroup>
-                    </select>
-                    <span
-                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
-                </div>
-                @if (isOrganizationFieldInvalid('type')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    Le type d'établissement est requis
-                </p>
-                }
-            </div>
-
-            <!-- Téléphone de l'établissement -->
-            <div class="space-y-2.5">
-                <label
-                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
-                    for="orgPhone">
-                    <span class="material-symbols-outlined text-[18px] opacity-40">phone</span>
-                    Téléphone de l'établissement
-                </label>
-                <div class="flex gap-3">
-                    <div class="relative shrink-0">
-                        <select
-                            class="h-14 pl-4 pr-10 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
-                            formControlName="phonePrefix">
-                            <option value="+229">🇧🇯 +229</option>
-                            <option value="+225">🇨🇮 +225</option>
-                            <option value="+228">🇹🇬 +228</option>
-                            <option value="+234">🇳🇬 +234</option>
-                            <option value="+33">🇫🇷 +33</option>
-                        </select>
-                        <span
-                            class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40 text-[16px]">expand_more</span>
-                    </div>
-                    <input
-                        class="flex-1 h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                        id="orgPhone" formControlName="phone" placeholder="XX XX XX XX XX" type="tel" />
-                </div>
-            </div>
-
-            <!-- ── Adresse de l'organisation ──────────────────────── -->
-
-            <!-- Ville / Commune -->
-            <div class="space-y-2.5">
-                <label
-                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
-                    for="orgCity">
-                    <span class="material-symbols-outlined text-[18px] opacity-40">location_city</span>
-                    Ville / Commune <span class="text-error">*</span>
-                </label>
-                <div class="relative">
-                    <select
-                        class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
-                        id="orgCity" formControlName="city">
-                        <option value="" disabled selected>Sélectionnez une ville</option>
-                        <option value="cotonou">Cotonou</option>
-                        <option value="porto-novo">Porto-Novo</option>
-                        <option value="parakou">Parakou</option>
-                        <option value="abomey-calavi">Abomey-Calavi</option>
-                        <option value="djougou">Djougou</option>
-                        <option value="bohicon">Bohicon</option>
-                        <option value="natitingou">Natitingou</option>
-                        <option value="ouidah">Ouidah</option>
-                        <option value="lokossa">Lokossa</option>
-                        <option value="kandi">Kandi</option>
-                    </select>
-                    <span
-                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
-                </div>
-                @if (isOrganizationFieldInvalid('city')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    La ville est requise
-                </p>
-                }
-            </div>
-
-            <!-- Département -->
-            <div class="space-y-2.5">
-                <label
-                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
-                    for="orgDepartment">
-                    <span class="material-symbols-outlined text-[18px] opacity-40">map</span>
-                    Département <span class="text-error">*</span>
-                </label>
-                <div class="relative">
-                    <select
-                        class="w-full h-14 pl-5 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md appearance-none shadow-sm focus:shadow-md"
-                        id="orgDepartment" formControlName="department">
-                        <option value="" disabled selected>Sélectionnez un département</option>
-                        <option value="alibori">Alibori</option>
-                        <option value="atacora">Atacora</option>
-                        <option value="atlantique">Atlantique</option>
-                        <option value="borgou">Borgou</option>
-                        <option value="collines">Collines</option>
-                        <option value="couffo">Couffo</option>
-                        <option value="donga">Donga</option>
-                        <option value="littoral">Littoral</option>
-                        <option value="mono">Mono</option>
-                        <option value="oueme">Ouémé</option>
-                        <option value="plateau">Plateau</option>
-                        <option value="zou">Zou</option>
-                    </select>
-                    <span
-                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40">expand_more</span>
-                </div>
-                @if (isOrganizationFieldInvalid('department')) {
-                <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
-                    <span class="material-symbols-outlined text-[14px]">error_outline</span>
-                    Le département est requis
-                </p>
-                }
-            </div>
-
-            <!-- Adresse précise -->
-            <div class="md:col-span-2 space-y-2.5">
-                <label
-                    class="flex items-center gap-2 font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest font-bold"
-                    for="orgAddress">
-                    <span class="material-symbols-outlined text-[18px] opacity-40">home_pin</span>
-                    Adresse précise
-                </label>
-                <textarea
-                    class="w-full px-5 py-4 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md min-h-25"
-                    id="orgAddress" formControlName="address"
-                    placeholder="Ex: Rue du Gouverneur Général Ponty, Quartier Ganhi, en face du marché Dantokpa"
-                    rows="3"></textarea>
-            </div>
-
+        <!-- Recherche -->
+        <div class="relative mb-4">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40">search</span>
+            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [ngModelOptions]="{standalone: true}"
+                placeholder="Rechercher un établissement par nom ou ville..."
+                class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md shadow-sm focus:shadow-md" />
         </div>
+
+        <!-- Liste des organisations disponibles -->
+        @if (filteredOrganizations().length > 0) {
+        <div class="max-h-48 overflow-y-auto border border-outline-variant rounded-2xl mb-6 divide-y divide-outline-variant/50">
+            @for (org of filteredOrganizations(); track org.id) {
+            <button type="button" (click)="addOrganization(org)"
+                class="w-full text-left px-5 py-3 flex items-center gap-4 hover:bg-secondary/5 transition-colors group">
+                <span class="material-symbols-outlined text-on-surface-variant/40 group-hover:text-secondary">add_circle</span>
+                <div class="flex-1 min-w-0">
+                    <p class="font-medium text-sm text-on-surface truncate">{{ org.name }}</p>
+                    <p class="text-xs text-on-surface-variant/60">{{ org.type }} — {{ org.city }}, {{ org.department }}</p>
+                </div>
+            </button>
+            }
+        </div>
+        } @else if (availableOrganizations().length > 0) {
+        <div class="p-6 mb-6 text-center text-on-surface-variant/60 border border-dashed border-outline-variant rounded-2xl">
+            <span class="material-symbols-outlined text-3xl block mb-2">check_circle</span>
+            <p class="text-sm">Tous les établissements disponibles ont été ajoutés.</p>
+        </div>
+        }
+
+        <!-- Organisations sélectionnées -->
+        @if (selectedOrgs().length > 0) {
+        <div class="space-y-4">
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+                Établissements sélectionnés ({{ selectedOrgs().length }})
+            </p>
+            @for (org of selectedOrgs(); track org.organizationId; let i = $index) {
+            <div class="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-surface-container-low rounded-2xl border border-outline-variant">
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-sm text-on-surface">{{ org.organizationName }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="text" [value]="org.role" (input)="onRoleChange(org.organizationId, $any($event.target).value)"
+                        placeholder="Votre rôle (ex: Médecin généraliste)"
+                        class="w-full md:w-64 h-11 px-4 bg-white border-2 border-outline-variant rounded-xl focus:border-secondary outline-none transition-all text-sm" />
+                    <button type="button" (click)="removeOrganization(org.organizationId)"
+                        class="p-2 text-on-surface-variant/40 hover:text-error transition-colors">
+                        <span class="material-symbols-outlined">remove_circle</span>
+                    </button>
+                </div>
+                @if (!org.role && professionalInfoForm.touched) {
+                <p class="text-xs text-error md:w-full">Le rôle est requis</p>
+                }
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="p-8 text-center text-on-surface-variant/60 border border-dashed border-outline-variant rounded-2xl">
+            <span class="material-symbols-outlined text-4xl block mb-2">business</span>
+            <p class="text-sm font-medium">Aucun établissement sélectionné</p>
+            <p class="text-xs mt-1">Recherchez et ajoutez au moins un établissement où vous exercez.</p>
+        </div>
+        }
     </div>
 
 </form>

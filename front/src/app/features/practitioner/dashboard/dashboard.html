@@ -10,7 +10,7 @@
         <!-- Profil praticien -->
         <div class="p-4 border-b border-white/10">
             <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl">
-                <img [src]="practitioner()?.avatar" [alt]="'Photo de ' + practitioner.name"
+                <img [src]="practitioner()?.avatar" [alt]="'Photo de ' + (practitioner()?.name ?? '')"
                     class="w-10 h-10 rounded-full border-2 border-white/20 object-cover">
                 <div class="overflow-hidden flex-1">
                     <p class="text-xs font-bold truncate">{{ practitioner()?.name }}</p>

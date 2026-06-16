@@ -1,7 +1,6 @@
 import { signal } from "@angular/core";
 import { userRole } from "../../../core/types/user.types";
-import { Iuser } from "../../../core/models/user.model";
-
+import { Iuser, PractitionerOrganization } from "../../../core/models/user.model";
 
 const _userType = signal<userRole>(null);
 const _user = signal<Iuser | null>(null);
@@ -20,16 +19,39 @@ export const RegisterStore = {
         _userType.set(type);
     },
 
-    setUserIdentity(){
-
+    setUserIdentity(identity: Iuser['identity']) {
+        _user.update(u => ({
+            ...(u ?? {} as Iuser),
+            identity,
+        }));
     },
 
-    setUserContact(){
-
+    setUserContact(contact: Iuser['contact']) {
+        _user.update(u => ({
+            ...(u ?? {} as Iuser),
+            contact,
+        }));
     },
 
-    setUserAuth(){
+    setUserAuth(auth: Iuser['auth']) {
+        _user.update(u => ({
+            ...(u ?? {} as Iuser),
+            auth,
+        }));
+    },
 
+    setPractitionerInfo(orderNumber: number, speciality: string, organizations: PractitionerOrganization[]) {
+        _user.update(u => ({
+            ...(u ?? {} as Iuser),
+            practitioner: { orderNumber, speciality, organizations },
+        }));
+    },
+
+    setUserRole() {
+        _user.update(u => ({
+            ...(u ?? {} as Iuser),
+            role: _userType(),
+        }));
     },
 
     nextStep() {
@@ -47,5 +69,4 @@ export const RegisterStore = {
     setSubmited(val: boolean) {
         _submited.set(val);
     }
-
 }

@@ -1,38 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-export type TypeExamen =
-    | 'Biologie'
-    | 'Imagerie'
-    | 'Radiologie'
-    | 'Échographie'
-    | 'Cardiologie'
-    | 'Autre';
-
-export type StatutExamen =
-    | 'Résultat disponible'
-    | 'En attente'
-    | 'En cours'
-    | 'Annulé';
-
-export type StatutValeur = 'normal' | 'eleve' | 'bas' | 'critique' | 'limite' | 'na';
-
-export interface Examen {
-    uuid: string;
-    libelle_examen: string;
-    type_examen: TypeExamen;
-    statut: StatutExamen;
-    date_realisation: Date;
-    code_loinc: string;
-    valeur: string;
-    unite: string;
-    valeur_min_normal: number | null;
-    valeur_max_normal: number | null;
-    interpretation: string;
-    image_path: string | null;
-}
+import { DashboardService, Examen, TypeExamen, StatutExamen, StatutValeur } from '../../services/dashboard.service';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function statutValeur(ex: Examen): StatutValeur {
@@ -56,93 +25,6 @@ function barPercent(ex: Examen): number {
     const max = ex.valeur_max_normal * 1.3;
     return Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
 }
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_EXAMENS: Examen[] = [
-    {
-        uuid: 'e001', libelle_examen: 'Glycémie à jeun', type_examen: 'Biologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-05-24'),
-        code_loinc: '2339-0', valeur: '1.26', unite: 'g/L',
-        valeur_min_normal: 0.70, valeur_max_normal: 1.10,
-        interpretation: 'Valeur supérieure à la normale. Tendance diabétique à surveiller.',
-        image_path: null,
-    },
-    {
-        uuid: 'e002', libelle_examen: 'HbA1c', type_examen: 'Biologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-05-24'),
-        code_loinc: '4548-4', valeur: '7.2', unite: '%',
-        valeur_min_normal: 4.0, valeur_max_normal: 6.0,
-        interpretation: 'Hémoglobine glyquée critique. Consultation endocrinologue requise.',
-        image_path: null,
-    },
-    {
-        uuid: 'e003', libelle_examen: 'Cholestérol LDL', type_examen: 'Biologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-05-24'),
-        code_loinc: '13457-7', valeur: '1.62', unite: 'g/L',
-        valeur_min_normal: 0.50, valeur_max_normal: 1.60,
-        interpretation: 'Légèrement au-dessus de la limite recommandée.',
-        image_path: null,
-    },
-    {
-        uuid: 'e004', libelle_examen: 'Sodium (Na+)', type_examen: 'Biologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-05-24'),
-        code_loinc: '2951-2', valeur: '141', unite: 'mmol/L',
-        valeur_min_normal: 135, valeur_max_normal: 145,
-        interpretation: 'Natrémie dans les valeurs de référence.', image_path: null,
-    },
-    {
-        uuid: 'e005', libelle_examen: 'Créatinine', type_examen: 'Biologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-05-24'),
-        code_loinc: '2160-0', valeur: '9.1', unite: 'mg/L',
-        valeur_min_normal: 7.0, valeur_max_normal: 12.0,
-        interpretation: 'Fonction rénale normale.', image_path: null,
-    },
-    {
-        uuid: 'e006', libelle_examen: 'NFS – Hémoglobine', type_examen: 'Biologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-04-10'),
-        code_loinc: '718-7', valeur: '11.2', unite: 'g/dL',
-        valeur_min_normal: 12.0, valeur_max_normal: 17.5,
-        interpretation: 'Anémie légère. Supplémentation en fer à envisager.', image_path: null,
-    },
-    {
-        uuid: 'e007', libelle_examen: 'Échographie abdominale', type_examen: 'Échographie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-03-15'),
-        code_loinc: '36643-5', valeur: 'N/A', unite: '',
-        valeur_min_normal: null, valeur_max_normal: null,
-        interpretation: 'Foie homogène, pas de lésion focale. Rate et reins normaux. Légère stéatose hépatique non alcoolique débutante.',
-        image_path: '/assets/imagerie/echo-abdomen-2024.jpg',
-    },
-    {
-        uuid: 'e008', libelle_examen: 'Radiographie Thorax (Face)', type_examen: 'Radiologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-03-15'),
-        code_loinc: '36643-5', valeur: 'N/A', unite: '',
-        valeur_min_normal: null, valeur_max_normal: null,
-        interpretation: 'Silhouette cardiaque dans les limites normales. Pas d\'opacité suspecte. Coupoles diaphragmatiques libres.',
-        image_path: '/assets/imagerie/radio-thorax-2024.jpg',
-    },
-    {
-        uuid: 'e009', libelle_examen: 'ECG de repos', type_examen: 'Cardiologie',
-        statut: 'Résultat disponible', date_realisation: new Date('2024-02-20'),
-        code_loinc: '11524-6', valeur: '88', unite: 'BPM',
-        valeur_min_normal: 60, valeur_max_normal: 100,
-        interpretation: 'Rythme sinusal régulier. Aucun trouble de la repolarisation. Intervalle QT normal.',
-        image_path: '/assets/imagerie/ecg-2024.jpg',
-    },
-    {
-        uuid: 'e010', libelle_examen: 'TSH (Thyroïde)', type_examen: 'Biologie',
-        statut: 'En attente', date_realisation: new Date('2024-05-30'),
-        code_loinc: '3016-3', valeur: '—', unite: 'mUI/L',
-        valeur_min_normal: 0.4, valeur_max_normal: 4.0,
-        interpretation: 'Résultat en attente du laboratoire.', image_path: null,
-    },
-    {
-        uuid: 'e011', libelle_examen: 'Échographie cardiaque (ETT)', type_examen: 'Échographie',
-        statut: 'En cours', date_realisation: new Date('2024-05-28'),
-        code_loinc: '42148-7', valeur: 'N/A', unite: '',
-        valeur_min_normal: null, valeur_max_normal: null,
-        interpretation: 'Examen en cours de traitement par le cardiologue.', image_path: null,
-    },
-];
 
 const TYPE_CONFIG: Record<TypeExamen, { icon: string; bg: string; text: string; border: string }> = {
     'Biologie': { icon: 'biotech', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
@@ -169,9 +51,12 @@ const STATUT_VALEUR_CONFIG: Record<StatutValeur, { badge: string; dot: string; l
     templateUrl: './examens.html',
     styleUrls: ['./examens.css'],
 })
-export class Examens {
+export class Examens implements OnInit {
+    private dashboardService = inject(DashboardService);
 
     // ── State ─────────────────────────────────────────────────────────────────
+    loading = signal(true);
+    examens = signal<Examen[]>([]);
     searchQuery = signal('');
     selectedType = signal<TypeExamen | 'Tous'>('Tous');
     selectedStatut = signal<StatutExamen | 'Tous'>('Tous');
@@ -192,26 +77,36 @@ export class Examens {
         const q = this.searchQuery().toLowerCase();
         const t = this.selectedType();
         const s = this.selectedStatut();
-        return MOCK_EXAMENS.filter(e =>
+        return this.examens().filter(e =>
             (t === 'Tous' || e.type_examen === t) &&
             (s === 'Tous' || e.statut === s) &&
             (e.libelle_examen.toLowerCase().includes(q) || e.code_loinc.toLowerCase().includes(q))
         );
     });
 
-    stats = computed(() => ({
-        total: MOCK_EXAMENS.length,
-        disponible: MOCK_EXAMENS.filter(e => e.statut === 'Résultat disponible').length,
-        horsnorme: MOCK_EXAMENS.filter(e => {
-            const sv = this.statutValeur(e);
-            return sv === 'eleve' || sv === 'critique' || sv === 'bas';
-        }).length,
-        enAttente: MOCK_EXAMENS.filter(e => e.statut === 'En attente' || e.statut === 'En cours').length,
-    }));
+    stats = computed(() => {
+        const list = this.examens();
+        return {
+            total: list.length,
+            disponible: list.filter(e => e.statut === 'Résultat disponible').length,
+            horsnorme: list.filter(e => {
+                const sv = this.statutValeur(e);
+                return sv === 'eleve' || sv === 'critique' || sv === 'bas';
+            }).length,
+            enAttente: list.filter(e => e.statut === 'En attente' || e.statut === 'En cours').length,
+        };
+    });
 
     critiquesAlert = computed(() =>
-        MOCK_EXAMENS.filter(e => this.statutValeur(e) === 'critique')
+        this.examens().filter(e => this.statutValeur(e) === 'critique')
     );
+
+    ngOnInit(): void {
+        this.dashboardService.getExamens().subscribe(data => {
+            this.examens.set(data);
+            this.loading.set(false);
+        });
+    }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
     statutValeur(ex: Examen): StatutValeur { return statutValeur(ex); }

@@ -11,7 +11,7 @@
                 </h3>
                 <p class="text-xs text-slate-500 mt-1">
                     Historique des diagnostics posés •
-                    <span class="font-semibold text-[#1E40AF]">2 pathologies chroniques actives</span> sous surveillance
+                    <span class="font-semibold text-[#1E40AF]">{{ nbActives() }} pathologies chroniques actives</span> sous surveillance
                 </p>
             </div>
 
@@ -33,7 +33,7 @@
                 <span class="material-symbols-outlined text-blue-600 text-lg">monitoring</span>
                 <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">2</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbChroniques() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Chroniques actives</p>
         </div>
 
@@ -42,7 +42,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-amber-600 text-lg">sick</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">1</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbAigues() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Épisodes aigus (< 6 mois)</p>
         </div>
 
@@ -51,7 +51,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-slate-500 text-lg">history</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">3</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbAntecedents() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Résolues / Antécédents</p>
         </div>
 
@@ -69,13 +69,13 @@
             <button class="px-4 py-2 bg-[#002B5C] text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm">list</span>
                 Actives
-                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">3</span>
+                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{{ nbActives() }}</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-slate-500">archive</span>
                 Résolues / Antécédents
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">3</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ nbAntecedents() }}</span>
             </button>
 
             <div class="ml-auto flex items-center gap-2">
@@ -101,142 +101,65 @@
                 </h4>
             </div>
 
-            <!-- Pathologie 1 : HTA -->
-            <article
-                class="bg-white border-l-4 border-l-blue-600 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
-                <div class="p-5">
-                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
-                        <div class="flex items-start gap-4 flex-1">
-                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-blue-700 text-2xl">favorite</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex flex-wrap items-center gap-2 mb-2">
-                                    <span
-                                        class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">I10</span>
-                                    <h5 class="font-black text-[#002B5C] text-lg">Hypertension artérielle essentielle
-                                    </h5>
-                                    <span
-                                        class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200 uppercase">
-                                        Chronique
+            @for (patho of pathologies(); track patho.id) {
+                @if (patho.type === 'chronique') {
+                    <article
+                        class="bg-white border-l-4 border-l-blue-600 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all"
+                        [class.mt-4]="!$first">
+                        <div class="p-5">
+                            <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
+                                <div class="flex items-start gap-4 flex-1">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-blue-700 text-2xl">monitoring</span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                                            <span
+                                                class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">{{ patho.code }}</span>
+                                            <h5 class="font-black text-[#002B5C] text-lg">{{ patho.nom }}</h5>
+                                            <span
+                                                class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200 uppercase">
+                                                Chronique
+                                            </span>
+                                            <span
+                                                class="text-[10px] font-bold px-2 py-0.5 rounded border uppercase"
+                                                [class.bg-amber-100]="patho.severite === 'Modérée' || patho.severite === 'moderee'"
+                                                [class.text-amber-800]="patho.severite === 'Modérée' || patho.severite === 'moderee'"
+                                                [class.border-amber-200]="patho.severite === 'Modérée' || patho.severite === 'moderee'"
+                                                [class.bg-green-100]="patho.statut === 'controlee'"
+                                                [class.text-green-800]="patho.statut === 'controlee'"
+                                                [class.border-green-200]="patho.statut === 'controlee'"
+                                                [class.bg-red-100]="patho.statut === 'active' && patho.severite !== 'Modérée' && patho.severite !== 'moderee'"
+                                                [class.text-red-800]="patho.statut === 'active' && patho.severite !== 'Modérée' && patho.severite !== 'moderee'"
+                                                [class.border-red-200]="patho.statut === 'active' && patho.severite !== 'Modérée' && patho.severite !== 'moderee'">
+                                                Sévérité : {{ patho.severite }}
+                                            </span>
+                                        </div>
+                                        @if (patho.notes) {
+                                            <p class="text-sm text-slate-600">{{ patho.notes }}</p>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="flex flex-col md:items-end gap-2 shrink-0">
+                                    <span class="text-[10px] text-slate-500 text-right">
+                                        Diagnostiqué le : <strong class="text-slate-700">{{ patho.dateDiagnostic | date:'dd/MM/yyyy' }}</strong>
                                     </span>
-                                    <span
-                                        class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200 uppercase">
-                                        Sévérité : Modérée
-                                    </span>
+                                    <div class="flex gap-2">
+                                        <button
+                                            class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                                            Modifier
+                                        </button>
+                                        <button
+                                            class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
+                                            Voir le protocole
+                                        </button>
+                                    </div>
                                 </div>
-                                <p class="text-sm text-slate-600">
-                                    Diagnostiquée en 2018. Sous traitement antihypertenseur. Objectif tensionnel <
-                                        140/90 mmHg. Surveillance annuelle du fond d'œil et de la fonction rénale
-                                        recommandée. </p>
                             </div>
                         </div>
-                        <div class="flex flex-col md:items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-500 text-right">
-                                Diagnostiqué le : <strong class="text-slate-700">15/03/2018</strong><br>
-                                Par : Dr. Mensah (HZ Calavi)
-                            </span>
-                            <div class="flex gap-2">
-                                <button
-                                    class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                                    Modifier
-                                </button>
-                                <button
-                                    class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
-                                    Voir le protocole
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Liens cliniques (La vraie valeur du DMN) -->
-                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                        <p
-                            class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs">link</span>
-                            Prise en charge actuelle liée à ce diagnostic
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <!-- Lien Prescription -->
-                            <div
-                                class="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer">
-                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-green-700 text-sm">medication</span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-bold text-slate-900 truncate">Amlodipine 5mg</p>
-                                    <p class="text-[10px] text-slate-500">Traitement actif • Renouvelable</p>
-                                </div>
-                                <span class="material-symbols-outlined text-slate-400 text-sm">arrow_forward</span>
-                            </div>
-                            <!-- Lien Examen -->
-                            <div
-                                class="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer">
-                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-purple-700 text-sm">biotech</span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-bold text-slate-900 truncate">Bilan Rénal (Créatinine)</p>
-                                    <p class="text-[10px] text-slate-500">Dernier : 15/01/2024 • Normal</p>
-                                </div>
-                                <span class="material-symbols-outlined text-slate-400 text-sm">arrow_forward</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Pathologie 2 : Hypercholestérolémie -->
-            <article
-                class="bg-white border-l-4 border-l-blue-600 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all mt-4">
-                <div class="p-5">
-                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                        <div class="flex items-start gap-4 flex-1">
-                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-blue-700 text-2xl">water_drop</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex flex-wrap items-center gap-2 mb-2">
-                                    <span
-                                        class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">E78.0</span>
-                                    <h5 class="font-black text-[#002B5C] text-lg">Hypercholestérolémie pure</h5>
-                                    <span
-                                        class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200 uppercase">
-                                        Chronique
-                                    </span>
-                                    <span
-                                        class="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded border border-green-200 uppercase">
-                                        Sévérité : Contrôlée
-                                    </span>
-                                </div>
-                                <p class="text-sm text-slate-600">
-                                    Dyslipidémie mixte. Sous statines. Dernier bilan lipidique (Jan 2024) montre un LDL
-                                    légèrement
-                                    au-dessus de la cible, nécessitant un maintien du traitement actuel et une
-                                    surveillance diététique.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col md:items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-500 text-right">
-                                Diagnostiqué le : <strong class="text-slate-700">20/08/2020</strong><br>
-                                Par : Dr. S. AGOSSA
-                            </span>
-                        </div>
-                    </div>
-                    <!-- Liens cliniques simplifiés -->
-                    <div
-                        class="mt-4 flex items-center gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="material-symbols-outlined text-sm text-green-600">medication</span>
-                        <span>Traitement lié :</span>
-                        <strong class="text-[#002B5C]">Atorvastatine 20mg</strong>
-                        <span class="text-slate-400">|</span>
-                        <span class="material-symbols-outlined text-sm text-purple-600">biotech</span>
-                        <span>Dernier suivi :</span>
-                        <strong class="text-[#002B5C]">Bilan lipidique (28/01/2024)</strong>
-                    </div>
-                </div>
-            </article>
+                    </article>
+                }
+            }
         </div>
 
         <!-- ====== GROUPE : PATHOLOGIES AIGUËS RÉCENTES ====== -->
@@ -247,47 +170,47 @@
                     Épisodes Aigus Récents (< 6 mois) </h4>
             </div>
 
-            <article
-                class="bg-white border-l-4 border-l-amber-500 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
-                <div class="p-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
-                    <div class="flex items-start gap-4 flex-1">
-                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-amber-700 text-2xl">back_hand</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-2">
-                                <span
-                                    class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">M54.5</span>
-                                <h5 class="font-bold text-slate-900 text-lg">Lombalgie aiguë commune</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200 uppercase">
-                                    Aiguë
-                                </span>
-                                <span
-                                    class="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded border border-green-200 uppercase">
-                                    Résolu
-                                </span>
+            @for (patho of pathologies(); track patho.id) {
+                @if (patho.type === 'aigue') {
+                    <article
+                        class="bg-white border-l-4 border-l-amber-500 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
+                        <div class="p-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
+                            <div class="flex items-start gap-4 flex-1">
+                                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-amber-700 text-2xl">sick</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <span
+                                            class="font-mono text-[10px] font-black bg-[#002B5C] text-white px-2 py-1 rounded">{{ patho.code }}</span>
+                                        <h5 class="font-bold text-slate-900 text-lg">{{ patho.nom }}</h5>
+                                        <span
+                                            class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200 uppercase">
+                                            Aiguë
+                                        </span>
+                                        @if (patho.statut === 'resolue') {
+                                            <span
+                                                class="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded border border-green-200 uppercase">
+                                                Résolu
+                                            </span>
+                                        }
+                                    </div>
+                                    @if (patho.notes) {
+                                        <p class="text-sm text-slate-600 mb-3">{{ patho.notes }}</p>
+                                    }
+                                    <div class="flex items-center gap-4 text-[10px] text-slate-500">
+                                        <span class="flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-xs">calendar_today</span>
+                                            {{ patho.dateDiagnostic | date:'dd MMM yyyy' }}
+                                            @if (patho.dateResolution) { - {{ patho.dateResolution | date:'dd MMM yyyy' }} }
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-sm text-slate-600 mb-3">
-                                Épisode de douleur lombaire basse sans signe de gravité (pas de syndrome de la queue de
-                                cheval).
-                                Traité par repos relatif, AINS et paracétamol. Résolution complète des symptômes en 10
-                                jours.
-                            </p>
-                            <div class="flex items-center gap-4 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    15 Jan 2024 - 25 Jan 2024
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">person</span>
-                                    Dr. S. AGOSSA
-                                </span>
-                            </div>
                         </div>
-                    </div>
-                </div>
-            </article>
+                    </article>
+                }
+            }
         </div>
 
         <!-- ====== GROUPE : ANTÉCÉDENTS / RÉSOLUS (Collapsible) ====== -->
@@ -299,65 +222,39 @@
                         class="material-symbols-outlined text-slate-500 group-hover:text-[#002B5C] transition-colors">history</span>
                     <span class="font-bold text-slate-700 text-sm">Antécédents médico-chirurgicaux et pathologies
                         résolues
-                        (3)</span>
+                        ({{ nbAntecedents() }})</span>
                 </div>
                 <span
                     class="material-symbols-outlined text-slate-400 group-hover:text-[#002B5C] transition-transform group-hover:rotate-180">expand_more</span>
             </button>
 
-            <!-- Contenu (simulé déplié pour la démo) -->
             <div class="mt-3 space-y-3">
-
-                <!-- Antécédent chirurgical -->
-                <article
-                    class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-80 hover:opacity-100 transition-opacity">
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-slate-600">surgery</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <span
-                                    class="font-mono text-[10px] font-black bg-slate-600 text-white px-1.5 py-0.5 rounded">K35.8</span>
-                                <h5 class="font-bold text-slate-700 text-sm line-through">Appendicite aiguë</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded uppercase">
-                                    Résolu (Chirurgical)
-                                </span>
+                @for (patho of pathologies(); track patho.id) {
+                    @if (patho.type === 'antecedent') {
+                        <article
+                            class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-80 hover:opacity-100 transition-opacity">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-slate-600">history</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                                        <span
+                                            class="font-mono text-[10px] font-black bg-slate-600 text-white px-1.5 py-0.5 rounded">{{ patho.code }}</span>
+                                        <h5 class="font-bold text-slate-700 text-sm line-through">{{ patho.nom }}</h5>
+                                        <span
+                                            class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded uppercase">
+                                            Résolu
+                                        </span>
+                                    </div>
+                                    @if (patho.notes) {
+                                        <p class="text-xs text-slate-600">{{ patho.notes }}</p>
+                                    }
+                                </div>
                             </div>
-                            <p class="text-xs text-slate-600">
-                                Appendicectomie par laparoscopie le 15/03/2024 au CNHU-HKM. Suites opératoires simples.
-                            </p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Antécédent personnel -->
-                <article
-                    class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-80 hover:opacity-100 transition-opacity">
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-slate-600">coronavirus</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <span
-                                    class="font-mono text-[10px] font-black bg-slate-600 text-white px-1.5 py-0.5 rounded">U07.1</span>
-                                <h5 class="font-bold text-slate-700 text-sm line-through">COVID-19 (Confirmé)</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded uppercase">
-                                    Résolu
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600">
-                                Infection en Novembre 2021. Forme modérée, traitée en ambulatoire. Aucune séquelle
-                                respiratoire
-                                rapportée.
-                            </p>
-                        </div>
-                    </div>
-                </article>
-
+                        </article>
+                    }
+                }
             </div>
         </div>
 

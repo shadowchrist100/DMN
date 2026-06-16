@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// import { PractitionerStats, QueuedPatient } from './pratitioner.model';
 import { Router } from '@angular/router';
 
 import {
@@ -13,6 +12,10 @@ import {
     PatientFilter
 } from './dashboard.model';
 import { FormsModule } from '@angular/forms';
+import { PractitionerService } from '../../services/practitioner.service';
+import { PatientService } from '../../services/patient.service';
+import { ConsentService } from '../../services/consent.service';
+import { AuditService } from '../../services/audit.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -21,7 +24,6 @@ import { FormsModule } from '@angular/forms';
     styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
-    // ===== SIGNAUX =====
     loading = signal(true);
     practitioner = signal<Practitioner | null>(null);
     stats = signal<PractitionerStats>({
@@ -38,18 +40,14 @@ export class Dashboard implements OnInit {
     organizations = signal<Organization[]>([]);
     recentActivities = signal<ActivityLog[]>([]);
 
-    // Filtres
     patientFilter = signal<PatientFilter>('all');
     today = new Date();
 
-    // Injection
     private router = inject(Router);
-    // private practitionerService = inject(PractitionerService);
-    // private patientService = inject(PatientService);
-    // private consentService = inject(ConsentService);
-    // private auditService = inject(AuditService);
-
-    // ===== COMPUTED =====
+    private practitionerService = inject(PractitionerService);
+    private patientService = inject(PatientService);
+    private consentService = inject(ConsentService);
+    private auditService = inject(AuditService);
 
     filteredPatients = computed(() => {
         const patients = this.followedPatients();
@@ -69,39 +67,32 @@ export class Dashboard implements OnInit {
         }
     });
 
-    // ===== LIFECYCLE =====
-
     ngOnInit(): void {
         this.loadDashboardData();
     }
-
-    // ===== CHARGEMENT DES DONNÉES =====
 
     private async loadDashboardData(): Promise<void> {
         this.loading.set(true);
 
         try {
-            // Charger en parallèle toutes les données
-            // const [practitioner, patients, requests, orgs, activities] = await Promise.all([
-            //     this.practitionerService.getCurrentPractitioner(),
-            //     this.patientService.getFollowedPatients(),
-            //     this.consentService.getPendingAccessRequests(),
-            //     this.practitionerService.getPractitionerOrganizations(),
-            //     this.auditService.getRecentActivities(10)
-            // ]);
+            const [practitioner, patients, requests, orgs, activities] = await Promise.all([
+                this.practitionerService.getCurrentPractitioner(),
+                this.patientService.getFollowedPatients(),
+                this.consentService.getPendingAccessRequests(),
+                this.practitionerService.getPractitionerOrganizations(),
+                this.auditService.getRecentActivities(10)
+            ]);
 
-            // this.practitioner.set(practitioner);
-            // this.followedPatients.set(patients);
-            // this.pendingAccessRequests.set(requests);
-            // this.organizations.set(orgs);
-            // this.recentActivities.set(activities);
+            this.practitioner.set(practitioner);
+            this.followedPatients.set(patients);
+            this.pendingAccessRequests.set(requests);
+            this.organizations.set(orgs);
+            this.recentActivities.set(activities);
 
-            // Calculer les stats
-            // this.calculateStats(patients, requests);
+            this.calculateStats(patients, requests);
 
         } catch (error) {
             console.error('Erreur chargement dashboard:', error);
-            // TODO: Afficher notification d'erreur
         } finally {
             this.loading.set(false);
         }
@@ -110,18 +101,17 @@ export class Dashboard implements OnInit {
     private calculateStats(patients: FollowedPatient[], requests: AccessRequest[]): void {
         const now = new Date();
         const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-        // this.stats.set({
-        //     followedPatients: patients.length,
-        //     newPatientsThisMonth: patients.filter(p =>
-        //         new Date(p.createdAt) >= monthAgo
-        //     ).length,
-        //     consultationsThisWeek: 12, // TODO: Calculer depuis API
-        //     completedVisits: 8,
-        //     upcomingVisits: 4,
-        //     pendingReports: 5
-        // });
+        this.stats.set({
+            followedPatients: patients.length,
+            newPatientsThisMonth: patients.filter(p =>
+                new Date(p.createdAt) >= monthAgo
+            ).length,
+            consultationsThisWeek: 12,
+            completedVisits: 8,
+            upcomingVisits: 4,
+            pendingReports: 5
+        });
     }
 
     // ===== HELPERS =====
@@ -171,8 +161,7 @@ export class Dashboard implements OnInit {
     }
 
     onOpenDossier(npi: string): void {
-        // Logger l'action pour l'audit
-        // this.auditService.logAction('open_patient_file', { npi });
+        this.auditService.logAction('open_patient_file', { npi });
         this.router.navigate(['/patient', npi, 'overview']);
     }
 
@@ -197,24 +186,19 @@ export class Dashboard implements OnInit {
         event.stopPropagation();
 
         try {
-            // await this.consentService.acceptAccessRequest(request.id);
+            await this.consentService.acceptAccessRequest(request.id);
 
-            // Retirer de la liste
             this.pendingAccessRequests.update(requests =>
                 requests.filter(r => r.id !== request.id)
             );
 
-            // Logger l'action
-            // this.auditService.logAction('accept_access_request', {
-            //     requestId: request.id,
-            //     patientNpi: request.patientNpi
-            // });
-
-            // TODO: Notification de succès
+            this.auditService.logAction('accept_access_request', {
+                requestId: request.id,
+                patientNpi: request.patientNpi
+            });
 
         } catch (error) {
             console.error('Erreur acceptation:', error);
-            // TODO: Notification d'erreur
         }
     }
 
@@ -222,61 +206,27 @@ export class Dashboard implements OnInit {
         event.stopPropagation();
 
         const reason = prompt('Motif du refus (optionnel) :');
-        if (reason === null) return; // Annulé par l'utilisateur
+        if (reason === null) return;
 
         try {
-            // await this.consentService.declineAccessRequest(request.id, reason || undefined);
+            await this.consentService.declineAccessRequest(request.id, reason || undefined);
 
             this.pendingAccessRequests.update(requests =>
                 requests.filter(r => r.id !== request.id)
             );
 
-            // this.auditService.logAction('decline_access_request', {
-            //     requestId: request.id,
-            //     patientNpi: request.patientNpi,
-            //     reason
-            // });
+            this.auditService.logAction('decline_access_request', {
+                requestId: request.id,
+                patientNpi: request.patientNpi,
+                reason
+            });
 
         } catch (error) {
             console.error('Erreur refus:', error);
         }
     }
-
     switchOrganization(orgId: string): void {
-        // this.practitionerService.setActiveOrganization(orgId);
-
-        // Recharger les données avec le nouveau contexte
+        this.practitionerService.setActiveOrganization(orgId);
         this.loadDashboardData();
     }
-
-    // ngOnInit(): void { }
-
-    // onOpenDossier(npi: string) {
-    //     console.log('Ouverture du dossier patient:', npi);
-    // }
 }
-// import { Component, OnInit, signal, computed, inject } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { FormsModule } from '@angular/forms';
-// import { Router } from '@angular/router';
-
-// // Models
-
-
-// // Services
-// import { PractitionerService } from '../../services/practitioner.service';
-// import { PatientService } from '../../services/patient.service';
-// import { ConsentService } from '../../services/consent.service';
-// import { AuditService } from '../../services/audit.service';
-
-// @Component({
-//     selector: 'app-practitioner-dashboard',
-//     standalone: true,
-//     imports: [CommonModule, FormsModule],
-//     templateUrl: './dashboard.html',
-//     styleUrls: ['./dashboard.css']
-// })
-// export class PractitionerDashboard implements OnInit {
-
-
-// }

@@ -10,8 +10,8 @@
                     Historique Médical Complet
                 </h3>
                 <p class="text-xs text-slate-500 mt-1">
-                    Parcours de soins depuis <strong class="text-slate-700">2018</strong> •
-                    <span class="font-semibold text-[#1E40AF]">47 événements</span> documentés
+                    Parcours de soins depuis <strong class="text-slate-700">{{ evenements().length ? (evenements()[evenements().length - 1].date | date:'yyyy') : '—' }}</strong> •
+                    <span class="font-semibold text-[#1E40AF]">{{ nbTotal() }} événements</span> documentés
                 </p>
             </div>
 
@@ -41,7 +41,7 @@
                 <span class="text-[10px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded">+3 cette
                     année</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">24</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbConsultations() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Consultations</p>
         </div>
 
@@ -51,7 +51,7 @@
                 <span class="material-symbols-outlined text-red-600 text-lg">local_hospital</span>
                 <span class="text-[10px] text-red-700 font-bold bg-red-50 px-1.5 py-0.5 rounded">Urgence</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">2</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbHospitalisations() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Hospitalisations</p>
         </div>
 
@@ -61,7 +61,7 @@
                 <span class="material-symbols-outlined text-purple-600 text-lg">biotech</span>
                 <span class="text-[10px] text-slate-500 font-medium">12 derniers mois</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">18</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbAnalyses() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Analyses</p>
         </div>
 
@@ -81,7 +81,7 @@
                 <span class="material-symbols-outlined text-green-600 text-lg">medication</span>
                 <span class="text-[10px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded">3 actives</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">15</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbPrescriptions() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Ordonnances</p>
         </div>
 
@@ -177,433 +177,91 @@
     <!-- ===== TIMELINE CHRONOLOGIQUE ===== -->
     <div class="p-6">
 
-        <!-- Année 2024 -->
-        <div class="mb-8">
-            <div class="sticky top-0 bg-white py-2 mb-4 flex items-center gap-3 border-b border-slate-200">
-                <span class="text-xl font-black text-[#002B5C]">2024</span>
-                <span class="text-xs text-slate-500 font-medium">8 événements</span>
-                <div class="flex-1 h-px bg-slate-200"></div>
-            </div>
+        @for (event of evenements(); track event.id; let i = $index, last = $last) {
+            @let currentYear = event.date.getFullYear();
+            @let prevYear = i > 0 ? evenements()[i-1].date.getFullYear() : -1;
+            @let nextYear = !last ? evenements()[i+1].date.getFullYear() : -1;
+            @let isFirstOfYear = i === 0 || currentYear !== prevYear;
+            @let isLastOfYear = last || currentYear !== nextYear;
 
-            <div class="space-y-3">
+            @if (isFirstOfYear) {
+                <div class="sticky top-0 bg-white py-2 mb-4 flex items-center gap-3 border-b border-slate-200">
+                    <span class="text-xl font-black text-[#002B5C]">{{ currentYear }}</span>
+                    <div class="flex-1 h-px bg-slate-200"></div>
+                </div>
+            }
 
-                <!-- Event: Hospitalisation (URGENT) -->
-                <article class="group bg-white border-l-4 border-l-red-500 border border-slate-200 rounded-xl p-4 
-                              hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
-                        <!-- Icône -->
-                        <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-red-600 text-xl">local_hospital</span>
-                        </div>
-
-                        <!-- Contenu -->
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-sm">Hospitalisation d'urgence — Appendicectomie
-                                </h5>
-                                <span
-                                    class="text-[10px] font-black bg-red-600 text-white px-2 py-0.5 rounded uppercase">
-                                    Urgence
-                                </span>
-                                <span
-                                    class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
-                                    K35.8
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-2">
-                                Admission pour douleur abdominale aiguë • Intervention le 15/03/2024 •
-                                Sortie le 18/03/2024 (3 jours)
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">location_on</span>
-                                    CNHU-HKM Cotonou
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">person</span>
-                                    Dr. Fatou Bello (Chirurgie)
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    15-18 Mars 2024
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-400 font-mono">il y a 3 mois</span>
-                            <button
-                                class="opacity-0 group-hover:opacity-100 transition-opacity text-[#1E40AF] text-xs font-bold hover:underline flex items-center gap-1">
-                                Voir détails
-                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
-                            </button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Event: Consultation -->
-                <article
-                    class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[#1E40AF] text-xl">stethoscope</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-sm">Consultation de suivi cardiologie</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                                    Complété
-                                </span>
-                                <span
-                                    class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
-                                    I10
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-2">
-                                Suivi HTA • TA contrôlée à 135/85 • Poursuite Amlodipine 5mg
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">location_on</span>
-                                    Hôpital de Zone Calavi
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">person</span>
-                                    Dr. Kouandété Koffi
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    12 Février 2024
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-400 font-mono">il y a 4 mois</span>
-                            <button
-                                class="opacity-0 group-hover:opacity-100 transition-opacity text-[#1E40AF] text-xs font-bold hover:underline flex items-center gap-1">
-                                Voir détails
-                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
-                            </button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Event: Analyse -->
-                <article
-                    class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-purple-600 text-xl">biotech</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-sm">Bilan lipidique complet</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[10px]">warning</span>
-                                    1 valeur hors norme
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-2">
-                                Cholestérol LDL: 1.8 g/L (N: &lt;1.6) • Triglycérides normaux
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">location_on</span>
-                                    Labo BIO-BÉNIN
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">attach_file</span>
-                                    <a href="#" class="text-[#1E40AF] font-bold hover:underline">Rapport PDF</a>
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    28 Janvier 2024
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-400 font-mono">il y a 5 mois</span>
-                            <button
-                                class="opacity-0 group-hover:opacity-100 transition-opacity text-[#1E40AF] text-xs font-bold hover:underline flex items-center gap-1">
-                                Voir détails
-                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
-                            </button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Event: Vaccination -->
-                <article
-                    class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-emerald-600 text-xl">vaccines</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-sm">Rappel Vaccinal COVID-19 (3ème dose)</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                                    ✓ À jour
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-2">
-                                Vaccin Pfizer-BioNTech • Lot #PF-2024-BJ-112 • Prochain rappel : 2025
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">location_on</span>
-                                    CSU Gbegamey
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    15 Janvier 2024
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-400 font-mono">il y a 5 mois</span>
-                        </div>
-                    </div>
-                </article>
-
-            </div>
-        </div>
-
-        <!-- Année 2023 -->
-        <div class="mb-8">
-            <div class="sticky top-0 bg-white py-2 mb-4 flex items-center gap-3 border-b border-slate-200">
-                <span class="text-xl font-black text-[#002B5C]">2023</span>
-                <span class="text-xs text-slate-500 font-medium">15 événements</span>
-                <div class="flex-1 h-px bg-slate-200"></div>
-            </div>
-
-            <div class="space-y-3">
-
-                <!-- Event: Consultation -->
-                <article
-                    class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[#1E40AF] text-xl">stethoscope</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-sm">Consultation générale — Suivi HTA</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                                    Complété
-                                </span>
-                                <span
-                                    class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
-                                    I10 • E78.0
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-2">
-                                TA: 145/92 mmHg ⚠️ • Ajustement posologie Amlodipine •
-                                Prescription Atorvastatine 20mg
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">location_on</span>
-                                    Hôpital de Zone Calavi
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">person</span>
-                                    Dr. S. AGOSSA
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    12 Octobre 2023
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-400 font-mono">12 Oct 2023</span>
-                            <button
-                                class="opacity-0 group-hover:opacity-100 transition-opacity text-[#1E40AF] text-xs font-bold hover:underline flex items-center gap-1">
-                                Voir détails
-                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
-                            </button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Event: Analyse avec commentaire biologiste -->
-                <article
-                    class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-purple-600 text-xl">biotech</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-sm">Glycémie à jeun</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[10px]">arrow_upward</span>
-                                    1.12 g/L (Haut)
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-2 italic">
-                                "Légère hausse par rapport au trimestre précédent. Surveillance diététique recommandée."
-                                <span class="not-italic font-medium text-slate-500"> — Dr. Soumanou</span>
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">location_on</span>
-                                    Labo National Santé Publique
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">attach_file</span>
-                                    <a href="#" class="text-[#1E40AF] font-bold hover:underline">Rapport PDF</a>
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    05 Octobre 2023
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-400 font-mono">05 Oct 2023</span>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Event: Prescription -->
-                <article
-                    class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-green-600 text-xl">medication</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-sm">Renouvellement ordonnance</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                                    2 médicaments actifs
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-2">
-                                Amlodipine 5mg (3 mois) • Atorvastatine 20mg (6 mois) •
-                                <span class="font-semibold">Signé numériquement</span>
-                            </p>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">person</span>
-                                    Dr. S. AGOSSA
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">lock</span>
-                                    Signature PSSIE vérifiée
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                    15 Septembre 2023
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            <span class="text-[10px] text-slate-400 font-mono">15 Sep 2023</span>
-                            <button
-                                class="opacity-0 group-hover:opacity-100 transition-opacity text-[#1E40AF] text-xs font-bold hover:underline flex items-center gap-1">
-                                Ordonnance
-                                <span class="material-symbols-outlined text-xs">download</span>
-                            </button>
-                        </div>
-                    </div>
-                </article>
-
-            </div>
-        </div>
-
-        <!-- Année 2022 (résumé) -->
-        <div class="mb-8">
-            <div class="sticky top-0 bg-white py-2 mb-4 flex items-center gap-3 border-b border-slate-200">
-                <span class="text-xl font-black text-[#002B5C]">2022</span>
-                <span class="text-xs text-slate-500 font-medium">12 événements</span>
-                <div class="flex-1 h-px bg-slate-200"></div>
-            </div>
-
-            <div class="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <p class="text-sm text-slate-500 mb-3">12 événements documentés en 2022</p>
-                <button
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors">
-                    <span class="material-symbols-outlined text-sm">expand_more</span>
-                    Afficher les événements de 2022
-                </button>
-            </div>
-        </div>
-
-        <!-- Année 2021 (résumé) -->
-        <div class="mb-8">
-            <div class="sticky top-0 bg-white py-2 mb-4 flex items-center gap-3 border-b border-slate-200">
-                <span class="text-xl font-black text-[#002B5C]">2021</span>
-                <span class="text-xs text-slate-500 font-medium">8 événements</span>
-                <div class="flex-1 h-px bg-slate-200"></div>
-            </div>
-
-            <div class="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <p class="text-sm text-slate-500 mb-3">8 événements documentés en 2021</p>
-                <button
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors">
-                    <span class="material-symbols-outlined text-sm">expand_more</span>
-                    Afficher les événements de 2021
-                </button>
-            </div>
-        </div>
-
-        <!-- Année 2020 (résumé avec fait marquant) -->
-        <div class="mb-4">
-            <div class="sticky top-0 bg-white py-2 mb-4 flex items-center gap-3 border-b border-slate-200">
-                <span class="text-xl font-black text-[#002B5C]">2020</span>
-                <span class="text-xs text-slate-500 font-medium">4 événements</span>
-                <div class="flex-1 h-px bg-slate-200"></div>
-            </div>
-
-            <!-- Fait marquant -->
-            <article class="bg-purple-50 border-l-4 border-l-purple-500 border border-purple-200 rounded-xl p-4 mb-3">
+            <article class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer"
+                     [class.border-l-4]="event.type === 'hospitalisation'"
+                     [class.border-l-red-500]="event.type === 'hospitalisation'"
+                     [class.mb-8]="isLastOfYear"
+                     [class.mb-3]="!isLastOfYear">
                 <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-purple-600 text-xl">surgery</span>
-                    </div>
+                    <!-- Icône -->
+                    @switch (event.type) {
+                        @case ('consultation') {
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-[#1E40AF] text-xl">stethoscope</span>
+                            </div>
+                        }
+                        @case ('hospitalisation') {
+                            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-red-600 text-xl">local_hospital</span>
+                            </div>
+                        }
+                        @case ('analyse') {
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-purple-600 text-xl">biotech</span>
+                            </div>
+                        }
+                        @case ('vaccination') {
+                            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-emerald-600 text-xl">vaccines</span>
+                            </div>
+                        }
+                        @case ('prescription') {
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-green-600 text-xl">medication</span>
+                            </div>
+                        }
+                    }
+
+                    <!-- Contenu -->
                     <div class="flex-1 min-w-0">
                         <div class="flex flex-wrap items-center gap-2 mb-1">
-                            <h5 class="font-bold text-slate-900 text-sm">Cholécystectomie laparoscopique</h5>
-                            <span class="text-[10px] font-black bg-purple-600 text-white px-2 py-0.5 rounded uppercase">
-                                Chirurgie
-                            </span>
-                            <span
-                                class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
-                                K80.2
+                            <h5 class="font-bold text-slate-900 text-sm">{{ event.titre }}</h5>
+                            <span class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
+                                {{ event.statut }}
                             </span>
                         </div>
-                        <p class="text-xs text-slate-600 mb-2">
-                            Intervention programmée • Lithiase biliaire symptomatique •
-                            Suites opératoires simples • Sortie J+2
-                        </p>
+                        <p class="text-xs text-slate-600 mb-2">{{ event.description }}</p>
                         <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
                             <span class="flex items-center gap-1">
                                 <span class="material-symbols-outlined text-xs">location_on</span>
-                                Hôpital de Zone Calavi
+                                {{ event.etablissement }}
                             </span>
                             <span class="flex items-center gap-1">
                                 <span class="material-symbols-outlined text-xs">person</span>
-                                Dr. Mensah (Chirurgie)
+                                {{ event.medecin }}
                             </span>
                             <span class="flex items-center gap-1">
                                 <span class="material-symbols-outlined text-xs">calendar_today</span>
-                                Juin 2020
+                                {{ event.date | date:'dd MMMM yyyy' }}
                             </span>
                         </div>
                     </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col items-end gap-2 shrink-0">
+                        <span class="text-[10px] text-slate-400 font-mono">{{ event.date | date:'dd MMM yyyy' }}</span>
+                        <button class="opacity-0 group-hover:opacity-100 transition-opacity text-[#1E40AF] text-xs font-bold hover:underline flex items-center gap-1">
+                            Voir détails
+                            <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                        </button>
+                    </div>
                 </div>
             </article>
-        </div>
+        }
 
     </div>
 
@@ -612,8 +270,8 @@
         class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-3">
         <div class="flex items-center gap-2 text-xs text-slate-500">
             <span class="material-symbols-outlined text-sm">info</span>
-            <span>Affichage de <strong class="text-slate-700">12</strong> événements sur <strong
-                    class="text-slate-700">47</strong></span>
+            <span>Affichage de <strong class="text-slate-700">{{ evenements().length }}</strong> événements sur <strong
+                    class="text-slate-700">{{ nbTotal() }}</strong></span>
         </div>
         <button
             class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors">

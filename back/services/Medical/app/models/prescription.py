@@ -1,8 +1,11 @@
 import uuid
 from sqlmodel import Field, SQLModel, Relationship
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from datetime import datetime
 from app.types.enums import StatutPrescription, TypePrescription
+
+if TYPE_CHECKING:
+    from .diagnosis import Diagnosis
 
 
 class Prescription(SQLModel, table=True):
@@ -14,11 +17,10 @@ class Prescription(SQLModel, table=True):
     statut: StatutPrescription = Field(default=StatutPrescription.EN_COURS)
     special_instructions: str
 
-    diagnosis_id : Optional[uuid.UUID] = Field(default=None, foreign_key="diagnosis.id")
+    diagnosis_id: Optional[uuid.UUID] = Field(default=None, foreign_key="diagnosis.id")
     diagnosis: Optional["Diagnosis"] = Relationship(back_populates="prescriptions")
 
     type_prescription: TypePrescription
-
 
     __mapper_args__ = {
         "polymorphic_on": "type_prescription",

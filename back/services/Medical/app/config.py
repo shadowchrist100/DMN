@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_name: str = "Medical Service"
-    database_url: str = "sqlite:///./medical.db"
+    database_url: str 
     api_secret: str = ""
 
     class Config:

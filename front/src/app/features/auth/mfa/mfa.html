@@ -33,34 +33,41 @@
                         le saisir ci-dessous pour accéder à votre espace praticien.
                     </p>
                 </div>
-                <!-- OTP Input Field -->
-                <form action="#" class="space-y-stack-lg">
-                    <div class="flex justify-between items-center gap-2">
-                        <input
-                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
-                            maxlength="1" placeholder="-" required="" type="text" />
-                        <input
-                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
-                            maxlength="1" placeholder="-" required="" type="text" />
-                        <input
-                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
-                            maxlength="1" placeholder="-" required="" type="text" />
-                        <input
-                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
-                            maxlength="1" placeholder="-" required="" type="text" />
-                        <input
-                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
-                            maxlength="1" placeholder="-" required="" type="text" />
-                        <input
-                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
-                            maxlength="1" placeholder="-" required="" type="text" />
+                <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-stack-lg">
+                    @if (error()) {
+                    <div class="p-3 bg-red-50 text-red-800 rounded-lg border border-red-200 text-sm text-center">
+                        {{ error() }}
                     </div>
-                    <!-- Primary Action -->
-                    <button
-                        class="w-full py-4 bg-primary-container text-on-primary font-h3 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center space-x-2"
+                    }
+                    <div class="flex justify-between items-center gap-2">
+                        <input formControlName="digit1" data-otp="digit2" (input)="onInput($event, 'digit2')"
+                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
+                            maxlength="1" placeholder="-" type="text" />
+                        <input formControlName="digit2" data-otp="digit3" (input)="onInput($event, 'digit3')"
+                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
+                            maxlength="1" placeholder="-" type="text" />
+                        <input formControlName="digit3" data-otp="digit4" (input)="onInput($event, 'digit4')"
+                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
+                            maxlength="1" placeholder="-" type="text" />
+                        <input formControlName="digit4" data-otp="digit5" (input)="onInput($event, 'digit5')"
+                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
+                            maxlength="1" placeholder="-" type="text" />
+                        <input formControlName="digit5" data-otp="digit6" (input)="onInput($event, 'digit6')"
+                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
+                            maxlength="1" placeholder="-" type="text" />
+                        <input formControlName="digit6" (input)="onInput($event, '')"
+                            class="otp-input w-12 h-14 text-center text-h2 font-bold border border-outline rounded-lg bg-surface"
+                            maxlength="1" placeholder="-" type="text" />
+                    </div>
+                    <button [disabled]="isLoading() || form.invalid"
+                        class="w-full py-4 bg-primary-container text-on-primary font-h3 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center space-x-2 disabled:opacity-50"
                         type="submit">
+                        @if (isLoading()) {
+                        <span class="material-symbols-outlined animate-spin">hourglass_empty</span>
+                        } @else {
                         <span>Vérifier et continuer</span>
                         <span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+                        }
                     </button>
                 </form>
                 <!-- Resend Logic -->

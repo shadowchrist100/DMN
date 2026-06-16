@@ -1,9 +1,9 @@
-import { Component, OnInit, signal, computed, inject} from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, signal, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Patient,  Priority, Diagnosis } from './patient.model';
-
+import { Patient, Priority } from './patient.model';
+import { PatientService } from '../../../../services/patient.service';
+import { AuditService } from '../../../../services/audit.service';
 
 @Component({
   selector: 'app-patients',
@@ -12,7 +12,6 @@ import { Patient,  Priority, Diagnosis } from './patient.model';
   styleUrl: './patients.css',
 })
 export class Patients {
-  // Signals
   loading = signal(true);
   patients = signal<Patient[]>([]);
   totalPatients = signal(0);
@@ -30,8 +29,8 @@ export class Patients {
   };
 
   private router = inject(Router);
-  // private patientService = inject(PatientService);
-  // private auditService = inject(AuditService);
+  private patientService = inject(PatientService);
+  private auditService = inject(AuditService);
 
   ngOnInit(): void {
     this.loadPatients();
@@ -41,15 +40,13 @@ export class Patients {
     this.loading.set(true);
 
     try {
-      // Simulation API
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const mockPatients = this.getMockPatients();
+      const patients = await this.patientService.getPatientsList();
 
-      this.patients.set(mockPatients);
-      this.totalPatients.set(mockPatients.length);
-      this.filteredCount.set(mockPatients.length);
-      this.displayedCount.set(Math.min(9, mockPatients.length));
-      this.hasMorePatients.set(mockPatients.length > 9);
+      this.patients.set(patients);
+      this.totalPatients.set(patients.length);
+      this.filteredCount.set(patients.length);
+      this.displayedCount.set(Math.min(9, patients.length));
+      this.hasMorePatients.set(patients.length > 9);
 
     } catch (error) {
       console.error('Erreur chargement patients:', error);
@@ -59,8 +56,7 @@ export class Patients {
   }
 
   openPatientFile(npi: string): void {
-    // Logger l'action pour l'audit
-    // this.auditService.logAction('open_patient_file', { npi });
+    this.auditService.logAction('open_patient_file', { npi });
     this.router.navigate(['/patient', npi, 'overview']);
   }
 
@@ -103,133 +99,4 @@ export class Patients {
     return labels[priority];
   }
 
-  private getMockPatients(): Patient[] {
-    return [
-      {
-        npi: '1029384756',
-        name: 'Kouassi Adebayo',
-        initials: 'KA',
-        age: 58,
-        gender: 'M',
-        lastContact: new Date('2024-05-12'),
-        priority: 'critical',
-        isCritical: true,
-        primaryDiagnosis: {
-          code: 'I10',
-          label: 'Hypertension artérielle essentielle'
-        },
-        nextAppointment: {
-          date: new Date('2024-06-15'),
-          time: '10:30'
-        },
-        activePrescriptions: 3
-      },
-      {
-        npi: '9283746152',
-        name: 'Moussa Ballo',
-        initials: 'MB',
-        age: 42,
-        gender: 'M',
-        lastContact: new Date('2024-05-10'),
-        priority: 'high',
-        isCritical: false,
-        primaryDiagnosis: {
-          code: 'E11',
-          label: 'Diabète de type 2'
-        },
-        nextAppointment: {
-          date: new Date('2024-06-20'),
-          time: '14:00'
-        },
-        activePrescriptions: 2
-      },
-      {
-        npi: '7733992211',
-        name: 'Pauline Kodjo',
-        initials: 'PK',
-        age: 29,
-        gender: 'F',
-        lastContact: new Date('2024-05-05'),
-        priority: 'low',
-        isCritical: false,
-        primaryDiagnosis: {
-          code: 'J45',
-          label: 'Asthme'
-        },
-        nextAppointment: null,
-        activePrescriptions: 1
-      },
-      {
-        npi: '5566778899',
-        name: 'Jean-Pierre Dossou',
-        initials: 'JD',
-        age: 67,
-        gender: 'M',
-        lastContact: new Date('2024-04-28'),
-        priority: 'high',
-        isCritical: false,
-        primaryDiagnosis: {
-          code: 'I25.1',
-          label: 'Maladie coronarienne'
-        },
-        nextAppointment: {
-          date: new Date('2024-06-10'),
-          time: '09:00'
-        },
-        activePrescriptions: 4
-      },
-      {
-        npi: '1122334455',
-        name: 'Aminata Sow',
-        initials: 'AS',
-        age: 35,
-        gender: 'F',
-        lastContact: new Date('2024-05-15'),
-        priority: 'medium',
-        isCritical: false,
-        primaryDiagnosis: {
-          code: 'O09.5',
-          label: 'Grossesse - Suivi prénatal'
-        },
-        nextAppointment: {
-          date: new Date('2024-06-18'),
-          time: '11:00'
-        },
-        activePrescriptions: 1
-      },
-      {
-        npi: '9988776655',
-        name: 'Ibrahim Adamou',
-        initials: 'IA',
-        age: 51,
-        gender: 'M',
-        lastContact: new Date('2024-03-20'),
-        priority: 'medium',
-        isCritical: false,
-        primaryDiagnosis: {
-          code: 'K21.0',
-          label: 'RGO avec œsophagite'
-        },
-        nextAppointment: null,
-        activePrescriptions: 2
-      }
-    ];
-  }
 }
-// import { Component, OnInit, signal, computed, inject } from '@angular/core';
-
-
-// import { PatientService } from '../../services/patient.service';
-// import { AuditService } from '../../services/audit.service';
-
-// @Component({
-//   selector: 'app-patients-list',
-//   standalone: true,
-//   imports: [CommonModule, FormsModule],
-//   templateUrl: './patients-list.component.html',
-//   styleUrls: ['./patients-list.component.css']
-// })
-// export class PatientsListComponent implements OnInit {
-
-
-// }

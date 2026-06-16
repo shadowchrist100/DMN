@@ -1,6 +1,13 @@
 <!-- ===== SECTION ALLERGIES & INTOLÉRANCES ===== -->
 <section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
 
+    @if (loading()) {
+    <div class="p-10 text-center">
+        <span class="material-symbols-outlined text-4xl text-slate-300 animate-spin">sync</span>
+        <p class="text-sm text-slate-500 mt-3">Chargement des allergies...</p>
+    </div>
+    } @else {
+
     <!-- ===== HEADER ===== -->
     <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-red-50/50 to-white">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -26,6 +33,7 @@
     </div>
 
     <!-- ===== ALERTE CRITIQUE (Si allergie sévère présente) ===== -->
+    @if (allergiesSeveres().length > 0) {
     <div class="px-6 py-4 bg-red-50 border-b border-red-200 flex items-start gap-4 animate-pulse-slow">
         <div class="bg-red-100 p-2 rounded-lg shrink-0 mt-0.5">
             <span class="material-symbols-outlined text-red-700 text-2xl"
@@ -36,8 +44,8 @@
                 ⚠️ Alerte de Sécurité : Risque Anaphylactique
             </h4>
             <p class="text-sm text-red-800 mt-1">
-                Ce patient a des antécédents documentés de <strong>choc anaphylactique</strong> (Pénicilline).
-                L'administration de bêta-lactamines est <strong>formellement contre-indiquée</strong>.
+                Ce patient a <strong>{{ allergiesSeveres().length }} allergie(s) sévère(s)</strong> documentée(s).
+                Vérifier les antécédents avant toute prescription.
             </p>
         </div>
         <button
@@ -45,6 +53,7 @@
             Voir le protocole d'urgence
         </button>
     </div>
+    }
 
     <!-- ===== STATS SYNTHÉTIQUES ===== -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 border-b border-slate-100 bg-slate-50/30">
@@ -55,7 +64,7 @@
                 <span class="material-symbols-outlined text-red-600 text-lg">warning</span>
                 <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
             </div>
-            <p class="text-2xl font-black text-red-700">2</p>
+            <p class="text-2xl font-black text-red-700">{{ allergiesActives().length }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Allergies actives</p>
         </div>
 
@@ -64,7 +73,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-amber-600 text-lg">info</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">1</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ intolerances().length }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Intolérances</p>
         </div>
 
@@ -73,7 +82,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-slate-500 text-lg">check_circle</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">1</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ resolues().length }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Résolues / Négatives</p>
         </div>
 
@@ -91,25 +100,25 @@
             <button class="px-4 py-2 bg-[#002B5C] text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm">list</span>
                 Toutes
-                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">4</span>
+                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{{ allergies().length }}</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-red-600">pill</span>
                 Médicaments
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">2</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ medicamenteuses().length }}</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-amber-600">lunch_dining</span>
                 Alimentaires
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">1</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ alimentaires().length }}</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-slate-500">history</span>
                 Historique
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">1</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ resolues().length }}</span>
             </button>
         </div>
     </div>
@@ -117,10 +126,63 @@
     <!-- ===== CONTENU : LISTE DES ALLERGIES ===== -->
     <div class="p-6 space-y-4">
 
-        <!-- Allergie 1 : Sévère (Médicament) -->
+        @for (allergie of allergies(); track allergie.id) {
+        @if (allergie.statut === 'resolue') {
+
+        <!-- Allergie résolue -->
+        <article class="bg-slate-50 border border-slate-200 rounded-xl p-5 opacity-75 hover:opacity-100 transition-all">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div class="flex items-start gap-4 flex-1">
+                    <div class="w-14 h-14 bg-slate-200 rounded-xl flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-slate-500 text-3xl">pill_off</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <h5 class="font-bold text-slate-600 text-lg line-through">{{ allergie.nom }}</h5>
+                            <span
+                                class="text-[10px] font-bold bg-green-100 text-green-800 px-2.5 py-1 rounded border border-green-200 uppercase tracking-wide flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">check</span>
+                                RÉSOLU / FAUSSE ALERTE
+                            </span>
+                        </div>
+
+                        <p class="text-sm text-slate-600 mb-4 italic">
+                            "{{ allergie.reaction }}"
+                        </p>
+
+                        <div class="flex items-center gap-2 text-[10px] text-slate-500">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">event</span>
+                                Infirmé le : {{ allergie.dateDiagnostic | date:'dd/MM/yyyy' }}
+                            </span>
+                            @if (allergie.notes) {
+                            <span class="text-slate-300">|</span>
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">person</span>
+                                {{ allergie.notes }}
+                            </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col md:items-end gap-2 shrink-0">
+                    <button
+                        class="w-full md:w-auto px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
+                        Voir les résultats du test
+                    </button>
+                </div>
+            </div>
+        </article>
+
+        } @else {
+
+        @switch (allergie.severite) {
+        @case ('severe') {
+
+        <!-- Allergie sévère -->
         <article
             class="bg-white border-l-4 border-l-red-600 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all relative overflow-hidden">
-            <!-- Badge "NE PAS PRESCRIRE" en filigrane -->
             <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                 <span class="material-symbols-outlined text-9xl text-red-600"
                     style="font-variation-settings: 'FILL' 1;">block</span>
@@ -130,52 +192,45 @@
                 <div class="flex items-start gap-4 flex-1">
                     <div
                         class="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center shrink-0 border-2 border-red-200">
-                        <span class="material-symbols-outlined text-red-700 text-3xl">pill</span>
+                        @switch (allergie.type) {
+                        @case ('medicamenteuse') { <span class="material-symbols-outlined text-red-700 text-3xl">pill</span> }
+                        @case ('alimentaire') { <span class="material-symbols-outlined text-red-700 text-3xl">lunch_dining</span> }
+                        @case ('respiratoire') { <span class="material-symbols-outlined text-red-700 text-3xl">air</span> }
+                        @case ('cutanee') { <span class="material-symbols-outlined text-red-700 text-3xl">dermatology</span> }
+                        }
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex flex-wrap items-center gap-2 mb-2">
-                            <h5 class="font-black text-red-900 text-xl uppercase tracking-tight">PÉNICILLINE (et
-                                dérivés)</h5>
+                            <h5 class="font-black text-red-900 text-xl uppercase tracking-tight">{{ allergie.nom }}</h5>
                             <span
                                 class="text-[10px] font-black bg-red-600 text-white px-2.5 py-1 rounded uppercase tracking-wide flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[12px]">warning</span>
-                                SÉVÈRE (Anaphylaxie)
+                                SÉVÈRE @if (allergie.reaction) { ({{ allergie.reaction }}) }
                             </span>
-                            <span
-                                class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">
-                                Médicament
-                            </span>
+                            @switch (allergie.type) {
+                            @case ('medicamenteuse') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Médicament</span> }
+                            @case ('alimentaire') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Alimentaire</span> }
+                            @case ('respiratoire') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Respiratoire</span> }
+                            @case ('cutanee') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Cutanée</span> }
+                            }
                         </div>
 
                         <p class="text-sm text-slate-700 mb-4 font-medium">
-                            Réaction anaphylactique sévère avec œdème de Quincke et détresse respiratoire.
-                            Nécessite une intervention aux corticoïdes et à l'adrénaline.
+                            {{ allergie.reaction }}
                         </p>
 
-                        <!-- Métadonnées cliniques -->
                         <div
                             class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div>
-                                <span class="block text-[9px] uppercase font-bold text-slate-400">Date de
-                                    découverte</span>
-                                <span class="font-semibold text-slate-700">1998 (Âge : 36 ans)</span>
+                                <span class="block text-[9px] uppercase font-bold text-slate-400">Date de découverte</span>
+                                <span class="font-semibold text-slate-700">{{ allergie.dateDiagnostic | date:'yyyy' }}</span>
                             </div>
+                            @if (allergie.notes) {
                             <div>
-                                <span class="block text-[9px] uppercase font-bold text-slate-400">Source / Preuve</span>
-                                <span class="font-semibold text-red-700 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[10px]">local_hospital</span>
-                                    Hospitalisation (Urgences)
-                                </span>
+                                <span class="block text-[9px] uppercase font-bold text-slate-400">Notes</span>
+                                <span class="font-semibold text-slate-700">{{ allergie.notes }}</span>
                             </div>
-                            <div>
-                                <span class="block text-[9px] uppercase font-bold text-slate-400">Validé par</span>
-                                <span class="font-semibold text-slate-700">Dr. Mensah (Allergologue)</span>
-                            </div>
-                            <div>
-                                <span class="block text-[9px] uppercase font-bold text-slate-400">Alternatives
-                                    sûres</span>
-                                <span class="font-semibold text-green-700">Macrolides, Céphalosporines 3e gén.</span>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -193,47 +248,53 @@
             </div>
         </article>
 
-        <!-- Allergie 2 : Modérée (Alimentaire) -->
-        <article
-            class="bg-white border-l-4 border-l-amber-500 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all">
+        }
+        @case ('moderee') {
+
+        <!-- Allergie modérée -->
+        <article class="bg-white border-l-4 border-l-orange-500 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all">
             <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div class="flex items-start gap-4 flex-1">
                     <div
-                        class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center shrink-0 border-2 border-amber-200">
-                        <span class="material-symbols-outlined text-amber-700 text-3xl">lunch_dining</span>
+                        class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center shrink-0 border-2 border-orange-200">
+                        @switch (allergie.type) {
+                        @case ('medicamenteuse') { <span class="material-symbols-outlined text-orange-700 text-3xl">pill</span> }
+                        @case ('alimentaire') { <span class="material-symbols-outlined text-orange-700 text-3xl">lunch_dining</span> }
+                        @case ('respiratoire') { <span class="material-symbols-outlined text-orange-700 text-3xl">air</span> }
+                        @case ('cutanee') { <span class="material-symbols-outlined text-orange-700 text-3xl">dermatology</span> }
+                        }
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex flex-wrap items-center gap-2 mb-2">
-                            <h5 class="font-black text-slate-900 text-lg">ARACHIDES</h5>
+                            <h5 class="font-black text-slate-900 text-lg">{{ allergie.nom }}</h5>
                             <span
-                                class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded border border-amber-200 uppercase tracking-wide">
-                                MODÉRÉE (Cutanée)
+                                class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2.5 py-1 rounded border border-orange-200 uppercase tracking-wide">
+                                MODÉRÉE @if (allergie.reaction) { ({{ allergie.reaction }}) }
                             </span>
-                            <span
-                                class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">
-                                Alimentaire
-                            </span>
+                            @switch (allergie.type) {
+                            @case ('medicamenteuse') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Médicament</span> }
+                            @case ('alimentaire') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Alimentaire</span> }
+                            @case ('respiratoire') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Respiratoire</span> }
+                            @case ('cutanee') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Cutanée</span> }
+                            }
                         </div>
 
                         <p class="text-sm text-slate-700 mb-4">
-                            Éruption cutanée (urticaire) et prurit généralisé lors de l'ingestion.
-                            Aucun antécédent de choc anaphylactique à ce jour, mais surveillance recommandée.
+                            {{ allergie.reaction }}
                         </p>
 
                         <div
                             class="grid grid-cols-2 md:grid-cols-3 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div>
                                 <span class="block text-[9px] uppercase font-bold text-slate-400">Date</span>
-                                <span class="font-semibold text-slate-700">Depuis l'enfance</span>
+                                <span class="font-semibold text-slate-700">{{ allergie.dateDiagnostic | date:'yyyy' }}</span>
                             </div>
+                            @if (allergie.notes) {
                             <div>
-                                <span class="block text-[9px] uppercase font-bold text-slate-400">Source</span>
-                                <span class="font-semibold text-slate-700">Déclaration patient (non testé)</span>
+                                <span class="block text-[9px] uppercase font-bold text-slate-400">Notes</span>
+                                <span class="font-semibold text-slate-700">{{ allergie.notes }}</span>
                             </div>
-                            <div>
-                                <span class="block text-[9px] uppercase font-bold text-slate-400">Action</span>
-                                <span class="font-semibold text-amber-700">Éviction stricte recommandée</span>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -247,90 +308,65 @@
             </div>
         </article>
 
-        <!-- Intolérance 3 : Légère (Non allergique) -->
-        <article
-            class="bg-white border-l-4 border-l-blue-500 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all opacity-90 hover:opacity-100">
+        }
+        @case ('legere') {
+
+        <!-- Allergie légère -->
+        <article class="bg-white border-l-4 border-l-amber-500 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all opacity-90 hover:opacity-100">
             <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div class="flex items-start gap-4 flex-1">
                     <div
-                        class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center shrink-0 border-2 border-blue-200">
-                        <span class="material-symbols-outlined text-blue-700 text-3xl">water_drop</span>
+                        class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center shrink-0 border-2 border-amber-200">
+                        @switch (allergie.type) {
+                        @case ('medicamenteuse') { <span class="material-symbols-outlined text-amber-700 text-3xl">pill</span> }
+                        @case ('alimentaire') { <span class="material-symbols-outlined text-amber-700 text-3xl">lunch_dining</span> }
+                        @case ('respiratoire') { <span class="material-symbols-outlined text-amber-700 text-3xl">air</span> }
+                        @case ('cutanee') { <span class="material-symbols-outlined text-amber-700 text-3xl">dermatology</span> }
+                        }
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex flex-wrap items-center gap-2 mb-2">
-                            <h5 class="font-bold text-slate-900 text-lg">LACTOSE</h5>
+                            <h5 class="font-bold text-slate-900 text-lg">{{ allergie.nom }}</h5>
                             <span
-                                class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2.5 py-1 rounded border border-blue-200 uppercase tracking-wide">
-                                INTOLÉRANCE (Non allergique)
+                                class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded border border-amber-200 uppercase tracking-wide">
+                                LÉGÈRE @if (allergie.reaction) { ({{ allergie.reaction }}) }
                             </span>
+                            @switch (allergie.type) {
+                            @case ('medicamenteuse') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Médicament</span> }
+                            @case ('alimentaire') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Alimentaire</span> }
+                            @case ('respiratoire') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Respiratoire</span> }
+                            @case ('cutanee') { <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Cutanée</span> }
+                            }
                         </div>
 
                         <p class="text-sm text-slate-700 mb-4">
-                            Inconfort digestif, ballonnements et diarrhée après consommation de produits laitiers.
-                            Pas de risque vital. Géré par l'éviction ou la prise d'enzymes lactase.
+                            {{ allergie.reaction }}
                         </p>
 
                         <div
                             class="grid grid-cols-2 md:grid-cols-3 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div>
                                 <span class="block text-[9px] uppercase font-bold text-slate-400">Date</span>
-                                <span class="font-semibold text-slate-700">Diagnostiqué en 2015</span>
+                                <span class="font-semibold text-slate-700">{{ allergie.dateDiagnostic | date:'yyyy' }}</span>
                             </div>
+                            @if (allergie.notes) {
                             <div>
-                                <span class="block text-[9px] uppercase font-bold text-slate-400">Source</span>
-                                <span class="font-semibold text-slate-700">Test respiratoire à l'hydrogène</span>
+                                <span class="block text-[9px] uppercase font-bold text-slate-400">Notes</span>
+                                <span class="font-semibold text-slate-700">{{ allergie.notes }}</span>
                             </div>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </article>
 
-        <!-- Allergie 4 : Résolue / Fausse alerte (Historique) -->
-        <article class="bg-slate-50 border border-slate-200 rounded-xl p-5 opacity-75 hover:opacity-100 transition-all">
-            <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div class="flex items-start gap-4 flex-1">
-                    <div class="w-14 h-14 bg-slate-200 rounded-xl flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-slate-500 text-3xl">pill_off</span>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex flex-wrap items-center gap-2 mb-2">
-                            <h5 class="font-bold text-slate-600 text-lg line-through">AMOXICILLINE</h5>
-                            <span
-                                class="text-[10px] font-bold bg-green-100 text-green-800 px-2.5 py-1 rounded border border-green-200 uppercase tracking-wide flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[12px]">check</span>
-                                RÉSOLU / FAUSSE ALERTE
-                            </span>
-                        </div>
+        }
+        }
 
-                        <p class="text-sm text-slate-600 mb-4 italic">
-                            "Le patient rapportait une 'allergie' dans son enfance. Tests cutanés (Prick-tests) réalisés
-                            le 12/10/2023 revenus strictement négatifs. L'allergie est infirmée. Le patient peut
-                            recevoir des pénicillines."
-                        </p>
+        }
 
-                        <div class="flex items-center gap-2 text-[10px] text-slate-500">
-                            <span class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">event</span>
-                                Infirmé le : 12/10/2023
-                            </span>
-                            <span class="text-slate-300">|</span>
-                            <span class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">person</span>
-                                Par : Dr. S. AGOSSA
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col md:items-end gap-2 shrink-0">
-                    <button
-                        class="w-full md:w-auto px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm">visibility</span>
-                        Voir les résultats du test
-                    </button>
-                </div>
-            </div>
-        </article>
+        }
 
     </div>
 
@@ -348,5 +384,7 @@
             Imprimer la fiche d'allergies (Format bracelet)
         </button>
     </div>
+
+    }
 
 </section>

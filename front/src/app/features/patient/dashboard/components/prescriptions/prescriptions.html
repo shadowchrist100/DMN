@@ -319,7 +319,7 @@
                     <!-- Pied de carte -->
                     <div class="bg-slate-50/70 border-t border-slate-100 px-5 py-3 flex items-center justify-between">
 
-                        <!-- Prescripteur + IA badge -->
+                        <!-- Prescripteur -->
                         <div class="flex items-center gap-2.5">
                             <div
                                 class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0">
@@ -332,14 +332,6 @@
                                 <p class="text-[10px] text-slate-400">{{ p.specialite_prescripteur }}</p>
                                 }
                             </div>
-                            @if (p.verifie_ia) {
-                            <span
-                                class="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full text-[10px] font-bold ml-1">
-                                <span class="material-symbols-outlined text-[11px]"
-                                    style="font-variation-settings:'FILL' 1">auto_awesome</span>
-                                Vérifié IA
-                            </span>
-                            }
                         </div>
 
                         <!-- Actions -->
@@ -655,14 +647,6 @@
                         <span class="w-1.5 h-1.5 rounded-full" [class]="statutDot(p.statut)"></span>
                         {{ statutLabel(p.statut) }}
                     </span>
-                    @if (p.verifie_ia) {
-                    <span
-                        class="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full text-[11px] font-bold">
-                        <span class="material-symbols-outlined text-[12px]"
-                            style="font-variation-settings:'FILL' 1">auto_awesome</span>
-                        Vérifié IA
-                    </span>
-                    }
                 </div>
 
                 <!-- Champs détail -->

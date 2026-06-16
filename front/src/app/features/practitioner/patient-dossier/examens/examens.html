@@ -11,18 +11,18 @@
         </h3>
         <p class="text-xs text-slate-500 mt-1">
           Analyses, imagerie et examens spécialisés •
-          <span class="font-semibold text-purple-700">38 examens</span> documentés
+          <span class="font-semibold text-purple-700">{{ examens().length }} examens</span> documentés
         </p>
       </div>
 
       <!-- Actions -->
       <div class="flex items-center gap-2">
-        <button class="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 
+        <button class="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200
                              rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
           <span class="material-symbols-outlined text-sm">filter_list</span>
           Filtres
         </button>
-        <button class="flex items-center gap-1.5 px-4 py-2 bg-purple-600 text-white 
+        <button class="flex items-center gap-1.5 px-4 py-2 bg-purple-600 text-white
                              rounded-lg text-xs font-bold hover:bg-purple-700 transition-colors shadow-sm">
           <span class="material-symbols-outlined text-sm">add</span>
           Prescrire un examen
@@ -41,7 +41,7 @@
         <span class="material-symbols-outlined text-purple-600 text-lg">biotech</span>
         <span class="text-[10px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded">12 récents</span>
       </div>
-      <p class="text-2xl font-black text-[#002B5C]">24</p>
+      <p class="text-2xl font-black text-[#002B5C]">{{ nbAnalyses() }}</p>
       <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Analyses labo</p>
     </div>
 
@@ -52,7 +52,7 @@
         <span class="material-symbols-outlined text-indigo-600 text-lg">radiology</span>
         <span class="text-[10px] text-slate-500 font-medium">Dernier: 2 mois</span>
       </div>
-      <p class="text-2xl font-black text-[#002B5C]">8</p>
+      <p class="text-2xl font-black text-[#002B5C]">{{ nbImagerie() }}</p>
       <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Imagerie</p>
     </div>
 
@@ -62,7 +62,7 @@
         <span class="material-symbols-outlined text-red-600 text-lg">ecg</span>
         <span class="text-[10px] text-slate-500 font-medium">Dernier: 1 mois</span>
       </div>
-      <p class="text-2xl font-black text-[#002B5C]">4</p>
+      <p class="text-2xl font-black text-[#002B5C]">{{ nbECG() }}</p>
       <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Cardiaques</p>
     </div>
 
@@ -170,25 +170,25 @@
       <button class="px-4 py-2 bg-[#002B5C] text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
         <span class="material-symbols-outlined text-sm">lab_research</span>
         Tous
-        <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">38</span>
+        <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{{ examens().length }}</span>
       </button>
       <button
         class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
         <span class="material-symbols-outlined text-sm text-purple-600">biotech</span>
         Laboratoire
-        <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">24</span>
+        <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ nbAnalyses() }}</span>
       </button>
       <button
         class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
         <span class="material-symbols-outlined text-sm text-indigo-600">radiology</span>
         Imagerie
-        <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">8</span>
+        <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ nbImagerie() }}</span>
       </button>
       <button
         class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
         <span class="material-symbols-outlined text-sm text-red-600">ecg</span>
         Cardiaques
-        <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">4</span>
+        <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ nbECG() }}</span>
       </button>
       <button
         class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
@@ -225,847 +225,237 @@
   <!-- ===== CONTENU DES EXAMENS ===== -->
   <div class="p-6 space-y-6">
 
-    <!-- ====== GROUPE : ANALYSES DE LABORATOIRE ====== -->
-    <div>
-      <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
-        <span class="material-symbols-outlined text-purple-600">biotech</span>
-        <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">
-          Analyses de Laboratoire
-        </h4>
-        <span class="text-xs text-slate-500">24 examens</span>
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <span class="material-symbols-outlined text-purple-600 text-3xl animate-spin">progress_activity</span>
       </div>
+    } @else {
+      @for (examen of examens(); track examen.id) {
+        <article class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
 
-      <!-- Examen 1: Bilan lipidique (avec alerte) -->
-      <article
-        class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow mb-3">
-
-        <!-- Header examen -->
-        <div
-          class="bg-gradient-to-r from-purple-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-purple-600">biotech</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h5 class="font-bold text-[#002B5C] text-sm">Bilan Lipidique Complet</h5>
-                <span
-                  class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[10px]">warning</span>
-                  1 valeur hors norme
-                </span>
-                <span
-                  class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                  ✓ Validé
-                </span>
-              </div>
-              <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">calendar_today</span>
-                  28 Jan 2024 • 08:15
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">location_on</span>
-                  Labo BIO-BÉNIN
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">person</span>
-                  Dr. A. SOUMANOU
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
-              <span class="material-symbols-outlined text-sm">download</span>
-              PDF
-            </button>
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
-              <span class="material-symbols-outlined text-sm">visibility</span>
-              Détails
-            </button>
-          </div>
-        </div>
-
-        <!-- Résultats -->
-        <div class="p-5">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-
-            <!-- Résultat 1: Cholestérol total (NORMAL) -->
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                    Cholestérol Total
-                  </p>
-                  <div class="flex items-baseline gap-1 mt-1">
-                    <span class="text-xl font-black text-[#002B5C] font-mono">2.10</span>
-                    <span class="text-xs text-slate-500">g/L</span>
+          <!-- Header examen -->
+          @switch (examen.type) {
+            @case ('analyse') {
+              <div class="bg-gradient-to-r from-purple-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-purple-600">biotech</span>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h5 class="font-bold text-[#002B5C] text-sm">{{ examen.nom }}</h5>
+                      @if (examen.statut === 'anormal') {
+                        <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1">
+                          <span class="material-symbols-outlined text-[10px]">warning</span>
+                          {{ nbAnormaux() }} valeur(s) hors norme
+                        </span>
+                      }
+                      @switch (examen.statut) {
+                        @case ('en_cours') {
+                          <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">En cours</span>
+                        }
+                        @case ('valide') {
+                          <span class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">✓ Validé</span>
+                        }
+                        @case ('anormal') {
+                          <span class="text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">Anormal</span>
+                        }
+                      }
+                    </div>
+                    <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
+                      <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">calendar_today</span>
+                        {{ examen.date | date:'mediumDate' }}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">location_on</span>
+                        {{ examen.laboratoire }}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">person</span>
+                        {{ examen.prescripteur }}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                  NORMAL
-                </span>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
+                    <span class="material-symbols-outlined text-sm">download</span>
+                    PDF
+                  </button>
+                  <button class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
+                    <span class="material-symbols-outlined text-sm">visibility</span>
+                    Détails
+                  </button>
+                </div>
               </div>
-              <!-- Barre de visualisation -->
-              <div class="relative h-2 bg-slate-200 rounded-full overflow-hidden mb-1">
-                <div class="absolute left-0 right-[20%] h-full bg-green-200"></div>
-                <div class="absolute left-[45%] w-1 h-full bg-[#002B5C] z-10"></div>
-              </div>
-              <div class="flex justify-between text-[9px] text-slate-400">
-                <span>1.50</span>
-                <span class="text-green-600 font-bold">Normale</span>
-                <span>2.00</span>
-              </div>
-            </div>
-
-            <!-- Résultat 2: LDL (HORS NORME) -->
-            <div class="p-3 bg-red-50 rounded-lg border border-red-200">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <p class="text-[10px] font-bold text-red-700 uppercase tracking-wide">
-                    LDL-Cholestérol
-                  </p>
-                  <div class="flex items-baseline gap-1 mt-1">
-                    <span class="text-xl font-black text-red-700 font-mono">1.80</span>
-                    <span class="text-xs text-red-500">g/L</span>
-                    <span class="text-[10px] font-bold text-red-600 ml-1 flex items-center gap-0.5">
-                      <span class="material-symbols-outlined text-[10px]">arrow_upward</span>
-                      +12%
-                    </span>
+            }
+            @case ('imagerie') {
+              <div class="bg-gradient-to-r from-indigo-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-indigo-600">radiology</span>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h5 class="font-bold text-[#002B5C] text-sm">{{ examen.nom }}</h5>
+                      @switch (examen.statut) {
+                        @case ('en_cours') {
+                          <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">En cours</span>
+                        }
+                        @case ('valide') {
+                          <span class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">✓ Validé</span>
+                        }
+                        @case ('anormal') {
+                          <span class="text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">Anormal</span>
+                        }
+                      }
+                    </div>
+                    <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
+                      <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">calendar_today</span>
+                        {{ examen.date | date:'mediumDate' }}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">location_on</span>
+                        {{ examen.laboratoire }}
+                      </span>
+                      @if (examen.prescripteur) {
+                        <span class="flex items-center gap-1">
+                          <span class="material-symbols-outlined text-xs">person</span>
+                          {{ examen.prescripteur }}
+                        </span>
+                      }
+                    </div>
                   </div>
                 </div>
-                <span class="text-[10px] font-bold bg-red-600 text-white px-2 py-0.5 rounded">
-                  ÉLEVÉ
-                </span>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
+                    <span class="material-symbols-outlined text-sm">image</span>
+                    Images
+                  </button>
+                  <button class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
+                    <span class="material-symbols-outlined text-sm">download</span>
+                    PDF
+                  </button>
+                  <button class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
+                    <span class="material-symbols-outlined text-sm">visibility</span>
+                    Détails
+                  </button>
+                </div>
               </div>
-              <!-- Barre de visualisation -->
-              <div class="relative h-2 bg-slate-200 rounded-full overflow-hidden mb-1">
-                <div class="absolute left-0 right-[40%] h-full bg-green-200"></div>
-                <div class="absolute right-[40%] w-1 h-full bg-red-600 z-10"></div>
-              </div>
-              <div class="flex justify-between text-[9px] text-slate-400">
-                <span>0.50</span>
-                <span class="text-green-600 font-bold">&lt; 1.60</span>
-                <span>2.00</span>
-              </div>
-            </div>
-
-            <!-- Résultat 3: HDL (NORMAL) -->
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                    HDL-Cholestérol
-                  </p>
-                  <div class="flex items-baseline gap-1 mt-1">
-                    <span class="text-xl font-black text-[#002B5C] font-mono">0.55</span>
-                    <span class="text-xs text-slate-500">g/L</span>
+            }
+            @case ('ecg') {
+              <div class="bg-gradient-to-r from-red-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-red-600">monitoring</span>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h5 class="font-bold text-[#002B5C] text-sm">{{ examen.nom }}</h5>
+                      @switch (examen.statut) {
+                        @case ('en_cours') {
+                          <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">En cours</span>
+                        }
+                        @case ('valide') {
+                          <span class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">✓ Validé</span>
+                        }
+                        @case ('anormal') {
+                          <span class="text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">Anormal</span>
+                        }
+                      }
+                    </div>
+                    <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
+                      <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">calendar_today</span>
+                        {{ examen.date | date:'mediumDate' }}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">location_on</span>
+                        {{ examen.laboratoire }}
+                      </span>
+                      @if (examen.prescripteur) {
+                        <span class="flex items-center gap-1">
+                          <span class="material-symbols-outlined text-xs">person</span>
+                          {{ examen.prescripteur }}
+                        </span>
+                      }
+                    </div>
                   </div>
                 </div>
-                <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                  NORMAL
-                </span>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
+                    <span class="material-symbols-outlined text-sm">show_chart</span>
+                    Tracé
+                  </button>
+                  <button class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
+                    <span class="material-symbols-outlined text-sm">visibility</span>
+                    Détails
+                  </button>
+                </div>
               </div>
-              <div class="relative h-2 bg-slate-200 rounded-full overflow-hidden mb-1">
-                <div class="absolute left-[20%] right-0 h-full bg-green-200"></div>
-                <div class="absolute left-[35%] w-1 h-full bg-[#002B5C] z-10"></div>
-              </div>
-              <div class="flex justify-between text-[9px] text-slate-400">
-                <span>0.40</span>
-                <span class="text-green-600 font-bold">&gt; 0.40</span>
-                <span>0.80</span>
-              </div>
-            </div>
+            }
+          }
 
-            <!-- Résultat 4: Triglycérides (NORMAL) -->
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                    Triglycérides
-                  </p>
-                  <div class="flex items-baseline gap-1 mt-1">
-                    <span class="text-xl font-black text-[#002B5C] font-mono">1.45</span>
-                    <span class="text-xs text-slate-500">g/L</span>
+          @if (examen.description) {
+            <div class="px-5 pt-5">
+              <p class="text-xs text-slate-600">{{ examen.description }}</p>
+            </div>
+          }
+
+          @if (examen.resultats && examen.resultats.length > 0) {
+            <div class="p-5">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                @for (resultat of examen.resultats; track resultat.label) {
+                  <div class="p-3 rounded-lg border"
+                    [class.bg-red-50]="resultat.horsNorme"
+                    [class.border-red-200]="resultat.horsNorme"
+                    [class.bg-slate-50]="!resultat.horsNorme"
+                    [class.border-slate-100]="!resultat.horsNorme">
+                    <div class="flex items-start justify-between mb-2">
+                      <div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{{ resultat.label }}</p>
+                        <div class="flex items-baseline gap-1 mt-1">
+                          <span class="text-xl font-black font-mono"
+                            [class.text-[#002B5C]]="!resultat.horsNorme"
+                            [class.text-red-700]="resultat.horsNorme">{{ resultat.valeur }}</span>
+                          <span class="text-xs text-slate-500">{{ resultat.unite }}</span>
+                        </div>
+                      </div>
+                      @if (resultat.horsNorme) {
+                        <span class="text-[10px] font-bold bg-red-600 text-white px-2 py-0.5 rounded">ÉLEVÉ</span>
+                      } @else {
+                        <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">NORMAL</span>
+                      }
+                    </div>
+                    <p class="text-[9px] text-slate-400">Norme: {{ resultat.norme }}</p>
                   </div>
-                </div>
-                <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                  NORMAL
-                </span>
-              </div>
-              <div class="relative h-2 bg-slate-200 rounded-full overflow-hidden mb-1">
-                <div class="absolute left-0 right-[30%] h-full bg-green-200"></div>
-                <div class="absolute left-[55%] w-1 h-full bg-[#002B5C] z-10"></div>
-              </div>
-              <div class="flex justify-between text-[9px] text-slate-400">
-                <span>0.40</span>
-                <span class="text-green-600 font-bold">&lt; 1.70</span>
-                <span>2.00</span>
+                }
               </div>
             </div>
+          }
 
-          </div>
-
-          <!-- Commentaire du biologiste -->
-          <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1E40AF] flex gap-3">
-            <span class="material-symbols-outlined text-[#1E40AF] shrink-0 mt-0.5">note</span>
-            <div class="flex-1">
-              <p class="text-xs font-bold text-[#002B5C] mb-1">Conclusion du biologiste</p>
-              <p class="text-xs text-slate-700 leading-relaxed">
-                Dyslipidémie mixte avec prédominance LDL.
-                <strong>LDL à 1.80 g/L</strong> au-dessus de la cible thérapeutique (&lt;1.60 g/L).
-                Poursuite du traitement par Atorvastatine 20mg recommandée.
-                Contrôle dans 3 mois.
-              </p>
-              <p class="text-[10px] text-slate-500 mt-2 italic">
-                — Dr. A. SOUMANOU, Biologiste médicale • Labo BIO-BÉNIN • 28/01/2024
-              </p>
-            </div>
-          </div>
-
-          <!-- Comparaison avec précédent -->
-          <div class="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-              <span class="material-symbols-outlined text-xs">trending_up</span>
-              Évolution depuis le dernier bilan (Oct 2023)
-            </p>
-            <div class="flex flex-wrap gap-4 text-xs">
-              <div class="flex items-center gap-2">
-                <span class="text-slate-600">LDL:</span>
-                <span class="font-mono font-bold text-red-600">1.65 → 1.80</span>
-                <span class="text-red-600 text-[10px] font-bold">▲ +9%</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-slate-600">HDL:</span>
-                <span class="font-mono font-bold text-green-600">0.52 → 0.55</span>
-                <span class="text-green-600 text-[10px] font-bold">▲ +6%</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-slate-600">Triglycérides:</span>
-                <span class="font-mono font-bold text-green-600">1.50 → 1.45</span>
-                <span class="text-green-600 text-[10px] font-bold">▼ -3%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Lien diagnostic -->
-          <div class="mt-3 flex items-center gap-2 text-xs">
-            <span class="text-slate-500">Lié au diagnostic :</span>
-            <span
-              class="font-mono text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
-              E78.0
-            </span>
-            <span class="text-slate-700 font-medium">Hypercholestérolémie pure</span>
-          </div>
-
-        </div>
-      </article>
-
-      <!-- Examen 2: NFS (Normal) -->
-      <article
-        class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow mb-3">
-
-        <div
-          class="bg-gradient-to-r from-slate-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-purple-600">bloodtype</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h5 class="font-bold text-[#002B5C] text-sm">NFS (Numération Formule Sanguine)</h5>
-                <span
-                  class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                  ✓ Tout normal
-                </span>
-                <span
-                  class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                  ✓ Validé
-                </span>
-              </div>
-              <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">calendar_today</span>
-                  15 Jan 2024
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">location_on</span>
-                  Labo National Santé Publique
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
-              <span class="material-symbols-outlined text-sm">download</span>
-              PDF
-            </button>
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
-              <span class="material-symbols-outlined text-sm">visibility</span>
-              Détails
-            </button>
-          </div>
-        </div>
-
-        <div class="p-5">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div class="p-3 bg-green-50 rounded-lg border border-green-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Hémoglobine</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">14.2 <span
-                  class="text-xs font-normal">g/dL</span></p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-            <div class="p-3 bg-green-50 rounded-lg border border-green-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Leucocytes</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">6.8 <span
-                  class="text-xs font-normal">G/L</span></p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-            <div class="p-3 bg-green-50 rounded-lg border border-green-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Plaquettes</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">245 <span
-                  class="text-xs font-normal">G/L</span></p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-            <div class="p-3 bg-green-50 rounded-lg border border-green-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Hématocrite</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">42 <span class="text-xs font-normal">%</span>
-              </p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-          </div>
-
-          <p class="text-xs text-slate-600 italic bg-slate-50 p-3 rounded-lg border-l-4 border-slate-200">
-            "Aucune anomalie hématologique détectée. Numération et formule leucocytaire normales."
-            <span class="not-italic font-medium text-slate-500"> — Dr. Mensah, Biologiste</span>
-          </p>
-        </div>
-      </article>
-
-      <!-- Examen 3: Créatinine (Normal) -->
-      <article
-        class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow mb-3">
-        <div
-          class="bg-gradient-to-r from-slate-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-purple-600">kidney</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h5 class="font-bold text-[#002B5C] text-sm">Bilan Rénal (Créatinine + DFG)</h5>
-                <span
-                  class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                  ✓ Fonction rénale préservée
-                </span>
-              </div>
-              <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">calendar_today</span>
-                  15 Jan 2024
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">location_on</span>
-                  Labo National Santé Publique
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
-              <span class="material-symbols-outlined text-sm">download</span>
-              PDF
-            </button>
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
-              <span class="material-symbols-outlined text-sm">visibility</span>
-              Détails
-            </button>
-          </div>
-        </div>
-        <div class="p-5">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="p-3 bg-green-50 rounded-lg border border-green-100">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Créatinine</p>
-              <p class="text-xl font-black text-[#002B5C] font-mono mt-1">8.2 <span
-                  class="text-xs font-normal">mg/L</span></p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal (6-11)</p>
-            </div>
-            <div class="p-3 bg-green-50 rounded-lg border border-green-100">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">DFG (CKD-EPI)</p>
-              <p class="text-xl font-black text-[#002B5C] font-mono mt-1">85 <span
-                  class="text-xs font-normal">ml/min</span></p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Stade T2 (60-89)</p>
-            </div>
-          </div>
-        </div>
-      </article>
-
-    </div>
-
-    <!-- ====== GROUPE : IMAGERIE MÉDICALE ====== -->
-    <div>
-      <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
-        <span class="material-symbols-outlined text-indigo-600">radiology</span>
-        <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">
-          Imagerie Médicale
-        </h4>
-        <span class="text-xs text-slate-500">8 examens</span>
-      </div>
-
-      <!-- Examen imagerie: Radio thorax -->
-      <article
-        class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow mb-3">
-        <div
-          class="bg-gradient-to-r from-indigo-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600">radiology</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h5 class="font-bold text-[#002B5C] text-sm">Radiographie Thoracique (Face + Profil)</h5>
-                <span
-                  class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                  ✓ RAS
-                </span>
-                <span
-                  class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                  ✓ Validé
-                </span>
-              </div>
-              <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">calendar_today</span>
-                  12 Oct 2023
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">location_on</span>
-                  CNHU-HKM - Service Imagerie
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">person</span>
-                  Dr. K. AGOSSOU (Radiologue)
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
-              <span class="material-symbols-outlined text-sm">image</span>
-              Images
-            </button>
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
-              <span class="material-symbols-outlined text-sm">download</span>
-              PDF
-            </button>
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
-              <span class="material-symbols-outlined text-sm">visibility</span>
-              Détails
-            </button>
-          </div>
-        </div>
-
-        <div class="p-5">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Miniatures images -->
-            <div class="md:col-span-1">
-              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">
-                Images disponibles
-              </p>
-              <div class="grid grid-cols-2 gap-2">
-                <div
-                  class="aspect-square bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg flex items-center justify-center border-2 border-slate-200 hover:border-[#1E40AF] cursor-pointer transition-colors">
-                  <span class="material-symbols-outlined text-white text-2xl">image</span>
-                </div>
-                <div
-                  class="aspect-square bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg flex items-center justify-center border-2 border-slate-200 hover:border-[#1E40AF] cursor-pointer transition-colors">
-                  <span class="material-symbols-outlined text-white text-2xl">image</span>
+          @if (examen.conclusion) {
+            <div class="px-5 pb-5">
+              <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1E40AF] flex gap-3">
+                <span class="material-symbols-outlined text-[#1E40AF] shrink-0 mt-0.5">note</span>
+                <div class="flex-1">
+                  <p class="text-xs font-bold text-[#002B5C] mb-1">Conclusion</p>
+                  <p class="text-xs text-slate-700 leading-relaxed">{{ examen.conclusion }}</p>
                 </div>
               </div>
-              <p class="text-[10px] text-slate-500 mt-2 text-center">2 clichés DICOM</p>
             </div>
+          }
 
-            <!-- Conclusion -->
-            <div class="md:col-span-2">
-              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">
-                Conclusion radiologique
-              </p>
-              <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1E40AF]">
-                <p class="text-xs text-slate-700 leading-relaxed">
-                  <strong>Cœur</strong> : Taille et silhouette normales. Index cardio-thoracique &lt; 0.5.<br>
-                  <strong>Champs pulmonaires</strong> : Clairs, bien vascularisés, sans foyer de condensation ni
-                  épanchement pleural.<br>
-                  <strong>Médiastin</strong> : Sans particularité.<br>
-                  <strong>Coupole diaphragmatique</strong> : Libres, angles costodiaphragmatiques nets.<br><br>
-                  <strong class="text-green-700">Conclusion : Radiographie thoracique normale.</strong>
-                </p>
-                <p class="text-[10px] text-slate-500 mt-2 italic">
-                  — Dr. K. AGOSSOU, Radiologue • CNHU-HKM • 12/10/2023
-                </p>
-              </div>
-            </div>
-          </div>
+        </article>
+      } @empty {
+        <div class="text-center py-12">
+          <span class="material-symbols-outlined text-slate-300 text-4xl mb-3">lab_research</span>
+          <p class="text-sm text-slate-500">Aucun examen documenté</p>
         </div>
-      </article>
-
-      <!-- Examen imagerie: Échographie cardiaque -->
-      <article
-        class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow mb-3">
-        <div
-          class="bg-gradient-to-r from-indigo-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-red-600">ecg</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h5 class="font-bold text-[#002B5C] text-sm">Échographie Cardiaque Transthoracique</h5>
-                <span
-                  class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[10px]">info</span>
-                  HVG modérée
-                </span>
-              </div>
-              <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">calendar_today</span>
-                  14 Sep 2023
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">location_on</span>
-                  CNHU-HKM - Cardiologie
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
-              <span class="material-symbols-outlined text-sm">videocam</span>
-              Vidéos
-            </button>
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
-              <span class="material-symbols-outlined text-sm">visibility</span>
-              Détails
-            </button>
-          </div>
-        </div>
-
-        <div class="p-5">
-          <!-- Mesures clés -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">FEVG</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">62 <span class="text-xs font-normal">%</span>
-              </p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal (&gt;55)</p>
-            </div>
-            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-center">
-              <p class="text-[10px] font-bold text-amber-700 uppercase">VG (septum)</p>
-              <p class="text-lg font-black text-amber-700 font-mono mt-1">13 <span class="text-xs font-normal">mm</span>
-              </p>
-              <p class="text-[9px] text-amber-600 font-bold mt-1">⚠️ HVG modérée</p>
-            </div>
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">OG</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">38 <span class="text-xs font-normal">mm</span>
-              </p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Aorte</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">32 <span class="text-xs font-normal">mm</span>
-              </p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-          </div>
-
-          <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1E40AF]">
-            <p class="text-xs font-bold text-[#002B5C] mb-1">Conclusion cardiologique</p>
-            <p class="text-xs text-slate-700 leading-relaxed">
-              Fonction systolique VG conservée (FEVG 62%).
-              <strong class="text-amber-700">Hypertrophie ventriculaire gauche modérée</strong> (septum 13mm)
-              en rapport avec l'HTA connue. Pas de valvulopathie significative.
-              Pas d'épanchement péricardique.
-            </p>
-            <p class="text-[10px] text-slate-500 mt-2 italic">
-              — Dr. Kouandété Koffi, Cardiologue • CNHU-HKM • 14/09/2023
-            </p>
-          </div>
-
-          <div class="mt-3 flex items-center gap-2 text-xs">
-            <span class="text-slate-500">Lié aux diagnostics :</span>
-            <span
-              class="font-mono text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">I10</span>
-            <span class="text-slate-700 font-medium">HTA essentielle</span>
-          </div>
-        </div>
-      </article>
-
-    </div>
-
-    <!-- ====== GROUPE : EXAMENS CARDIAQUES ====== -->
-    <div>
-      <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
-        <span class="material-symbols-outlined text-red-600">ecg</span>
-        <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">
-          Examens Cardiaques
-        </h4>
-        <span class="text-xs text-slate-500">4 examens</span>
-      </div>
-
-      <!-- ECG -->
-      <article
-        class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow mb-3">
-        <div
-          class="bg-gradient-to-r from-red-50 to-white px-5 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-red-600">monitoring</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h5 class="font-bold text-[#002B5C] text-sm">ECG de Repos 12 Dérivations</h5>
-                <span
-                  class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
-                  HVG électrique
-                </span>
-                <span
-                  class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
-                  ✓ Validé
-                </span>
-              </div>
-              <div class="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">calendar_today</span>
-                  12 Oct 2023
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs">location_on</span>
-                  HZ Calavi - Cardiologie
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50">
-              <span class="material-symbols-outlined text-sm">show_chart</span>
-              Tracé
-            </button>
-            <button
-              class="flex items-center gap-1 px-3 py-1.5 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42]">
-              <span class="material-symbols-outlined text-sm">visibility</span>
-              Détails
-            </button>
-          </div>
-        </div>
-
-        <div class="p-5">
-          <!-- Paramètres ECG -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Fréquence</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">78 <span
-                  class="text-xs font-normal">bpm</span></p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Sinusale</p>
-            </div>
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">PR</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">180 <span
-                  class="text-xs font-normal">ms</span></p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 text-center">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">QRS</p>
-              <p class="text-lg font-black text-[#002B5C] font-mono mt-1">90 <span class="text-xs font-normal">ms</span>
-              </p>
-              <p class="text-[9px] text-green-600 font-bold mt-1">✓ Normal</p>
-            </div>
-            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-center">
-              <p class="text-[10px] font-bold text-amber-700 uppercase"> Sokolow</p>
-              <p class="text-lg font-black text-amber-700 font-mono mt-1">38 <span class="text-xs font-normal">mm</span>
-              </p>
-              <p class="text-[9px] text-amber-600 font-bold mt-1">⚠️ HVG</p>
-            </div>
-          </div>
-
-          <!-- Simulation tracé ECG -->
-          <div class="bg-slate-900 rounded-xl p-4 mb-4 relative overflow-hidden">
-            <div class="absolute inset-0 opacity-20"
-              style="background-image: repeating-linear-gradient(0deg, #22c55e 0, #22c55e 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, #22c55e 0, #22c55e 1px, transparent 1px, transparent 20px);">
-            </div>
-            <svg class="relative w-full h-24" viewBox="0 0 400 100" preserveAspectRatio="none">
-              <path
-                d="M 0,50 L 30,50 L 35,50 L 40,30 L 45,70 L 50,50 L 80,50 L 85,45 L 90,50 L 130,50 L 135,50 L 140,30 L 145,70 L 150,50 L 180,50 L 185,45 L 190,50 L 230,50 L 235,50 L 240,30 L 245,70 L 250,50 L 280,50 L 285,45 L 290,50 L 330,50 L 335,50 L 340,30 L 345,70 L 350,50 L 400,50"
-                stroke="#22c55e" stroke-width="1.5" fill="none" />
-            </svg>
-            <p class="absolute bottom-2 right-3 text-[10px] text-green-400 font-mono">
-              25mm/s • 10mm/mV
-            </p>
-          </div>
-
-          <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1E40AF]">
-            <p class="text-xs font-bold text-[#002B5C] mb-1">Interprétation cardiologique</p>
-            <p class="text-xs text-slate-700 leading-relaxed">
-              Rythme sinusal régulier à 78 bpm. Axe électrique normal.
-              <strong class="text-amber-700">Critères de Sokolow-Lyon positifs</strong> (S V1 + R V5 = 38mm)
-              en faveur d'une HVG électrique.
-              Pas de trouble de la repolarisation. Pas de trouble du rythme ou de la conduction.
-            </p>
-            <p class="text-[10px] text-slate-500 mt-2 italic">
-              — Dr. Kouandété Koffi, Cardiologue • 12/10/2023
-            </p>
-          </div>
-        </div>
-      </article>
-    </div>
-
-    <!-- ====== SECTION TENDANCES (Examens répétés) ====== -->
-    <div>
-      <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
-        <span class="material-symbols-outlined text-green-600">trending_up</span>
-        <h4 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">
-          Évolution dans le Temps
-        </h4>
-        <span class="text-xs text-slate-500">Suivi des paramètres répétés</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        <!-- Graphique glycémie -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <p class="font-bold text-sm text-[#002B5C]">Glycémie à jeun</p>
-              <p class="text-[10px] text-slate-500">6 derniers bilans</p>
-            </div>
-            <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
-              Tendance ↑
-            </span>
-          </div>
-
-          <!-- Graphique SVG -->
-          <svg class="w-full h-32" viewBox="0 0 300 100">
-            <!-- Grille -->
-            <line x1="0" y1="25" x2="300" y2="25" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2" />
-            <line x1="0" y1="50" x2="300" y2="50" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2" />
-            <line x1="0" y1="75" x2="300" y2="75" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2" />
-
-            <!-- Zone normale -->
-            <rect x="0" y="40" width="300" height="25" fill="#dcfce7" opacity="0.5" />
-
-            <!-- Ligne seuil haut -->
-            <line x1="0" y1="40" x2="300" y2="40" stroke="#16a34a" stroke-width="1" stroke-dasharray="4" />
-
-            <!-- Courbe -->
-            <polyline points="20,65 70,60 120,55 170,50 220,45 270,38" fill="none" stroke="#002B5C" stroke-width="2" />
-
-            <!-- Points -->
-            <circle cx="20" cy="65" r="3" fill="#002B5C" />
-            <circle cx="70" cy="60" r="3" fill="#002B5C" />
-            <circle cx="120" cy="55" r="3" fill="#002B5C" />
-            <circle cx="170" cy="50" r="3" fill="#002B5C" />
-            <circle cx="220" cy="45" r="3" fill="#002B5C" />
-            <circle cx="270" cy="38" r="4" fill="#dc2626" stroke="#fff" stroke-width="2" />
-          </svg>
-
-          <div class="flex justify-between text-[9px] text-slate-400 mt-1">
-            <span>Avr 23</span>
-            <span>Juil 23</span>
-            <span>Oct 23</span>
-            <span>Jan 24</span>
-          </div>
-
-          <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-            <div class="text-xs">
-              <p class="text-slate-500">Dernier:</p>
-              <p class="font-bold text-[#002B5C] font-mono">1.12 g/L</p>
-            </div>
-            <div class="text-xs text-right">
-              <p class="text-slate-500">Évolution 6 mois:</p>
-              <p class="font-bold text-red-600">▲ +0.12 g/L</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Graphique TA -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <p class="font-bold text-sm text-[#002B5C]">Tension Artérielle</p>
-              <p class="text-[10px] text-slate-500">6 dernières mesures</p>
-            </div>
-            <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200">
-              Tendance ↓
-            </span>
-          </div>
-
-          <svg class="w-full h-32" viewBox="0 0 300 100">
-            <!-- Grille -->
-            <line x1="0" y1="25" x2="300" y2="25" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2" />
-            <line x1="0" y1="50" x2="300" y2="50" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2" />
-            <line x1="0" y1="75" x2="300" y2="75" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2" />
-
-            <!-- Zone normale -->
-            <rect x="0" y="35" width="300" height="30" fill="#dcfce7" opacity="0.5" />
-
-            <!-- Seuil HTA -->
-            <line x1="0" y1="35" x2="300" y2="35" stroke="#dc2626" stroke-width="1" stroke-dasharray="4" />
-            <text x="295" y="32" font-size="8" fill="#dc2626" text-anchor="end">140</text>
-
-            <!-- Courbe systolique -->
-            <polyline points="20,25 70,20 120,28 170,38 220,42 270,45" fill="none" stroke="#dc2626" stroke-width="2" />
-
-            <!-- Courbe diastolique -->
-            <polyline points="20,55 70,52 120,58 170,62 220,65 270,68" fill="none" stroke="#1E40AF" stroke-width="2"
-              stroke-dasharray="4" />
-
-            <!-- Points -->
-            <circle cx="20" cy="25" r="3" fill="#dc2626" />
-            <circle cx="70" cy="20" r="3" fill="#dc2626" />
-            <circle cx="120" cy="28" r="3" fill="#dc2626" />
-            <circle cx="170" cy="38" r="3" fill="#dc2626" />
-            <circle cx="220" cy="42" r="3" fill="#dc2626" />
-            <circle cx="270" cy="45" r="4" fill="#16a34a" stroke="#fff" stroke-width="2" />
-          </svg>
-
-          <div class="flex justify-between text-[9px] text-slate-400 mt-1">
-            <span>Avr 23</span>
-            <span>Juil 23</span>
-            <span>Oct 23</span>
-            <span>Jan 24</span>
-          </div>
-
-          <div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-4">
-            <div class="flex items-center gap-2 text-xs">
-              <span class="w-3 h-0.5 bg-red-600"></span>
-              <span class="text-slate-600">Systolique:</span>
-              <span class="font-bold text-[#002B5C] font-mono">135 mmHg</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-              <span class="w-3 h-0.5 bg-[#1E40AF]" style="border-top: 2px dashed #1E40AF; height: 0;"></span>
-              <span class="text-slate-600">Diastolique:</span>
-              <span class="font-bold text-[#002B5C] font-mono">85 mmHg</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
+      }
+    }
 
   </div>
 
@@ -1074,8 +464,7 @@
     class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-3">
     <div class="flex items-center gap-2 text-xs text-slate-500">
       <span class="material-symbols-outlined text-sm">info</span>
-      <span>Affichage de <strong class="text-slate-700">12</strong> examens sur <strong
-          class="text-slate-700">38</strong></span>
+      <span>Affichage de <strong class="text-slate-700">{{ examens().length }}</strong> examen(s)</span>
     </div>
     <button
       class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors">

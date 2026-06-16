@@ -11,7 +11,7 @@
                 </h3>
                 <p class="text-xs text-slate-500 mt-1">
                     Historique des prescriptions médicamenteuses •
-                    <span class="font-semibold text-green-700">3 traitements actifs</span> en cours
+                    <span class="font-semibold text-green-700">{{ nbActifs() }} traitements actifs</span> en cours
                 </p>
             </div>
 
@@ -40,7 +40,7 @@
                 <span class="material-symbols-outlined text-green-600 text-lg">pill</span>
                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">3</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbActifs() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Traitements actifs</p>
         </div>
 
@@ -51,7 +51,7 @@
                 <span class="material-symbols-outlined text-amber-600 text-lg">schedule</span>
                 <span class="text-[10px] text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded">Alerte</span>
             </div>
-            <p class="text-2xl font-black text-amber-700">1</p>
+            <p class="text-2xl font-black text-amber-700">{{ nbAExpirer() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Expire dans < 15 jours</p>
         </div>
 
@@ -60,7 +60,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-blue-600 text-lg">autorenew</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">2</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ traitements().filter(t => t.renouvelable).length }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Renouvelables</p>
         </div>
 
@@ -69,7 +69,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-slate-500 text-lg">history</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">15</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ traitements().length }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Prescriptions totales</p>
         </div>
     </div>
@@ -80,19 +80,19 @@
             <button class="px-4 py-2 bg-[#002B5C] text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm">medication</span>
                 Tous
-                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">15</span>
+                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{{ traitements().length }}</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-green-600">check_circle</span>
                 Actifs
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">3</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ nbActifs() }}</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-slate-500">archive</span>
                 Historique
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">12</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ nbTermines() }}</span>
             </button>
 
             <div class="ml-auto flex items-center gap-2">
@@ -108,6 +108,7 @@
     <div class="p-6 space-y-5">
 
         <!-- ====== GROUPE : TRAITEMENTS ACTIFS ====== -->
+        @if (traitements().filter(t => t.statut === 'actif').length > 0) {
         <div>
             <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
                 <span class="material-symbols-outlined text-green-600">check_circle</span>
@@ -116,7 +117,7 @@
                 </h4>
             </div>
 
-            <!-- Prescription 1 : Amlodipine (Active, Renouvelable) -->
+            @for (traitement of traitements().filter(t => t.statut === 'actif'); track traitement.id) {
             <article
                 class="bg-white border-l-4 border-l-green-500 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
 
@@ -129,9 +130,9 @@
                         </div>
                         <div>
                             <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-black text-[#002B5C] text-lg">AMLODIPINE</h5>
-                                <span class="text-sm font-bold text-slate-600">5 mg</span>
-                                <span class="text-xs text-slate-500 italic">(Comprimé sécable)</span>
+                                <h5 class="font-black text-[#002B5C] text-lg">{{ traitement.medicament }}</h5>
+                                <span class="text-sm font-bold text-slate-600">{{ traitement.dosage }}</span>
+                                <span class="text-xs text-slate-500 italic">({{ traitement.forme }})</span>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <span
@@ -139,15 +140,24 @@
                                     <span class="material-symbols-outlined text-[10px]">check</span>
                                     ACTIF
                                 </span>
+                                @if (traitement.renouvelable) {
                                 <span
                                     class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[10px]">autorenew</span>
-                                    Renouvelable (1/3 restants)
+                                    Renouvelable
                                 </span>
+                                } @else {
+                                <span
+                                    class="text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">
+                                    Non renouvelable
+                                </span>
+                                }
+                                @if (traitement.diagnosticAssocie) {
                                 <span
                                     class="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
-                                    CIM-10: I10
+                                    {{ traitement.diagnosticAssocie }}
                                 </span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -158,11 +168,13 @@
                             <span class="material-symbols-outlined text-sm">download</span>
                             PDF
                         </button>
+                        @if (traitement.renouvelable) {
                         <button
                             class="flex items-center gap-1 px-3 py-2 bg-[#002B5C] text-white rounded-lg text-xs font-bold hover:bg-[#001f42] transition-colors">
                             <span class="material-symbols-outlined text-sm">autorenew</span>
                             Renouveler
                         </button>
+                        }
                     </div>
                 </div>
 
@@ -175,26 +187,15 @@
                         </p>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <p class="text-lg font-black text-[#002B5C] mb-1">
-                                1 comprimé <span class="text-base font-medium text-slate-600">par jour</span>
+                                {{ traitement.frequence }}
                             </p>
                             <p class="text-sm text-slate-600 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">wb_sunny</span>
-                                Le matin, au cours du petit-déjeuner
+                                <span class="material-symbols-outlined text-base text-slate-400">bid</span>
+                                Voie {{ traitement.voie }}
                             </p>
                             <div class="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
-                                <span class="text-slate-500">Début : 14/09/2023</span>
-                                <span class="text-slate-500">Fin : 14/12/2023</span>
-                            </div>
-                        </div>
-
-                        <!-- Barre de progression du renouvellement -->
-                        <div class="mt-3">
-                            <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
-                                <span>Renouvellements utilisés</span>
-                                <span>1 sur 3</span>
-                            </div>
-                            <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-green-500 w-[33%] rounded-full"></div>
+                                <span class="text-slate-500">Début : {{ traitement.dateDebut | date:'dd/MM/yyyy' }}</span>
+                                <span class="text-slate-500">Fin : {{ traitement.dateFin | date:'dd/MM/yyyy' }}</span>
                             </div>
                         </div>
                     </div>
@@ -204,20 +205,21 @@
                         <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Contexte de
                             prescription</p>
                         <div class="space-y-3">
+                            @if (traitement.diagnosticAssocie) {
                             <div class="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
                                 <span
                                     class="material-symbols-outlined text-blue-600 text-sm mt-0.5">medical_information</span>
                                 <div>
                                     <p class="text-xs font-bold text-blue-900">Lié au diagnostic</p>
-                                    <p class="text-xs text-blue-800">Hypertension artérielle essentielle (I10)</p>
+                                    <p class="text-xs text-blue-800">{{ traitement.diagnosticAssocie }}</p>
                                 </div>
                             </div>
+                            }
                             <div class="flex items-start gap-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
                                 <span class="material-symbols-outlined text-slate-600 text-sm mt-0.5">stethoscope</span>
                                 <div>
-                                    <p class="text-xs font-bold text-slate-700">Prescrit lors de</p>
-                                    <p class="text-xs text-slate-600">Consultation de suivi • 14/09/2023</p>
-                                    <p class="text-xs text-slate-600 font-medium">Dr. S. AGOSSA (HZ Calavi)</p>
+                                    <p class="text-xs font-bold text-slate-700">Prescrit par</p>
+                                    <p class="text-xs text-slate-600 font-medium">{{ traitement.prescripteur }}</p>
                                 </div>
                             </div>
                         </div>
@@ -227,114 +229,24 @@
                     <div class="lg:col-span-1">
                         <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Instructions &
                             Sécurité</p>
-                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-3">
-                            <p class="text-xs font-bold text-amber-900 mb-1 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">warning</span>
-                                Précautions
-                            </p>
-                            <ul class="text-xs text-amber-800 space-y-1 list-disc list-inside">
-                                <li>Éviter la consommation de pamplemousse</li>
-                                <li>Signaler tout œdème des membres inférieurs</li>
-                            </ul>
-                        </div>
 
-                        <!-- Signature numérique -->
                         <div class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
                             <span class="material-symbols-outlined text-green-600 text-xl"
                                 style="font-variation-settings: 'FILL' 1;">lock</span>
                             <div>
                                 <p class="text-[10px] font-bold text-slate-700">Signé numériquement (PSSIE)</p>
-                                <p class="text-[9px] text-slate-500 font-mono">Hash: a1b2...f6g7 • 14/09/2023 10:45</p>
                             </div>
                         </div>
                     </div>
 
                 </div>
             </article>
-
-            <!-- Prescription 2 : Atorvastatine (Active) -->
-            <article
-                class="bg-white border-l-4 border-l-green-500 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all mt-4">
-                <div
-                    class="bg-gradient-to-r from-green-50/50 to-white px-5 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-green-700 text-2xl">pill</span>
-                        </div>
-                        <div>
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-black text-[#002B5C] text-lg">ATORVASTATINE</h5>
-                                <span class="text-sm font-bold text-slate-600">20 mg</span>
-                                <span class="text-xs text-slate-500 italic">(Comprimé pelliculé)</span>
-                            </div>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span
-                                    class="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded border border-green-200 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[10px]">check</span>
-                                    ACTIF
-                                </span>
-                                <span
-                                    class="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
-                                    CIM-10: E78.0
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <button
-                            class="flex items-center gap-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                            <span class="material-symbols-outlined text-sm">download</span>
-                            PDF
-                        </button>
-                    </div>
-                </div>
-                <div class="p-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-1">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Posologie prescrite
-                        </p>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <p class="text-lg font-black text-[#002B5C] mb-1">
-                                1 comprimé <span class="text-base font-medium text-slate-600">par jour</span>
-                            </p>
-                            <p class="text-sm text-slate-600 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-base text-slate-400">nights_stay</span>
-                                Le soir, au coucher
-                            </p>
-                            <div class="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
-                                <span class="text-slate-500">Début : 20/08/2023</span>
-                                <span class="text-slate-500">Fin : 20/02/2024</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="lg:col-span-1">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Contexte de
-                            prescription</p>
-                        <div class="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                            <span
-                                class="material-symbols-outlined text-blue-600 text-sm mt-0.5">medical_information</span>
-                            <div>
-                                <p class="text-xs font-bold text-blue-900">Lié au diagnostic</p>
-                                <p class="text-xs text-blue-800">Hypercholestérolémie pure (E78.0)</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="lg:col-span-1">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Instructions &
-                            Sécurité</p>
-                        <div class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                            <span class="material-symbols-outlined text-green-600 text-xl"
-                                style="font-variation-settings: 'FILL' 1;">lock</span>
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-700">Signé numériquement (PSSIE)</p>
-                                <p class="text-[9px] text-slate-500 font-mono">Hash: k1l2...s9t0 • 20/08/2023 14:30</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </article>
+            }
         </div>
+        }
 
         <!-- ====== GROUPE : ATTENTION REQUISE ====== -->
+        @if (traitements().filter(t => t.statut === 'a_expirer').length > 0) {
         <div>
             <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-200">
                 <span class="material-symbols-outlined text-amber-600">warning</span>
@@ -343,7 +255,7 @@
                 </h4>
             </div>
 
-            <!-- Prescription 3 : Aspegic (Bientôt expiré) -->
+            @for (traitement of traitements().filter(t => t.statut === 'a_expirer'); track traitement.id) {
             <article
                 class="bg-white border-l-4 border-l-amber-500 border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
                 <div
@@ -354,20 +266,28 @@
                         </div>
                         <div>
                             <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-black text-[#002B5C] text-lg">ASPEGIC</h5>
-                                <span class="text-sm font-bold text-slate-600">100 mg</span>
-                                <span class="text-xs text-slate-500 italic">(Sachet-dose)</span>
+                                <h5 class="font-black text-[#002B5C] text-lg">{{ traitement.medicament }}</h5>
+                                <span class="text-sm font-bold text-slate-600">{{ traitement.dosage }}</span>
+                                <span class="text-xs text-slate-500 italic">({{ traitement.forme }})</span>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <span
                                     class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[10px]">schedule</span>
-                                    EXPIRE DANS 12 JOURS
+                                    EXPIRE BIENTÔT
                                 </span>
+                                @if (traitement.renouvelable) {
+                                <span
+                                    class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[10px]">autorenew</span>
+                                    Renouvelable
+                                </span>
+                                } @else {
                                 <span
                                     class="text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">
                                     Non renouvelable
                                 </span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -385,34 +305,34 @@
                         <div>
                             <p class="text-sm font-bold text-amber-900 mb-1">Action recommandée</p>
                             <p class="text-xs text-amber-800 leading-relaxed">
-                                Ce traitement antiagrégant plaquettaire arrive à échéance le
-                                <strong>15/10/2023</strong>.
-                                Une réévaluation du rapport bénéfice/risque est nécessaire avant tout renouvellement,
-                                notamment en raison de l'âge du patient et de l'absence de renouvellement automatique
-                                prescrit.
+                                Ce traitement arrive à échéance le
+                                <strong>{{ traitement.dateFin | date:'dd/MM/yyyy' }}</strong>.
+                                Une réévaluation du rapport bénéfice/risque est nécessaire avant tout renouvellement.
                             </p>
                         </div>
                     </div>
                 </div>
             </article>
+            }
         </div>
+        }
 
         <!-- ====== GROUPE : HISTORIQUE (Collapsible) ====== -->
+        @if (traitements().filter(t => t.statut === 'termine').length > 0) {
         <div>
             <button
                 class="w-full flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group">
                 <div class="flex items-center gap-3">
                     <span
                         class="material-symbols-outlined text-slate-500 group-hover:text-[#002B5C] transition-colors">history</span>
-                    <span class="font-bold text-slate-700 text-sm">Afficher l'historique des traitements terminés ou
-                        suspendus (12)</span>
+                    <span class="font-bold text-slate-700 text-sm">Afficher l'historique des traitements terminés ({{ nbTermines() }})</span>
                 </div>
                 <span
                     class="material-symbols-outlined text-slate-400 group-hover:text-[#002B5C] transition-transform group-hover:rotate-180">expand_more</span>
             </button>
 
-            <!-- Contenu caché par défaut (simulé ici pour l'exemple) -->
-            <div class="mt-3 space-y-3 hidden"> <!-- Retirer 'hidden' pour voir le rendu -->
+            <div class="mt-3 space-y-3">
+                @for (traitement of traitements().filter(t => t.statut === 'termine'); track traitement.id) {
                 <article
                     class="bg-white border border-slate-200 rounded-xl p-4 opacity-75 hover:opacity-100 transition-opacity">
                     <div class="flex items-center justify-between">
@@ -421,16 +341,17 @@
                                 <span class="material-symbols-outlined text-slate-500">pill_off</span>
                             </div>
                             <div>
-                                <h5 class="font-bold text-slate-700 text-sm">LOSARTAN 50 mg</h5>
-                                <p class="text-xs text-slate-500">Suspendu le 15/07/2023 • Motif : Vertiges (Effet
-                                    indésirable)</p>
+                                <h5 class="font-bold text-slate-700 text-sm">{{ traitement.medicament }} {{ traitement.dosage }}</h5>
+                                <p class="text-xs text-slate-500">Terminé le {{ traitement.dateFin | date:'dd/MM/yyyy' }}</p>
                             </div>
                         </div>
                         <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">Terminé</span>
                     </div>
                 </article>
+                }
             </div>
         </div>
+        }
 
     </div>
 

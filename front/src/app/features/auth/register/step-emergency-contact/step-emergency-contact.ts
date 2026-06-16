@@ -42,9 +42,6 @@ export class StepEmergencyContact {
     phoneHint = signal<string>('Benin: 10 chiffres requis');
 
     ngOnInit(): void {
-        //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-        //Add 'implements OnInit' to the class.
-
         this.emergencyForm = this.fb.group({
             firstName: ['', [Validators.required]],
             lastName: ['', [Validators.required]],
@@ -59,8 +56,19 @@ export class StepEmergencyContact {
             this.phoneHint.set(
                 role ? `${role.label}: ${role.length} chiffres requis ` : 'Entrer votre numéro'
             );
+        });
 
-        })
+        this.emergencyForm.valueChanges.subscribe((val) => {
+            this.store.setContinueSteps(this.emergencyForm.valid);
+            if (this.emergencyForm.valid) {
+                this.store.setUserContact({
+                    firstName: val.firstName,
+                    lastName: val.lastName,
+                    phone: `${val.phonePrefix} ${val.phone}`,
+                    relation: val.relation,
+                });
+            }
+        });
     }
 
     isInvalid(field: string) {

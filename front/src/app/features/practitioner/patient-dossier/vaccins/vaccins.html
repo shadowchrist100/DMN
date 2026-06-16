@@ -11,18 +11,20 @@
                 </h3>
                 <p class="text-xs text-slate-500 mt-1">
                     Historique vaccinal et rappels •
-                    <span class="font-semibold text-emerald-700">Couverture globale : 85%</span>
+                    <span class="font-semibold text-emerald-700">
+                        Couverture globale : {{ vaccins().length ? (nbAJour() / vaccins().length * 100).toFixed(0) : 0 }}%
+                    </span>
                 </p>
             </div>
 
             <!-- Actions -->
             <div class="flex items-center gap-2">
-                <button class="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 
+                <button class="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200
                              rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
                     <span class="material-symbols-outlined text-sm">download</span>
                     Attestation PDF
                 </button>
-                <button class="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white 
+                <button class="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white
                              rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-sm">add</span>
                     Enregistrer une vaccination
@@ -39,7 +41,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">8</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbAJour() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Vaccins à jour</p>
         </div>
 
@@ -48,8 +50,8 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-blue-600 text-lg">event</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">1</p>
-            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Rappel dans < 6 mois</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbRappelDu() }}</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Rappel dû</p>
         </div>
 
         <!-- En retard -->
@@ -58,21 +60,23 @@
                 <span class="material-symbols-outlined text-red-600 text-lg">warning</span>
                 <span class="text-[10px] text-red-700 font-bold bg-red-100 px-1.5 py-0.5 rounded">Action</span>
             </div>
-            <p class="text-2xl font-black text-red-700">1</p>
+            <p class="text-2xl font-black text-red-700">{{ vaccins().filter(v => v.statut === 'en_retard').length }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Rappel en retard</p>
         </div>
 
-        <!-- Contre-indications -->
+        <!-- Effets indésirables -->
         <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-amber-300 transition-colors">
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-amber-600 text-lg">block</span>
             </div>
-            <p class="text-2xl font-black text-[#002B5C]">0</p>
-            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Contre-indications</p>
+            <p class="text-2xl font-black text-[#002B5C]">{{ vaccins().filter(v => v.effetsIndesirables).length }}</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Effets indésirables</p>
         </div>
     </div>
 
     <!-- ===== ALERTE PRIORITAIRE (Si rappel en retard) ===== -->
+    @let overdue = vaccins().filter(v => v.statut === 'en_retard' || v.statut === 'rappel_du');
+    @if (overdue.length) {
     <div class="px-6 py-4 bg-amber-50 border-b border-amber-200 flex items-start gap-4">
         <div class="bg-amber-100 p-2 rounded-lg shrink-0 mt-0.5">
             <span class="material-symbols-outlined text-amber-700"
@@ -81,8 +85,15 @@
         <div class="flex-1">
             <h4 class="font-bold text-amber-900 text-sm">Rappel vaccinal en retard</h4>
             <p class="text-xs text-amber-800 mt-1">
-                Le rappel <strong>Tétanos (dT)</strong> est en retard de <strong>4 mois</strong> (Dernière dose : 2014).
+                Le rappel <strong>{{ overdue[0].nom }}</strong> est en retard
+                @if (overdue[0].derniereDose) {
+                (Dernière dose : {{ overdue[0].derniereDose | date:'yyyy' }}).
+                } @else {
+                . Un rattrapage est fortement recommandé.
+                }
+                @if (overdue[0].derniereDose) {
                 Un rattrapage est fortement recommandé, surtout en cas de blessure ou de voyage.
+                }
             </p>
         </div>
         <button
@@ -90,6 +101,7 @@
             Programmer
         </button>
     </div>
+    }
 
     <!-- ===== FILTRES & TABS ===== -->
     <div class="px-6 py-3 border-b border-slate-100 bg-white sticky top-[120px] z-10">
@@ -97,25 +109,25 @@
             <button class="px-4 py-2 bg-[#002B5C] text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm">vaccines</span>
                 Tous
-                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">10</span>
+                <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{{ vaccins().length }}</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-emerald-600">shield</span>
                 Programme Élargi (PEV)
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">6</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">0</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-blue-600">flight</span>
                 Voyage & Spécifique
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">3</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">0</span>
             </button>
             <button
                 class="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-sm text-purple-600">coronavirus</span>
                 Saisonnier
-                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">1</span>
+                <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">0</span>
             </button>
         </div>
     </div>
@@ -124,6 +136,7 @@
     <div class="p-6 space-y-4">
 
         <!-- GROUPE : À FAIRE / EN RETARD -->
+        @if (overdue.length) {
         <div>
             <div class="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200">
                 <span class="material-symbols-outlined text-red-600">priority_high</span>
@@ -132,46 +145,58 @@
                 </h4>
             </div>
 
-            <!-- Vaccin 1 : Tétanos (En retard) -->
-            <article
-                class="bg-white border-l-4 border-l-red-500 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all">
+            @for (vaccin of overdue; track vaccin.id) {
+            <article class="bg-white border-l-4 {{ vaccin.statut === 'en_retard' ? 'border-l-red-500' : 'border-l-amber-500' }} border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all mb-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-4 flex-1">
-                        <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-red-600 text-xl">syringe</span>
+                        <div class="w-12 h-12 {{ vaccin.statut === 'en_retard' ? 'bg-red-100' : 'bg-amber-100' }} rounded-xl flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined {{ vaccin.statut === 'en_retard' ? 'text-red-600' : 'text-amber-600' }} text-xl">syringe</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-base">Tétanos (dT)</h5>
-                                <span
-                                    class="text-[10px] font-black bg-red-600 text-white px-2 py-0.5 rounded uppercase">
-                                    EN RETARD
-                                </span>
+                                <h5 class="font-bold text-slate-900 text-base">{{ vaccin.nom }}</h5>
+                                @if (vaccin.statut === 'en_retard') {
+                                <span class="text-[10px] font-black bg-red-600 text-white px-2 py-0.5 rounded uppercase">EN RETARD</span>
+                                } @else {
+                                <span class="text-[10px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200 uppercase">RAPPEL DÛ</span>
+                                }
                             </div>
                             <p class="text-xs text-slate-600 mb-3">
-                                Dernière administration : <strong>12 Juin 2014</strong> (Il y a 10 ans).
-                                Validité expirée. Rattrapage nécessaire (1 dose).
+                                @if (vaccin.derniereDose) {
+                                Dernière administration : <strong>{{ vaccin.derniereDose | date:'dd MMM yyyy' }}</strong>.
+                                } @else {
+                                Aucune administration enregistrée.
+                                }
+                                @if (vaccin.statut === 'en_retard') {
+                                Validité expirée. Rattrapage nécessaire ({{ vaccin.dosesRequises - vaccin.doses }} dose{{ vaccin.dosesRequises - vaccin.doses > 1 ? 's' : '' }}).
+                                } @else {
+                                Rappel nécessaire ({{ vaccin.doses }}/{{ vaccin.dosesRequises }} doses).
+                                }
                             </p>
 
                             <!-- Détails traçabilité -->
-                            <div
-                                class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Dernier Lot</span>
-                                    <span class="font-mono text-slate-700">TN-2014-BJ-884</span>
+                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Doses</span>
+                                    <span class="font-mono text-slate-700">{{ vaccin.doses }}/{{ vaccin.dosesRequises }}</span>
                                 </div>
+                                @if (vaccin.derniereDose) {
                                 <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Lieu</span>
-                                    <span class="text-slate-700">CSU Gbegamey</span>
+                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Dernière dose</span>
+                                    <span class="text-slate-700">{{ vaccin.derniereDose | date:'dd MMM yyyy' }}</span>
                                 </div>
+                                }
+                                @if (vaccin.prochainRappel) {
                                 <div>
-                                    <span
-                                        class="block text-[9px] uppercase font-bold text-slate-400">Professionnel</span>
-                                    <span class="text-slate-700">Inf. K. Mensah</span>
+                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Prochain rappel</span>
+                                    <span class="text-amber-700 font-medium">{{ vaccin.prochainRappel | date:'dd MMM yyyy' }}</span>
                                 </div>
+                                }
                                 <div>
                                     <span class="block text-[9px] uppercase font-bold text-slate-400">Réaction</span>
-                                    <span class="text-green-600 font-medium">Aucune</span>
+                                    <span class="{{ vaccin.effetsIndesirables ? 'text-slate-700' : 'text-green-600 font-medium' }}">
+                                        {{ vaccin.effetsIndesirables || 'Aucune' }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -189,9 +214,13 @@
                     </div>
                 </div>
             </article>
+            }
         </div>
+        }
 
         <!-- GROUPE : À JOUR / VALIDES -->
+        @let active = vaccins().filter(v => v.statut === 'a_jour');
+        @if (active.length) {
         <div>
             <div class="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200">
                 <span class="material-symbols-outlined text-emerald-600">check_circle</span>
@@ -200,45 +229,70 @@
                 </h4>
             </div>
 
-            <!-- Vaccin 2 : Fièvre Jaune (Valide) -->
-            <article class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all">
+            @for (vaccin of active; track vaccin.id) {
+            <article class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all mb-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-4 flex-1">
                         <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-emerald-600 text-xl">public</span>
+                            <span class="material-symbols-outlined text-emerald-600 text-xl">shield</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-base">Fièvre Jaune</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
+                                <h5 class="font-bold text-slate-900 text-base">{{ vaccin.nom }}</h5>
+                                <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[10px]">verified</span>
-                                    VALIDE (À vie)
+                                    À JOUR ({{ vaccin.doses }}/{{ vaccin.dosesRequises }})
                                 </span>
                             </div>
                             <p class="text-xs text-slate-600 mb-3">
-                                Administré le <strong>15 Août 2019</strong>. Certificat international valide.
-                                (Règlement Sanitaire International : protection à vie depuis 2016).
+                                @if (vaccin.derniereDose) {
+                                Dernière administration : <strong>{{ vaccin.derniereDose | date:'dd MMM yyyy' }}</strong>.
+                                }
+                                @if (vaccin.dateValidite) {
+                                Protection valide jusqu'au {{ vaccin.dateValidite | date:'dd MMM yyyy' }}.
+                                } @else {
+                                Schéma vaccinal complet ({{ vaccin.doses }}/{{ vaccin.dosesRequises }} doses).
+                                }
                             </p>
 
-                            <div
-                                class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Lot</span>
-                                    <span class="font-mono text-slate-700">YF-2019-SEN-112</span>
+                            <!-- Barre de progression des doses -->
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3">
+                                <p class="text-[9px] uppercase font-bold text-slate-400 mb-2">Progression vaccinale</p>
+                                <div class="flex items-center gap-1">
+                                    @for (doseIdx of [].constructor(vaccin.dosesRequises); track $index) {
+                                    <div class="flex-1 h-2 rounded-full {{ $index < vaccin.doses ? 'bg-emerald-500' : 'bg-slate-200' }}"></div>
+                                    }
                                 </div>
-                                <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Lieu</span>
-                                    <span class="text-slate-700">Aéroport Cadjehoun</span>
+                                <div class="flex justify-between text-[9px] text-slate-500 mt-1">
+                                    <span>{{ vaccin.doses }}/{{ vaccin.dosesRequises }} doses</span>
+                                    @if (vaccin.derniereDose) {
+                                    <span class="font-mono">Dernière : {{ vaccin.derniereDose | date:'yyyy' }}</span>
+                                    }
                                 </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">N°
-                                        Certificat</span>
-                                    <span class="font-mono text-[#002B5C] font-bold">BJ-9928371</span>
+                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Doses</span>
+                                    <span class="font-mono text-slate-700">{{ vaccin.doses }}/{{ vaccin.dosesRequises }}</span>
                                 </div>
+                                @if (vaccin.derniereDose) {
+                                <div>
+                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Dernière dose</span>
+                                    <span class="text-slate-700">{{ vaccin.derniereDose | date:'dd MMM yyyy' }}</span>
+                                </div>
+                                }
+                                @if (vaccin.prochainRappel) {
+                                <div>
+                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Prochain rappel</span>
+                                    <span class="text-blue-700 font-medium">{{ vaccin.prochainRappel | date:'dd MMM yyyy' }}</span>
+                                </div>
+                                }
                                 <div>
                                     <span class="block text-[9px] uppercase font-bold text-slate-400">Réaction</span>
-                                    <span class="text-slate-700">Douleur locale légère</span>
+                                    <span class="{{ vaccin.effetsIndesirables ? 'text-slate-700' : 'text-green-600 font-medium' }}">
+                                        {{ vaccin.effetsIndesirables || 'Aucune' }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -253,133 +307,56 @@
                     </div>
                 </div>
             </article>
-
-            <!-- Vaccin 3 : Grippe Saisonnière (Récent) -->
-            <article class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="flex items-start gap-4 flex-1">
-                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-purple-600 text-xl">coronavirus</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-base">Grippe Saisonnière (Quadrivalent)</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
-                                    SAISON 2023-2024
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-3">
-                                Administré le <strong>10 Octobre 2023</strong>. Protection active pour la saison en
-                                cours.
-                            </p>
-
-                            <div
-                                class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Lot</span>
-                                    <span class="font-mono text-slate-700">FLU-23-FR-44A</span>
-                                </div>
-                                <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Lieu</span>
-                                    <span class="text-slate-700">Cabinet Dr. AGOSSA</span>
-                                </div>
-                                <div>
-                                    <span
-                                        class="block text-[9px] uppercase font-bold text-slate-400">Professionnel</span>
-                                    <span class="text-slate-700">Dr. S. AGOSSA</span>
-                                </div>
-                                <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Prochain</span>
-                                    <span class="text-blue-700 font-medium">Octobre 2024</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Vaccin 4 : Hépatite B (Schéma complet) -->
-            <article class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="flex items-start gap-4 flex-1">
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-blue-600 text-xl">shield</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <h5 class="font-bold text-slate-900 text-base">Hépatite B</h5>
-                                <span
-                                    class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
-                                    SCHÉMA COMPLET (3/3)
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-3">
-                                Primo-vaccination achevée. Dernière dose de rappel le <strong>22 Mars 2020</strong>.
-                            </p>
-
-                            <!-- Timeline des doses -->
-                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3">
-                                <p class="text-[9px] uppercase font-bold text-slate-400 mb-2">Historique des doses</p>
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 h-2 bg-emerald-500 rounded-full"></div>
-                                    <div class="flex-1 h-2 bg-emerald-500 rounded-full"></div>
-                                    <div class="flex-1 h-2 bg-emerald-500 rounded-full"></div>
-                                </div>
-                                <div class="flex justify-between text-[9px] text-slate-500 mt-1 font-mono">
-                                    <span>Dose 1: 2018</span>
-                                    <span>Dose 2: 2018</span>
-                                    <span>Dose 3: 2020</span>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] text-slate-500">
-                                <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Dernier Lot</span>
-                                    <span class="font-mono text-slate-700">HBV-20-BE-991</span>
-                                </div>
-                                <div>
-                                    <span class="block text-[9px] uppercase font-bold text-slate-400">Lieu</span>
-                                    <span class="text-slate-700">HZ Calavi</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </article>
-
+            }
         </div>
+        }
 
-        <!-- GROUPE : HISTORIQUE ANCIEN / CICATRICE -->
+        <!-- GROUPE : HISTORIQUE ANCIEN / NON FAIT -->
+        @let nonFait = vaccins().filter(v => v.statut === 'non_fait');
+        @if (nonFait.length) {
         <div>
             <div class="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200">
                 <span class="material-symbols-outlined text-slate-400">history</span>
                 <h4 class="font-black text-slate-500 uppercase tracking-wide text-sm">
-                    Historique Pédiatrique / Ancien
+                    Non administrés
                 </h4>
             </div>
 
+            @for (vaccin of nonFait; track vaccin.id) {
             <article
-                class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-80 hover:opacity-100 transition-opacity">
+                class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-80 hover:opacity-100 transition-opacity mb-4">
                 <div class="flex items-start gap-4">
                     <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-slate-500">pediatric</span>
+                        <span class="material-symbols-outlined text-slate-500">vaccines</span>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex flex-wrap items-center gap-2 mb-1">
-                            <h5 class="font-bold text-slate-700 text-sm">BCG (Tuberculose)</h5>
+                            <h5 class="font-bold text-slate-700 text-sm">{{ vaccin.nom }}</h5>
                             <span class="text-[10px] font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded">
-                                Cicatrice visible
+                                NON FAIT
                             </span>
                         </div>
                         <p class="text-xs text-slate-500">
-                            Administré à la naissance (est. 1962). Aucune trace écrite dans le carnet,
-                            mais cicatrice vaccinale typique présente à l'examen clinique.
+                            @if (vaccin.dosesRequises > 0) {
+                            Ce vaccin n'a pas encore été administré (0/{{ vaccin.dosesRequises }} doses requises).
+                            } @else {
+                            Aucune administration enregistrée pour ce vaccin.
+                            }
                         </p>
                     </div>
                 </div>
             </article>
+            }
         </div>
+        }
+
+        <!-- État vide -->
+        @if (!vaccins().length) {
+        <div class="text-center py-12">
+            <span class="material-symbols-outlined text-4xl text-slate-300">vaccines</span>
+            <p class="text-slate-500 mt-2 text-sm">Aucun vaccin enregistré pour ce patient.</p>
+        </div>
+        }
 
     </div>
 

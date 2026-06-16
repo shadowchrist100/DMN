@@ -89,7 +89,7 @@
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-200 pb-2">
                     <h4 class="font-['Public_Sans'] font-bold text-slate-400 uppercase tracking-widest text-[10px]">
-                        Registre complet ({{ allergies.length }})
+                        Registre complet ({{ allergies().length }})
                     </h4>
                     <select [ngModel]="sortOption()" (ngModelChange)="onSortChange($event)" class="text-[10px] font-bold uppercase tracking-widest border border-slate-200
                    rounded px-2 py-1 bg-white text-slate-500 focus:ring-1 focus:ring-secondary/30 cursor-pointer">
@@ -146,29 +146,6 @@
          COLONNE DROITE  (1/4)
     ════════════════════════════════════════════ -->
         <div class="space-y-6">
-
-            <!-- Alerte IA ──────────────────────────────────────────────────────── -->
-            <div
-                class="bg-gradient-to-br from-indigo-900 to-primary text-white p-6 rounded shadow-lg relative overflow-hidden">
-                <div class="relative z-10">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="material-symbols-outlined text-indigo-300">smart_toy</span>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Alerte IA
-                            Préventive</span>
-                    </div>
-                    <p class="text-xs leading-relaxed text-blue-100 mb-4 italic">
-                        "✦ Une corrélation a été détectée entre l'allergie à la Pénicilline et un risque potentiel
-                        de réaction croisée avec les Céphalosporines."
-                    </p>
-                    <button class="w-full bg-white/10 hover:bg-white/20 py-2 rounded text-[10px] font-bold
-                         uppercase tracking-widest transition-colors border border-white/20">
-                        En savoir plus
-                    </button>
-                </div>
-                <div class="absolute -right-4 -bottom-4 opacity-10">
-                    <span class="material-symbols-outlined text-8xl">verified_user</span>
-                </div>
-            </div>
 
             <!-- Récapitulatif ──────────────────────────────────────────────────── -->
             <div class="bg-white border border-slate-200 p-6 rounded">
@@ -285,13 +262,9 @@
 
             <!-- Notes ─────────────────────────────────────────────────────────── -->
             @if (selectedAllergie()!.notes) {
-            <div class="bg-indigo-50 border border-indigo-100 p-4 rounded flex gap-3">
-                <span class="material-symbols-outlined text-indigo-600"
-                    style="font-variation-settings: 'FILL' 1">auto_awesome</span>
-                <div>
-                    <p class="text-[10px] font-bold text-indigo-900 uppercase mb-1">Notes cliniques &amp; IA</p>
-                    <p class="text-xs text-indigo-800 leading-relaxed">{{ selectedAllergie()!.notes }}</p>
-                </div>
+            <div class="bg-blue-50 border border-blue-100 p-4 rounded">
+                <p class="text-[10px] font-bold text-blue-800 uppercase mb-1">Notes cliniques</p>
+                <p class="text-xs text-blue-800 leading-relaxed">{{ selectedAllergie()!.notes }}</p>
             </div>
             }
         </div>

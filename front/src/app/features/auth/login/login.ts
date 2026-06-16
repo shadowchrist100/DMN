@@ -1,7 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PASSWORD_REGEX } from '../../../core/constants/PASSWORD_REGEX';
+import { AuthService } from '../../../core/auth/auth-service';
+import { AuthStore } from '../../../core/auth/auth.store';
 
 @Component({
     selector: 'app-login',
@@ -17,11 +19,10 @@ export class Login implements OnInit {
     serverError = signal<string>('');
     loginForm!: FormGroup;
     private router = inject(Router);
-
+    private authService = inject(AuthService);
+    private authStore = AuthStore;
 
     ngOnInit(): void {
-        //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-        //Add 'implements OnInit' to the class.
         this.loginForm = this.formBuilder.group({
             email: ['', [Validators.required, Validators.email]],
             identifiant: [''],
@@ -39,11 +40,8 @@ export class Login implements OnInit {
     definedUserType(userType: string) {
         if (this.userType() !== userType) {
             this.userType.set(userType);
-            this.loginForm.patchValue({
-                userType: userType
-            })
-        }
-        else {
+            this.loginForm.patchValue({ userType })
+        } else {
             this.userType.set('');
         }
     }
@@ -57,23 +55,30 @@ export class Login implements OnInit {
         return !!(control?.invalid && control?.touched)
     }
 
-    onSubmit() {
-        const controls = this.loginForm.controls;
-        for(const name in controls){
-            if (controls[name].errors) {
-                console.log(controls[name].errors);
-                console.log(name);
-                
-            }
-        }
-
+    async onSubmit() {
         if (this.loginForm.invalid) {
-
             this.loginForm.markAllAsTouched();
             return;
         }
+
         this.isLoading.set(true);
-        console.log(this.loginForm.value);
-        this.router.navigateByUrl(`/${this.userType() === 'PATIENT' ? 'patient' : 'practitioner'}/dashboard`)
+        this.serverError.set('');
+
+        try {
+            const { email, password } = this.loginForm.value;
+            const response = await this.authService.login(email, password, this.userType());
+
+            this.authStore.setAuth(response.user, response.token);
+
+            if (response.requiresMfa) {
+                this.router.navigateByUrl('/auth/mfa');
+            } else {
+                this.router.navigateByUrl(`/${this.userType() === 'PATIENT' ? 'patient' : 'practitioner'}/dashboard`);
+            }
+        } catch {
+            this.serverError.set('L\'identifiant ou le mot de passe est incorrect.');
+        } finally {
+            this.isLoading.set(false);
+        }
     }
 }

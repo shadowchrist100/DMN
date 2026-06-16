@@ -1,7 +1,22 @@
 import uuid
-from typing import Optional,List
+from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
+
+if TYPE_CHECKING:
+    from .patient import Patient
+    from .practitioner import Practitioner
+    from .medical_act import MedicalAct
+    from .authorization import Authorization
+    from .emergency_authorization import EmergencyAuthorization
+    from .standard_authorization import StandardAuthorization
+    from .consent import Consent
+    from .consultation import Consultation
+    from .prescription import Prescription
+    from .allergy import Allergy
+    from .disease import Disease
+    from .vaccination import Vaccination
+    from .emergency_contact import EmergencyContact
 
 
 class DMN(SQLModel, table=True):
@@ -14,11 +29,9 @@ class DMN(SQLModel, table=True):
     rhesus_factor: Optional[str] = None
 
     patient_id: Optional[uuid.UUID] = Field(
-        default=None, foreign_key="patient.id", unique = True
+        default=None, foreign_key="patient.id", unique=True
     )
-    authorizations: List["Authorizations"] = Relationship(back_populates="dmn")
-    medical_acts : List["MedicalActs"] = Relationship(back_populates = "dmn" )
+    patient: Optional["Patient"] = Relationship(back_populates="dmn")
 
-
-    # relations
-    patient: Optional["Patient"] = Relationship(back_populates = "dmn" )
+    authorizations: List["Authorization"] = Relationship(back_populates="dmn")
+    medical_acts: List["MedicalAct"] = Relationship(back_populates="dmn")

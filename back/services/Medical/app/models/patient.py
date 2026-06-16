@@ -1,7 +1,12 @@
 import uuid
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import date
+from app.models.related_person import RelatedPerson
+
+if TYPE_CHECKING:
+    from .emergency_contact import EmergencyContact
+    from .dmn import DMN
 
 
 class Patient(SQLModel, table=True):
@@ -11,15 +16,11 @@ class Patient(SQLModel, table=True):
     )
     user_id: str = Field(unique=True, index=True)
     emergency_contacts: List["EmergencyContact"] = Relationship(
-        back_populates="patients",
-        link_model = RelatedPerson
+        back_populates="patient",
+        link_model=RelatedPerson
     )
 
-    # relations
-    dmn:Optional["DMN"] = Relationship(
-        back_populates = "patient" ,
+    dmn: Optional["DMN"] = Relationship(
+        back_populates="patient",
         sa_relationship_kwargs={'uselist': False}
     )
-
-
-from app.models.emergency_contact import EmergencyContact
