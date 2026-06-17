@@ -2,18 +2,17 @@ import uuid
 from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
+from app.models.medical_act import MedicalAct
 
 if TYPE_CHECKING:
     from .patient import Patient
     from .practitioner import Practitioner
     from .authorization import Authorization
-    from .consent import Consent
+
     from .consultation import Consultation
-    from .prescription import Prescription
     from .allergy import Allergy
-    from .disease import Disease
     from .vaccination import Vaccination
-    from .emergency_contact import EmergencyContact
+    from .relative import Relative
 
 
 class DMN(SQLModel, table=True):
@@ -31,3 +30,6 @@ class DMN(SQLModel, table=True):
     patient: Optional["Patient"] = Relationship(back_populates="dmn")
 
     authorizations: List["Authorization"] = Relationship(back_populates="dmn")
+    medical_acts: List["MedicalAct"] = Relationship(back_populates="dmn")
+
+    practitioner_roles : List["PractitionerRole"] = Relationship(back_populates= "dmns", link_model= MedicalAct )

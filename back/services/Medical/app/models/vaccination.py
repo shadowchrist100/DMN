@@ -1,9 +1,9 @@
 from typing import Optional
-from sqlalchemy import Column, UUID, ForeignKey, String, Integer, Date, Text
-from app.base import Base
+from sqlalchemy import Column, UUID, String, Integer, Date, Text, ForeignKey
+from app.models.medical_act import MedicalAct
 
 
-class Vaccination(Base):
+class Vaccination(MedicalAct):
     __tablename__ = "vaccination"
 
     id = Column(UUID, ForeignKey("medicalact.id"), primary_key=True)
@@ -14,5 +14,5 @@ class Vaccination(Base):
     note = Column(Text, nullable=True)
 
     __mapper_args__ = {
-        "polymorphic_identity": "TypeActe.VACCINATION",
+        "polymorphic_identity": "VACCINATION",
     }

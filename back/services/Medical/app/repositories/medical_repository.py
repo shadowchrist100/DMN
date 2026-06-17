@@ -1,14 +1,25 @@
 from uuid import UUID
-from sqlmodel import Session, select, text
+from sqlmodel import Session, select
+
 from app.models.patient import Patient
 from app.models.dmn import DMN
-from app.models.medical_act import MedicalAct
+from app.models.diagnosis import Diagnosis
 from app.models.diagnosis_reference import DiagnosisReference
-from app.models.prescription import Prescription
+from app.models.medical_act import MedicalAct
+from app.models.prescription_examen import PrescriptionExamen
 from app.models.authorization import Authorization
-from app.models.consent import Consent
+
 from app.models.practitioner import Practitioner
 from app.models.practitioner_role import PractitionerRole
+from app.models.healthcare_system import HealthcareSystem
+from app.models.allergy import Allergy
+from app.models.examination_act import ExaminationAct
+from app.models.examination import Examination
+from app.models.vaccine import Vaccine
+from app.models.consultation import Consultation
+from app.models.vaccination import Vaccination
+from app.models.reaction import Reaction
+from app.models.reaction_reference import ReactionReference as ReactionRef
 from app.types.enums import TypeActe
 
 
@@ -50,21 +61,42 @@ class MedicalRepository:
             return []
 
         rows = session.execute(
-            text("""
-                SELECT d.id, d.date, d.note_clinique, d.statut_verification,
-                       dr.cid11 AS ref_code, dr.libelle AS ref_libelle,
-                       a.nature_allergie, a.categorie, a.libelle, a.criticite,
-                       a.statut_clinique, a.discover_at, a.reactions_text
-                FROM diagnosis d
-                LEFT JOIN diagnosis_reference dr ON dr.id = d.diagnosis_ref_id
-                LEFT JOIN allergy a ON a.id = d.id
-                WHERE d.medical_act_id IN :ma_ids
-                  AND d.type = 'allergy'
-            """),
-            {"ma_ids": tuple(ma_ids)}
-        ).mappings().all()
+            select(Diagnosis, DiagnosisReference, Allergy)
+            .outerjoin(DiagnosisReference, DiagnosisReference.id == Diagnosis.diagnosis_ref_id)
+            .outerjoin(Allergy, Allergy.id == Diagnosis.id)
+            .where(Diagnosis.medical_act_id.in_(ma_ids))
+            .where(Diagnosis.type_diagnosis == "allergy")
+        ).all()
 
-        return [dict(r) for r in rows]
+        result = []
+        for d, dr, a in rows:
+            rxn_rows = session.exec(
+                select(ReactionRef, Reaction)
+                .join(Reaction, Reaction.reaction_reference_code == ReactionRef.code)
+                .where(Reaction.allergy_id == a.id)
+            ).all()
+            reactions = [
+                {"code": ref.code, "libelle": ref.libelle, "severity": rxn.severity}
+                for ref, rxn in rxn_rows
+            ]
+
+            result.append({
+                "id": d.id,
+                "date": d.date_diagnosis,
+                "note_clinique": d.note_clinique,
+                "statut_verification": d.statut_verification.value if d.statut_verification else "",
+                "ref_code": dr.code_cid11 if dr else None,
+                "ref_libelle": dr.libelle if dr else None,
+                "nature_allergie": a.nature_allergie if a else "",
+                "categorie": a.categorie if a else "",
+                "libelle": a.libelle if a else "",
+                "criticite": a.criticite if a else "",
+                "statut_clinique": a.statut_clinique if a else "",
+                "discover_at": a.discover_at if a else None,
+                "reactions_text": a.reactions_text if a else "",
+                "reactions": reactions,
+            })
+        return result
 
     @classmethod
     def get_examens(cls, session: Session, user_id: str) -> list[dict]:
@@ -73,19 +105,29 @@ class MedicalRepository:
             return []
 
         rows = session.execute(
-            text("""
-                SELECT ma.id, ma.type, ma.raisons, ma.rapport_text, ma.observations_text,
-                       ea.code_loinc, ea.libelle_examen, ea.type_examen,
-                       ea.value, ea.interpretation, ea.image_path
-                FROM medical_act ma
-                LEFT JOIN examination_act ea ON ea.id = ma.id
-                WHERE ma.dmn_id = :dmn_id AND ma.type = :act_type
-                ORDER BY ma.id
-            """),
-            {"dmn_id": dmn_id, "act_type": TypeActe.EXAMEN.value}
-        ).mappings().all()
+            select(MedicalAct, ExaminationAct)
+            .outerjoin(ExaminationAct, ExaminationAct.id == MedicalAct.id)
+            .where(MedicalAct.dmn_id == dmn_id)
+            .where(MedicalAct.type_acte == TypeActe.EXAMEN)
+            .order_by(MedicalAct.id)
+        ).all()
 
-        return [dict(r) for r in rows]
+        result = []
+        for ma, ea in rows:
+            result.append({
+                "id": ma.id,
+                "type": ma.type_acte.value,
+                "raisons": ma.raisons,
+                "rapport_text": ma.rapport_text,
+                "observations_text": ma.observations_text,
+                "libelle_examen": ea.libelle_examen if ea else "",
+                "type_examen": ea.type_examen if ea else "",
+                "code_loinc": ea.code_loinc if ea else "",
+                "value": ea.value if ea else "",
+                "interpretation": ea.interpretation if ea else "",
+                "image_path": ea.image_path if ea else None,
+            })
+        return result
 
     @classmethod
     def get_prescriptions(cls, session: Session, user_id: str) -> list[dict]:
@@ -100,30 +142,29 @@ class MedicalRepository:
         if not ma_ids:
             return []
 
-        diag_ids = session.execute(
-            text("SELECT id FROM diagnosis WHERE medical_act_id IN :ma_ids"),
-            {"ma_ids": tuple(ma_ids)}
-        ).scalars().all()
-
-        if not diag_ids:
-            return []
-
         rows = session.execute(
-            text("""
-                SELECT p.id, p.date_prescription, p.statut, p.special_instructions,
-                       p.type_prescription,
-                       e.code_loinc, e.libelle AS examen_libelle, e.nature_examination,
-                       v.code_cvx, v.libelle AS vaccine_libelle
-                FROM prescription p
-                LEFT JOIN examination e ON e.id = p.id AND p.type_prescription = 'EXAMINATION'
-                LEFT JOIN vaccine v ON v.id = p.id AND p.type_prescription = 'VACCIN'
-                WHERE p.diagnosis_id IN :diag_ids
-                ORDER BY p.date_prescription DESC
-            """),
-            {"diag_ids": tuple(diag_ids)}
-        ).mappings().all()
+            select(PrescriptionExamen, Examination, Vaccine)
+            .outerjoin(Examination, Examination.id == PrescriptionExamen.id)
+            .outerjoin(Vaccine, Vaccine.id == PrescriptionExamen.id)
+            .where(PrescriptionExamen.medical_act_id.in_(ma_ids))
+            .order_by(PrescriptionExamen.date_prescription.desc())
+        ).all()
 
-        return [dict(r) for r in rows]
+        result = []
+        for pe, e, v in rows:
+            result.append({
+                "id": pe.id,
+                "date_prescription": pe.date_prescription,
+                "statut": pe.statut.value if pe.statut else "",
+                "special_instructions": pe.special_instructions,
+                "type_prescription": pe.type_prescription.value if pe.type_prescription else "",
+                "code_loinc": e.code_loinc if e else None,
+                "examen_libelle": e.libelle if e else None,
+                "nature_examination": e.nature_examination if e else None,
+                "code_cvx": v.code_cvx if v else None,
+                "vaccine_libelle": v.libelle if v else None,
+            })
+        return result
 
     @classmethod
     def get_authorizations(cls, session: Session, user_id: str) -> list[Authorization]:
@@ -133,16 +174,6 @@ class MedicalRepository:
 
         return list(session.exec(
             select(Authorization).where(Authorization.dmn_id == dmn_id)
-        ).all())
-
-    @classmethod
-    def get_consents(cls, session: Session, user_id: str) -> list[Consent]:
-        dmn_id = cls.get_dmn_id_by_user_id(session, user_id)
-        if not dmn_id:
-            return []
-
-        return list(session.exec(
-            select(Consent).where(Consent.dmn_id == dmn_id)
         ).all())
 
     @classmethod
@@ -159,19 +190,24 @@ class MedicalRepository:
             return []
 
         rows = session.execute(
-            text("""
-                SELECT d.id, d.date, d.note_clinique, d.statut_verification,
-                       dr.cid11 AS ref_code, dr.libelle AS ref_libelle
-                FROM diagnosis d
-                LEFT JOIN diagnosis_reference dr ON dr.id = d.diagnosis_ref_id
-                WHERE d.medical_act_id IN :ma_ids
-                  AND d.type = 'disease'
-                ORDER BY d.date DESC
-            """),
-            {"ma_ids": tuple(ma_ids)}
-        ).mappings().all()
+            select(Diagnosis, DiagnosisReference)
+            .outerjoin(DiagnosisReference, DiagnosisReference.id == Diagnosis.diagnosis_ref_id)
+            .where(Diagnosis.medical_act_id.in_(ma_ids))
+            .where(Diagnosis.type_diagnosis == "disease")
+            .order_by(Diagnosis.date_diagnosis.desc())
+        ).all()
 
-        return [dict(r) for r in rows]
+        result = []
+        for d, dr in rows:
+            result.append({
+                "id": d.id,
+                "date": d.date_diagnosis,
+                "note_clinique": d.note_clinique,
+                "statut_verification": d.statut_verification.value if d.statut_verification else "",
+                "ref_code": dr.code_cid11 if dr else None,
+                "ref_libelle": dr.libelle if dr else None,
+            })
+        return result
 
     @classmethod
     def get_consultations(cls, session: Session, user_id: str) -> list[dict]:
@@ -180,24 +216,31 @@ class MedicalRepository:
             return []
 
         rows = session.execute(
-            text("""
-                SELECT ma.id, ma.raisons, ma.rapport_text, ma.observations_text,
-                       c.duree_minutes,
-                       pr.role AS practitioner_role,
-                       p.user_id AS practitioner_user_id, p.speciality,
-                       hs.nom AS healthcare_nom
-                FROM medical_act ma
-                LEFT JOIN consultation c ON c.id = ma.id
-                LEFT JOIN practitioner_role pr ON pr.id = ma.practitioner_role_id
-                LEFT JOIN practitioner p ON p.id = pr.practitioner_id
-                LEFT JOIN healthcare_system hs ON hs.id = pr.health_care_system_id
-                WHERE ma.dmn_id = :dmn_id AND ma.type = :act_type
-                ORDER BY ma.id
-            """),
-            {"dmn_id": dmn_id, "act_type": TypeActe.CONSULTATION.value}
-        ).mappings().all()
+            select(MedicalAct, Consultation, PractitionerRole, Practitioner, HealthcareSystem)
+            .outerjoin(Consultation, Consultation.id == MedicalAct.id)
+            .outerjoin(PractitionerRole, PractitionerRole.id == MedicalAct.practitioner_role_id)
+            .outerjoin(Practitioner, Practitioner.id == PractitionerRole.practitioner_id)
+            .outerjoin(HealthcareSystem, HealthcareSystem.id == PractitionerRole.health_care_system_id)
+            .where(MedicalAct.dmn_id == dmn_id)
+            .where(MedicalAct.type_acte == TypeActe.CONSULTATION)
+            .order_by(MedicalAct.id)
+        ).all()
 
-        return [dict(r) for r in rows]
+        result = []
+        for ma, c, pr, p, hs in rows:
+            result.append({
+                "id": ma.id,
+                "duree_minutes": c.duree_minutes if c else None,
+                "motif": c.motif if c else None,
+                "raisons": ma.raisons,
+                "rapport_text": ma.rapport_text,
+                "observations_text": ma.observations_text,
+                "practitioner_role": pr.role if pr else None,
+                "practitioner_user_id": p.user_id if p else None,
+                "speciality": p.speciality.value if p else None,
+                "healthcare_nom": hs.nom if hs else None,
+            })
+        return result
 
     @classmethod
     def get_vaccinations(cls, session: Session, user_id: str) -> list[dict]:
@@ -206,16 +249,24 @@ class MedicalRepository:
             return []
 
         rows = session.execute(
-            text("""
-                SELECT ma.id, ma.raisons, ma.rapport_text, ma.observations_text,
-                       v.injection_site, v.sequence_dose, v.batch_number,
-                       v.next_reminder, v.note
-                FROM medical_act ma
-                LEFT JOIN vaccination v ON v.id = ma.id
-                WHERE ma.dmn_id = :dmn_id AND ma.type = :act_type
-                ORDER BY ma.id
-            """),
-            {"dmn_id": dmn_id, "act_type": TypeActe.VACCINATION.value}
-        ).mappings().all()
+            select(MedicalAct, Vaccination)
+            .outerjoin(Vaccination, Vaccination.id == MedicalAct.id)
+            .where(MedicalAct.dmn_id == dmn_id)
+            .where(MedicalAct.type_acte == TypeActe.VACCINATION)
+            .order_by(MedicalAct.id)
+        ).all()
 
-        return [dict(r) for r in rows]
+        result = []
+        for ma, v in rows:
+            result.append({
+                "id": ma.id,
+                "raisons": ma.raisons,
+                "rapport_text": ma.rapport_text,
+                "observations_text": ma.observations_text,
+                "injection_site": v.injection_site if v else None,
+                "sequence_dose": v.sequence_dose if v else None,
+                "batch_number": v.batch_number if v else None,
+                "next_reminder": v.next_reminder if v else None,
+                "note": v.note if v else None,
+            })
+        return result

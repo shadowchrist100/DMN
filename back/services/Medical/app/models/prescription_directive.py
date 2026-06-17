@@ -1,25 +1,21 @@
 import uuid
 from typing import Optional, List, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
-from app.types.enums import TypeDirective
-
-if TYPE_CHECKING:
-    from .prescription_order import PrescriptionOrder
-    from .medication_directive import MedicationDirective
-    from .lifestyle_directive import LifestyleDirective
-    from .session_directive import SessionDirective
+from sqlalchemy import Column, UUID, String, ForeignKey
+from sqlalchemy.orm import relationship
+from app.base import Base
 
 
-class PrescriptionDirective(SQLModel, table=True):
-    id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
-    description_generale: str
+class PrescriptionDirective(Base):
+    __tablename__ = "prescriptiondirective"
 
-    prescription_order_id: uuid.UUID = Field(foreign_key="prescriptionorder.id")
-    prescription_order: "PrescriptionOrder" = Relationship(back_populates="directives")
-
-    type_directive: TypeDirective
+    id = Column(UUID, primary_key=True, default=uuid.uuid4)
+    description_generale = Column(String, nullable=False)
+    prescription_order_id = Column(UUID, ForeignKey("prescriptionorder.id"), nullable=False)
+    type_directive = Column("type", String, nullable=False)
 
     __mapper_args__ = {
         "polymorphic_on": "type_directive",
         "polymorphic_identity": "directive_base"
     }
+
+    prescription_order = relationship("PrescriptionOrder", back_populates="directives")

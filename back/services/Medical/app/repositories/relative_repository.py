@@ -1,19 +1,19 @@
 from uuid import UUID
 from sqlmodel import Session
-from app.models.emergency_contact import EmergencyContact
-from app.models.related_person import RelatedPerson
-from app.schemas.patient import EmergencyContactReq
+from app.models.relative import Relative
+from app.models.patient_relative import PatientRelative
+from app.schemas.patient import RelativeReq
 
 
-class EmergencyContactRepository:
+class RelativeRepository:
 
     @staticmethod
     def create(
         session: Session,
         patient_id: UUID,
-        data: EmergencyContactReq,
-    ) -> EmergencyContact:
-        contact = EmergencyContact(
+        data: RelativeReq,
+    ) -> Relative:
+        contact = Relative(
             first_name=data.first_name,
             last_name=data.last_name,
             phone=data.phone,
@@ -21,9 +21,9 @@ class EmergencyContactRepository:
         session.add(contact)
         session.flush()
 
-        relation = RelatedPerson(
+        relation = PatientRelative(
             patient_id=patient_id,
-            emergency_contact_id=contact.id,
+            relative_id=contact.id,
             code_relation=data.code_relation,
         )
         session.add(relation)

@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
+use App\Notifications\VerifyEmailNotification;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,13 +18,13 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 #[Fillable([
     'first_name', 'last_name', 'email', 'password', 'npi', 'gender',
     'birth_date', 'photo_path', 'role', 'phone', 'matrimonial_status',
-    'status_account', 'city', 'address',
+    'status_account', 'city', 'address', 'email_verified_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, MustVerifyEmail;
 
     protected function casts(): array
     {
@@ -50,6 +53,17 @@ class User extends Authenticatable implements JWTSubject
             'name' => $this->first_name . ' ' . $this->last_name,
             'npi' => $this->npi,
             'gender' => $this->gender,
+            'email_verified' => !is_null($this->email_verified_at),
         ];
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

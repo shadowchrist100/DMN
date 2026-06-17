@@ -65,16 +65,6 @@ class AuthorizationResp(BaseModel):
     practitioner_speciality: Optional[str] = None
 
 
-class ConsentResp(BaseModel):
-    id: str
-    perimeter: str
-    granted_at: date
-    expire_at: date
-    duration: str
-    is_actif: bool
-    is_urgence: bool
-
-
 class DiseaseResp(BaseModel):
     id: str
     code_cim: Optional[str] = None
@@ -87,6 +77,7 @@ class DiseaseResp(BaseModel):
 class ConsultationResp(BaseModel):
     id: str
     duree_minutes: Optional[int] = None
+    motif: Optional[str] = None
     raisons: Optional[str] = None
     rapport_text: Optional[str] = None
     observations_text: Optional[str] = None
@@ -112,6 +103,16 @@ class OrganisationInfo(BaseModel):
     type: str
     role: str
     is_actif: bool
+    verification_status: str
+    start_date: date
+    end_date: Optional[date] = None
+
+
+class AddPractitionerRoleReq(BaseModel):
+    organization_id: str
+    role: str = "medecin"
+    start_date: date
+    end_date: Optional[date] = None
 
 
 class PractitionerProfileResp(BaseModel):

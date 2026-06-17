@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\MedicalServiceException;
 use Illuminate\Support\Facades\Http;
 
 class MedicalServiceClient
@@ -15,27 +16,49 @@ class MedicalServiceClient
 
     public function createPatient(array $data): array
     {
-        $response = Http::post("{$this->baseUrl}/api/patients", $data);
+        try {
+            $response = Http::timeout(10)->post("{$this->baseUrl}/api/patients", $data);
 
-        if ($response->failed()) {
-            throw new \RuntimeException(
-                'Erreur lors de la création du patient : ' . $response->body()
+            if ($response->failed()) {
+                throw new MedicalServiceException(
+                    'Erreur lors de la création du profil patient.',
+                    $response->status()
+                );
+            }
+
+            return $response->json();
+        } catch (MedicalServiceException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new MedicalServiceException(
+                'Le service médical est temporairement indisponible.',
+                503,
+                $e
             );
         }
-
-        return $response->json();
     }
 
     public function createPractitioner(array $data): array
     {
-        $response = Http::post("{$this->baseUrl}/api/practitioners", $data);
+        try {
+            $response = Http::timeout(10)->post("{$this->baseUrl}/api/practitioners", $data);
 
-        if ($response->failed()) {
-            throw new \RuntimeException(
-                'Erreur lors de la création du praticien : ' . $response->body()
+            if ($response->failed()) {
+                throw new MedicalServiceException(
+                    'Erreur lors de la création du profil praticien.',
+                    $response->status()
+                );
+            }
+
+            return $response->json();
+        } catch (MedicalServiceException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new MedicalServiceException(
+                'Le service médical est temporairement indisponible.',
+                503,
+                $e
             );
         }
-
-        return $response->json();
     }
 }

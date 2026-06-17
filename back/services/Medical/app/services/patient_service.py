@@ -2,11 +2,11 @@ from uuid import UUID
 from sqlmodel import Session, select
 from app.schemas.patient import CreatePatientReq
 from app.repositories.patient_repository import PatientRepository
-from app.repositories.emergency_contact_repository import EmergencyContactRepository
+from app.repositories.relative_repository import RelativeRepository
 from app.exceptions import conflict
 from app.models.patient import Patient
-from app.models.related_person import RelatedPerson
-from app.models.emergency_contact import EmergencyContact
+from app.models.patient_relative import PatientRelative
+from app.models.relative import Relative
 
 
 class PatientService:
@@ -18,9 +18,9 @@ class PatientService:
 
         patient = PatientRepository.create(session, req.user_id)
 
-        if req.emergency_contact:
-            EmergencyContactRepository.create(
-                session, patient.id, req.emergency_contact
+        if req.relative:
+            RelativeRepository.create(
+                session, patient.id, req.relative
             )
 
         session.commit()
@@ -34,11 +34,11 @@ class PatientService:
     @staticmethod
     def get_related_persons(
         session: Session, patient_id: UUID
-    ) -> list[tuple[EmergencyContact, RelatedPerson]]:
+    ) -> list[tuple[Relative, PatientRelative]]:
         statement = (
-            select(EmergencyContact, RelatedPerson)
-            .join(RelatedPerson, RelatedPerson.emergency_contact_id == EmergencyContact.id)
-            .where(RelatedPerson.patient_id == patient_id)
+            select(Relative, PatientRelative)
+            .join(PatientRelative, PatientRelative.relative_id == Relative.id)
+            .where(PatientRelative.patient_id == patient_id)
         )
         results = session.exec(statement).all()
         return [(contact, relation) for contact, relation in results]

@@ -1,49 +1,31 @@
 import uuid
 from typing import Optional, List, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
-from datetime import datetime
-from app.types.enums import TypeActe
-
-if TYPE_CHECKING:
-    from .dmn import DMN
-    from .practitioner_role import PractitionerRole
-    from .diagnosis import Diagnosis
-    from .prescription_order import PrescriptionOrder
-    from .vital_constant import VitalConstant
+from sqlalchemy import Column, UUID, String, Text, ForeignKey
+from sqlalchemy.orm import relationship
+from app.base import Base
 
 
-class MedicalAct(SQLModel, table=True):
-    id: Optional[uuid.UUID] = Field(
-        default_factory=uuid.uuid4,
-        primary_key=True,
-    )
-    raisons: Optional[str] = None
-    rapport_text: Optional[str] = None
-    observations_text: Optional[str] = None
+class MedicalAct(Base):
+    __tablename__ = "medicalact"
 
-    dmn_id: Optional[uuid.UUID] = Field(
-        default=None,
-        foreign_key="dmn.id",
-    )
-    practitioner_role_id: Optional[uuid.UUID] = Field(
-        default=None,
-        foreign_key="practitionerrole.id",
-    )
-    type_acte: TypeActe = Field(sa_column_kwargs={"name": "type"})
+    id = Column(UUID, primary_key=True, default=uuid.uuid4)
+    raisons = Column(Text, nullable=True)
+    rapport_text = Column(Text, nullable=True)
+    observations_text = Column(Text, nullable=True)
+    dmn_id = Column(UUID, ForeignKey("dmn.id"), nullable=True)
+    practitioner_role_id = Column(UUID, ForeignKey("practitionerrole.id"), nullable=True)
+    care_episode_id = Column(UUID, ForeignKey("careepisode.id"), nullable=True)
+    type_acte = Column(String, nullable=False)
 
     __mapper_args__ = {
         "polymorphic_on": "type_acte",
         "polymorphic_identity": "medical_act_base"
     }
 
-    dmn: "DMN" = Relationship(back_populates="medical_acts")
-    practitioner_role: "PractitionerRole" = Relationship(back_populates="medical_acts")
-
-    diagnoses: List["Diagnosis"] = Relationship(back_populates="medical_act")
-
-    prescription_order: Optional["PrescriptionOrder"] = Relationship(
-        back_populates="medical_act",
-        sa_relationship_kwargs={'uselist': False}
-    )
-
-    vital_constants: List["VitalConstant"] = Relationship(back_populates="medical_act")
+    dmn = relationship("DMN", back_populates="medical_acts")
+    practitioner_role = relationship("PractitionerRole", back_populates="medical_acts")
+    care_episode = relationship("CareEpisode", back_populates="medical_acts")
+    diagnoses = relationship("Diagnosis", back_populates="medical_act")
+    prescription_order = relationship("PrescriptionOrder", back_populates="medical_act", uselist=False)
+    vital_constants = relationship("VitalConstant", back_populates="medical_act")
+    prescriptions_examens = relationship("PrescriptionExamen", back_populates="medical_act")

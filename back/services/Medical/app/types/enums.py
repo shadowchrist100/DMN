@@ -65,8 +65,11 @@ class TypePrescription(str, Enum):
 
 class TypeDirective(str, Enum):
     MEDICAMENT = "medicament"
-    SOINS_REED_KINE = "soins_reed_kine" # Kiné, rééducation, infirmiers...
-    MODE_DE_VIE = "mode_de_vie"
+    SOINS = "soins"
+
+class TypeEvidence(str, Enum):
+    CONFIRME = "CONFIRME"
+    INFIRME = "INFIRME"
 
 class NatureExamination(str, Enum):
     labo = "LABORATOIRE"

@@ -1,11 +1,11 @@
-from sqlalchemy import Column, UUID, ForeignKey, String
-from app.base import Base
+from sqlalchemy import Column, UUID, String, ForeignKey
+from app.models.prescription_examen import PrescriptionExamen
 
 
-class Vaccine(Base):
+class Vaccine(PrescriptionExamen):
     __tablename__ = "vaccine"
 
-    id = Column(UUID, ForeignKey("prescription.id"), primary_key=True)
+    id = Column(UUID, ForeignKey("prescriptionexamen.id"), primary_key=True)
     code_cvx = Column(String, nullable=False)
     libelle = Column(String, nullable=False)
 

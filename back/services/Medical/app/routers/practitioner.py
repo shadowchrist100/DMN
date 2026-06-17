@@ -4,7 +4,10 @@ from uuid import UUID
 
 from app.database import get_session
 from app.schemas.practitioner import CreatePractitionerReq, PractitionerResp
-from app.schemas.medical import PractitionerProfileResp, PatientSummaryResp
+from app.schemas.medical import (
+    PractitionerProfileResp, PatientSummaryResp,
+    OrganisationInfo, AddPractitionerRoleReq,
+)
 from app.services.practitioner_service import PractitionerService
 from app.models.practitioner import Practitioner
 from app.models.practitioner_role import PractitionerRole
@@ -12,7 +15,8 @@ from app.models.healthcare_system import HealthcareSystem
 from app.models.medical_act import MedicalAct
 from app.models.dmn import DMN
 from app.models.patient import Patient
-from app.exceptions import not_found
+from app.exceptions import not_found, bad_request
+from app.types.enums import StatutVerification
 
 router = APIRouter(prefix="/api", tags=["practitioner"])
 
@@ -54,13 +58,16 @@ def get_practitioner_profile(
             select(HealthcareSystem).where(HealthcareSystem.id == role.health_care_system_id)
         ).first()
         if org:
-            organizations.append({
-                "id": str(org.id),
-                "nom": org.nom,
-                "type": org.type,
-                "role": role.role,
-                "is_actif": org.is_actif,
-            })
+            organizations.append(OrganisationInfo(
+                id=str(org.id),
+                nom=org.nom,
+                type=org.type,
+                role=role.role,
+                is_actif=org.is_actif,
+                verification_status=org.verification_status.value,
+                start_date=role.start_date,
+                end_date=role.end_date,
+            ))
 
     return PractitionerProfileResp(
         id=str(practitioner.id),
@@ -69,6 +76,49 @@ def get_practitioner_profile(
         order_number=practitioner.order_number,
         organization_id=practitioner.organization_id,
         organizations=organizations,
+    )
+
+
+@router.post("/practitioners/by-user/{user_id}/roles", status_code=201, response_model=OrganisationInfo)
+def add_practitioner_role(
+    user_id: str,
+    body: AddPractitionerRoleReq,
+    session: Session = Depends(get_session),
+):
+    practitioner = session.exec(
+        select(Practitioner).where(Practitioner.user_id == user_id)
+    ).first()
+    if not practitioner:
+        not_found("Praticien introuvable")
+
+    org = session.exec(
+        select(HealthcareSystem).where(HealthcareSystem.id == body.organization_id)
+    ).first()
+    if not org:
+        not_found("Organisation introuvable")
+    if org.verification_status != StatutVerification.VALIDE:
+        bad_request("L'organisation référencée n'est pas vérifiée")
+
+    role = PractitionerRole(
+        practitioner_id=practitioner.id,
+        health_care_system_id=org.id,
+        role=body.role,
+        start_date=body.start_date,
+        end_date=body.end_date,
+    )
+    session.add(role)
+    session.commit()
+    session.refresh(role)
+
+    return OrganisationInfo(
+        id=str(org.id),
+        nom=org.nom,
+        type=org.type,
+        role=role.role,
+        is_actif=org.is_actif,
+        verification_status=org.verification_status.value,
+        start_date=role.start_date,
+        end_date=role.end_date,
     )
 
 

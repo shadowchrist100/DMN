@@ -1,14 +1,14 @@
 import uuid
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List, TYPE_CHECKING
-from app.models.related_person import RelatedPerson
+from app.models.patient_relative import PatientRelative
 
 if TYPE_CHECKING:
     from .patient import Patient
     from .authorization import Authorization
 
 
-class EmergencyContact(SQLModel, table=True):
+class Relative(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     first_name: str
     last_name: str
@@ -20,9 +20,9 @@ class EmergencyContact(SQLModel, table=True):
     )
 
     patients: List["Patient"] = Relationship(
-        back_populates="emergency_contacts",
-        link_model=RelatedPerson
+        back_populates="relatives",
+        link_model=PatientRelative
     )
     authorization: Optional["Authorization"] = Relationship(
-        back_populates="emergency_contacts"
+        back_populates="relatives"
     )

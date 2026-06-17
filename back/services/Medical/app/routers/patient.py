@@ -4,7 +4,7 @@ from sqlmodel import Session
 from app.database import get_session
 from app.schemas.patient import (
     CreatePatientReq, PatientResp,
-    EmergencyContactResp, RelatedPersonResp,
+    RelativeResp, RelatedPersonResp,
 )
 from app.schemas.medical import (
     PatientProfileResp, AllergyResp, ExamenResp,
@@ -31,9 +31,9 @@ def create_patient(
     return PatientResp(
         id=str(patient.id),
         user_id=patient.user_id,
-        emergency_contacts=[
+        relatives=[
             RelatedPersonResp(
-                emergency_contact=EmergencyContactResp(
+                relative=RelativeResp(
                     id=str(contact.id),
                     first_name=contact.first_name,
                     last_name=contact.last_name,
@@ -208,6 +208,7 @@ def get_patient_consultations(
         result.append(ConsultationResp(
             id=str(c["id"]),
             duree_minutes=c.get("duree_minutes"),
+            motif=c.get("motif"),
             raisons=c.get("raisons"),
             rapport_text=c.get("rapport_text"),
             observations_text=c.get("observations_text"),

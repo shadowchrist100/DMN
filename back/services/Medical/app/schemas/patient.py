@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class EmergencyContactReq(BaseModel):
+class RelativeReq(BaseModel):
     first_name: str
     last_name: str
     phone: str
@@ -11,10 +11,10 @@ class EmergencyContactReq(BaseModel):
 
 class CreatePatientReq(BaseModel):
     user_id: str
-    emergency_contact: Optional[EmergencyContactReq] = None
+    relative: Optional[RelativeReq] = None
 
 
-class EmergencyContactResp(BaseModel):
+class RelativeResp(BaseModel):
     id: str
     first_name: str
     last_name: str
@@ -22,11 +22,11 @@ class EmergencyContactResp(BaseModel):
 
 
 class RelatedPersonResp(BaseModel):
-    emergency_contact: EmergencyContactResp
+    relative: RelativeResp
     code_relation: str
 
 
 class PatientResp(BaseModel):
     id: str
     user_id: str
-    emergency_contacts: list[RelatedPersonResp]
+    relatives: list[RelatedPersonResp]
