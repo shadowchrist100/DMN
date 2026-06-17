@@ -195,6 +195,7 @@ export class StepIdentity implements OnInit {
         })
 
         this.photoFile.set(file);
+        this.store.setRegistrationFiles({ photoFile: file });
         this.identityForm.patchValue({ photoPath: file })
 
         // Génération de l'aperçu
@@ -208,6 +209,7 @@ export class StepIdentity implements OnInit {
         this.photoFile.set(null);
         this.photoError.set(null);
         this.identityForm.patchValue({ photoPath: null });
+        this.store.setRegistrationFiles({ photoFile: null });
     }
 
 }

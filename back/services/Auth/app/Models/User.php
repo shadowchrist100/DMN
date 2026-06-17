@@ -9,7 +9,9 @@ use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,12 +21,13 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
     'first_name', 'last_name', 'email', 'password', 'npi', 'gender',
     'birth_date', 'photo_path', 'role', 'phone', 'matrimonial_status',
     'status_account', 'city', 'address', 'email_verified_at',
+    'organization_id',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements JWTSubject, MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, MustVerifyEmail;
+    use HasFactory, Notifiable, MustVerifyEmail, HasUuids;
 
     protected function casts(): array
     {
@@ -33,6 +36,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmailContrac
             'birth_date' => 'date',
             'password' => 'hashed',
         ];
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
     }
 
     public function identityDocuments(): HasMany

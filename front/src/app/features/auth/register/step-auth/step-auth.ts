@@ -100,6 +100,9 @@ export class StepAuth implements OnInit {
             .subscribe((val) => {
                 if (this.authForm.valid) {
                     this.store.setUserAuth({ email: val.email, password: val.password });
+                    this.store.setRegistrationFiles({
+                        identityDocType: val.identityDocType ?? '',
+                    });
                 }
             });
 
@@ -162,6 +165,13 @@ export class StepAuth implements OnInit {
 
             // Mise à jour du signal pour affichage immédiat
             this.files.update(state => ({ ...state, [controlName]: file }));
+
+            // Stockage dans le store pour le payload final
+            this.store.setRegistrationFiles({
+                identityDocType: this.authForm.get('identityDocType')?.value ?? '',
+                identityFile: controlName === 'identityFile' ? file : this.files().identityFile,
+                medicalCardFile: controlName === 'medicalCardFile' ? file : this.files().medicalCardFile,
+            });
         }
     }
 
@@ -172,6 +182,12 @@ export class StepAuth implements OnInit {
         this.authForm.get(controlName)?.updateValueAndValidity();
 
         this.files.update(state => ({ ...state, [controlName]: null }));
+
+        this.store.setRegistrationFiles({
+            identityDocType: this.authForm.get('identityDocType')?.value ?? '',
+            identityFile: controlName === 'identityFile' ? null : this.files().identityFile,
+            medicalCardFile: controlName === 'medicalCardFile' ? null : this.files().medicalCardFile,
+        });
     }
 
     private passwordMismatchValidator(): ValidatorFn {

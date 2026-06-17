@@ -1,3 +1,5 @@
+import { Gender,MaritalStatus,userRole } from "../types/user.types";
+
 export interface PractitionerOrganization {
     organizationId: string;
     organizationName: string;
@@ -42,4 +44,11 @@ export interface AvailableOrganization {
     type: string;
     city: string;
     department: string;
+}
+
+export interface RegistrationFiles {
+    identityDocType: string;
+    identityFile: File | null;
+    medicalCardFile: File | null;
+    photoFile: File | null;
 }

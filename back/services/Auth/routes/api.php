@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrganizationController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,1');
@@ -21,4 +23,18 @@ Route::middleware(['auth:api', 'check.status'])->group(function () {
     Route::post('/refresh', [AuthController::class, 'refresh']);
 });
 
-Route::middleware('auth:api')->post('/users/{user}/verify', [AuthController::class, 'verify']);
+Route::middleware(['auth:api', 'check.admin'])->group(function () {
+    Route::post('/admin/create', [AdminController::class, 'createAdmin']);
+});
+
+Route::middleware(['auth:api', 'check.admin.medical'])->group(function () {
+    Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser']);
+    Route::get('/admin/pending-users', [AdminController::class, 'listPendingUsers']);
+    Route::get('/admin/pending-organizations', [AdminController::class, 'listPendingOrganizations']);
+    Route::post('/admin/validate-organization/{organization}', [AdminController::class, 'validateOrganization']);
+    Route::get('/admin/organizations', [AdminController::class, 'listOrganizations']);
+});
+
+Route::middleware(['auth:api', 'check.admin.orga'])->group(function () {
+    Route::apiResource('/organizations', OrganizationController::class);
+});

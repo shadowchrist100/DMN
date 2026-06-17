@@ -68,7 +68,7 @@ export class Login implements OnInit {
             const { email, password } = this.loginForm.value;
             const response = await this.authService.login(email, password, this.userType());
 
-            this.authStore.setAuth(response.user, response.token);
+            this.authStore.setAuth(response.user, response.token_type);
 
             if (response.requiresMfa) {
                 this.router.navigateByUrl('/auth/mfa');

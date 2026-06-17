@@ -27,7 +27,7 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'role' => ['required', Rule::in(['patient', 'practitioner', 'admin'])],
+            'role' => ['required', Rule::in(['patient', 'practitioner'])],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
@@ -131,10 +131,6 @@ class AuthController extends Controller
 
     public function verify(Request $request, User $user): JsonResponse
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Action non autorisée.'], 403);
-        }
-
         $user = $this->userService->verifyUser((string) $user->id);
 
         return response()->json([

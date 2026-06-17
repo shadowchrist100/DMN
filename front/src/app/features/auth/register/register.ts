@@ -59,6 +59,7 @@ export class Register {
     private async submitRegistration() {
         const user = this.store.user();
         const userType = this.store.userType();
+        const files = this.store.files();
         if (!user?.auth.email) return;
 
         this.error.set('');
@@ -94,6 +95,33 @@ export class Register {
                 if (user.practitioner.organizations?.length) {
                     payload.organization_id = user.practitioner.organizations[0].organizationId;
                 }
+            }
+
+            const documents: { type_document: string; file: File }[] = [];
+
+            const docTypeMap: Record<string, string> = {
+                CNI: 'piece_identite',
+                PASSPORT: 'piece_identite',
+                CIP: 'carte_ordre',
+                DRIVING_LICENSE: 'piece_identite',
+            };
+
+            if (files.identityFile && files.identityDocType) {
+                documents.push({
+                    type_document: docTypeMap[files.identityDocType] || 'piece_identite',
+                    file: files.identityFile,
+                });
+            }
+
+            if (files.medicalCardFile) {
+                documents.push({
+                    type_document: 'diplome',
+                    file: files.medicalCardFile,
+                });
+            }
+
+            if (documents.length) {
+                payload.documents = documents;
             }
 
             const response = await this.authService.register(payload);

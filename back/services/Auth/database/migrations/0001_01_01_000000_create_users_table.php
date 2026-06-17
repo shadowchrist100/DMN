@@ -13,20 +13,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('first_name')->after('id');
-            $table->string('last_name')->after('first_name');
-            $table->string('npi')->after('email_verified_at');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('gender')->after('npi');
-            $table->date('birth_date')->after('gender');
-            $table->string('photo_path')->nullable()->after('birth_date');
-            $table->string('role')->default('patient')->after('photo_path');
-            $table->string('phone')->after('role');
-            $table->string('matrimonial_status')->after('phone');
-            $table->string('status_account')->default('unverified')->after('matrimonial_status');
-            $table->string('city')->after('status_account');
-            $table->string('address')->after('city');;
-            $table->string('name');
+            $table->string('npi');
+            $table->string('gender');
+            $table->date('birth_date');
+            $table->string('photo_path')->nullable();
+            $table->string('role')->default('patient');
+            $table->string('phone');
+            $table->string('matrimonial_status');
+            $table->string('status_account')->default('unverified');
+            $table->string('city');
+            $table->string('address');
             $table->string('email')->unique();
             $table->string('password');
             $table->rememberToken();

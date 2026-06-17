@@ -15,6 +15,10 @@ class HealthcareSystem(SQLModel, table=True):
     type: str
     nom: str
     alias: str
+    city: str
+    address: str
+    phone: str
+    email: str
     is_actif: bool
     verification_status: StatutVerification
 
