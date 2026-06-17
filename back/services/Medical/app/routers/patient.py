@@ -9,6 +9,7 @@ from app.schemas.patient import (
 from app.schemas.medical import (
     PatientProfileResp, AllergyResp, ExamenResp,
     PrescriptionResp, AuthorizationResp,
+    DiseaseResp, ConsultationResp, VaccinationResp,
 )
 from app.services.patient_service import PatientService
 from app.repositories.medical_repository import MedicalRepository
@@ -169,5 +170,70 @@ def get_patient_authorizations(
             authorization_type=a.authorization_type,
             practitioner_name=practitioner_name,
             practitioner_speciality=practitioner_speciality,
+        ))
+    return result
+
+
+@router.get("/patients/by-user/{user_id}/pathologies", response_model=list[DiseaseResp])
+def get_patient_pathologies(
+    user_id: str,
+    session: Session = Depends(get_session),
+):
+    diseases = MedicalRepository.get_diseases(session, user_id)
+    result = []
+    for d in diseases:
+        result.append(DiseaseResp(
+            id=str(d["id"]),
+            code_cim=d.get("ref_code"),
+            libelle=d.get("ref_libelle"),
+            statut_verification=d.get("statut_verification") or "",
+            date=d["date"],
+            note_clinique=d.get("note_clinique"),
+        ))
+    return result
+
+
+@router.get("/patients/by-user/{user_id}/consultations", response_model=list[ConsultationResp])
+def get_patient_consultations(
+    user_id: str,
+    session: Session = Depends(get_session),
+):
+    consultations = MedicalRepository.get_consultations(session, user_id)
+    result = []
+    for c in consultations:
+        pr_name = None
+        pr_speciality = None
+        hc_nom = None
+
+        result.append(ConsultationResp(
+            id=str(c["id"]),
+            duree_minutes=c.get("duree_minutes"),
+            raisons=c.get("raisons"),
+            rapport_text=c.get("rapport_text"),
+            observations_text=c.get("observations_text"),
+            practitioner_name=c.get("practitioner_user_id"),
+            practitioner_speciality=c.get("speciality"),
+            healthcare_nom=c.get("healthcare_nom"),
+        ))
+    return result
+
+
+@router.get("/patients/by-user/{user_id}/vaccinations", response_model=list[VaccinationResp])
+def get_patient_vaccinations(
+    user_id: str,
+    session: Session = Depends(get_session),
+):
+    vaccinations = MedicalRepository.get_vaccinations(session, user_id)
+    result = []
+    for v in vaccinations:
+        result.append(VaccinationResp(
+            id=str(v["id"]),
+            injection_site=v.get("injection_site"),
+            sequence_dose=v.get("sequence_dose"),
+            batch_number=v.get("batch_number"),
+            next_reminder=v.get("next_reminder"),
+            note=v.get("note"),
+            raisons=v.get("raisons"),
+            rapport_text=v.get("rapport_text"),
         ))
     return result

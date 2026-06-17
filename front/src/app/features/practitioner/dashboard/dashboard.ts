@@ -12,10 +12,10 @@ import {
     PatientFilter
 } from './dashboard.model';
 import { FormsModule } from '@angular/forms';
-import { PractitionerService } from '../../services/practitioner.service';
-import { PatientService } from '../../services/patient.service';
-import { ConsentService } from '../../services/consent.service';
-import { AuditService } from '../../services/audit.service';
+import { PractitionerService } from '../services/practitioner.service';
+import { PatientService } from '../services/patient.service';
+import { ConsentService } from '../services/consent.service';
+import { AuditService } from '../services/audit.service';
 
 @Component({
     selector: 'app-dashboard',

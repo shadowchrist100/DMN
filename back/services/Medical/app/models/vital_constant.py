@@ -10,11 +10,11 @@ if TYPE_CHECKING:
 
 class VitalConstant(SQLModel, table=True):
     medical_act_id: uuid.UUID = Field(
-        foreign_key="medical_act.id",
+        foreign_key="medicalact.id",
         primary_key=True
     )
     vital_constant_reference_code: str = Field(
-        foreign_key="vital_constant_reference.code",
+        foreign_key="vitalconstantreference.code",
         primary_key=True
     )
 

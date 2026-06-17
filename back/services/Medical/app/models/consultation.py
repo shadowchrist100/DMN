@@ -1,13 +1,13 @@
-import uuid
-from typing import Optional, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
-from datetime import date
-from app.models.medical_act import MedicalAct
+from typing import Optional
+from sqlalchemy import Column, UUID, ForeignKey, Integer
+from app.base import Base
 
 
-class Consultation(MedicalAct, table=True):
-    id: Optional[uuid.UUID] = Field(default=None, foreign_key="medical_act.id", primary_key=True)
-    duree_minutes: Optional[int] = None
+class Consultation(Base):
+    __tablename__ = "consultation"
+
+    id = Column(UUID, ForeignKey("medicalact.id"), primary_key=True)
+    duree_minutes = Column(Integer, nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "TypeActe.CONSULTATION",

@@ -73,3 +73,58 @@ class ConsentResp(BaseModel):
     duration: str
     is_actif: bool
     is_urgence: bool
+
+
+class DiseaseResp(BaseModel):
+    id: str
+    code_cim: Optional[str] = None
+    libelle: Optional[str] = None
+    statut_verification: str
+    date: date
+    note_clinique: Optional[str] = None
+
+
+class ConsultationResp(BaseModel):
+    id: str
+    duree_minutes: Optional[int] = None
+    raisons: Optional[str] = None
+    rapport_text: Optional[str] = None
+    observations_text: Optional[str] = None
+    practitioner_name: Optional[str] = None
+    practitioner_speciality: Optional[str] = None
+    healthcare_nom: Optional[str] = None
+
+
+class VaccinationResp(BaseModel):
+    id: str
+    injection_site: Optional[str] = None
+    sequence_dose: Optional[int] = None
+    batch_number: Optional[str] = None
+    next_reminder: Optional[date] = None
+    note: Optional[str] = None
+    raisons: Optional[str] = None
+    rapport_text: Optional[str] = None
+
+
+class OrganisationInfo(BaseModel):
+    id: str
+    nom: str
+    type: str
+    role: str
+    is_actif: bool
+
+
+class PractitionerProfileResp(BaseModel):
+    id: str
+    user_id: str
+    speciality: str
+    order_number: Optional[str] = None
+    organization_id: Optional[str] = None
+    organizations: list[OrganisationInfo] = []
+
+
+class PatientSummaryResp(BaseModel):
+    id: str
+    user_id: str
+    blood_type: Optional[str] = None
+    last_consultation: Optional[str] = None

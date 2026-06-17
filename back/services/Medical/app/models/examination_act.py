@@ -1,21 +1,18 @@
-import uuid
-from typing import Optional, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
-from datetime import date
-from app.models.medical_act import MedicalAct
-
-if TYPE_CHECKING:
-    from .examination import Examination
+from typing import Optional
+from sqlalchemy import Column, UUID, ForeignKey, String, Text
+from app.base import Base
 
 
-class ExaminationAct(MedicalAct, table=True):
-    id: Optional[uuid.UUID] = Field(default=None, foreign_key="medical_act.id", primary_key=True)
-    code_loinc: str
-    libelle_examen: str
-    type_examen: str
-    value: str
-    interpretation: str
-    image_path: Optional[str] = Field()
+class ExaminationAct(Base):
+    __tablename__ = "examinationact"
+
+    id = Column(UUID, ForeignKey("medicalact.id"), primary_key=True)
+    code_loinc = Column(String, nullable=False)
+    libelle_examen = Column(String, nullable=False)
+    type_examen = Column(String, nullable=False)
+    value = Column(String, nullable=False)
+    interpretation = Column(String, nullable=False)
+    image_path = Column(Text, nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "TypeActe.EXAMEN",

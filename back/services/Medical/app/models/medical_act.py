@@ -27,12 +27,12 @@ class MedicalAct(SQLModel, table=True):
     )
     practitioner_role_id: Optional[uuid.UUID] = Field(
         default=None,
-        foreign_key="practitioner_role.id",
+        foreign_key="practitionerrole.id",
     )
-    type: TypeActe
+    type_acte: TypeActe = Field(sa_column_kwargs={"name": "type"})
 
     __mapper_args__ = {
-        "polymorphic_on": "type",
+        "polymorphic_on": "type_acte",
         "polymorphic_identity": "medical_act_base"
     }
 

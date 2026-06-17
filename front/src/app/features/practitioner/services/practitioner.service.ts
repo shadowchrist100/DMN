@@ -1,48 +1,41 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { Practitioner, Organization } from '../dashboard/dashboard.model';
+import { MedicalPractitionerService } from './medical-practitioner.service';
 
 @Injectable({ providedIn: 'root' })
 export class PractitionerService {
+  private medicalPrac = inject(MedicalPractitionerService);
   private activeOrganizationId = signal<string | null>(null);
 
-  getCurrentPractitioner(): Promise<Practitioner> {
-    return Promise.resolve({
-      id: 'PRAC-001',
-      firstName: 'Sarah',
-      lastName: 'AGOSSA',
-      name: 'Dr. Sarah AGOSSA',
-      specialty: 'Médecine Générale',
-      rpps: '1000456789',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC_wbjSaptTJKnjj2Bd47-SBu-2ObqC9jJf6SDutNa5WlR3u3TwTyY62noEzF4i7NoYP-MKAm88NdtyTSQ24xrCtWA_U9EsUWKEw5uHO3f1uSHpRXVGmBry10LOpsuuGqAFl4uFYqD0KUsonVl0e0yzQB4UIwyXHlPG3VIS8NGTyEo5iNlm1ZatJUQg1Q_08apL2idCqnhfHSZV2b4DlUeycHFXbwCxa-oV6xbDQ_st83VFk1OBr-c-aQPzLHmpNRgfW18TRlF1Qaq_',
-      primaryFacility: 'Hôpital de Zone Calavi',
-      email: 'sarah.agossa@sante.bj',
-      phone: '+229 97 00 00 01',
-    });
+  getCurrentPractitioner(userId?: string): Promise<Practitioner> {
+    if (!userId) return Promise.resolve(MOCK_PRACTITIONER);
+    return firstValueFrom(this.medicalPrac.getPractitionerProfile(userId)).then(dto => ({
+      id: dto.id,
+      firstName: '',
+      lastName: '',
+      name: `Praticien ${dto.speciality}`,
+      specialty: dto.speciality,
+      rpps: dto.order_number || '',
+      avatar: '',
+      primaryFacility: dto.organizations[0]?.nom || '',
+      email: '',
+      phone: '',
+    }));
   }
 
-  getPractitionerOrganizations(): Promise<Organization[]> {
-    return Promise.resolve([
-      {
-        id: 'ORG-001',
-        name: 'Hôpital de Zone Calavi',
-        type: 'hospital',
-        role: 'Médecin généraliste',
-        since: new Date('2020-01-15'),
-        isPrimary: true,
-        address: 'Calavi, Atlantique',
-        phone: '+229 21 30 00 01',
-      },
-      {
-        id: 'ORG-002',
-        name: 'Cabinet Médical Les Cocotiers',
-        type: 'clinic',
-        role: 'Consultante',
-        since: new Date('2022-06-01'),
-        isPrimary: false,
-        address: 'Cotonou, Littoral',
-        phone: '+229 21 30 00 02',
-      },
-    ]);
+  getPractitionerOrganizations(userId?: string): Promise<Organization[]> {
+    if (!userId) return Promise.resolve(MOCK_ORGANIZATIONS);
+    return firstValueFrom(this.medicalPrac.getPractitionerProfile(userId)).then(dto =>
+      dto.organizations.map(org => ({
+        id: org.id,
+        name: org.nom,
+        type: org.type as Organization['type'],
+        role: org.role,
+        since: new Date(),
+        isPrimary: org.is_actif,
+      }))
+    );
   }
 
   setActiveOrganization(orgId: string): void {
@@ -53,3 +46,29 @@ export class PractitionerService {
     return this.activeOrganizationId();
   }
 }
+
+const MOCK_PRACTITIONER: Practitioner = {
+  id: 'PRAC-001',
+  firstName: 'Sarah',
+  lastName: 'AGOSSA',
+  name: 'Dr. Sarah AGOSSA',
+  specialty: 'Médecine Générale',
+  rpps: '1000456789',
+  avatar: '',
+  primaryFacility: 'Hôpital de Zone Calavi',
+  email: 'sarah.agossa@sante.bj',
+  phone: '+229 97 00 00 01',
+};
+
+const MOCK_ORGANIZATIONS: Organization[] = [
+  {
+    id: 'ORG-001', name: 'Hôpital de Zone Calavi', type: 'hospital',
+    role: 'Médecin généraliste', since: new Date('2020-01-15'), isPrimary: true,
+    address: 'Calavi, Atlantique', phone: '+229 21 30 00 01',
+  },
+  {
+    id: 'ORG-002', name: 'Cabinet Médical Les Cocotiers', type: 'clinic',
+    role: 'Consultante', since: new Date('2022-06-01'), isPrimary: false,
+    address: 'Cotonou, Littoral', phone: '+229 21 30 00 02',
+  },
+];

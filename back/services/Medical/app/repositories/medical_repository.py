@@ -146,6 +146,34 @@ class MedicalRepository:
         ).all())
 
     @classmethod
+    def get_diseases(cls, session: Session, user_id: str) -> list[dict]:
+        dmn_id = cls.get_dmn_id_by_user_id(session, user_id)
+        if not dmn_id:
+            return []
+
+        ma_ids = session.exec(
+            select(MedicalAct.id).where(MedicalAct.dmn_id == dmn_id)
+        ).all()
+
+        if not ma_ids:
+            return []
+
+        rows = session.execute(
+            text("""
+                SELECT d.id, d.date, d.note_clinique, d.statut_verification,
+                       dr.cid11 AS ref_code, dr.libelle AS ref_libelle
+                FROM diagnosis d
+                LEFT JOIN diagnosis_reference dr ON dr.id = d.diagnosis_ref_id
+                WHERE d.medical_act_id IN :ma_ids
+                  AND d.type = 'disease'
+                ORDER BY d.date DESC
+            """),
+            {"ma_ids": tuple(ma_ids)}
+        ).mappings().all()
+
+        return [dict(r) for r in rows]
+
+    @classmethod
     def get_consultations(cls, session: Session, user_id: str) -> list[dict]:
         dmn_id = cls.get_dmn_id_by_user_id(session, user_id)
         if not dmn_id:
@@ -156,11 +184,13 @@ class MedicalRepository:
                 SELECT ma.id, ma.raisons, ma.rapport_text, ma.observations_text,
                        c.duree_minutes,
                        pr.role AS practitioner_role,
-                       p.user_id AS practitioner_user_id, p.speciality
+                       p.user_id AS practitioner_user_id, p.speciality,
+                       hs.nom AS healthcare_nom
                 FROM medical_act ma
                 LEFT JOIN consultation c ON c.id = ma.id
                 LEFT JOIN practitioner_role pr ON pr.id = ma.practitioner_role_id
                 LEFT JOIN practitioner p ON p.id = pr.practitioner_id
+                LEFT JOIN healthcare_system hs ON hs.id = pr.health_care_system_id
                 WHERE ma.dmn_id = :dmn_id AND ma.type = :act_type
                 ORDER BY ma.id
             """),

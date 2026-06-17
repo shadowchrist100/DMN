@@ -1,17 +1,15 @@
-import uuid
-from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
-from datetime import date, datetime
-from app.types.enums import NatureExamination, TypePrescription
-from app.models.prescription import Prescription
+from sqlalchemy import Column, UUID, ForeignKey, String
+from app.base import Base
 
 
-class Examination(Prescription, table=True):
-    id: Optional[uuid.UUID] = Field(default=None, foreign_key="prescription.id", primary_key=True)
-    code_loinc: str
-    libelle: str
-    nature_examination: NatureExamination
+class Examination(Base):
+    __tablename__ = "examination"
+
+    id = Column(UUID, ForeignKey("prescription.id"), primary_key=True)
+    code_loinc = Column(String, nullable=False)
+    libelle = Column(String, nullable=False)
+    nature_examination = Column(String, nullable=False)
 
     __mapper_args__ = {
-        "polymorphic_identity": TypePrescription.EXAMINATION,
+        "polymorphic_identity": "examination",
     }

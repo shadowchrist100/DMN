@@ -1,22 +1,18 @@
-import uuid
-from typing import Optional, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
-from datetime import date
-from app.models.diagnosis import Diagnosis
-
-if TYPE_CHECKING:
-    from .dmn import DMN
+from sqlalchemy import Column, UUID, ForeignKey, String, Date
+from app.base import Base
 
 
-class Allergy(Diagnosis, table=True):
-    id: Optional[uuid.UUID] = Field(default=None, foreign_key="diagnosis.id", primary_key=True)
-    nature_allergie: str
-    categorie: str
-    libelle: str
-    criticite: str
-    statut_clinique: str
-    discover_at: date
-    reactions_text: str
+class Allergy(Base):
+    __tablename__ = "allergy"
+
+    id = Column(UUID, ForeignKey("diagnosis.id"), primary_key=True)
+    nature_allergie = Column(String, nullable=False)
+    categorie = Column(String, nullable=False)
+    libelle = Column(String, nullable=False)
+    criticite = Column(String, nullable=False)
+    statut_clinique = Column(String, nullable=False)
+    discover_at = Column(Date, nullable=False)
+    reactions_text = Column(String, nullable=False)
 
     __mapper_args__ = {
         "polymorphic_identity": "allergy",

@@ -13,7 +13,7 @@ class PrescriptionOrder(SQLModel, table=True):
     date_emission: datetime = Field(default_factory=datetime.now)
     statut: str = Field(default="active")
 
-    medical_act_id: uuid.UUID = Field(foreign_key="medical_act.id", unique=True)
+    medical_act_id: uuid.UUID = Field(foreign_key="medicalact.id", unique=True)
     medical_act: "MedicalAct" = Relationship(back_populates="prescription_order")
 
     directives: List["PrescriptionDirective"] = Relationship(back_populates="prescription_order")

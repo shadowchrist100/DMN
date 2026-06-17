@@ -1,15 +1,13 @@
-import uuid
-from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
-from app.models.prescription_directive import PrescriptionDirective
-from app.types.enums import TypeDirective
+from sqlalchemy import Column, UUID, ForeignKey, String, Integer
+from app.base import Base
 
 
-class SessionDirective(PrescriptionDirective, table=True):
-    id: Optional[uuid.UUID] = Field(default=None, foreign_key="prescription_directive.id", primary_key=True)
+class SessionDirective(Base):
+    __tablename__ = "sessiondirective"
 
-    nombre_seances: int
-    frequence_hebdo: str
-    objectifs_specifiques: str
+    id = Column(UUID, ForeignKey("prescriptiondirective.id"), primary_key=True)
+    nombre_seances = Column(Integer, nullable=False)
+    frequence_hebdo = Column(String, nullable=False)
+    objectifs_specifiques = Column(String, nullable=False)
 
-    __mapper_args__ = {"polymorphic_identity": TypeDirective.SOINS_REED_KINE}
+    __mapper_args__ = {"polymorphic_identity": "soins_reed_kine"}

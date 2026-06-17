@@ -17,21 +17,21 @@ class Diagnosis(SQLModel, table=True):
         primary_key=True,
     )
     statut_verification: DiagnosisVerification
-    date: date = Field(default_factory=date.today)
+    date_diagnosis: date = Field(default_factory=date.today, sa_column_kwargs={"name": "date"})
     note_clinique: Optional[str] = None
 
     medical_act_id: Optional[uuid.UUID] = Field(
         default=None,
-        foreign_key="medical_act.id",
+        foreign_key="medicalact.id",
     )
     diagnosis_ref_id: Optional[uuid.UUID] = Field(
         default=None,
-        foreign_key="diagnosis_reference.id",
+        foreign_key="diagnosisreference.id",
     )
 
-    type: str
+    type_diagnosis: str = Field(sa_column_kwargs={"name": "type"})
     __mapper_args__ = {
-        "polymorphic_on": "type",
+        "polymorphic_on": "type_diagnosis",
         "polymorphic_identity": "standard"
     }
 

@@ -14,7 +14,7 @@ class PrescriptionDirective(SQLModel, table=True):
     id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
     description_generale: str
 
-    prescription_order_id: uuid.UUID = Field(foreign_key="prescription_order.id")
+    prescription_order_id: uuid.UUID = Field(foreign_key="prescriptionorder.id")
     prescription_order: "PrescriptionOrder" = Relationship(back_populates="directives")
 
     type_directive: TypeDirective

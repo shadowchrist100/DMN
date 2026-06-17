@@ -1,16 +1,14 @@
-import uuid
-from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
-from datetime import date, datetime
-from app.types.enums import TypePrescription
-from app.models.prescription import Prescription
+from sqlalchemy import Column, UUID, ForeignKey, String
+from app.base import Base
 
 
-class Vaccine(Prescription, table=True):
-    id: Optional[uuid.UUID] = Field(default=None, foreign_key="prescription.id", primary_key=True)
-    code_cvx: str
-    libelle: str
+class Vaccine(Base):
+    __tablename__ = "vaccine"
+
+    id = Column(UUID, ForeignKey("prescription.id"), primary_key=True)
+    code_cvx = Column(String, nullable=False)
+    libelle = Column(String, nullable=False)
 
     __mapper_args__ = {
-        "polymorphic_identity": TypePrescription.VACCIN,
+        "polymorphic_identity": "vaccin",
     }

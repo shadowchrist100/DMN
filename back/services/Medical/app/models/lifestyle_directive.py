@@ -1,14 +1,12 @@
-import uuid
-from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
-from app.models.prescription_directive import PrescriptionDirective
-from app.types.enums import TypeDirective
+from sqlalchemy import Column, UUID, ForeignKey, String
+from app.base import Base
 
 
-class LifestyleDirective(PrescriptionDirective, table=True):
-    id: Optional[uuid.UUID] = Field(default=None, foreign_key="prescription_directive.id", primary_key=True)
+class LifestyleDirective(Base):
+    __tablename__ = "lifestyledirective"
 
-    titre_consigne: str
-    recommandations: str
+    id = Column(UUID, ForeignKey("prescriptiondirective.id"), primary_key=True)
+    titre_consigne = Column(String, nullable=False)
+    recommandations = Column(String, nullable=False)
 
-    __mapper_args__ = {"polymorphic_identity": TypeDirective.MODE_DE_VIE}
+    __mapper_args__ = {"polymorphic_identity": "mode_de_vie"}
