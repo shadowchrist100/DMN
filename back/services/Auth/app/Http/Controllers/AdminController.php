@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Organization;
 use App\Models\User;
+use App\Services\MedicalOrganizationServiceClient;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,10 +14,12 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class AdminController extends Controller
 {
     private UserService $userService;
+    private MedicalOrganizationServiceClient $orgClient;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, MedicalOrganizationServiceClient $orgClient)
     {
         $this->userService = $userService;
+        $this->orgClient = $orgClient;
     }
 
     public function createAdmin(Request $request): JsonResponse
@@ -74,14 +76,11 @@ class AdminController extends Controller
         ]);
     }
 
-    public function listPendingOrganizations(Request $request): JsonResponse
+    public function listPendingOrganizations(): JsonResponse
     {
-        return response()->json([
-            'organizations' => Organization::where('status', 'pending')
-                ->with('creator')
-                ->orderBy('created_at', 'desc')
-                ->get(),
-        ]);
+        $result = $this->orgClient->list(['status' => 'En attente']);
+
+        return response()->json($result);
     }
 
     public function verifyUser(Request $request, User $user): JsonResponse
@@ -114,45 +113,24 @@ class AdminController extends Controller
         ]);
     }
 
-    public function validateOrganization(Request $request, Organization $organization): JsonResponse
+    public function validateOrganization(Request $request, string $organization): JsonResponse
     {
         $request->validate([
             'status' => ['required', Rule::in(['active', 'suspended'])],
-            'suspension_reason' => ['required_if:status,suspended', 'string'],
         ]);
 
-        if ($organization->status !== 'pending' && $organization->status !== 'suspended') {
-            return response()->json(['message' => "L'organisation a déjà été traitée."], 400);
-        }
+        $data = $request->only('status');
+        $data['validated_by'] = $request->user()->id;
 
-        $organization->update([
-            'status' => $request->status,
-            'validated_by' => $request->user()->id,
-            'validated_at' => now(),
-        ]);
+        $result = $this->orgClient->validate($organization, $data);
 
-        $message = $request->status === 'active'
-            ? 'Organisation validée avec succès.'
-            : 'Organisation suspendue.';
-
-        return response()->json([
-            'message' => $message,
-            'organization' => $organization->load('creator', 'validator'),
-        ]);
+        return response()->json($result);
     }
 
     public function listOrganizations(Request $request): JsonResponse
     {
-        $status = $request->query('status');
+        $result = $this->orgClient->list($request->only('status'));
 
-        $query = Organization::with('creator', 'validator');
-
-        if ($status && in_array($status, ['pending', 'active', 'suspended'])) {
-            $query->where('status', $status);
-        }
-
-        return response()->json([
-            'organizations' => $query->orderBy('created_at', 'desc')->get(),
-        ]);
+        return response()->json($result);
     }
 }

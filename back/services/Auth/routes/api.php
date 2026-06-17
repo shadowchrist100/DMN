@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\OrganizationProxyController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,1');
@@ -36,5 +36,9 @@ Route::middleware(['auth:api', 'check.admin.medical'])->group(function () {
 });
 
 Route::middleware(['auth:api', 'check.admin.orga'])->group(function () {
-    Route::apiResource('/organizations', OrganizationController::class);
+    Route::get('/organizations', [OrganizationProxyController::class, 'index']);
+    Route::post('/organizations', [OrganizationProxyController::class, 'store']);
+    Route::get('/organizations/{organization}', [OrganizationProxyController::class, 'show']);
+    Route::put('/organizations/{organization}', [OrganizationProxyController::class, 'update']);
+    Route::delete('/organizations/{organization}', [OrganizationProxyController::class, 'destroy']);
 });
