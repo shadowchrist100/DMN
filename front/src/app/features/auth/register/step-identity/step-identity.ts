@@ -1,7 +1,7 @@
-import { Component, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, untracked, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RegisterStore } from '../register.store';
-import { required } from '@angular/forms/signals';
 
 const PHONE_RULES: Record<string, { lentgh: number; label: string; pattern: RegExp }> = {
     '+229': { label: 'Benin', lentgh: 10, pattern: /^[0-9]{10}$/ },
@@ -15,41 +15,31 @@ const PHONE_RULES: Record<string, { lentgh: number; label: string; pattern: RegE
     styleUrl: './step-identity.css',
 })
 export class StepIdentity implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private fb = inject(FormBuilder);
+
+    identityForm!: FormGroup;
+    store = RegisterStore;
+    phoneHint = signal<string>('Entrez votre numéro sans indicatif');
+    photoPreview = signal<string | null>(null);
+    photoFile = signal<File | null>(null);
+    photoError = signal<string | null>(null);
 
     constructor() {
         effect(() => {
-
             if (this.store.submited()) {
-                if (this.identityForm.invalid) {
-                    console.log(this.identityForm);
-                    
+                if (this.identityForm?.invalid) {
                     this.identityForm.markAllAsTouched();
                     this.store.setContinueSteps(false);
                 } else {
                     this.store.setContinueSteps(true);
                 }
-
-                untracked(() => {this.store.setSubmited(false);
-                });
+                untracked(() => { this.store.setSubmited(false); });
             }
         })
     }
 
-    identityForm!: FormGroup;
-    store = RegisterStore;
-
-    // Message d'erreur dynamique selon le préfixe choisi
-    phoneHint = signal<string>('Entrez votre numéro sans indicatif');
-
-    // Signals
-    photoPreview = signal<string | null>(null);
-    photoFile = signal<File | null>(null);
-    photoError = signal<string | null>(null);
-    fb = inject(FormBuilder);
-
     ngOnInit(): void {
-        //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-        //Add 'implements OnInit' to the class.
         this.identityForm = this.fb.group({
             firstName: ['', Validators.required],
             lastName: ['', [Validators.required]],
@@ -62,13 +52,11 @@ export class StepIdentity implements OnInit {
             phonePrefix: ['', [Validators.required]],
             city: ['', [Validators.required]],
             address: ['', [Validators.required]],
-
-            // Nouvelle gestion de la gémellité
-            isMultipleBirth: [null, [Validators.required]], // null au départ pour forcer le choix
-            birthOrder: [{ value: '', disabled: true }] // Désactivé par défaut
+            isMultipleBirth: [null, [Validators.required]],
+            birthOrder: [{ value: '', disabled: true }]
         }, { updateOn: 'blur' });
 
-        this.identityForm.valueChanges.subscribe((val) => {
+        this.identityForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val) => {
             this.store.setContinueSteps(this.identityForm.valid);
             if (this.identityForm.valid) {
                 this.store.setUserIdentity({
@@ -87,10 +75,9 @@ export class StepIdentity implements OnInit {
             }
         });
 
-        this.identityForm.get("phonePrefix")!.valueChanges.subscribe((prefix: string) => {
+        this.identityForm.get("phonePrefix")!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((prefix: string) => {
             this.identityForm.get('phone')!.updateValueAndValidity();
             const rule = PHONE_RULES[prefix];
-
             this.phoneHint.set(
                 rule ? `${rule.label} : ${rule.lentgh} chiffres requis` : 'Entrer votre numéro'
             )
@@ -126,12 +113,11 @@ export class StepIdentity implements OnInit {
 
     private maritalStatusValidator(): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
-            if (this.store.userType() === "PATIENT") {
-                control.setValidators(Validators.required)
-                return null;
-            } else {
-                return null;
+            const userType = this.store.userType();
+            if (userType === "PATIENT" || userType === "PRACTITIONER") {
+                return control.value ? null : { required: true };
             }
+            return null;
         }
     }
 
@@ -143,7 +129,7 @@ export class StepIdentity implements OnInit {
     }
 
     private watchMultipleBirth(): void {
-        this.identityForm.get('isMultipleBirth')?.valueChanges.subscribe((isMultiple: boolean) => {
+        this.identityForm.get('isMultipleBirth')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isMultiple: boolean) => {
             const birthOrderControl = this.identityForm.get('birthOrder');
 
             if (isMultiple) {

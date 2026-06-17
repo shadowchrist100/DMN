@@ -43,6 +43,10 @@ class UserService
 
         $user->update(['status_account' => 'verified']);
 
+        if ($user->role === 'patient') {
+            $this->medicalClient->createPatientDMN((string)$user->id);
+        }
+
         return $user;
     }
 

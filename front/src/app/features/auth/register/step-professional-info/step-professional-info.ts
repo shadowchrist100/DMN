@@ -1,4 +1,5 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RegisterStore } from '../register.store';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray, FormsModule } from '@angular/forms';
@@ -12,10 +13,28 @@ import { AvailableOrganization, PractitionerOrganization } from '../../../../cor
     styleUrl: './step-professional-info.css',
 })
 export class StepProfessionalInfo implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private fb = inject(FormBuilder);
+    private organisationService = inject(OrganisationService);
+
+    store = RegisterStore;
+    professionalInfoForm!: FormGroup;
+    availableOrganizations = signal<AvailableOrganization[]>([]);
+    selectedOrgs = signal<PractitionerOrganization[]>([]);
+    searchQuery = signal('');
+
+    filteredOrganizations = computed(() => {
+        const query = this.searchQuery().toLowerCase();
+        const selectedIds = new Set(this.selectedOrgs().map(o => o.organizationId));
+        return this.availableOrganizations().filter(
+            org => !selectedIds.has(org.id) && (!query || org.name.toLowerCase().includes(query) || org.city.toLowerCase().includes(query))
+        );
+    });
+
     constructor() {
         effect(() => {
             if (this.store.submited()) {
-                if (this.professionalInfoForm.invalid) {
+                if (this.professionalInfoForm?.invalid) {
                     this.professionalInfoForm.markAllAsTouched();
                     this.store.setContinueSteps(false);
                 } else {
@@ -24,23 +43,6 @@ export class StepProfessionalInfo implements OnInit {
             }
         })
     }
-
-    store = RegisterStore;
-    private fb = inject(FormBuilder);
-    private organisationService = inject(OrganisationService);
-
-    professionalInfoForm!: FormGroup;
-    availableOrganizations = signal<AvailableOrganization[]>([]);
-    selectedOrgs = signal<PractitionerOrganization[]>([]);
-    searchQuery = signal('');
-
-    filteredOrganizations = () => {
-        const query = this.searchQuery().toLowerCase();
-        const selectedIds = new Set(this.selectedOrgs().map(o => o.organizationId));
-        return this.availableOrganizations().filter(
-            org => !selectedIds.has(org.id) && (!query || org.name.toLowerCase().includes(query) || org.city.toLowerCase().includes(query))
-        );
-    };
 
     get organizationsArray(): FormArray {
         return this.professionalInfoForm.get('organizations') as FormArray;
@@ -57,7 +59,7 @@ export class StepProfessionalInfo implements OnInit {
             this.availableOrganizations.set(orgs);
         });
 
-        this.professionalInfoForm.valueChanges.subscribe(() => {
+        this.professionalInfoForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
             const valid = this.professionalInfoForm.get('orderNumber')?.valid
                 && this.professionalInfoForm.get('speciality')?.valid
                 && this.organizationsArray.length > 0;

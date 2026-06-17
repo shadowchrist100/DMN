@@ -45,7 +45,8 @@ export class ResetPassword {
     this.error.set('');
 
     try {
-      const token = this.route.snapshot.queryParams['token'] || 'mock-token';
+      const token = this.route.snapshot.queryParams['token'];
+      if (!token) { this.error.set('Lien invalide ou expiré.'); this.isLoading.set(false); return; }
       await this.authService.resetPassword(token, this.form.value.password!);
       this.message.set('Mot de passe réinitialisé avec succès.');
       setTimeout(() => this.router.navigateByUrl('/auth/login'), 2000);

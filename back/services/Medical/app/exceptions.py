@@ -11,3 +11,7 @@ def not_found(detail: str = "Ressource introuvable"):
 
 def bad_request(detail: str = "Requête invalide"):
     raise HTTPException(status_code=400, detail=detail)
+
+
+def forbidden(detail: str = "Accès non autorisé"):
+    raise HTTPException(status_code=403, detail=detail)

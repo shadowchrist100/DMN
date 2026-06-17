@@ -1,0 +1,94 @@
+<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col items-center justify-center
+p-margin-mobile md:p-margin-desktop relative overflow-hidden">
+    <div class="absolute inset-0 security-pattern opacity-40 -z-10"></div>
+    <main class="w-full max-w-2xl flex flex-col items-center text-center">
+        <div class="mb-stack-lg relative">
+            <div
+                class="w-24 h-24 md:w-32 md:h-32 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container shadow-sm border border-outline-variant/20">
+                <span class="material-symbols-outlined text-[48px] md:text-[64px]" data-icon="shield_lock"
+                    style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+            </div>
+            <div
+                class="absolute -top-2 -right-2 bg-error text-on-error w-10 h-10 rounded-full flex items-center justify-center border-4 border-background">
+                <span class="material-symbols-outlined text-[20px]" data-icon="block">block</span>
+            </div>
+        </div>
+        <div class="space-y-stack-md px-4">
+            <span class="font-label-caps text-secondary tracking-[0.2em] block">ERREUR 403</span>
+            <h1 class="font-h1 text-h1 text-primary">Accès refusé</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto">
+                Désolé, vous n'avez pas les autorisations nécessaires pour accéder à cette ressource sécurisée.
+            </p>
+        </div>
+        <div class="mt-stack-lg grid grid-cols-1 md:grid-cols-2 gap-gutter w-full max-w-xl">
+            <div class="bg-surface-container-lowest border border-outline-variant p-stack-md rounded-xl text-left">
+                <div class="flex items-center gap-stack-sm mb-stack-sm">
+                    <span class="material-symbols-outlined text-secondary" data-icon="gavel">gavel</span>
+                    <h3 class="font-h3 text-body-md font-bold text-primary">Consentement Absent</h3>
+                </div>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Le dossier patient requis n'est pas accessible sans un consentement explicite du citoyen ou un accès
+                    d'urgence autorisé.
+                </p>
+            </div>
+            <div class="bg-surface-container-lowest border border-outline-variant p-stack-md rounded-xl text-left">
+                <div class="flex items-center gap-stack-sm mb-stack-sm">
+                    <span class="material-symbols-outlined text-secondary" data-icon="account_tree">account_tree</span>
+                    <h3 class="font-h3 text-body-md font-bold text-primary">Rôle Insuffisant</h3>
+                </div>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Votre profil actuel ne dispose pas des privilèges administratifs ou cliniques requis pour cette
+                    section
+                    du portail.
+                </p>
+            </div>
+        </div>
+        <div class="mt-stack-lg flex flex-col md:flex-row gap-stack-md w-full justify-center">
+            <button (click)="goHome()"
+                class="bg-secondary text-on-secondary px-8 py-3 rounded-lg font-h3 text-body-md flex items-center justify-center gap-stack-sm hover:bg-secondary-container transition-all active:scale-95">
+                <span class="material-symbols-outlined" data-icon="home">home</span>
+                Retour à l'accueil
+            </button>
+            <button (click)="goBack()"
+                class="border border-secondary text-secondary px-8 py-3 rounded-lg font-h3 text-body-md flex items-center justify-center gap-stack-sm hover:bg-surface-container-low transition-all">
+                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                Retour précédent
+            </button>
+        </div>
+        <div class="mt-16 flex flex-col items-center gap-stack-sm">
+            <div class="flex gap-stack-lg grayscale opacity-60">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-primary-container text-xs"
+                            data-icon="verified_user">verified_user</span>
+                    </div>
+                    <span class="font-label-caps text-[10px] text-on-surface-variant">Conformité APDP</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-primary-container text-xs"
+                            data-icon="security">security</span>
+                    </div>
+                    <span class="font-label-caps text-[10px] text-on-surface-variant">Norme PSSIE</span>
+                </div>
+            </div>
+            <p class="font-body-sm text-[12px] text-outline italic">
+                République du Bénin — Agence des Systèmes d'Information et du Numérique
+            </p>
+        </div>
+    </main>
+    <div class="fixed top-0 left-0 w-full p-6 flex justify-between items-center pointer-events-none">
+        <div class="flex items-center gap-stack-sm">
+            <div class="bg-primary p-2 rounded">
+                <span class="material-symbols-outlined text-white" data-icon="health_and_safety"
+                    style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+            </div>
+            <span class="font-h2 text-primary font-black tracking-tighter">DMN Bénin</span>
+        </div>
+    </div>
+    <div class="absolute bottom-10 left-10 hidden xl:block opacity-20 pointer-events-none">
+        <img class="w-64 h-64 object-cover rounded-full grayscale"
+            data-alt="A highly detailed close-up of the official coat of arms of Benin, presented as a subtle watermark or stone carving style. The lighting is low-key and atmospheric, with soft shadows that emphasize the intricate details of the national symbol. The overall aesthetic is institutional and secure, utilizing a monochrome palette of soft grays and deep blues to maintain a medical-grade professional authority."
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBChJ9EGivcJ-TIT3o6e-j99vN_Btp8Vi42H0U81HZ47h8mqoNStpXAuZYDRqIRTSRR3LbybQ7FnQXutaor5kZyscgssZPGd8IAhMzWfjuduxubaBoS1mIOpBofITwW9fax8qpeK2_nk6EMuJvcCNz-D4--OZVXl-74ypZR6xIX1hlJc0ZSaoxxh6MAMM-KBncWkVEOxO6oN_xy8h1ZJaZvzZfbAEz4DXEXWTJ4wY6z4BO6EhGP_hwqWT_q99przrQtpe8Hf075FkJr" />
+    </div>
+</body>

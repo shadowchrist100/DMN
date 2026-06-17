@@ -1,5 +1,6 @@
-import { Component, effect, inject, signal, untracked } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ɵInternalFormsSharedModule, ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors } from "@angular/forms";
+import { Component, effect, inject, signal, untracked, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors } from "@angular/forms";
 import { RegisterStore } from '../register.store';
 
 const PHONE_RULES: Record<string, { label: string, length: number, pattern: RegExp }> = {
@@ -12,45 +13,44 @@ const PHONE_RULES: Record<string, { label: string, length: number, pattern: RegE
 
 @Component({
     selector: 'app-step-emergency-contact',
-    imports: [ɵInternalFormsSharedModule, ReactiveFormsModule],
+    imports: [ReactiveFormsModule],
     templateUrl: './step-emergency-contact.html',
     styleUrl: './step-emergency-contact.css',
 })
-export class StepEmergencyContact {
+export class StepEmergencyContact implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private fb = inject(FormBuilder);
+    store = RegisterStore;
+    emergencyForm!: FormGroup;
+    phoneHint = signal<string>('Benin: 10 chiffres requis');
 
-    constructor(){
-        effect(()=>{
+    constructor() {
+        effect(() => {
             if (this.store.submited()) {
-                if (this.emergencyForm.invalid) {
+                if (this.emergencyForm?.invalid) {
                     this.emergencyForm.markAllAsTouched();
                     this.store.setContinueSteps(false);
-                }else{
+                } else {
                     this.store.setContinueSteps(true);
                 }
             }
-
-            untracked(()=>{
+            untracked(() => {
                 this.store.setSubmited(false);
             })
         })
     }
-
-    store = RegisterStore;
-    private fb = inject(FormBuilder);
-    emergencyForm!: FormGroup;
-
-    phoneHint = signal<string>('Benin: 10 chiffres requis');
 
     ngOnInit(): void {
         this.emergencyForm = this.fb.group({
             firstName: ['', [Validators.required]],
             lastName: ['', [Validators.required]],
             phonePrefix: ['', [Validators.required]],
-            phone: ['', [Validators.required, this.phoneByPrefixValidator() ]],
-            relation: ['', [Validators.required]]
+            phone: ['', [Validators.required, this.phoneByPrefixValidator()]],
+            relation: ['', [Validators.required]],
+            emergencyContactConfirmed: [false, [Validators.requiredTrue]],
         }, { updateOn: 'blur' });
 
-        this.emergencyForm.get('phonePrefix')?.valueChanges.subscribe((prefix: string) => {
+        this.emergencyForm.get('phonePrefix')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((prefix: string) => {
             this.emergencyForm.get('phone')?.updateValueAndValidity();
             const role = PHONE_RULES[prefix];
             this.phoneHint.set(
@@ -58,7 +58,7 @@ export class StepEmergencyContact {
             );
         });
 
-        this.emergencyForm.valueChanges.subscribe((val) => {
+        this.emergencyForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val) => {
             this.store.setContinueSteps(this.emergencyForm.valid);
             if (this.emergencyForm.valid) {
                 this.store.setUserContact({

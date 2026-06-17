@@ -30,6 +30,5 @@ class DMN(SQLModel, table=True):
     patient: Optional["Patient"] = Relationship(back_populates="dmn")
 
     authorizations: List["Authorization"] = Relationship(back_populates="dmn")
-    medical_acts: List["MedicalAct"] = Relationship(back_populates="dmn")
 
     practitioner_roles : List["PractitionerRole"] = Relationship(back_populates= "dmns", link_model= MedicalAct )

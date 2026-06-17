@@ -36,6 +36,7 @@ export interface Iuser {
         password: string
     },
     role: userRole,
+    statusAccount?: string,
 }
 
 export interface AvailableOrganization {

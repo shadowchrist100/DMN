@@ -11,7 +11,7 @@ class MedicalOrganizationServiceClient
 
     public function __construct()
     {
-        $this->baseUrl = config('services.medical.base_url', 'http://localhost:8001');
+        $this->baseUrl = config('services.medical.base_url', 'http://localhost:8080');
     }
 
     public function create(array $data): array
@@ -47,7 +47,13 @@ class MedicalOrganizationServiceClient
     private function request(string $method, string $path, array $data = []): array
     {
         try {
+            $token = auth()->getToken()?->get();
+
             $http = Http::timeout(10);
+
+            if ($token) {
+                $http->withToken($token);
+            }
 
             if ($method === 'GET') {
                 $response = $http->get("{$this->baseUrl}{$path}", $data);

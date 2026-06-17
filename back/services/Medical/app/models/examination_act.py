@@ -1,10 +1,6 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 from sqlalchemy import Column, UUID, String, Text, ForeignKey
-from sqlalchemy.orm import relationship
 from app.models.medical_act import MedicalAct
-
-if TYPE_CHECKING:
-    from .diagnostic_evidence import DiagnosticEvidence
 
 
 class ExaminationAct(MedicalAct):
@@ -18,8 +14,6 @@ class ExaminationAct(MedicalAct):
     value = Column(String, nullable=False)
     interpretation = Column(String, nullable=False)
     image_path = Column(Text, nullable=True)
-
-    diagnostic_evidences = relationship("DiagnosticEvidence", back_populates="examination_act")
 
     __mapper_args__ = {
         "polymorphic_identity": "Examen",

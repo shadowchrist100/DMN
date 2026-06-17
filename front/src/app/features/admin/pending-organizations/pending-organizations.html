@@ -1,0 +1,74 @@
+<div class="min-h-screen bg-[#f8f9ff] font-['Public_Sans']">
+  <div class="max-w-7xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <a routerLink="/admin/dashboard" class="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          Retour au tableau de bord
+        </a>
+        <h1 class="text-2xl font-black text-slate-900">Organisations en attente de validation</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ organizations().length }} organisation(s) en attente</p>
+      </div>
+      <button (click)="onLogout()" class="text-sm text-slate-500 hover:text-red-600 flex items-center gap-1">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        Déconnexion
+      </button>
+    </div>
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    } @else if (organizations().length === 0) {
+    <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+      <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">domain_verification</span>
+      <p class="text-lg font-bold text-slate-700">Aucune organisation en attente</p>
+      <p class="text-sm text-slate-500 mt-1">Toutes les organisations ont été traitées.</p>
+    </div>
+    } @else {
+    <div class="space-y-4">
+      @for (org of organizations(); track org.id) {
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-amber-600">apartment</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900">{{ org.name }}</h3>
+              <div class="flex gap-3 mt-2">
+                <span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">{{ org.type }}</span>
+                <span class="text-xs text-slate-400">{{ org.city }}</span>
+                @if (org.phone) {
+                <span class="text-xs text-slate-400">{{ org.phone }}</span>
+                }
+                @if (org.email) {
+                <span class="text-xs text-slate-400">{{ org.email }}</span>
+                }
+              </div>
+              <p class="text-xs text-slate-400 mt-1">{{ org.address }}</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="onValidate(org)" [disabled]="actionLoading() === org.id"
+              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50">
+              @if (actionLoading() === org.id) {
+              <div class="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
+              } @else {
+              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+              }
+              Activer
+            </button>
+            <button (click)="onSuspend(org)" [disabled]="actionLoading() === org.id"
+              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-red-50 text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50">
+              <span class="material-symbols-outlined text-[18px]">block</span>
+              Suspendre
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Iuser } from '../models/user.model';
-import { userRole } from '../types/user.types';
+import { Gender, MaritalStatus, userRole } from '../types/user.types';
 import { API } from '../config/api.config';
 
 export interface LoginResponse {
@@ -10,7 +10,6 @@ export interface LoginResponse {
     access_token: string;
     token_type: string;
     expires_in: number;
-    requiresMfa: boolean;
 }
 
 const SPECIALITY_MAP: Record<string, string> = {
@@ -63,6 +62,7 @@ export interface RegisterPayload {
         lastName: string;
         phone: string;
         code_relation: string;
+        confirmed: boolean;
     };
     order_number?: string;
     speciality?: string;
@@ -70,18 +70,60 @@ export interface RegisterPayload {
     organizations?: { organization_id: string; role: string }[];
 }
 
+export interface ApiUser {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    role: string;
+    npi: string;
+    gender: string;
+    phone: string;
+    city: string;
+    address: string;
+    birth_date: string;
+    matrimonial_status: string;
+    photo_path: string | null;
+    organization_id: string | null;
+    status_account: string;
+    email_verified_at: string | null;
+}
+
 interface ApiRegisterResponse {
     message: string;
-    user: {
-        id: string;
-        first_name: string;
-        last_name: string;
-        email: string;
-        role: string;
-    };
+    user: ApiUser;
     access_token: string;
     token_type: string;
     expires_in: number;
+}
+
+function normalizeRole(role: string | undefined): userRole {
+    if (!role) return null;
+    if (role === 'patient' || role === 'practitioner') return role.toUpperCase() as userRole;
+    return role as userRole;
+}
+
+export function mapApiUserToIuser(apiUser: ApiUser): Iuser {
+    return {
+        identity: {
+            lastName: apiUser.last_name ?? '',
+            firstName: apiUser.first_name ?? '',
+            birthDate: apiUser.birth_date ? new Date(apiUser.birth_date) : new Date(),
+            gender: (apiUser.gender as Gender) ?? 'male',
+            npi: apiUser.npi ? Number(apiUser.npi) : 0,
+            maritalStatus: (apiUser.matrimonial_status as MaritalStatus) ?? 'single',
+            multipleBirth: null,
+            phone: apiUser.phone ?? '',
+            city: apiUser.city ?? '',
+            address: apiUser.address ?? '',
+            photoPath: apiUser.photo_path ?? '',
+        },
+        practitioner: null,
+        contact: null,
+        auth: { email: apiUser.email ?? '', password: '' },
+        role: normalizeRole(apiUser.role),
+        statusAccount: apiUser.status_account ?? 'unverified',
+    };
 }
 
 @Injectable({
@@ -99,11 +141,10 @@ export class AuthService {
         );
 
         return {
-            user: this.mapApiUserToIuser(result.user),
+            user: mapApiUserToIuser(result.user),
             access_token: result.access_token,
             token_type: result.token_type,
             expires_in: result.expires_in,
-            requiresMfa: userType === 'PRACTITIONER',
         };
     }
 
@@ -126,6 +167,7 @@ export class AuthService {
             formData.append('emergencyContact[lastName]', payload.emergencyContact.lastName);
             formData.append('emergencyContact[phone]', payload.emergencyContact.phone);
             formData.append('emergencyContact[code_relation]', payload.emergencyContact.code_relation);
+            formData.append('emergencyContact[confirmed]', '1');
         }
 
         if (payload.order_number) formData.append('order_number', payload.order_number);
@@ -145,16 +187,18 @@ export class AuthService {
         );
 
         return {
-            user: this.mapApiUserToIuser(result.user),
+            user: mapApiUserToIuser(result.user),
             access_token: result.access_token,
             token_type: result.token_type,
             expires_in: result.expires_in,
-            requiresMfa: false,
         };
     }
 
     async forgotPassword(email: string): Promise<{ message: string }> {
-        return { message: 'Un code OTP a été envoyé à votre adresse email.' };
+        const result = await firstValueFrom(
+            this.http.post<{ message: string }>(`${API.AUTH_BASE_URL}/forgot-password`, { email })
+        );
+        return result;
     }
 
     async resetPassword(token: string, password: string): Promise<{ message: string }> {
@@ -164,30 +208,4 @@ export class AuthService {
         return { message: 'Mot de passe réinitialisé avec succès.' };
     }
 
-    async verifyMfa(code: string): Promise<{ token: string }> {
-        if (code.length !== 6) throw new Error('Code invalide');
-        return { token: 'mock-mfa-token-' + Date.now() };
-    }
-
-    private mapApiUserToIuser(apiUser: ApiRegisterResponse['user']): Iuser {
-        return {
-            identity: {
-                lastName: apiUser.last_name ?? '',
-                firstName: apiUser.first_name ?? '',
-                birthDate: new Date(),
-                gender: 'male',
-                npi: 0,
-                maritalStatus: 'single',
-                multipleBirth: null,
-                phone: '',
-                city: '',
-                address: '',
-                photoPath: '',
-            },
-            practitioner: null,
-            contact: null,
-            auth: { email: apiUser.email ?? '', password: '' },
-            role: (apiUser.role as userRole) ?? null,
-        };
-    }
 }

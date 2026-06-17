@@ -1,4 +1,5 @@
-import { Component, output, OnInit, signal } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RegisterStore } from '../register.store';
 import { FormControl, ReactiveFormsModule, Validators, } from '@angular/forms';
 
@@ -9,13 +10,13 @@ import { FormControl, ReactiveFormsModule, Validators, } from '@angular/forms';
     styleUrl: './step-type-compte.css',
 })
 export class StepTypeCompte implements OnInit {
+    private destroyRef = inject(DestroyRef);
     store = RegisterStore;
     acceptPolitic!: FormControl;
 
     ngOnInit(): void {
-        // Initial emit if a type is already selected
         this.acceptPolitic = new FormControl(false, [Validators.requiredTrue])
-        this.acceptPolitic.valueChanges.subscribe((accepted) => {
+        this.acceptPolitic.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((accepted) => {
             this.checkValidation(accepted);
         })
     }

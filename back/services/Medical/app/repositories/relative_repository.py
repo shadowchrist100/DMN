@@ -25,6 +25,7 @@ class RelativeRepository:
             patient_id=patient_id,
             relative_id=contact.id,
             code_relation=data.code_relation,
+            emergency_contact=True,
         )
         session.add(relation)
 

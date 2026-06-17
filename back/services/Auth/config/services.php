@@ -36,7 +36,7 @@ return [
     ],
 
     'medical' => [
-        'base_url' => env('MEDICAL_SERVICE_URL', 'http://localhost:8001'),
+        'base_url' => env('MEDICAL_SERVICE_URL', 'http://localhost:8080'),
     ],
 
 ];

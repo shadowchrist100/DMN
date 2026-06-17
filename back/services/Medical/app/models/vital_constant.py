@@ -1,10 +1,9 @@
 import uuid
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 
 if TYPE_CHECKING:
-    from .medical_act import MedicalAct
     from .vital_constant_reference import VitalConstantReference
 
 
@@ -21,5 +20,4 @@ class VitalConstant(SQLModel, table=True):
     date_mesure: datetime = Field(default_factory=datetime.now)
     valeur: float
 
-    medical_act: "MedicalAct" = Relationship(back_populates="vital_constants")
     constant_ref: "VitalConstantReference" = Relationship(back_populates="mesures")

@@ -42,3 +42,22 @@ class PatientService:
         )
         results = session.exec(statement).all()
         return [(contact, relation) for contact, relation in results]
+
+    @staticmethod
+    def create_dmn(session: Session, user_id: str):
+        from app.exceptions import not_found, conflict
+        from app.repositories.dmn_repository import DMNRepository
+        from app.models.dmn import DMN
+
+        patient = PatientRepository.get_by_user_id(session, user_id)
+        if not patient:
+            not_found("Patient introuvable")
+        
+        if DMNRepository.get_by_patient_id(session, patient.id):
+            conflict("Un DMN existe déjà pour ce patient")
+
+        dmn = DMN(patient_id=patient.id)
+        session.add(dmn)
+        session.commit()
+        session.refresh(dmn)
+        return dmn

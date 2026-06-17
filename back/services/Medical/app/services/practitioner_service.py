@@ -16,13 +16,14 @@ class PractitionerService:
         if PractitionerRepository.exists_by_user_id(session, req.user_id):
             conflict("Un praticien avec ce user_id existe déjà")
 
-        org = session.exec(
-            select(HealthcareSystem).where(HealthcareSystem.id == req.organization_id)
-        ).first()
-        if not org:
-            not_found("Organisation introuvable")
-        if org.verification_status != StatutVerification.VALIDE:
-            bad_request("L'organisation référencée n'est pas vérifiée")
+        if req.organization_id:
+            org = session.exec(
+                select(HealthcareSystem).where(HealthcareSystem.id == req.organization_id)
+            ).first()
+            if not org:
+                not_found("Organisation introuvable")
+            if org.verification_status != StatutVerification.VALIDE:
+                bad_request("L'organisation référencée n'est pas vérifiée")
 
         practitioner = PractitionerRepository.create(
             session,
@@ -32,13 +33,14 @@ class PractitionerService:
             organization_id=req.organization_id,
         )
 
-        role = PractitionerRole(
-            practitioner_id=practitioner.id,
-            health_care_system_id=org.id,
-            role="medecin",
-            start_date=date.today(),
-        )
-        session.add(role)
+        if req.organization_id:
+            role = PractitionerRole(
+                practitioner_id=practitioner.id,
+                health_care_system_id=org.id,
+                role="medecin",
+                start_date=date.today(),
+            )
+            session.add(role)
 
         session.commit()
         session.refresh(practitioner)

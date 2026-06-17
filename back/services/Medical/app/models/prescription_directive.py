@@ -1,7 +1,5 @@
 import uuid
-from typing import Optional, List, TYPE_CHECKING
 from sqlalchemy import Column, UUID, String, ForeignKey
-from sqlalchemy.orm import relationship
 from app.base import Base
 
 
@@ -17,5 +15,3 @@ class PrescriptionDirective(Base):
         "polymorphic_on": "type_directive",
         "polymorphic_identity": "directive_base"
     }
-
-    prescription_order = relationship("PrescriptionOrder", back_populates="directives")

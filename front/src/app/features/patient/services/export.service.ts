@@ -1,17 +1,15 @@
 // export.service.ts
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { TimelineFilter } from '../models/timeline-event.model';
-// import { environment } from '../../../environments/environment';
+import { API } from '../../../core/config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class ExportService {
-
-    private apiUrl = `$/export`;
-
-    constructor(private http: HttpClient) { }
+    private http = inject(HttpClient);
+    private apiUrl = `${API.MEDICAL_BASE_URL}/export`;
 
     /**
      * Exporte la timeline d'un patient

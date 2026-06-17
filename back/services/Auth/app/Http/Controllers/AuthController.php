@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use App\Services\UserService;
+use Symfony\Component\HttpFoundation\Cookie;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -61,6 +62,7 @@ class AuthController extends Controller
             'emergencyContact.lastName' => ['required_if:role,patient', 'string'],
             'emergencyContact.phone' => ['required_if:role,patient', 'string'],
             'emergencyContact.code_relation' => ['required_if:role,patient', 'string'],
+            'emergencyContact.confirmed' => ['required_if:role,patient', 'accepted'],
         ]);
 
         $user = $this->userService->register($data);
@@ -69,13 +71,13 @@ class AuthController extends Controller
 
         $token = JWTAuth::fromUser($user);
 
-        return response()->json([
+        return $this->jsonWithCookie([
             'message' => 'Inscription réussie. Veuillez vérifier votre email.',
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
-        ], 201);
+        ], $token, 201);
     }
 
     public function login(Request $request): JsonResponse
@@ -95,13 +97,13 @@ class AuthController extends Controller
             ? 'Connexion réussie. Votre compte est en attente de vérification.'
             : 'Connexion réussie.';
 
-        return response()->json([
+        return $this->jsonWithCookie([
             'message' => $message,
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
-        ]);
+        ], $token);
     }
 
     public function me(): JsonResponse
@@ -115,18 +117,31 @@ class AuthController extends Controller
     {
         auth()->logout();
 
-        return response()->json(['message' => 'Déconnexion réussie.']);
+        return response()->json(['message' => 'Déconnexion réussie.'])
+            ->withoutCookie('refresh_token', '/');
     }
 
-    public function refresh(): JsonResponse
+    public function refresh(Request $request): JsonResponse
     {
-        $token = auth()->refresh();
+        $jwt = $request->cookie('refresh_token');
 
-        return response()->json([
-            'access_token' => $token,
+        if (!$jwt) {
+            return response()->json(['message' => 'Session expirée.'], 401);
+        }
+
+        try {
+            $newToken = auth()->setToken($jwt)->refresh();
+            $user = auth()->setToken($newToken)->user();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Session invalide ou expirée.'], 401);
+        }
+
+        return $this->jsonWithCookie([
+            'access_token' => $newToken,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
-        ]);
+            'user' => $user,
+        ], $newToken);
     }
 
     public function verify(Request $request, User $user): JsonResponse
@@ -235,5 +250,24 @@ class AuthController extends Controller
         $user->sendEmailVerificationNotification();
 
         return response()->json(['message' => 'Email de vérification renvoyé.']);
+    }
+
+    private function jsonWithCookie(array $data, string $token, int $status = 200): JsonResponse
+    {
+        $refreshTtl = config('jwt.refresh_ttl', 20160);
+
+        $cookie = Cookie::create(
+            'refresh_token',
+            $token,
+            now()->addMinutes($refreshTtl),
+            '/',
+            null,
+            true,
+            true,
+            false,
+            'none'
+        );
+
+        return response()->json($data, $status)->withCookie($cookie);
     }
 }

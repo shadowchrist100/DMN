@@ -124,6 +124,19 @@
                     </div>
                 </div>
 
+                <!-- Error Banner -->
+                @if (error()) {
+                <div class="mb-6 p-4 bg-error-container border border-error rounded-2xl flex items-start gap-3 shadow-sm"
+                    role="alert">
+                    <span class="material-symbols-outlined text-error text-xl shrink-0 mt-0.5">error</span>
+                    <div class="text-body-sm text-on-error-container font-medium">{{ error() }}</div>
+                    <button (click)="error.set('')"
+                        class="ml-auto shrink-0 text-on-error-container/60 hover:text-on-error-container transition-colors">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
+                }
+
                 <!-- Step Component Container -->
                 <div class="grow animate-in fade-in slide-in-from-bottom-4 duration-700">
                     @switch (store.currentStep()) {
@@ -143,10 +156,21 @@
                         Retour
                     </button>
 
-                    <button (click)="handleContinue()"
-                        class="w-full sm:w-auto px-12 py-4 bg-secondary text-white rounded-xl font-bold text-body-md hover:bg-secondary-container hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-md">
-                        {{ store.currentStep() === 4 ? 'Finaliser l\'inscription' : 'Continuer l\'étape suivante' }}
+                    <button (click)="handleContinue()" [disabled]="loading()"
+                        class="w-full sm:w-auto px-12 py-4 bg-secondary text-white rounded-xl font-bold text-body-md hover:bg-secondary-container hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-md disabled:opacity-50 disabled:pointer-events-none">
+                        @if (loading()) {
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        } @else {
                         <span class="material-symbols-outlined text-xl">arrow_forward</span>
+                        }
+                        {{ store.currentStep() === 4 ? 'Finaliser l\'inscription' : 'Continuer l\'étape suivante' }}
                     </button>
                 </div>
 

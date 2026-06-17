@@ -1,20 +1,17 @@
 // src/app/features/patient/timeline/services/timeline.service.ts
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
 
 import { TimelineEvent, TimelineFilter, EventType } from '../models/timeline-event.model';
-// import { environment } from '../../../../environments/environment';
+import { API } from '../../../core/config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class TimelineService {
-
-    // private apiUrl = `${environment.apiUrl}/patient`;
-    private apiUrl = '/patient';
-
-    constructor(private http: HttpClient) { }
+    private http = inject(HttpClient);
+    private apiUrl = `${API.MEDICAL_BASE_URL}/patient`;
 
     /**
      * Récupère la timeline complète d'un patient

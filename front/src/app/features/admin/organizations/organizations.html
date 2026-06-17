@@ -1,0 +1,194 @@
+<div class="min-h-screen bg-[#f8f9ff] font-['Public_Sans']">
+  <div class="max-w-7xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <a routerLink="/admin/dashboard" class="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          Retour au tableau de bord
+        </a>
+        <h1 class="text-2xl font-black text-slate-900">Gestion des organisations</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ organizations().length }} organisation(s)</p>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (canCreate()) {
+        <button (click)="openCreateForm()"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-secondary text-white hover:opacity-90 transition-colors">
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          Nouvelle organisation
+        </button>
+        }
+        <button (click)="onLogout()" class="text-sm text-slate-500 hover:text-red-600 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[18px]">logout</span>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    } @else if (organizations().length === 0) {
+    <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+      <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">apartment</span>
+      <p class="text-lg font-bold text-slate-700">Aucune organisation</p>
+      <p class="text-sm text-slate-500 mt-1">Commencez par créer une organisation.</p>
+      @if (canCreate()) {
+      <button (click)="openCreateForm()" class="mt-4 px-6 py-2.5 rounded-lg text-sm font-bold bg-secondary text-white hover:opacity-90 transition-colors">
+        Créer une organisation
+      </button>
+      }
+    </div>
+    } @else {
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+            <th class="text-left px-6 py-4 font-bold">Nom</th>
+            <th class="text-left px-6 py-4 font-bold">Type</th>
+            <th class="text-left px-6 py-4 font-bold">Ville</th>
+            <th class="text-left px-6 py-4 font-bold">Statut</th>
+            <th class="text-right px-6 py-4 font-bold">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (org of organizations(); track org.id) {
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-4">
+              <p class="font-bold text-slate-900">{{ org.name }}</p>
+              @if (org.email) {
+              <p class="text-xs text-slate-400 mt-0.5">{{ org.email }}</p>
+              }
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">{{ org.type }}</span>
+            </td>
+            <td class="px-6 py-4 text-slate-500">{{ org.city }}</td>
+            <td class="px-6 py-4">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                [class.bg-emerald-50]="org.status === 'active'"
+                [class.text-emerald-700]="org.status === 'active'"
+                [class.bg-amber-50]="org.status === 'En attente'"
+                [class.text-amber-700]="org.status === 'En attente'"
+                [class.bg-red-50]="org.status === 'suspended'"
+                [class.text-red-700]="org.status === 'suspended'">
+                {{ org.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              @if (canCreate()) {
+              <button (click)="openEditForm(org)"
+                class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+              </button>
+              <button (click)="openDeleteConfirm(org)"
+                class="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+</div>
+
+@if (showForm()) {
+<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" (click)="closeForm()">
+  <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-slate-900 mb-6">{{ editOrg() ? 'Modifier' : 'Nouvelle' }} organisation</h3>
+
+    @if (formError()) {
+    <div class="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm font-medium flex items-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">error</span>
+      {{ formError() }}
+    </div>
+    }
+
+    <div class="space-y-4">
+      <div>
+        <label class="text-sm font-medium text-slate-700 block mb-1.5">Nom <span class="text-red-500">*</span></label>
+        <input [(ngModel)]="formPayload().name"
+          class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:border-secondary outline-none"
+          placeholder="Nom de l'organisation" />
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-700 block mb-1.5">Type <span class="text-red-500">*</span></label>
+        <select [(ngModel)]="formPayload().type"
+          class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:border-secondary outline-none bg-white">
+          <option value="">Sélectionnez un type</option>
+          <option value="hopital">Hôpital</option>
+          <option value="clinique">Clinique</option>
+          <option value="cabinet">Cabinet</option>
+          <option value="laboratoire">Laboratoire</option>
+          <option value="pharmacie">Pharmacie</option>
+          <option value="centre_sante">Centre de Santé</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium text-slate-700 block mb-1.5">Ville <span class="text-red-500">*</span></label>
+          <input [(ngModel)]="formPayload().city"
+            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:border-secondary outline-none"
+            placeholder="Ville" />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-slate-700 block mb-1.5">Téléphone</label>
+          <input [(ngModel)]="formPayload().phone"
+            class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:border-secondary outline-none"
+            placeholder="+229 XX XX XX XX" />
+        </div>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-700 block mb-1.5">Adresse <span class="text-red-500">*</span></label>
+        <input [(ngModel)]="formPayload().address"
+          class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:border-secondary outline-none"
+          placeholder="Adresse complète" />
+      </div>
+      <div>
+        <label class="text-sm font-medium text-slate-700 block mb-1.5">Email</label>
+        <input [(ngModel)]="formPayload().email"
+          class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:border-secondary outline-none"
+          placeholder="contact@organisation.bj" type="email" />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+      <button (click)="closeForm()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+        Annuler
+      </button>
+      <button (click)="onSubmit()" [disabled]="formLoading()"
+        class="px-6 py-2 rounded-lg text-sm font-bold bg-secondary text-white hover:opacity-90 transition-colors disabled:opacity-50 flex items-center gap-2">
+        @if (formLoading()) {
+        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        }
+        {{ editOrg() ? 'Enregistrer' : 'Créer' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+@if (deleteConfirm()) {
+<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" (click)="closeDeleteConfirm()">
+  <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-slate-900 mb-2">Supprimer l'organisation</h3>
+    <p class="text-sm text-slate-500 mb-6">
+      Êtes-vous sûr de vouloir supprimer <strong>{{ deleteConfirm()?.name }}</strong> ? Cette action est irréversible.
+    </p>
+    <div class="flex justify-end gap-3">
+      <button (click)="closeDeleteConfirm()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+        Annuler
+      </button>
+      <button (click)="onDelete()" [disabled]="actionLoading() === deleteConfirm()?.id"
+        class="px-4 py-2 rounded-lg text-sm font-bold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+        Supprimer
+      </button>
+    </div>
+  </div>
+</div>
+}

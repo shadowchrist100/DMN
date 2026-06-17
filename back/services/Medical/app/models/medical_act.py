@@ -4,6 +4,15 @@ from sqlalchemy import Column, UUID, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from app.base import Base
 
+if TYPE_CHECKING:
+    from .practitioner_role import PractitionerRole
+    from .dmn import DMN
+    from .care_episode import CareEpisode
+    from .diagnosis import Diagnosis
+    from .prescription_order import PrescriptionOrder
+    from .vital_constant import VitalConstant
+    from .prescription_examen import PrescriptionExamen
+
 
 class MedicalAct(Base):
     __tablename__ = "medicalact"
@@ -22,10 +31,5 @@ class MedicalAct(Base):
         "polymorphic_identity": "medical_act_base"
     }
 
-    dmn = relationship("DMN", back_populates="medical_acts")
-    practitioner_role = relationship("PractitionerRole", back_populates="medical_acts")
-    care_episode = relationship("CareEpisode", back_populates="medical_acts")
     diagnoses = relationship("Diagnosis", back_populates="medical_act")
-    prescription_order = relationship("PrescriptionOrder", back_populates="medical_act", uselist=False)
-    vital_constants = relationship("VitalConstant", back_populates="medical_act")
     prescriptions_examens = relationship("PrescriptionExamen", back_populates="medical_act")

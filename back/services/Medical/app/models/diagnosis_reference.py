@@ -1,9 +1,6 @@
 import uuid
-from typing import Optional, List, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
-
-if TYPE_CHECKING:
-    from .diagnosis import Diagnosis
+from typing import Optional
+from sqlmodel import Field, SQLModel
 
 
 class DiagnosisReference(SQLModel, table=True):
@@ -13,5 +10,3 @@ class DiagnosisReference(SQLModel, table=True):
     )
     code_cid11: str = Field(index=True, unique=True)
     libelle: str
-
-    diagnoses: List["Diagnosis"] = Relationship(back_populates="diagnosis_ref")

@@ -16,6 +16,7 @@ import { PractitionerService } from '../services/practitioner.service';
 import { PatientService } from '../services/patient.service';
 import { ConsentService } from '../services/consent.service';
 import { AuditService } from '../services/audit.service';
+import { AuthStore } from '../../../core/auth/auth.store';
 
 @Component({
     selector: 'app-dashboard',
@@ -24,6 +25,7 @@ import { AuditService } from '../services/audit.service';
     styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
+    authStore = AuthStore;
     loading = signal(true);
     practitioner = signal<Practitioner | null>(null);
     stats = signal<PractitionerStats>({
@@ -225,8 +227,14 @@ export class Dashboard implements OnInit {
             console.error('Erreur refus:', error);
         }
     }
+    
     switchOrganization(orgId: string): void {
         this.practitionerService.setActiveOrganization(orgId);
         this.loadDashboardData();
+    }
+
+    onLogout(): void {
+        this.authStore.clearAuth();
+        this.router.navigate(['/auth/login']);
     }
 }

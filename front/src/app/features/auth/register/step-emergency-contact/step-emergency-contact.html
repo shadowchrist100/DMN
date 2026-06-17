@@ -131,4 +131,44 @@
         </p>
         }
     </div>
+
+    <!-- Avis et confirmation contact d'urgence -->
+    <div class="bg-surface-container-low rounded-2xl border border-outline-variant p-6 space-y-4">
+        <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-warning shrink-0 mt-0.5">warning_amber</span>
+            <div class="text-body-sm text-on-surface-variant space-y-2">
+                <p class="font-bold text-on-surface">Information importante</p>
+                <p>
+                    La personne que vous désignez ci-dessus sera enregistrée comme votre <strong>contact d'urgence</strong>.
+                    En cas d'urgence médicale, les professionnels de santé pourront la contacter.
+                </p>
+                <p>
+                    Vous reconnaissez que ce contact sera informé de votre prise en charge et que ses coordonnées
+                    seront conservées dans votre dossier médical numérique.
+                </p>
+            </div>
+        </div>
+
+        <label class="flex items-start gap-3 cursor-pointer pt-2">
+            <div class="relative shrink-0 mt-0.5">
+                <input type="checkbox" formControlName="emergencyContactConfirmed"
+                    class="peer sr-only" />
+                <div
+                    class="w-5 h-5 border-2 border-outline-variant rounded-md peer-checked:bg-secondary peer-checked:border-secondary transition-all flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white text-[14px] peer-checked:block hidden">check</span>
+                </div>
+            </div>
+            <span class="font-body-sm text-on-surface">
+                Je confirme que cette personne sera mon <strong>contact d'urgence</strong> et
+                j'autorise le personnel médical à la contacter si nécessaire.
+                <span class="text-error">*</span>
+            </span>
+        </label>
+        @if (emergencyForm.get('emergencyContactConfirmed')?.touched && emergencyForm.get('emergencyContactConfirmed')?.invalid) {
+        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-1">
+            <span class="material-symbols-outlined text-[14px]">error_outline</span>
+            Vous devez confirmer pour continuer
+        </p>
+        }
+    </div>
 </form>

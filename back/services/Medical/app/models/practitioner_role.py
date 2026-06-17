@@ -21,5 +21,4 @@ class PractitionerRole(SQLModel, table=True):
     practitioner: "Practitioner" = Relationship(back_populates="roles")
     health_care_system: "HealthcareSystem" = Relationship(back_populates="roles")
 
-    medical_acts: List["MedicalAct"] = Relationship(back_populates="practitioner_role")
     dmns: List["DMN"] = Relationship(back_populates="practitioner_roles", link_model=MedicalAct)

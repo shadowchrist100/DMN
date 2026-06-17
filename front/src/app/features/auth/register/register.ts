@@ -19,6 +19,7 @@ export class Register {
     store = RegisterStore;
     continue = signal<boolean>(false);
     error = signal<string>('');
+    loading = signal<boolean>(false);
     private router = inject(Router);
     private authService = inject(AuthService);
     private authStore = AuthStore;
@@ -62,6 +63,7 @@ export class Register {
         const files = this.store.files();
         if (!user?.auth.email) return;
 
+        this.loading.set(true);
         this.error.set('');
 
         try {
@@ -86,6 +88,7 @@ export class Register {
                     lastName: user.contact.lastName,
                     phone: user.contact.phone,
                     code_relation: user.contact.relation,
+                    confirmed: true,
                 };
             }
 
@@ -131,6 +134,8 @@ export class Register {
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Erreur lors de l\'inscription';
             this.error.set(msg);
+        } finally {
+            this.loading.set(false);
         }
     }
 

@@ -1,0 +1,158 @@
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+    <!-- TopNavBar Header Component -->
+    <header
+        class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none font-['Public_Sans'] font-medium antialiased flex justify-between items-center w-full px-6 py-3 fixed top-0 z-50">
+        <div class="flex items-center gap-4">
+            <span class="text-xl font-bold text-blue-900 dark:text-white tracking-tight">DMN Bénin</span>
+            <div class="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
+            <span class="text-slate-500 text-sm hidden md:block">Portail de Santé National</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div
+                class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400">
+                <span class="material-symbols-outlined text-lg" data-icon="search">search</span>
+                <span class="text-sm">Rechercher...</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button
+                    class="text-slate-500 hover:text-blue-800 p-2 transition-colors cursor-pointer active:opacity-80">
+                    <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+                </button>
+                <button
+                    class="text-slate-500 hover:text-blue-800 p-2 transition-colors cursor-pointer active:opacity-80">
+                    <span class="material-symbols-outlined" data-icon="help">help</span>
+                </button>
+                <button
+                    class="text-slate-500 hover:text-blue-800 p-2 transition-colors cursor-pointer active:opacity-80">
+                    <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                </button>
+                <div
+                    class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden">
+                    <img alt="User profile photo" class="w-full h-full object-cover"
+                        data-alt="A professional close-up portrait of a West African doctor wearing a white lab coat and a stethoscope around his neck. The lighting is soft and clinical, set against a blurred medical office background with blue and white tones. The image conveys authority, reliability, and precision in a high-end corporate medical style."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBItDmppVhZTOLuNMonFHK109qsud3U_kbdD0CZufxtsDfSLe1wfj6woBqUR9Fr64oXmiuU858y3eAxwIwo1NkRZQZ_TD4L_NQLn2P1e_R83L2UriqrxlSnEvmC0Yf1r6zh0-YhE6YyVUdEsgGVFAbjxgYFwvFAvYufXM9xax8GTRk9YY6boCq1CloR3uvksTtZ5RlnxnV0aMIqqSv7A8V4Tx6mMM1scSO60UNhcK4Y5rLa-5kZHF94Dab-UKpg6FKmw0b-ruyBhlNm" />
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="flex-grow flex items-center justify-center pt-24 pb-12 px-6">
+        <div class="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <!-- Visual Section -->
+            <div class="flex justify-center md:justify-end order-1 md:order-2">
+                <div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
+                    <!-- Geometric Background shapes for "Medical Grade" feel -->
+                    <div class="absolute inset-0 bg-primary-container/5 rounded-full blur-3xl"></div>
+                    <div class="absolute w-48 h-48 border border-primary-container/20 rounded-full animate-pulse"></div>
+                    <div class="relative flex flex-col items-center">
+                        <span class="text-[120px] font-black text-primary-container/10 select-none">404</span>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div
+                                class="bg-white p-6 rounded-xl shadow-lg border border-slate-100 flex flex-col items-center">
+                                <span class="material-symbols-outlined text-6xl text-error mb-2"
+                                    data-icon="search_off">search_off</span>
+                                <div class="w-12 h-1 bg-error rounded-full mb-4"></div>
+                                <span
+                                    class="font-mono-data text-slate-400 text-[10px] uppercase tracking-widest">ERROR_CODE_INVALID_PATH</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Content Section -->
+            <div class="space-y-8 text-center md:text-left order-2 md:order-1">
+                <div>
+                    <span
+                        class="inline-flex items-center gap-2 px-3 py-1 bg-error-container text-on-error-container rounded-full font-label-caps text-[10px] mb-4">
+                        <span class="material-symbols-outlined text-sm" data-icon="warning">warning</span>
+                        RESSOURCE INTROUVABLE
+                    </span>
+                    <h1 class="font-h1 text-h1 text-primary mb-4">La page que vous recherchez est introuvable.</h1>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
+                        Le lien est peut-être expiré, ou l'adresse a été saisie de manière incorrecte. Veuillez vérifier
+                        l'URL ou utiliser les options ci-dessous.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <button (click)="goHome()"
+                        class="inline-flex items-center justify-center gap-2 bg-primary text-white font-body-md py-3 px-6 rounded shadow-sm hover:opacity-90 transition-all active:scale-95">
+                        <span class="material-symbols-outlined" data-icon="home">home</span>
+                        Retour à l'accueil
+                    </button>
+                    <button (click)="goBack()"
+                        class="inline-flex items-center justify-center gap-2 border border-primary text-primary font-body-md py-3 px-6 rounded hover:bg-slate-50 transition-all">
+                        <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                        Retour précédent
+                    </button>
+                </div>
+                <div class="pt-8 border-t border-slate-200 dark:border-slate-800">
+                    <p class="text-slate-400 font-body-sm mb-4">Raccourcis utiles :</p>
+                    <div class="flex flex-wrap gap-x-6 gap-y-3 justify-center md:justify-start">
+                        <a class="text-blue-700 font-body-sm font-semibold hover:underline flex items-center gap-1"
+                            href="#">
+                            <span class="material-symbols-outlined text-sm"
+                                data-icon="arrow_forward">arrow_forward</span>
+                            Dossiers Médicaux
+                        </a>
+                        <a class="text-blue-700 font-body-sm font-semibold hover:underline flex items-center gap-1"
+                            href="#">
+                            <span class="material-symbols-outlined text-sm"
+                                data-icon="arrow_forward">arrow_forward</span>
+                            Prescriptions
+                        </a>
+                        <a class="text-blue-700 font-body-sm font-semibold hover:underline flex items-center gap-1"
+                            href="#">
+                            <span class="material-symbols-outlined text-sm"
+                                data-icon="arrow_forward">arrow_forward</span>
+                            Analyses
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer Security Banner -->
+    <footer class="mt-auto py-8 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+        <div class="max-w-container-max mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400" data-icon="lock" data-weight="fill"
+                        style="font-variation-settings: 'FILL' 1;">lock</span>
+                    <span class="text-slate-500 text-xs font-medium">Plateforme sécurisée PSSIE</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400" data-icon="verified_user" data-weight="fill"
+                        style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                    <span class="text-slate-500 text-xs font-medium">Conformité APDP</span>
+                </div>
+            </div>
+            <div class="text-slate-400 text-xs font-mono-data">
+                © 2024 DMN BÉNIN — MINISTÈRE DE LA SANTÉ
+            </div>
+        </div>
+    </footer>
+    <!-- BottomNavBar (Mobile only) -->
+    <nav
+        class="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe pt-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <a class="flex flex-col items-center text-slate-400 dark:text-slate-500 font-['Public_Sans'] text-[10px] font-bold active:bg-slate-100 transition-colors py-2"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="home">home</span>
+            <span>Accueil</span>
+        </a>
+        <a class="flex flex-col items-center text-slate-400 dark:text-slate-500 font-['Public_Sans'] text-[10px] font-bold active:bg-slate-100 transition-colors py-2"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+            <span>Santé</span>
+        </a>
+        <a class="flex flex-col items-center text-slate-400 dark:text-slate-500 font-['Public_Sans'] text-[10px] font-bold active:bg-slate-100 transition-colors py-2"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="history">history</span>
+            <span>Timeline</span>
+        </a>
+        <a class="flex flex-col items-center text-slate-400 dark:text-slate-500 font-['Public_Sans'] text-[10px] font-bold active:bg-slate-100 transition-colors py-2"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="person">person</span>
+            <span>Profil</span>
+        </a>
+    </nav>
+</body>

@@ -1,0 +1,120 @@
+<div class="min-h-screen bg-[#f8f9ff] font-['Public_Sans']">
+  <div class="max-w-7xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <a routerLink="/admin/dashboard" class="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          Retour au tableau de bord
+        </a>
+        <h1 class="text-2xl font-black text-slate-900">Utilisateurs en attente de vérification</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ users().length }} utilisateur(s) en attente</p>
+      </div>
+      <button (click)="onLogout()" class="text-sm text-slate-500 hover:text-red-600 flex items-center gap-1">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        Déconnexion
+      </button>
+    </div>
+
+    <div class="flex gap-2 mb-6">
+      <button (click)="filterByRole('')"
+        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        [class.bg-secondary]="roleFilter() === ''" [class.text-white]="roleFilter() === ''"
+        [class.bg-white]="roleFilter() !== ''" [class.text-slate-700]="roleFilter() !== ''"
+        [class.border]="roleFilter() !== ''" [class.border-slate-200]="roleFilter() !== ''">
+        Tous
+      </button>
+      <button (click)="filterByRole('patient')"
+        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        [class.bg-secondary]="roleFilter() === 'patient'" [class.text-white]="roleFilter() === 'patient'"
+        [class.bg-white]="roleFilter() !== 'patient'" [class.text-slate-700]="roleFilter() !== 'patient'"
+        [class.border]="roleFilter() !== 'patient'" [class.border-slate-200]="roleFilter() !== 'patient'">
+        Patients
+      </button>
+      <button (click)="filterByRole('practitioner')"
+        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        [class.bg-secondary]="roleFilter() === 'practitioner'" [class.text-white]="roleFilter() === 'practitioner'"
+        [class.bg-white]="roleFilter() !== 'practitioner'" [class.text-slate-700]="roleFilter() !== 'practitioner'"
+        [class.border]="roleFilter() !== 'practitioner'" [class.border-slate-200]="roleFilter() !== 'practitioner'">
+        Praticiens
+      </button>
+    </div>
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    } @else if (users().length === 0) {
+    <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+      <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">check_circle</span>
+      <p class="text-lg font-bold text-slate-700">Aucun utilisateur en attente</p>
+      <p class="text-sm text-slate-500 mt-1">Tous les comptes ont été vérifiés.</p>
+    </div>
+    } @else {
+    <div class="space-y-4">
+      @for (user of users(); track user.id) {
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-blue-600">person</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900">{{ user.first_name }} {{ user.last_name }}</h3>
+              <p class="text-sm text-slate-500">{{ user.email }}</p>
+              <div class="flex gap-3 mt-2">
+                <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">{{ user.role }}</span>
+                <span class="text-xs text-slate-400">{{ user.phone }}</span>
+                <span class="text-xs text-slate-400">{{ user.city }}</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">NPI: {{ user.npi }} — Créé le {{ user.created_at | date:'medium' }}</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="onVerify(user)" [disabled]="verifyLoading() === user.id"
+              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50">
+              @if (verifyLoading() === user.id) {
+              <div class="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
+              } @else {
+              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+              }
+              Vérifier
+            </button>
+            <button (click)="openRejectModal(user)" [disabled]="verifyLoading() === user.id"
+              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-red-50 text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50">
+              <span class="material-symbols-outlined text-[18px]">cancel</span>
+              Rejeter
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+
+@if (rejectModal()) {
+<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" (click)="closeRejectModal()">
+  <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-slate-900 mb-2">Rejeter l'utilisateur</h3>
+    <p class="text-sm text-slate-500 mb-4">
+      Êtes-vous sûr de vouloir rejeter <strong>{{ rejectModal()?.user?.first_name }} {{ rejectModal()?.user?.last_name }}</strong> ?
+    </p>
+    <div class="space-y-2 mb-6">
+      <label class="text-sm font-medium text-slate-700">Motif du rejet (optionnel)</label>
+      <textarea [(ngModel)]="rejectReason" rows="3"
+        class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:border-secondary outline-none resize-none"
+        placeholder="Indiquez la raison du rejet..."></textarea>
+    </div>
+    <div class="flex justify-end gap-3">
+      <button (click)="closeRejectModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+        Annuler
+      </button>
+      <button (click)="onReject()"
+        class="px-4 py-2 rounded-lg text-sm font-bold bg-red-600 text-white hover:bg-red-700 transition-colors">
+        Confirmer le rejet
+      </button>
+    </div>
+  </div>
+</div>
+}

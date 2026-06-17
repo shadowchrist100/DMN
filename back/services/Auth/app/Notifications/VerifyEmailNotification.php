@@ -28,7 +28,7 @@ class VerifyEmailNotification extends VerifyEmail
         return $frontendUrl . '?' . $query;
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable): MailMessage
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 

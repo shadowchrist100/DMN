@@ -11,7 +11,7 @@ class MedicalServiceClient
 
     public function __construct()
     {
-        $this->baseUrl = config('services.medical.base_url', 'http://localhost:8001');
+        $this->baseUrl = config('services.medical.base_url', 'http://localhost:8080');
     }
 
     public function createPatient(array $data): array
@@ -46,6 +46,30 @@ class MedicalServiceClient
             if ($response->failed()) {
                 throw new MedicalServiceException(
                     'Erreur lors de la création du profil praticien.',
+                    $response->status()
+                );
+            }
+
+            return $response->json();
+        } catch (MedicalServiceException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new MedicalServiceException(
+                'Le service médical est temporairement indisponible.',
+                503,
+                $e
+            );
+        }
+    }
+
+    public function createPatientDMN(string $userId): array
+    {
+        try {
+            $response = Http::timeout(10)->post("{$this->baseUrl}/api/patients/by-user/{$userId}/dmn");
+
+            if ($response->failed()) {
+                throw new MedicalServiceException(
+                    'Erreur lors de la création du DMN.',
                     $response->status()
                 );
             }

@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from app.database import get_session
+from app.auth import CurrentUser, verify_jwt
+from app.deps import check_owner
 from app.schemas.patient import (
     CreatePatientReq, PatientResp,
     RelativeResp, RelatedPersonResp,
@@ -50,7 +52,9 @@ def create_patient(
 def get_patient_profile(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     patient = MedicalRepository.get_patient_by_user_id(session, user_id)
     if not patient:
         not_found("Patient introuvable")
@@ -66,11 +70,29 @@ def get_patient_profile(
     )
 
 
+@router.post("/patients/by-user/{user_id}/dmn", status_code=201)
+def create_patient_dmn(
+    user_id: str,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    dmn = PatientService.create_dmn(session, user_id)
+    return {
+        "id": str(dmn.id),
+        "patient_id": str(dmn.patient_id),
+        "date_creation": dmn.date_creation,
+    }
+
+
+
 @router.get("/patients/by-user/{user_id}/allergies", response_model=list[AllergyResp])
 def get_patient_allergies(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     allergies = MedicalRepository.get_allergies(session, user_id)
     result = []
     for a in allergies:
@@ -100,7 +122,9 @@ def get_patient_allergies(
 def get_patient_examens(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     examens = MedicalRepository.get_examens(session, user_id)
     result = []
     for e in examens:
@@ -123,7 +147,9 @@ def get_patient_examens(
 def get_patient_prescriptions(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     prescriptions = MedicalRepository.get_prescriptions(session, user_id)
     result = []
     for p in prescriptions:
@@ -147,7 +173,9 @@ def get_patient_prescriptions(
 def get_patient_authorizations(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     authorizations = MedicalRepository.get_authorizations(session, user_id)
     result = []
     for a in authorizations:
@@ -178,7 +206,9 @@ def get_patient_authorizations(
 def get_patient_pathologies(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     diseases = MedicalRepository.get_diseases(session, user_id)
     result = []
     for d in diseases:
@@ -197,7 +227,9 @@ def get_patient_pathologies(
 def get_patient_consultations(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     consultations = MedicalRepository.get_consultations(session, user_id)
     result = []
     for c in consultations:
@@ -223,7 +255,9 @@ def get_patient_consultations(
 def get_patient_vaccinations(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     vaccinations = MedicalRepository.get_vaccinations(session, user_id)
     result = []
     for v in vaccinations:

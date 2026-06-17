@@ -4,6 +4,7 @@ from uuid import UUID
 from datetime import datetime
 
 from app.database import get_session
+from app.auth import verify_jwt, CurrentUser
 from app.schemas.organization import (
     CreateOrganizationReq,
     UpdateOrganizationReq,
@@ -12,9 +13,10 @@ from app.schemas.organization import (
 )
 from app.models.healthcare_system import HealthcareSystem
 from app.types.enums import StatutVerification
-from app.exceptions import not_found, bad_request
+from app.exceptions import not_found, bad_request, forbidden
+from app.deps import ADMIN_ROLES
 
-router = APIRouter(prefix="/api", tags=["organization"])
+router = APIRouter(prefix="/api", tags=["organization"], dependencies=[Depends(verify_jwt)])
 
 
 def _to_resp(org: HealthcareSystem) -> OrganizationResp:
@@ -40,6 +42,7 @@ def _to_resp(org: HealthcareSystem) -> OrganizationResp:
 def create_organization(
     body: CreateOrganizationReq,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
     org = HealthcareSystem(
         nom=body.name,
@@ -51,7 +54,7 @@ def create_organization(
         email=body.email or "",
         is_actif=True,
         verification_status=StatutVerification.EN_ATTENTE,
-        created_by=body.created_by,
+        created_by=current_user.id,
     )
     session.add(org)
     session.commit()
@@ -95,10 +98,14 @@ def update_organization(
     organization_id: UUID,
     body: UpdateOrganizationReq,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
     org = session.get(HealthcareSystem, organization_id)
     if not org:
         not_found("Organisation introuvable")
+
+    if org.created_by != current_user.id and current_user.role not in ADMIN_ROLES:
+        forbidden("Vous n'êtes pas autorisé à modifier cette organisation")
 
     if org.verification_status != StatutVerification.EN_ATTENTE:
         bad_request("Impossible de modifier une organisation déjà traitée")
@@ -121,10 +128,14 @@ def update_organization(
 def delete_organization(
     organization_id: UUID,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
     org = session.get(HealthcareSystem, organization_id)
     if not org:
         not_found("Organisation introuvable")
+
+    if org.created_by != current_user.id and current_user.role not in ADMIN_ROLES:
+        forbidden("Vous n'êtes pas autorisé à supprimer cette organisation")
 
     if org.verification_status != StatutVerification.EN_ATTENTE:
         bad_request("Impossible de supprimer une organisation déjà traitée")
@@ -139,10 +150,14 @@ def validate_organization(
     organization_id: UUID,
     body: ValidateOrganizationReq,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
     org = session.get(HealthcareSystem, organization_id)
     if not org:
         not_found("Organisation introuvable")
+
+    if current_user.role not in ADMIN_ROLES:
+        forbidden("Seuls les administrateurs peuvent valider une organisation")
 
     if body.status not in ("active", "suspended"):
         bad_request("Statut invalide. Utilisez 'active' ou 'suspended'")
@@ -155,8 +170,7 @@ def validate_organization(
     )
     org.is_actif = body.status == "active"
     org.validated_at = datetime.now()
-    if body.validated_by:
-        org.validated_by = body.validated_by
+    org.validated_by = current_user.id
 
     session.add(org)
     session.commit()

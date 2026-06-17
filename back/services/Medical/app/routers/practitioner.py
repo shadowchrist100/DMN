@@ -3,6 +3,8 @@ from sqlmodel import Session, select
 from uuid import UUID
 
 from app.database import get_session
+from app.auth import CurrentUser, verify_jwt
+from app.deps import check_owner
 from app.schemas.practitioner import CreatePractitionerReq, PractitionerResp
 from app.schemas.medical import (
     PractitionerProfileResp, PatientSummaryResp,
@@ -40,7 +42,9 @@ def create_practitioner(
 def get_practitioner_profile(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     practitioner = session.exec(
         select(Practitioner).where(Practitioner.user_id == user_id)
     ).first()
@@ -84,7 +88,9 @@ def add_practitioner_role(
     user_id: str,
     body: AddPractitionerRoleReq,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     practitioner = session.exec(
         select(Practitioner).where(Practitioner.user_id == user_id)
     ).first()
@@ -126,7 +132,9 @@ def add_practitioner_role(
 def get_practitioner_patients(
     user_id: str,
     session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
 ):
+    check_owner(user_id, current_user)
     practitioner = session.exec(
         select(Practitioner).where(Practitioner.user_id == user_id)
     ).first()

@@ -1,9 +1,20 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { PASSWORD_REGEX } from '../../../core/constants/PASSWORD_REGEX';
 import { AuthService } from '../../../core/auth/auth-service';
 import { AuthStore } from '../../../core/auth/auth.store';
+
+const ROLE_REDIRECT: Record<string, string> = {
+  PATIENT: '/patient/dashboard',
+  PRACTITIONER: '/practitioner/dashboard',
+  admin: '/admin/dashboard',
+  admin_medical: '/admin/dashboard',
+  admin_organisation: '/admin/dashboard',
+};
+
+function getDashboardPath(role: string): string {
+  return ROLE_REDIRECT[role] ?? '/auth/login';
+}
 
 @Component({
     selector: 'app-login',
@@ -23,17 +34,15 @@ export class Login implements OnInit {
     private authStore = AuthStore;
 
     ngOnInit(): void {
+        if (AuthStore.isAuthenticated()) {
+            this.router.navigateByUrl(getDashboardPath(AuthStore.userRole()!));
+            return;
+        }
+
         this.loginForm = this.formBuilder.group({
             email: ['', [Validators.required, Validators.email]],
-            identifiant: [''],
-            password: ['', [Validators.required, Validators.pattern(PASSWORD_REGEX)]],
+            password: ['', [Validators.required]],
             userType: ['PRACTITIONER', [Validators.required]]
-        })
-
-        this.loginForm.get('identifiant')?.valueChanges.subscribe(() => {
-            if (this.userType() === 'PRACTITIONER') {
-                this.loginForm.controls['identifiant'].setValidators(Validators.required);
-            }
         })
     }
 
@@ -65,18 +74,32 @@ export class Login implements OnInit {
         this.serverError.set('');
 
         try {
-            const { email, password } = this.loginForm.value;
-            const response = await this.authService.login(email, password, this.userType());
+            const { email } = this.loginForm.value;
+            const response = await this.authService.login(email, this.loginForm.value.password, this.userType());
 
-            this.authStore.setAuth(response.user, response.token_type);
+            const actualRole = response.user.role;
+            const selectedType = this.userType();
 
-            if (response.requiresMfa) {
-                this.router.navigateByUrl('/auth/mfa');
-            } else {
-                this.router.navigateByUrl(`/${this.userType() === 'PATIENT' ? 'patient' : 'practitioner'}/dashboard`);
+            if (selectedType === 'PATIENT' && actualRole !== 'PATIENT') {
+                this.serverError.set('Ce compte n\'est pas un patient. Veuillez sélectionner le bon type de compte.');
+                this.isLoading.set(false);
+                return;
             }
+            if (selectedType === 'PRACTITIONER' && actualRole !== 'PRACTITIONER') {
+                this.serverError.set('Ce compte n\'est pas un praticien. Veuillez sélectionner le bon type de compte.');
+                this.isLoading.set(false);
+                return;
+            }
+            if (selectedType === 'ORGANISATION' && actualRole !== 'admin_organisation') {
+                this.serverError.set('Ce compte n\'est pas un administrateur d\'organisation. Veuillez sélectionner le bon type de compte.');
+                this.isLoading.set(false);
+                return;
+            }
+
+            this.authStore.setAuth(response.user, response.access_token);
+            this.router.navigateByUrl(getDashboardPath(actualRole!));
         } catch {
-            this.serverError.set('L\'identifiant ou le mot de passe est incorrect.');
+            this.serverError.set('Email ou mot de passe incorrect.');
         } finally {
             this.isLoading.set(false);
         }

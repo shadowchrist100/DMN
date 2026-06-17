@@ -1,9 +1,6 @@
 import uuid
-from typing import Optional, List, TYPE_CHECKING
-from sqlmodel import Field, SQLModel, Relationship
-
-if TYPE_CHECKING:
-    from .medication_directive import MedicationDirective
+from typing import Optional
+from sqlmodel import Field, SQLModel
 
 
 class MedicationReference(SQLModel, table=True):
@@ -13,5 +10,3 @@ class MedicationReference(SQLModel, table=True):
     nom_commercial: str
     dc_nom: str
     forme_galenique: str
-
-    medication_directives: List["MedicationDirective"] = Relationship(back_populates="medication_ref")

@@ -14,6 +14,7 @@ import { ProfilEdit } from "./components/profil-edit/profil-edit";
 import { ActeView } from "./components/acte-view/acte-view";
 import { NavIconPipe } from '../pipes/nav-icon-pipe';
 import { NavLabelPipe } from '../pipes/nav-label-pipe';
+import { AuthStore } from '../../../core/auth/auth.store';
 
 export type ViewKey =
     | 'dashboard' | 'historique' | 'prescriptions'
@@ -76,6 +77,7 @@ export class Dashboard implements OnInit, OnDestroy {
     isMobile = false;
     alertPanelOpen = false;
     alertCount = 3;
+    authStore = AuthStore;
 
     // ── Navigation ────────────────────────────────────────────────────────────
     readonly navItems: NavItem[] = [
@@ -195,7 +197,10 @@ export class Dashboard implements OnInit, OnDestroy {
 
     openHelp(): void { window.open('https://dmn.benin/help', '_blank'); }
     openSettings(): void { /* router.navigate(['/parametres']) */ }
-    onLogout(): void { /* userService.logout() */ }
+    onLogout(): void {
+        this.authStore.clearAuth();
+        this.router.navigate(['/auth/login']);
+    }
 
     alertBadge(type: AlerteItem['type']): string {
         return {

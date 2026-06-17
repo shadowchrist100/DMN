@@ -22,6 +22,3 @@ class Diagnosis(Base):
     }
 
     medical_act = relationship("MedicalAct", back_populates="diagnoses")
-    diagnosis_ref = relationship("DiagnosisReference", back_populates="diagnoses")
-    care_episodes = relationship("CareEpisode", back_populates="diagnosis")
-    diagnostic_evidences = relationship("DiagnosticEvidence", back_populates="diagnosis")

@@ -84,7 +84,7 @@ class MedicalRepository:
                 "id": d.id,
                 "date": d.date_diagnosis,
                 "note_clinique": d.note_clinique,
-                "statut_verification": d.statut_verification.value if d.statut_verification else "",
+                "statut_verification": d.statut_verification or "",
                 "ref_code": dr.code_cid11 if dr else None,
                 "ref_libelle": dr.libelle if dr else None,
                 "nature_allergie": a.nature_allergie if a else "",
@@ -116,7 +116,7 @@ class MedicalRepository:
         for ma, ea in rows:
             result.append({
                 "id": ma.id,
-                "type": ma.type_acte.value,
+                "type": ma.type_acte,
                 "raisons": ma.raisons,
                 "rapport_text": ma.rapport_text,
                 "observations_text": ma.observations_text,
@@ -155,9 +155,9 @@ class MedicalRepository:
             result.append({
                 "id": pe.id,
                 "date_prescription": pe.date_prescription,
-                "statut": pe.statut.value if pe.statut else "",
+                "statut": pe.statut or "",
                 "special_instructions": pe.special_instructions,
-                "type_prescription": pe.type_prescription.value if pe.type_prescription else "",
+                "type_prescription": pe.type_prescription or "",
                 "code_loinc": e.code_loinc if e else None,
                 "examen_libelle": e.libelle if e else None,
                 "nature_examination": e.nature_examination if e else None,
@@ -203,7 +203,7 @@ class MedicalRepository:
                 "id": d.id,
                 "date": d.date_diagnosis,
                 "note_clinique": d.note_clinique,
-                "statut_verification": d.statut_verification.value if d.statut_verification else "",
+                "statut_verification": d.statut_verification or "",
                 "ref_code": dr.code_cid11 if dr else None,
                 "ref_libelle": dr.libelle if dr else None,
             })

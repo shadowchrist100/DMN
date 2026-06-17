@@ -1,10 +1,6 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 import uuid
 from sqlmodel import Field, SQLModel, Relationship
-
-if TYPE_CHECKING:
-    from .allergy import Allergy
-    from .reaction_reference import ReactionReference
 
 
 class Reaction(SQLModel, table=True):
@@ -18,5 +14,4 @@ class Reaction(SQLModel, table=True):
     )
     severity: Optional[str] = None
 
-    allergy: "Allergy" = Relationship(back_populates="reactions")
     reaction_ref: "ReactionReference" = Relationship(back_populates="reactions")
