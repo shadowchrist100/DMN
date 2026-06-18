@@ -345,7 +345,7 @@ class MedicalRepository:
             "examens_count": examens_count,
             "prescriptions_count": prescriptions_count,
             "allergies_count": allergies_count,
-            "authorizations_count": authorizations_count,
+            "consentements_count": authorizations_count,
             "pathologies_count": pathologies_count,
             "consultations_count": consultations_count,
             "vaccinations_count": vaccinations_count,
@@ -440,6 +440,7 @@ class MedicalRepository:
         # Consultations
         rows = session.execute(
             select(MedicalAct, Consultation, PractitionerRole, Practitioner, HealthcareSystem)
+            .select_from(MedicalAct)
             .outerjoin(Consultation, Consultation.id == MedicalAct.id)
             .outerjoin(PractitionerRole, PractitionerRole.id == MedicalAct.practitioner_role_id)
             .outerjoin(Practitioner, Practitioner.id == PractitionerRole.practitioner_id)
@@ -470,6 +471,7 @@ class MedicalRepository:
         # Examens
         rows = session.execute(
             select(MedicalAct, ExaminationAct)
+            .select_from(MedicalAct)
             .outerjoin(ExaminationAct, ExaminationAct.id == MedicalAct.id)
             .where(MedicalAct.dmn_id == dmn_id)
             .where(MedicalAct.type_acte == TypeActe.EXAMEN)
@@ -498,6 +500,7 @@ class MedicalRepository:
         # Vaccinations
         rows = session.execute(
             select(MedicalAct, Vaccination)
+            .select_from(MedicalAct)
             .outerjoin(Vaccination, Vaccination.id == MedicalAct.id)
             .where(MedicalAct.dmn_id == dmn_id)
             .where(MedicalAct.type_acte == TypeActe.VACCINATION)
