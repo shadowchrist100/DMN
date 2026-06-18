@@ -109,7 +109,9 @@ export function mapApiUserToIuser(apiUser: ApiUser): Iuser {
         identity: {
             lastName: apiUser.last_name ?? '',
             firstName: apiUser.first_name ?? '',
-            birthDate: apiUser.birth_date ? new Date(apiUser.birth_date) : new Date(),
+            birthDate: apiUser.birth_date
+                ? (() => { const [y, m, d] = apiUser.birth_date.split('-').map(Number); return new Date(y, m - 1, d); })()
+                : new Date(),
             gender: (apiUser.gender as Gender) ?? 'male',
             npi: apiUser.npi ?? '',
             maritalStatus: (apiUser.matrimonial_status as MaritalStatus) ?? 'single',
@@ -117,7 +119,7 @@ export function mapApiUserToIuser(apiUser: ApiUser): Iuser {
             phone: apiUser.phone ?? '',
             city: apiUser.city ?? '',
             address: apiUser.address ?? '',
-            photoPath: apiUser.photo_path ?? '',
+            photoPath: apiUser.photo_path ? `${API.STORAGE_URL}/${apiUser.photo_path}` : '',
         },
         practitioner: null,
         contact: null,

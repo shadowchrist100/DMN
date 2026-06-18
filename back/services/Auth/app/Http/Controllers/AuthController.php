@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -69,7 +70,7 @@ class AuthController extends Controller
         $user = $this->userService->register($data);
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('photos', 'local');
+            $path = $request->file('photo')->store('photos', 'public');
             $user->update(['photo_path' => $path]);
         }
 

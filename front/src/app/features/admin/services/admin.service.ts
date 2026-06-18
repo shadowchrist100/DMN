@@ -14,6 +14,7 @@ export interface AdminUser {
   city: string;
   address: string;
   birth_date: string;
+  photo_path: string | null;
   npi: string;
   status_account: string;
   created_at: string;

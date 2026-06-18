@@ -82,6 +82,7 @@ class AdminController extends Controller
             'city' => $user->city,
             'address' => $user->address,
             'birth_date' => $user->birth_date?->format('Y-m-d'),
+            'photo_path' => $user->photo_path,
             'npi' => $user->npi,
             'status_account' => $user->status_account,
             'created_at' => $user->created_at,
