@@ -19,8 +19,10 @@ class PatientRegistration implements UserRegistration
     public function getMedicalPayload(User $user, array $data): array
     {
         return [
-            'user_id'  => (string) $user->id,
-            'relative' => [
+            'user_id'    => (string) $user->id,
+            'first_name' => $user->first_name,
+            'last_name'  => $user->last_name,
+            'relative'   => [
                 'first_name'    => $data['emergencyContact']['firstName'] ?? null,
                 'last_name'     => $data['emergencyContact']['lastName'] ?? null,
                 'phone'         => $data['emergencyContact']['phone'] ?? null,

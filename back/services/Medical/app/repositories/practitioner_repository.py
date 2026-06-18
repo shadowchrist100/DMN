@@ -6,11 +6,19 @@ from app.models.practitioner_role import PractitionerRole
 from app.models.medical_act import MedicalAct
 from app.models.consultation import Consultation
 from app.models.prescription_examen import PrescriptionExamen
+from app.models.prescription_order import PrescriptionOrder
+from app.models.prescription_directive import PrescriptionDirective
+from app.models.medication_directive import MedicationDirective
+from app.models.prescription_de_soins import PrescriptionDeSoins
+from app.models.examination import Examination
+from app.models.vaccine import Vaccine
 from app.models.authorization import Authorization
 from app.models.dmn import DMN
 from app.models.patient import Patient
 from app.models.diagnosis import Diagnosis
+from app.models.diagnosis_reference import DiagnosisReference
 from app.models.allergy import Allergy
+from app.models.vital_constant import VitalConstant
 from app.types.enums import Speciality, TypeActe, Duration as DurationEnum, Perimeter
 
 
@@ -39,6 +47,19 @@ class PractitionerRepository:
         return session.exec(
             select(Practitioner).where(Practitioner.user_id == user_id)
         ).first()
+
+    @staticmethod
+    def get_by_user_id_or_npi(session: Session, user_id: str, npi: str) -> Practitioner | None:
+        p = session.exec(
+            select(Practitioner).where(Practitioner.user_id == user_id)
+        ).first()
+        if p:
+            return p
+        if npi and npi != user_id:
+            return session.exec(
+                select(Practitioner).where(Practitioner.user_id == npi)
+            ).first()
+        return None
 
     @staticmethod
     def exists_by_user_id(session: Session, user_id: str) -> bool:
@@ -105,22 +126,12 @@ class PractitionerRepository:
                 elif consultation and consultation.motif:
                     upcoming_visits += 1
 
-        pending_reports = 0
-        if role_ids:
-            pending_reports = len(session.exec(
-                select(MedicalAct.id).where(
-                    MedicalAct.practitioner_role_id.in_(role_ids),
-                    MedicalAct.rapport_text.is_(None),
-                )
-            ).all())
-
         return {
             "followed_patients": followed_patients,
             "new_patients_this_month": new_patients,
             "consultations_this_week": consultations_this_week,
             "completed_visits": completed_visits,
             "upcoming_visits": upcoming_visits,
-            "pending_reports": pending_reports,
         }
 
     @classmethod
@@ -146,7 +157,7 @@ class PractitionerRepository:
             result.append({
                 "id": str(auth.id),
                 "patient_npi": patient.user_id,
-                "patient_name": f"Patient {patient.user_id[:8]}",
+                "patient_name": f"{patient.first_name or ''} {patient.last_name or ''}".strip() or f"Patient {patient.user_id[:8]}",
                 "reason": f"Demande d'accès ({auth.authorization_type})",
                 "requested_at": auth.granted_at.isoformat() if auth.granted_at else "",
                 "urgency": "high" if auth.is_urgence else "medium",
@@ -154,6 +165,54 @@ class PractitionerRepository:
                 "requested_by_role": practitioner.speciality.value if practitioner else "",
                 "requested_by_facility": "",
                 "expires_at": auth.expire_at.isoformat() if auth.expire_at else "",
+            })
+        return result
+
+    @classmethod
+    def get_all_consents(cls, session: Session, user_id: str) -> list[dict]:
+        """
+        Retourne toutes les autorisations liées au praticien avec le statut calculé.
+        status = "active"  si is_actif=True et expire_at >= aujourd'hui
+        status = "expired" si is_actif=True et expire_at < aujourd'hui
+        status = "pending" si is_actif=False
+        """
+        practitioner = cls.get_by_user_id(session, user_id)
+        if not practitioner:
+            return []
+
+        authorizations = session.exec(
+            select(Authorization, DMN, Patient)
+            .join(DMN, DMN.id == Authorization.dmn_id)
+            .join(Patient, Patient.id == DMN.patient_id)
+            .where(Authorization.practitioner_id == practitioner.id)
+            .order_by(Authorization.granted_at.desc())
+        ).all()
+
+        today = date.today()
+        result = []
+        for auth, dmn, patient in authorizations:
+            patient_name = (
+                f"{patient.first_name or ''} {patient.last_name or ''}".strip()
+                or f"Patient {patient.user_id[:8]}"
+            )
+            if not auth.is_actif:
+                status = "pending"
+            elif auth.expire_at and auth.expire_at < today:
+                status = "expired"
+            else:
+                status = "active"
+
+            result.append({
+                "id": str(auth.id),
+                "patient_npi": patient.user_id,
+                "patient_name": patient_name,
+                "perimeter": auth.perimeter.value if auth.perimeter else "all",
+                "duration": auth.duration.value if auth.duration else "24h",
+                "status": status,
+                "granted_at": auth.granted_at.isoformat() if auth.granted_at else None,
+                "expires_at": auth.expire_at.isoformat() if auth.expire_at else None,
+                "is_urgence": auth.is_urgence,
+                "reason": auth.authorization_type or "",
             })
         return result
 
@@ -205,7 +264,7 @@ class PractitionerRepository:
                 "id": str(medical_act.id),
                 "type": "consultation" if consultation else medical_act.type_acte.lower(),
                 "action": action,
-                "patient_name": f"Patient {patient.user_id[:8]}" if patient else None,
+                "patient_name": f"{patient.first_name or ''} {patient.last_name or ''}".strip() or f"Patient {patient.user_id[:8]}" if patient else None,
                 "patient_npi": patient.user_id if patient else None,
                 "facility": role.role if role else "",
                 "timestamp": str(medical_act.id),
@@ -253,13 +312,15 @@ class PractitionerRepository:
 
             is_critical = critical_diagnosis is not None
 
-            initials = ""
-            name = f"Patient {patient.user_id[:8]}"
+            first = (patient.first_name or "").strip()
+            last = (patient.last_name or "").strip()
+            name = f"{first} {last}".strip() or f"Patient {patient.user_id[:8]}"
+            initials = "".join(w[0].upper() for w in [first, last] if w) or patient.user_id[:2].upper()
 
             result.append({
                 "npi": patient.user_id,
                 "name": name,
-                "initials": initials or patient.user_id[:2].upper(),
+                "initials": initials,
                 "age": 0,
                 "gender": "M",
                 "last_contact": str(last_act.id) if last_act else None,
@@ -276,20 +337,26 @@ class PractitionerRepository:
 
     @staticmethod
     def search_patients(session: Session, query: str) -> list[dict]:
+        search = f"%{query}%"
         patients = session.exec(
             select(Patient).where(
                 or_(
-                    Patient.user_id.ilike(f"%{query}%"),
+                    Patient.user_id.ilike(search),
+                    Patient.first_name.ilike(search),
+                    Patient.last_name.ilike(search),
                 )
             ).limit(20)
         ).all()
 
         result = []
         for patient in patients:
+            full_name = None
+            if patient.first_name or patient.last_name:
+                full_name = f"{patient.first_name or ''} {patient.last_name or ''}".strip()
             result.append({
                 "user_id": str(patient.user_id),
                 "npi": patient.user_id,
-                "full_name": None,
+                "full_name": full_name,
                 "age": None,
                 "gender": None,
                 "phone": None,
@@ -301,13 +368,12 @@ class PractitionerRepository:
     def create_access_request(
         cls,
         session: Session,
-        practitioner_user_id: str,
+        practitioner: Practitioner | None,
         patient_user_id: str,
         reason: str,
         duration: str,
         perimeter: str,
     ) -> dict | None:
-        practitioner = cls.get_by_user_id(session, practitioner_user_id)
         if not practitioner:
             return None
 
@@ -346,3 +412,149 @@ class PractitionerRepository:
             "id": str(auth.id),
             "status": "pending",
         }
+
+    @classmethod
+    def create_medical_act(
+        cls,
+        session: Session,
+        practitioner_user_id: str,
+        patient_user_id: str,
+        motif: str | None,
+        raisons: str | None,
+        observations_text: str | None,
+        duree_minutes: int | None,
+        vital_constants: list[dict],
+        diagnoses: list[dict],
+        medications: list[dict],
+        examens: list[dict],
+        vaccines: list[dict],
+        care_instructions: list[dict],
+    ) -> UUID | None:
+        practitioner = cls.get_by_user_id(session, practitioner_user_id)
+        if not practitioner:
+            return None
+
+        role = session.exec(
+            select(PractitionerRole).where(
+                PractitionerRole.practitioner_id == practitioner.id
+            )
+        ).first()
+        if not role:
+            return None
+
+        patient = session.exec(
+            select(Patient).where(Patient.user_id == patient_user_id)
+        ).first()
+        if not patient:
+            return None
+
+        dmn = session.exec(
+            select(DMN).where(DMN.patient_id == patient.id)
+        ).first()
+        if not dmn:
+            return None
+
+        # 1. Créer le MedicalAct (Consultation)
+        act = MedicalAct(
+            dmn_id=dmn.id,
+            practitioner_role_id=role.id,
+            type_acte="Consultation",
+            raisons=raisons,
+            observations_text=observations_text,
+        )
+        session.add(act)
+        session.flush()
+
+        # 2. Créer la Consultation
+        consult = Consultation(
+            id=act.id,
+            duree_minutes=duree_minutes,
+            motif=motif,
+        )
+        session.add(consult)
+
+        # 3. Constantes vitales
+        for vc in vital_constants:
+            v = VitalConstant(
+                medical_act_id=act.id,
+                vital_constant_reference_code=vc["code"],
+                valeur=vc["valeur"],
+                date_mesure=datetime.now(),
+            )
+            session.add(v)
+
+        # 4. PrescriptionOrder + diagnostics
+        if diagnoses or medications or examens or vaccines or care_instructions:
+            po = PrescriptionOrder(medical_act_id=act.id, statut="active")
+            session.add(po)
+            session.flush()
+
+            # 4a. Diagnostics
+            for diag in diagnoses:
+                ref = session.get(DiagnosisReference, UUID(diag["diagnosis_ref_id"]))
+                d = Diagnosis(
+                    statut_verification=diag.get("statut_verification", "confirmed"),
+                    date_diagnosis=date.today(),
+                    note_clinique=diag.get("note_clinique"),
+                    medical_act_id=act.id,
+                    diagnosis_ref_id=UUID(diag["diagnosis_ref_id"]) if ref else None,
+                    type_diagnosis="disease",
+                )
+                session.add(d)
+
+            # 4b. Prescriptions médicaments
+            for med in medications:
+                md = MedicationDirective(
+                    description_generale=med.get("description_generale", ""),
+                    prescription_order_id=po.id,
+                    type_directive="medicament",
+                    medication_ref_id=UUID(med["medication_ref_id"]),
+                    posologie=med["posologie"],
+                    duree_jours=med["duree_jours"],
+                )
+                session.add(md)
+
+            # 4c. Prescriptions examens
+            for ex in examens:
+                e = Examination(
+                    date_prescription=datetime.now(),
+                    statut="En cours",
+                    special_instructions=ex.get("special_instructions", ""),
+                    medical_act_id=act.id,
+                    type_prescription="examination",
+                    code_loinc=ex.get("code_loinc", ""),
+                    libelle=ex["libelle"],
+                    nature_examination=ex.get("nature_examination", "LABORATOIRE"),
+                )
+                session.add(e)
+
+            # 4d. Prescriptions vaccins
+            for vac in vaccines:
+                v = Vaccine(
+                    date_prescription=datetime.now(),
+                    statut="En cours",
+                    special_instructions=vac.get("special_instructions", ""),
+                    medical_act_id=act.id,
+                    type_prescription="vaccin",
+                    code_cvx=vac.get("code_cvx", ""),
+                    libelle=vac["libelle"],
+                )
+                session.add(v)
+
+            # 4e. Instructions de soins
+            for ci in care_instructions:
+                s = PrescriptionDeSoins(
+                    description_generale=ci.get("description_generale", ""),
+                    prescription_order_id=po.id,
+                    type_directive="soins",
+                    sous_type=ci.get("sous_type", "rehabilitation"),
+                    nombre_seances=ci.get("nombre_seances"),
+                    frequence_hebdo=ci.get("frequence_hebdo"),
+                    objectifs=ci.get("objectifs"),
+                    titre_consigne=ci.get("titre_consigne"),
+                    recommandations=ci.get("recommandations"),
+                )
+                session.add(s)
+
+        session.flush()
+        return act.id

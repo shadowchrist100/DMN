@@ -109,7 +109,7 @@
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Durée</label>
-                                <select [(ngModel)]="acceptDuration"
+                                <select [ngModel]="acceptDuration()" (ngModelChange)="acceptDuration.set($event)"
                                     class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#002B5C] outline-none">
                                     <option value="24h">24 Heures</option>
                                     <option value="7j">7 Jours</option>
@@ -253,7 +253,7 @@
                     <button class="text-secondary text-xs font-bold hover:underline">Voir tout</button>
                 </div>
                 <div class="divide-y divide-slate-100">
-                    @for (entry of auditEntries; track $index) {
+                    @for (entry of auditEntries(); track $index) {
                     <div class="p-4 hover:bg-slate-50 transition-colors">
                         <div class="flex items-start gap-3">
                             <span class="material-symbols-outlined text-secondary mt-0.5">{{ entry.icon }}</span>

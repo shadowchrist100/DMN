@@ -1,19 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-export interface ObservationClinique {
-    label: string;
-    valeur: string;
-    unite: string;
-    statut: 'normal' | 'hors_norme';
-}
-
-export interface Diagnostic {
-    code: string;
-    libelle: string;
-    statut: string;
-    severite: string;
-}
+import { MedicalService, ConsultationDTO } from '../../../services/medical.service';
+import { AuthStore } from '../../../../../core/auth/auth.store';
 
 @Component({
     selector: 'app-acte-view',
@@ -21,36 +9,58 @@ export interface Diagnostic {
     imports: [CommonModule],
     templateUrl: './acte-view.html',
 })
-export class ActeView {
+export class ActeView implements OnInit {
+    private medical = inject(MedicalService);
+    private authStore = AuthStore;
 
-    visite = {
-        id: '#VIS-2023-98421',
-        titre: 'Consultation de Cardiologie',
-        date: '14 Septembre 2023',
-        etablissement: 'CNHU-HKM, Cotonou',
-        medecin: 'Dr. Kouandété Koffi',
-        specialite: 'Cardiologue Spécialiste',
-        motif: 'Douleurs thoraciques atypiques et essoufflement à l\'effort depuis 2 semaines.',
-    };
+    loading = signal(true);
+    consultations = signal<ConsultationDTO[]>([]);
 
-    observations: ObservationClinique[] = [
-        { label: 'Tension Artérielle', valeur: '145/92', unite: 'mmHg', statut: 'hors_norme' },
-        { label: 'Fréquence Cardiaque', valeur: '88', unite: 'BPM', statut: 'normal' },
-        { label: 'Saturation O2', valeur: '98', unite: '%', statut: 'normal' },
-    ];
+    get userId(): string | undefined {
+        return this.authStore.user()?.identity?.npi?.toString();
+    }
 
-    diagnostics: Diagnostic[] = [
-        { code: 'I10', libelle: 'Hypertension artérielle essentielle', statut: 'Confirmé', severite: 'Modérée' },
-        { code: 'E78.0', libelle: 'Hypercholestérolémie pure', statut: 'En cours de traitement', severite: 'Légère' },
-    ];
+    ngOnInit(): void {
+        const uid = this.userId;
+        if (!uid) { this.loading.set(false); return; }
+        this.medical.getConsultations(uid).subscribe({
+            next: (data) => { this.consultations.set(data); this.loading.set(false); },
+            error: () => { this.loading.set(false); },
+        });
+    }
 
-    prescriptions = [
-        { nom: 'AMLODIPINE 5mg', posologie: '1 comprimé chaque matin', duree: '3 mois' },
-        { nom: 'ASPEGIC 100mg', posologie: '1 sachet au milieu du déjeuner', duree: '1 mois' },
-    ];
+    get visite() {
+        const c = this.consultations()[0];
+        if (!c) return null;
+        return {
+            id: `#${c.id.slice(0, 8)}`,
+            titre: c.motif || 'Consultation',
+            date: c.rapport_text ? new Date(c.rapport_text).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—',
+            etablissement: c.healthcare_nom || '—',
+            medecin: c.practitioner_name || '—',
+            specialite: c.practitioner_speciality || '—',
+            motif: c.motif || '—',
+        };
+    }
 
-    rapports = [
-        { nom: 'ECG de repos', date: '14/09/2023', icon: 'ecg' },
-        { nom: 'Radio Thorax (Face)', date: '14/09/2023', icon: 'radiology' },
-    ];
+    get observations() {
+        const c = this.consultations()[0];
+        if (!c) return [];
+        return [
+            { label: 'Observations', valeur: c.observations_text || '—', unite: '', statut: 'normal' },
+            { label: 'Rapport', valeur: c.rapport_text || '—', unite: '', statut: 'normal' },
+        ];
+    }
+
+    get diagnostics() {
+        return [] as { code: string; libelle: string; statut: string; severite: string }[];
+    }
+
+    get prescriptions() {
+        return [] as { nom: string; posologie: string; duree: string }[];
+    }
+
+    get rapports() {
+        return [] as { nom: string; date: string; icon: string }[];
+    }
 }

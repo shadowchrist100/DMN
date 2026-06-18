@@ -32,7 +32,7 @@ export class Profil implements OnInit {
                 ? new Date(identity.birthDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
                 : '—',
             age,
-            sexe: identity.gender === 'homme' ? 'Masculin' : identity.gender === 'femme' ? 'Féminin' : '—',
+            sexe: identity.gender === 'male' ? 'Masculin' : identity.gender === 'female' ? 'Féminin' : '—',
             civil: identity.maritalStatus || '—',
             naissanceMultiple: identity.multipleBirth ? identity.multipleBirth > 1 : false,
             adresse: [identity.address, identity.city].filter(Boolean).join(', ') || '—',
@@ -51,7 +51,7 @@ export class Profil implements OnInit {
         ];
     }
 
-    get personnesLiees() {
+    get personnesLiees(): Array<{ nom: string; role: string; relation: string; telephone: string }> {
         return [];
     }
 

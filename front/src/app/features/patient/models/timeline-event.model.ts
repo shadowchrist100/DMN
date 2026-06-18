@@ -13,7 +13,7 @@ export type EventPriority = 'low' | 'medium' | 'high' | 'critical';
 
 export type EventStatus = 'completed' | 'pending' | 'cancelled' | 'archived';
 
-export type BadgeType = 'completed' | 'alert' | 'urgent' | 'archived';
+export type BadgeType = 'completed' | 'alert' | 'urgent' | 'archived' | 'pending';
 
 
 export interface VitalSign {
@@ -75,7 +75,7 @@ export interface TimelineEvent {
 
     // UI
     icon: string;
-    badge?: { text: string; type: 'completed' | 'alert' | 'urgent' | 'archived' };
+    badge?: { text: string; type: BadgeType };
     actionLabel?: string;
     actionType?: 'view' | 'edit' | 'download' | 'share';
 }

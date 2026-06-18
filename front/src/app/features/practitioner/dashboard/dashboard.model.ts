@@ -19,7 +19,6 @@ export interface PractitionerStats {
     consultationsThisWeek: number;
     completedVisits: number;
     upcomingVisits: number;
-    pendingReports: number;
 }
 
 export type PatientFilter = 'all' | 'recent' | 'critical' | 'follow_up';

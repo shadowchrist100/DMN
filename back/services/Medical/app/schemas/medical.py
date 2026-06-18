@@ -188,7 +188,6 @@ class PractitionerDashboardStatsResp(BaseModel):
     consultations_this_week: int = 0
     completed_visits: int = 0
     upcoming_visits: int = 0
-    pending_reports: int = 0
 
 
 class AccessRequestResp(BaseModel):
@@ -202,6 +201,19 @@ class AccessRequestResp(BaseModel):
     requested_by_role: str
     requested_by_facility: str
     expires_at: str
+
+
+class PractitionerConsentResp(BaseModel):
+    id: str
+    patient_npi: str
+    patient_name: str
+    perimeter: str
+    duration: str
+    status: str          # "active" | "pending" | "expired"
+    granted_at: Optional[str] = None
+    expires_at: Optional[str] = None
+    is_urgence: bool = False
+    reason: str = ""
 
 
 class PractitionerActivityResp(BaseModel):
@@ -248,3 +260,91 @@ class RespondAccessRequestReq(BaseModel):
     action: str  # "accept" or "decline"
     perimeter: Optional[str] = None
     duration: Optional[str] = None
+
+
+# ─── Références ────────────────────────────────────────────────────────────────
+
+class VitalConstantRefResp(BaseModel):
+    code: str
+    nom: str
+    unite_mesure: str
+
+
+class DiagnosisRefResp(BaseModel):
+    id: str
+    code_cid11: str
+    libelle: str
+    type_ref: str = "maladie"  # "maladie" | "allergy"
+
+
+class MedicationRefResp(BaseModel):
+    id: str
+    code_medicament: str
+    nom_commercial: str
+    dc_nom: str
+    forme_galenique: str
+
+
+# ─── Création d'acte médical ───────────────────────────────────────────────────
+
+class VitalConstantEntry(BaseModel):
+    code: str
+    valeur: float
+
+
+class DiagnosisEntry(BaseModel):
+    diagnosis_ref_id: str
+    note_clinique: Optional[str] = None
+    statut_verification: str = "confirmed"  # "confirmed" | "suspected"
+
+
+class MedicationPrescriptionEntry(BaseModel):
+    medication_ref_id: str
+    posologie: str
+    duree_jours: int
+    description_generale: Optional[str] = None
+
+
+class ExamenPrescriptionEntry(BaseModel):
+    code_loinc: Optional[str] = None
+    libelle: str
+    nature_examination: str = "LABORATOIRE"
+    special_instructions: Optional[str] = None
+
+
+class VaccinePrescriptionEntry(BaseModel):
+    code_cvx: Optional[str] = None
+    libelle: str
+    special_instructions: Optional[str] = None
+
+
+class CareInstructionEntry(BaseModel):
+    sous_type: str = "rehabilitation"
+    nombre_seances: Optional[int] = None
+    frequence_hebdo: Optional[str] = None
+    objectifs: Optional[str] = None
+    titre_consigne: Optional[str] = None
+    recommandations: Optional[str] = None
+    description_generale: Optional[str] = None
+
+
+class CreateMedicalActReq(BaseModel):
+    type_acte: str = "Consultation"
+    motif: Optional[str] = None
+    raisons: Optional[str] = None
+    observations_text: Optional[str] = None
+    duree_minutes: Optional[int] = None
+
+    vital_constants: list[VitalConstantEntry] = []
+
+    diagnoses: list[DiagnosisEntry] = []
+
+    medications: list[MedicationPrescriptionEntry] = []
+    examens: list[ExamenPrescriptionEntry] = []
+    vaccines: list[VaccinePrescriptionEntry] = []
+    care_instructions: list[CareInstructionEntry] = []
+
+
+class MedicalActCreatedResp(BaseModel):
+    id: str
+    status: str = "created"

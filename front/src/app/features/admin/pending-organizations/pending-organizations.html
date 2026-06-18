@@ -1,67 +1,140 @@
-<div class="min-h-screen bg-[#f8f9ff] font-['Public_Sans']">
-  <div class="max-w-7xl mx-auto p-6">
-    <div class="flex items-center justify-between mb-6">
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  ORGANISATIONS EN ATTENTE — contenu uniquement         ║
+     ║  La sidebar est fournie par AdminShell                 ║
+     ╚══════════════════════════════════════════════════════╝ -->
+<div class="flex flex-col flex-1 min-h-screen">
+
+  <!-- ─── HEADER ──────────────────────────────────────────── -->
+  <header class="hidden lg:flex sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm
+                 px-6 py-4 items-center justify-between">
+    <div class="flex items-center gap-2">
+      <a routerLink="/admin/dashboard"
+         class="flex items-center gap-1 text-slate-400 hover:text-[#002B5C] transition-colors mr-2">
+        <span class="material-symbols-outlined text-base">arrow_back</span>
+      </a>
+      <span class="material-symbols-outlined text-secondary text-lg">domain_disabled</span>
       <div>
-        <a routerLink="/admin/dashboard" class="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-          Retour au tableau de bord
-        </a>
-        <h1 class="text-2xl font-black text-slate-900">Organisations en attente de validation</h1>
-        <p class="text-sm text-slate-500 mt-1">{{ organizations().length }} organisation(s) en attente</p>
+        <h2 class="font-black text-[#002B5C] text-base uppercase tracking-wide">
+          Organisations en attente
+        </h2>
+        <p class="text-[10px] text-slate-400 uppercase tracking-widest">
+          Validation des établissements · Administration
+        </p>
       </div>
-      <button (click)="onLogout()" class="text-sm text-slate-500 hover:text-red-600 flex items-center gap-1">
-        <span class="material-symbols-outlined text-[18px]">logout</span>
-        Déconnexion
-      </button>
+    </div>
+    @if (organizations().length > 0) {
+    <span class="bg-amber-100 text-amber-700 text-xs font-black px-3 py-1.5 rounded-full">
+      {{ organizations().length }} en attente
+    </span>
+    }
+  </header>
+
+  <!-- ─── CONTENU ──────────────────────────────────────────── -->
+  <div class="flex-1 p-6 md:p-8 space-y-6">
+
+    <!-- Breadcrumb + titre -->
+    <div>
+      <nav class="flex items-center gap-2 text-xs text-slate-500 uppercase tracking-wide mb-3">
+        <a routerLink="/admin/dashboard" class="hover:text-[#002B5C] font-medium transition-colors">Dashboard</a>
+        <span class="material-symbols-outlined text-[12px] text-slate-300">chevron_right</span>
+        <span class="text-[#002B5C] font-bold">Organisations en attente</span>
+      </nav>
+      <h1 class="text-2xl font-black text-slate-900">Validation des organisations</h1>
+      <p class="text-sm text-slate-500 mt-1">
+        <span class="font-bold text-[#002B5C]">{{ organizations().length }}</span>
+        organisation(s) à valider
+      </p>
     </div>
 
+    <!-- Info conformité -->
+    <div class="bg-amber-50 border border-amber-200/60 rounded-xl p-4 flex items-center gap-3">
+      <span class="material-symbols-outlined text-amber-600 text-lg"
+            style="font-variation-settings:'FILL' 1">info</span>
+      <p class="text-sm text-amber-800">
+        Vérifiez les informations de chaque établissement avant d'activer ou de suspendre son accès à la plateforme DMN.
+      </p>
+    </div>
+
+    <!-- Liste -->
     @if (loading()) {
-    <div class="flex items-center justify-center py-20">
+    <div class="flex items-center justify-center py-24">
       <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
     </div>
     } @else if (organizations().length === 0) {
-    <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
-      <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">domain_verification</span>
+    <div class="bg-white rounded-2xl border border-slate-200 p-16 text-center shadow-sm">
+      <span class="material-symbols-outlined text-6xl text-emerald-300 mb-4 block"
+            style="font-variation-settings:'FILL' 1">domain_verification</span>
       <p class="text-lg font-bold text-slate-700">Aucune organisation en attente</p>
       <p class="text-sm text-slate-500 mt-1">Toutes les organisations ont été traitées.</p>
+      <a routerLink="/admin/dashboard"
+         class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#002B5C] hover:underline">
+        <span class="material-symbols-outlined text-base">arrow_back</span>
+        Retour au tableau de bord
+      </a>
     </div>
     } @else {
     <div class="space-y-4">
       @for (org of organizations(); track org.id) {
-      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <div class="flex items-start justify-between">
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-amber-600">apartment</span>
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm
+                  hover:border-amber-200 hover:shadow-md transition-all">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-4 flex-1 min-w-0">
+            <!-- Icône organisation -->
+            <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-amber-600 text-2xl">apartment</span>
             </div>
-            <div>
-              <h3 class="font-bold text-slate-900">{{ org.name }}</h3>
-              <div class="flex gap-3 mt-2">
-                <span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">{{ org.type }}</span>
-                <span class="text-xs text-slate-400">{{ org.city }}</span>
+            <!-- Infos -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
+                <h3 class="font-bold text-slate-900 text-base">{{ org.name }}</h3>
+                <span class="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase">
+                  {{ org.type }}
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                <span class="text-xs text-slate-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">location_on</span>
+                  {{ org.city }}
+                </span>
                 @if (org.phone) {
-                <span class="text-xs text-slate-400">{{ org.phone }}</span>
+                <span class="text-xs text-slate-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">phone</span>
+                  {{ org.phone }}
+                </span>
                 }
                 @if (org.email) {
-                <span class="text-xs text-slate-400">{{ org.email }}</span>
+                <span class="text-xs text-slate-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">email</span>
+                  {{ org.email }}
+                </span>
                 }
               </div>
-              <p class="text-xs text-slate-400 mt-1">{{ org.address }}</p>
+              @if (org.address) {
+              <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">map</span>
+                {{ org.address }}
+              </p>
+              }
             </div>
           </div>
-          <div class="flex gap-2">
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-2 shrink-0">
             <button (click)="onValidate(org)" [disabled]="actionLoading() === org.id"
-              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50">
+                    class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold
+                           bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed">
               @if (actionLoading() === org.id) {
               <div class="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
               } @else {
-              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+              <span class="material-symbols-outlined text-lg">check_circle</span>
               }
               Activer
             </button>
             <button (click)="onSuspend(org)" [disabled]="actionLoading() === org.id"
-              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-red-50 text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50">
-              <span class="material-symbols-outlined text-[18px]">block</span>
+                    class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold
+                           bg-red-50 text-red-700 hover:bg-red-100 transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="material-symbols-outlined text-lg">block</span>
               Suspendre
             </button>
           </div>
@@ -70,5 +143,14 @@
       }
     </div>
     }
-  </div>
-</div>
+
+  </div><!-- /contenu -->
+
+  <!-- ─── FOOTER ──────────────────────────────────────────── -->
+  <footer class="bg-white border-t border-slate-200 px-6 py-3 text-center">
+    <p class="text-[10px] text-slate-400 uppercase tracking-widest">
+      © 2026 Ministère de la Santé — DMN Admin Portal · APDP Conforme
+    </p>
+  </footer>
+
+</div><!-- /flex-col -->

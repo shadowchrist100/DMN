@@ -16,6 +16,7 @@ class CurrentUser:
         self.status_account = status_account
         self.first_name = kwargs.get("first_name", "")
         self.last_name = kwargs.get("last_name", "")
+        self.npi = kwargs.get("npi", "")
         self.phone = kwargs.get("phone", "")
         self.organization_id = kwargs.get("organization_id")
 
@@ -49,4 +50,5 @@ def verify_jwt(authorization: Optional[str] = Header(None)) -> CurrentUser:
         last_name=payload.get("last_name", ""),
         phone=payload.get("phone", ""),
         organization_id=payload.get("organization_id"),
+        npi=payload.get("npi", ""),
     )

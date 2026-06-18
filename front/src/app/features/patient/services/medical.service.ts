@@ -142,6 +142,27 @@ export interface TimelineEventDTO {
     badge_type: string | null;
 }
 
+export interface DiseaseDTO {
+    id: string;
+    code_cim: string | null;
+    libelle: string | null;
+    statut_verification: string;
+    date: string;
+    note_clinique: string | null;
+}
+
+export interface ConsultationDTO {
+    id: string;
+    duree_minutes: number | null;
+    motif: string | null;
+    raisons: string | null;
+    rapport_text: string | null;
+    observations_text: string | null;
+    practitioner_name: string | null;
+    practitioner_speciality: string | null;
+    healthcare_nom: string | null;
+}
+
 export interface PatientProfileUpdateReq {
     blood_type?: string;
     rhesus_factor?: string;
@@ -191,12 +212,12 @@ export class MedicalService {
         return this.http.get<AuthorizationDTO[]>(`${this.baseUrl}/${userId}/authorizations`);
     }
 
-    getPathologies(userId: string): Observable<any[]> {
-        return this.http.get<any[]>(`${this.baseUrl}/${userId}/pathologies`);
+    getPathologies(userId: string): Observable<DiseaseDTO[]> {
+        return this.http.get<DiseaseDTO[]>(`${this.baseUrl}/${userId}/pathologies`);
     }
 
-    getConsultations(userId: string): Observable<any[]> {
-        return this.http.get<any[]>(`${this.baseUrl}/${userId}/consultations`);
+    getConsultations(userId: string): Observable<ConsultationDTO[]> {
+        return this.http.get<ConsultationDTO[]>(`${this.baseUrl}/${userId}/consultations`);
     }
 
     getVaccinations(userId: string): Observable<any[]> {

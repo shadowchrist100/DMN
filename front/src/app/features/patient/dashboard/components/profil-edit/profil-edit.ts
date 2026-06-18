@@ -38,7 +38,7 @@ export class ProfilEdit implements OnInit {
             this.formData.dateNaissance = identity.birthDate
                 ? new Date(identity.birthDate).toISOString().split('T')[0]
                 : '';
-            this.formData.sexe = identity.gender === 'homme' ? 'M' : identity.gender === 'femme' ? 'F' : '';
+            this.formData.sexe = identity.gender === 'male' ? 'M' : identity.gender === 'female' ? 'F' : '';
             this.formData.civil = identity.maritalStatus || '';
             this.formData.adresse = [identity.address, identity.city].filter(Boolean).join(', ');
             this.npi = identity.npi?.toString() || '';

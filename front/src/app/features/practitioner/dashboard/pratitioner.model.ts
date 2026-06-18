@@ -1,6 +1,5 @@
 export interface PractitionerStats {
     patientsToday: number;
-    pendingReports: number;
     criticalAlerts: number;
     completedVisits: number;
 }

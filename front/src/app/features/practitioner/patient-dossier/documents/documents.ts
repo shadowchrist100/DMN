@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-documents',
@@ -6,4 +6,7 @@ import { Component } from '@angular/core';
   templateUrl: './documents.html',
   styleUrl: './documents.css',
 })
-export class Documents {}
+export class Documents {
+  @Input() patientUserId: string | undefined;
+}
+

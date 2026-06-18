@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DossierService, EvenementHistorique } from '../../services/dossier.service';
 
@@ -11,7 +11,10 @@ import { DossierService, EvenementHistorique } from '../../services/dossier.serv
 export class Historiques implements OnInit {
   private dossierService = inject(DossierService);
   loading = signal(true);
+  error = signal<string | null>(null);
   evenements = signal<EvenementHistorique[]>([]);
+
+  @Input() patientUserId: string | undefined;
 
   nbConsultations = computed(() => this.evenements().filter(e => e.type === 'consultation').length);
   nbHospitalisations = computed(() => this.evenements().filter(e => e.type === 'hospitalisation').length);
@@ -20,9 +23,20 @@ export class Historiques implements OnInit {
   nbTotal = computed(() => this.evenements().length);
 
   ngOnInit(): void {
-    this.dossierService.getHistorique().then(data => {
+    this.loadData();
+  }
+
+  private async loadData(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+    try {
+      const data = await this.dossierService.getHistorique(this.patientUserId);
       this.evenements.set(data);
+    } catch (e) {
+      this.error.set('Erreur lors du chargement de l\'historique');
+      console.error(e);
+    } finally {
       this.loading.set(false);
-    });
+    }
   }
 }

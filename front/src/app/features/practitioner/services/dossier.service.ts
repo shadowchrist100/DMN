@@ -177,8 +177,25 @@ export class DossierService {
     );
   }
 
-  getTraitements(_patientUserId?: string): Promise<Traitement[]> {
-    return Promise.resolve(MOCK_TRAITEMENTS);
+  getTraitements(patientUserId?: string): Promise<Traitement[]> {
+    if (!patientUserId) return Promise.resolve(MOCK_TRAITEMENTS);
+    return firstValueFrom(this.medical.getPrescriptions(patientUserId)).then(dtos =>
+      dtos
+        .filter(dto => dto.type_prescription === 'examen')
+        .map(dto => ({
+          id: dto.uuid,
+          medicament: dto.libelle || dto.nature_examination || 'Prescription',
+          dosage: '',
+          forme: 'comprimé',
+          frequence: '',
+          voie: 'orale',
+          dateDebut: new Date(dto.date_prescription),
+          dateFin: new Date(new Date(dto.date_prescription).getTime() + 90 * 24 * 60 * 60 * 1000),
+          statut: dto.statut === 'active' ? 'actif' as const : 'termine' as const,
+          prescripteur: dto.prescripteur_nom || '',
+          renouvelable: false,
+        }))
+    );
   }
 
   getVaccins(patientUserId?: string): Promise<Vaccin[]> {

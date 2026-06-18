@@ -88,7 +88,7 @@ import { AuthStore } from '../../../core/auth/auth.store';
               <div class="space-y-4 mb-6">
                 <div>
                   <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Motif de la demande</label>
-                  <textarea [(ngModel)]="reason" rows="3"
+                  <textarea [ngModel]="reason()" (ngModelChange)="reason.set($event)" rows="3"
                     class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#002B5C] outline-none"
                     placeholder="Expliquez bri\u00e8vement pourquoi vous avez besoin d'acc\u00e9der \u00e0 ce dossier..."></textarea>
                 </div>
@@ -115,7 +115,7 @@ import { AuthStore } from '../../../core/auth/auth.store';
 
                 <div>
                   <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Dur\u00e9e</label>
-                  <select [(ngModel)]="selectedDuration"
+                  <select [ngModel]="selectedDuration()" (ngModelChange)="selectedDuration.set($event)"
                     class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-[#002B5C] outline-none">
                     <option value="24h">24 Heures</option>
                     <option value="7j">7 Jours</option>
@@ -168,7 +168,7 @@ export class AccessRequest implements OnInit {
     error = signal('');
     success = signal('');
 
-    userId = computed(() => String(this.authStore.user()?.identity?.npi ?? ''));
+    userId = computed(() => this.authStore.userId() ?? '');
 
     ngOnInit(): void {
     }

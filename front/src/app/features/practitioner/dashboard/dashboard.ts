@@ -19,6 +19,7 @@ import { ConsentService } from '../services/consent.service';
 import { AuditService } from '../services/audit.service';
 import { MedicalPractitionerService } from '../services/medical-practitioner.service';
 import { AuthStore } from '../../../core/auth/auth.store';
+import { AuthService } from '../../../core/auth/auth-service';
 
 @Component({
     selector: 'app-dashboard',
@@ -28,6 +29,7 @@ import { AuthStore } from '../../../core/auth/auth.store';
 })
 export class Dashboard implements OnInit {
     authStore = AuthStore;
+    private authService = inject(AuthService);
     loading = signal(true);
     practitioner = signal<Practitioner | null>(null);
     stats = signal<PractitionerStats>({
@@ -35,8 +37,7 @@ export class Dashboard implements OnInit {
         newPatientsThisMonth: 0,
         consultationsThisWeek: 0,
         completedVisits: 0,
-        upcomingVisits: 0,
-        pendingReports: 0
+        upcomingVisits: 0
     });
 
     followedPatients = signal<FollowedPatient[]>([]);
@@ -54,7 +55,7 @@ export class Dashboard implements OnInit {
     private auditService = inject(AuditService);
     private medicalPrac = inject(MedicalPractitionerService);
 
-    userId = computed(() => String(this.authStore.user()?.identity?.npi ?? ''));
+    userId = computed(() => this.authStore.userId() ?? '');
 
     filteredPatients = computed(() => {
         const patients = this.followedPatients();
@@ -111,7 +112,7 @@ export class Dashboard implements OnInit {
                     consultationsThisWeek: statsDto.consultations_this_week,
                     completedVisits: statsDto.completed_visits,
                     upcomingVisits: statsDto.upcoming_visits,
-                    pendingReports: statsDto.pending_reports,
+
                 });
             }
 
@@ -157,9 +158,7 @@ export class Dashboard implements OnInit {
     navigateTo(route: string): void {
         const routes: Record<string, string[]> = {
             patients: ['/practitioner/patients'],
-            requests: ['/practitioner/access-requests'],
-            reports: ['/practitioner/reports'],
-            audit: ['/practitioner/audit'],
+            consents: ['/practitioner/consents'],
             organizations: ['/practitioner/organizations']
         };
 
@@ -168,19 +167,29 @@ export class Dashboard implements OnInit {
         }
     }
 
+    navigateToDossier(): void {
+        const npi = localStorage.getItem('selectedPatientNpi');
+        if (npi) {
+            this.router.navigate(['/practitioner/patient', npi]);
+        }
+    }
+
     onOpenDossier(npi: string): void {
         this.auditService.logAction('open_patient_file', { npi });
-        this.router.navigate(['/patient', npi, 'overview']);
+        localStorage.setItem('selectedPatientNpi', npi);
+        this.router.navigate(['/practitioner/patient', npi]);
     }
 
     onNewConsultation(): void {
-        this.router.navigate(['/practitioner/consultation/new']);
+        this.router.navigate(['/practitioner/patients'], {
+            queryParams: { action: 'new-consultation' }
+        });
     }
 
     onSearchPatient(event: Event): void {
         const query = (event.target as HTMLInputElement).value;
         if (query.length >= 2) {
-            this.router.navigate(['/practitioner/patients/search'], {
+            this.router.navigate(['/practitioner/patients'], {
                 queryParams: { q: query }
             });
         }
@@ -240,6 +249,7 @@ export class Dashboard implements OnInit {
     }
 
     onLogout(): void {
+        this.authService.logout().catch(() => {});
         this.authStore.clearAuth();
         this.router.navigate(['/auth/login']);
     }

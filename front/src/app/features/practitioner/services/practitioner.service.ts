@@ -30,7 +30,7 @@ export class PractitionerService {
         name: org.nom,
         type: org.type as Organization['type'],
         role: org.role,
-        since: new Date(org.start_date) || new Date(),
+        since: org.start_date ? new Date(org.start_date) : new Date(),
         isPrimary: org.is_actif,
         address: '',
         phone: '',

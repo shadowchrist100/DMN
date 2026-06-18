@@ -92,7 +92,7 @@
                             {{ view() === 'dashboard' ? 'Tableau de bord' : (navItems | navLabel : view()) }}
                         </h2>
                     </div>
-                    <h2 class="lg:hidden font-black text-[#002B5C] text-base">DMN Bénin</h2>
+                    <h2 class="lg:hidden font-black text-[#002B5C] text-base">DMN Portal</h2>
                 </div>
 
                 <!-- Droite : recherche + actions -->
@@ -438,7 +438,7 @@
             @if (view() === 'prescriptions') { <app-prescriptions /> }
             @if (view() === 'examens') { <app-examens /> }
             @if (view() === 'allergies') { <app-allergies /> }
-            @if (view() === 'pathologies') { <p class="text-slate-400 p-8">Composant Pathologies à venir…</p> }
+            @if (view() === 'pathologies') { <app-pathologies /> }
             @if (view() === 'consentements') { <app-consentements /> }
             @if (view() === 'profil') { <app-profil /> }
             @if (view() === 'contacts') { <app-contacts /> }

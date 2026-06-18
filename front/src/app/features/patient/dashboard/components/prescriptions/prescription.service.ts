@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MedicalService, PrescriptionDTO } from '../../../services/medical.service';
-import { Prescription, PrescriptionType, PrescriptionStatut, MOCK_PRESCRIPTIONS } from './prescription.model';
+import { Prescription, PrescriptionType, PrescriptionStatut } from './prescription.model';
 import { AuthStore } from '../../../../../core/auth/auth.store';
 
 const TYPE_MAP: Record<string, PrescriptionType> = {
@@ -28,7 +28,7 @@ export class PrescriptionService {
 
     getPrescriptions(userId?: string): Observable<Prescription[]> {
         const uid = userId || this.userId;
-        if (!uid) return of(MOCK_PRESCRIPTIONS);
+        if (!uid) return of([]);
         return this.medical.getPrescriptions(uid).pipe(
             map(dtos => dtos.map(dto => this.mapPrescription(dto))),
         );

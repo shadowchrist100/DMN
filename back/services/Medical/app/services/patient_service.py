@@ -16,7 +16,7 @@ class PatientService:
         if PatientRepository.exists_by_user_id(session, req.user_id):
             conflict("Un patient avec ce user_id existe déjà")
 
-        patient = PatientRepository.create(session, req.user_id)
+        patient = PatientRepository.create(session, req.user_id, req.first_name, req.last_name)
 
         if req.relative:
             RelativeRepository.create(

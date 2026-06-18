@@ -22,7 +22,7 @@ export class TimelineService {
      */
     getTimeline(patientId?: string, filters?: TimelineFilter): Observable<TimelineEvent[]> {
         const uid = patientId || this.userId;
-        if (!uid) return of(this.getMockTimeline());
+        if (!uid) return of([]);
 
         return this.medicalService.getDashboardTimeline(uid).pipe(
             map(dtos => dtos.map(dto => this.mapToTimelineEvent(dto))),
@@ -40,11 +40,11 @@ export class TimelineService {
             title: dto.title,
             description: dto.description || undefined,
             date: new Date(dto.date),
-            facility: dto.facility || undefined,
-            practitioner: dto.practitioner_name ? {
-                name: dto.practitioner_name,
+            facility: dto.facility || '',
+            practitioner: {
+                name: dto.practitioner_name || 'Inconnu',
                 role: dto.practitioner_role || 'Médecin',
-            } : undefined,
+            },
             priority: dto.priority as 'low' | 'medium' | 'high' | 'critical',
             status: dto.status as 'pending' | 'completed' | 'archived',
             diagnosis: dto.diagnosis || undefined,
@@ -109,45 +109,5 @@ export class TimelineService {
         });
     }
 
-    /**
-     * Mock data pour développement
-     */
-    getMockTimeline(): TimelineEvent[] {
-        return [
-            {
-                id: 'evt-001',
-                type: 'consultation' as EventType,
-                title: 'Consultation Générale - Suivi HTA',
-                description: 'Contrôle trimestriel de l\'hypertension artérielle',
-                date: new Date('2024-01-15T14:30:00'),
-                facility: 'Hôpital de Zone de Calavi',
-                practitioner: { name: 'Dr. Sévérin Adjaho', role: 'Médecin Généraliste' },
-                priority: 'medium',
-                status: 'completed',
-                diagnosis: 'HTA contrôlée, poursuite du traitement',
-                notes: 'Patient observant, pas d\'effets secondaires rapportés.',
-                createdAt: new Date('2024-01-15T14:30:00'),
-                isEditable: false,
-                consentRequired: true,
-                icon: 'stethoscope',
-                badge: { text: 'Complété', type: 'completed' },
-            },
-            {
-                id: 'evt-002',
-                type: 'lab_result' as EventType,
-                title: 'Bilan Sanguin Complet',
-                date: new Date('2024-01-10T08:15:00'),
-                facility: 'Laboratoire BIO-BENIN',
-                practitioner: { name: 'Dr. Amina Soumanou', role: 'Biologiste Médicale' },
-                priority: 'high',
-                status: 'completed',
-                notes: 'Légère élévation de la glycémie et du cholestérol.',
-                createdAt: new Date('2024-01-10T08:15:00'),
-                isEditable: false,
-                consentRequired: true,
-                icon: 'biotech',
-                badge: { text: '2 valeurs hors norme', type: 'alert' },
-            },
-        ];
-    }
+
 }

@@ -1,0 +1,149 @@
+@if (isVerified()) {
+<div class="min-h-screen bg-[#f8f9ff] font-['Public_Sans'] flex">
+
+  <!-- ── Overlay mobile ── -->
+  @if (isMobile && sidebarOpen()) {
+  <div class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm"
+       (click)="toggleSidebar()"></div>
+  }
+
+  <!-- ══════════════════════════════════════════════
+       SIDEBAR — fixe, commune à toutes les pages
+  ══════════════════════════════════════════════ -->
+  <aside
+    class="fixed left-0 top-0 z-40 h-screen w-64 bg-[#002B5C] text-white flex flex-col
+           border-r border-white/10 transition-transform duration-300 overflow-hidden"
+    [class.translate-x-0]="!isMobile || sidebarOpen()"
+    [class.-translate-x-full]="isMobile && !sidebarOpen()">
+
+    <!-- Logo -->
+    <div class="px-6 py-5 border-b border-white/10 shrink-0">
+      <h1 class="text-lg font-black uppercase tracking-tighter text-white">DMN Portal</h1>
+      <p class="text-[10px] text-blue-100/50 uppercase tracking-widest mt-0.5">Portail Santé Bénin</p>
+    </div>
+
+    <!-- Profil praticien -->
+    <div class="px-4 py-4 border-b border-white/10 shrink-0">
+      <div class="flex items-center gap-3 bg-white/5 rounded-xl px-3 py-3">
+        @if (practitioner().avatar) {
+        <img [src]="practitioner().avatar" [alt]="practitioner().name"
+             class="w-10 h-10 rounded-full border-2 border-white/20 object-cover shrink-0">
+        } @else {
+        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-white text-xl">person</span>
+        </div>
+        }
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-bold truncate">{{ practitioner().name }}</p>
+          <p class="text-[10px] text-blue-100/60 truncate">{{ practitioner().specialty }}</p>
+          <div class="flex items-center gap-1 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span class="text-[9px] text-emerald-300 font-bold uppercase">En ligne</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+      @for (item of navItems; track item.route) {
+      <a [routerLink]="'/practitioner/' + item.route"
+         routerLinkActive="bg-white text-primary font-bold shadow-sm"
+         [routerLinkActiveOptions]="{ exact: item.route === 'dashboard' }"
+         class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all
+                text-blue-100/70 hover:bg-white/8 cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">{{ item.icon }}</span>
+        <span class="flex-1">{{ item.label }}</span>
+      </a>
+        @if (item.route === 'patients') {
+        <!-- Dossier patient — lien dynamique vers le dernier NPI -->
+        <button (click)="navigateToDossier()"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all
+                       text-blue-100/70 hover:bg-white/8 text-left">
+          <span class="material-symbols-outlined text-[20px]">folder_open</span>
+          Dossier patient
+        </button>
+        }
+      }
+    </nav>
+
+    <!-- Footer sidebar -->
+    <div class="p-4 border-t border-white/10 space-y-1 shrink-0">
+      <div class="text-[10px] text-blue-100/40 text-center uppercase tracking-widest mb-2">
+        N° Ordre : {{ practitioner().rpps }}
+      </div>
+      <a href="#"
+         class="flex items-center gap-3 py-2 px-3 text-blue-100/60 hover:text-white
+                hover:bg-white/5 rounded-lg transition-all text-xs">
+        <span class="material-symbols-outlined text-sm">settings</span>
+        Paramètres
+      </a>
+      <button (click)="onLogout()"
+              class="w-full flex items-center gap-3 py-2 px-3 text-red-300/80
+                     hover:text-red-200 hover:bg-red-500/10 rounded-lg transition-all text-xs text-left">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════════
+       ZONE PRINCIPALE
+  ══════════════════════════════════════════════ -->
+  <div class="flex-1 ml-0 lg:ml-64 flex flex-col min-h-screen">
+
+    <!-- Header mobile uniquement (burger) -->
+    <header class="lg:hidden sticky top-0 z-20 bg-white border-b border-slate-200
+                   px-4 py-3 flex items-center gap-3 shadow-sm">
+      <button (click)="toggleSidebar()"
+              class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+        <span class="material-symbols-outlined text-slate-600">menu</span>
+      </button>
+      <span class="font-black text-[#002B5C] text-lg uppercase tracking-tight">DMN Portal</span>
+    </header>
+
+    <router-outlet />
+  </div>
+</div>
+
+} @else {
+<!-- ══════════════════════════════════════════════
+     ÉCRAN EN ATTENTE DE VALIDATION
+══════════════════════════════════════════════ -->
+<div class="min-h-screen bg-[#002B5C] text-white flex flex-col items-center justify-center p-6 font-['Public_Sans']">
+  <div class="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 p-8
+              text-center shadow-2xl relative overflow-hidden">
+    <div class="absolute -top-12 -left-12 w-32 h-32 bg-amber-400/20 rounded-full blur-2xl"></div>
+    <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl"></div>
+    <div class="relative z-10">
+      <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/30">
+        <span class="material-symbols-outlined text-blue-400 text-4xl animate-pulse">verified_user</span>
+      </div>
+      <h1 class="text-2xl font-black uppercase tracking-tight mb-2">Validation du profil praticien en cours</h1>
+      <p class="text-blue-100/80 text-sm mb-8 leading-relaxed">
+        Docteur <span class="font-bold text-white">{{ authStore.user()?.identity?.firstName }} {{ authStore.user()?.identity?.lastName }}</span>,
+        votre demande est en cours d'examen par le conseil de l'ordre. Vous serez notifié(e) dès que votre accès sera activé.
+      </p>
+      <div class="bg-black/20 rounded-xl p-4 mb-6 border border-white/5 space-y-3 text-left">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>
+          <span class="text-xs text-blue-100">Informations professionnelles soumises</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>
+          <span class="text-xs text-blue-100">Transmission des justificatifs</span>
+        </div>
+        <div class="flex items-center gap-3 opacity-60">
+          <span class="material-symbols-outlined text-blue-400 text-lg animate-spin" style="animation-duration:3s">sync</span>
+          <span class="text-xs text-white font-semibold">Vérification du numéro d'ordre en cours…</span>
+        </div>
+      </div>
+      <button (click)="onLogout()"
+              class="text-xs text-blue-200 hover:text-white flex items-center gap-1.5 mx-auto transition-colors font-bold uppercase tracking-widest">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        Me déconnecter
+      </button>
+    </div>
+  </div>
+</div>
+}

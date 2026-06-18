@@ -8,6 +8,25 @@ import { MedicalPractitionerService } from './medical-practitioner.service';
 export class PatientService {
   private medicalPrac = inject(MedicalPractitionerService);
 
+  searchPatients(query: string): Promise<Patient[]> {
+    if (!query || query.trim().length < 2) return Promise.resolve([]);
+    return firstValueFrom(this.medicalPrac.searchPatients(query)).then(
+      dtos => dtos.map(dto => ({
+        npi: dto.npi || dto.user_id,
+        name: dto.full_name || dto.user_id,
+        initials: dto.full_name
+          ? dto.full_name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
+          : dto.user_id.slice(0, 2).toUpperCase(),
+        age: dto.age || 0,
+        gender: (dto.gender as 'M' | 'F') || 'M',
+        lastContact: new Date(),
+        priority: 'low' as const,
+        isCritical: false,
+        activePrescriptions: 0,
+      }))
+    );
+  }
+
   getFollowedPatients(practitionerUserId: string): Promise<FollowedPatient[]> {
     return firstValueFrom(this.medicalPrac.getPractitionerPatients(practitionerUserId)).then(
       dtos => dtos.map(dto => ({

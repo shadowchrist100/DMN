@@ -11,7 +11,8 @@ from app.schemas.medical import (
     OrganisationInfo, AddPractitionerRoleReq,
     PractitionerDashboardStatsResp, AccessRequestResp,
     PractitionerActivityResp, PatientSearchResult,
-    CreateAccessRequestReq,
+    CreateAccessRequestReq, CreateMedicalActReq,
+    MedicalActCreatedResp, PractitionerConsentResp,
 )
 from app.schemas.patient import PatientListResp
 from app.services.practitioner_service import PractitionerService
@@ -22,7 +23,7 @@ from app.models.healthcare_system import HealthcareSystem
 from app.models.medical_act import MedicalAct
 from app.models.dmn import DMN
 from app.models.patient import Patient
-from app.exceptions import not_found, bad_request
+from app.exceptions import not_found, bad_request, forbidden
 from app.types.enums import StatutVerification
 
 router = APIRouter(prefix="/api", tags=["practitioner"])
@@ -217,6 +218,18 @@ def get_practitioner_access_requests(
     return [AccessRequestResp(**r) for r in requests]
 
 
+@router.get("/practitioners/by-user/{user_id}/consents", response_model=list[PractitionerConsentResp])
+def get_practitioner_consents(
+    user_id: str,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    """Retourne toutes les autorisations du praticien (actives, en attente, expirées)."""
+    check_owner(user_id, current_user)
+    consents = PractitionerRepository.get_all_consents(session, user_id)
+    return [PractitionerConsentResp(**c) for c in consents]
+
+
 @router.put("/practitioners/by-user/{user_id}/access-requests/{request_id}/accept")
 def accept_access_request(
     user_id: str,
@@ -288,9 +301,12 @@ def create_access_request(
     current_user: CurrentUser = Depends(verify_jwt),
 ):
     check_owner(user_id, current_user)
+    practitioner = PractitionerRepository.get_by_user_id_or_npi(
+        session, user_id, current_user.npi
+    )
     result = PractitionerRepository.create_access_request(
         session,
-        practitioner_user_id=user_id,
+        practitioner=practitioner,
         patient_user_id=body.patient_user_id,
         reason=body.reason,
         duration=body.duration,
@@ -300,3 +316,60 @@ def create_access_request(
         not_found("Patient ou dossier médical introuvable")
     session.commit()
     return result
+
+
+@router.post("/practitioners/by-user/{user_id}/patients/{patient_user_id}/medical-acts",
+             status_code=201, response_model=MedicalActCreatedResp)
+def create_medical_act(
+    user_id: str,
+    patient_user_id: str,
+    body: CreateMedicalActReq,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    # Vérifier que le praticien a une autorisation active pour ce patient
+    practitioner = PractitionerRepository.get_by_user_id_or_npi(
+        session, user_id, current_user.npi
+    )
+    if not practitioner:
+        not_found("Praticien introuvable")
+    patient_obj = session.exec(
+        select(Patient).where(Patient.user_id == patient_user_id)
+    ).first()
+    if not patient_obj:
+        not_found("Patient introuvable")
+    dmn = session.exec(
+        select(DMN).where(DMN.patient_id == patient_obj.id)
+    ).first()
+    if not dmn:
+        not_found("Dossier médical introuvable")
+    auth = session.exec(
+        select(Authorization).where(
+            Authorization.practitioner_id == practitioner.id,
+            Authorization.dmn_id == dmn.id,
+            Authorization.is_actif == True,
+        )
+    ).first()
+    if not auth:
+        forbidden("Vous n'avez pas d'autorisation active pour ce patient")
+
+    act_id = PractitionerRepository.create_medical_act(
+        session,
+        practitioner_user_id=user_id,
+        patient_user_id=patient_user_id,
+        motif=body.motif,
+        raisons=body.raisons,
+        observations_text=body.observations_text,
+        duree_minutes=body.duree_minutes,
+        vital_constants=[v.model_dump() for v in body.vital_constants],
+        diagnoses=[d.model_dump() for d in body.diagnoses],
+        medications=[m.model_dump() for m in body.medications],
+        examens=[e.model_dump() for e in body.examens],
+        vaccines=[v.model_dump() for v in body.vaccines],
+        care_instructions=[c.model_dump() for c in body.care_instructions],
+    )
+    if not act_id:
+        not_found("Praticien, patient ou dossier introuvable")
+    session.commit()
+    return MedicalActCreatedResp(id=str(act_id))

@@ -6,6 +6,7 @@ import { TimeLinesComponent } from "./components/time-lines/time-lines";
 import { Prescriptions } from "./components/prescriptions/prescriptions";
 import { Examens } from "./components/examens/examens";
 import { Allergies } from "./components/allergies/allergies";
+import { Pathologies } from "./components/pathologies/pathologies";
 import { Consentements } from "./components/consentements/consentements";
 import { Profil } from "./components/profil/profil";
 import { Contacts } from "./components/contacts/contacts";
@@ -65,7 +66,7 @@ export interface AccesRecent {
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, TimeLinesComponent, Prescriptions, Examens, Allergies, Consentements, Profil, Contacts, ContactEdit, ProfilEdit, ActeView, NavIconPipe, NavLabelPipe],
+    imports: [CommonModule, TimeLinesComponent, Prescriptions, Examens, Allergies, Pathologies, Consentements, Profil, Contacts, ContactEdit, ProfilEdit, ActeView, NavIconPipe, NavLabelPipe],
     templateUrl: './dashboard.html',
     styleUrls: ['./dashboard.css'],
 })
@@ -119,7 +120,7 @@ export class Dashboard implements OnInit, OnDestroy {
             age = Math.floor((Date.now() - bd.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
         }
 
-        const sexe = identity?.gender === 'homme' ? 'Masculin' : identity?.gender === 'femme' ? 'Féminin' : '—';
+        const sexe = identity?.gender === 'male' ? 'Masculin' : identity?.gender === 'female' ? 'Féminin' : '—';
         const nin = identity?.npi?.toString() || '—';
         const avatar = identity?.photoPath || 'https://i.pravatar.cc/150?img=68';
         const groupeSanguin = data?.profile?.blood_type || '—';
@@ -167,7 +168,7 @@ export class Dashboard implements OnInit, OnDestroy {
             { label: 'Examens', value: String(stats?.examens_count ?? 0), icon: 'biotech', color: 'bg-blue-50 text-blue-600', route: 'examens' },
             { label: 'Prescriptions', value: String(stats?.prescriptions_count ?? 0), icon: 'medication', color: 'bg-violet-50 text-violet-600', route: 'prescriptions' },
             { label: 'Allergies', value: String(stats?.allergies_count ?? 0), icon: 'allergy', color: 'bg-red-50 text-red-600', route: 'allergies' },
-            { label: 'Consentements', value: String(stats?.authorizations_count ?? 0), icon: 'verified_user', color: 'bg-emerald-50 text-emerald-600', route: 'consentements' },
+            { label: 'Consentements', value: String(stats?.consentements_count ?? 0), icon: 'verified_user', color: 'bg-emerald-50 text-emerald-600', route: 'consentements' },
         ];
     });
 
@@ -216,7 +217,7 @@ export class Dashboard implements OnInit, OnDestroy {
     }
 
     // ── Navigation ───────────────────────────────────────────────────────────
-    setView(key: String): void {
+    setView(key: string): void {
         this.view.set(key as ViewKey);
         this.sidebarOpen = false;
         this.profileMenuOpen = false;

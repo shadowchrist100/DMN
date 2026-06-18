@@ -16,7 +16,6 @@ import {
     Priority,
     Measurement,
     Attachment,
-    MOCK_TIMELINE,
 } from './model.model';
 
 import { TimelineService } from '../../../services/timelines.services';
@@ -48,6 +47,7 @@ const EVENT_ICON: Readonly<Record<EventType, string>> = {
     lab_result: '🧪',
     vaccination: '💉',
     hospitalization: '🏥',
+    imaging: '🔬',
     alert: '⚠️',
 };
 
@@ -57,6 +57,7 @@ const EVENT_ICON_BG: Readonly<Record<EventType, string>> = {
     lab_result: 'bg-purple-50 border border-purple-100',
     vaccination: 'bg-green-50 border border-green-100',
     hospitalization: 'bg-orange-50 border border-orange-100',
+    imaging: 'bg-cyan-50 border border-cyan-100',
     alert: 'bg-red-50 border border-red-100',
 };
 
@@ -66,6 +67,7 @@ const EVENT_DOT: Readonly<Record<EventType, string>> = {
     lab_result: 'bg-purple-400',
     vaccination: 'bg-green-400',
     hospitalization: 'bg-orange-400',
+    imaging: 'bg-cyan-400',
     alert: 'bg-red-400',
 };
 
@@ -75,6 +77,7 @@ const EVENT_TYPE_LABEL: Readonly<Record<EventType, string>> = {
     lab_result: 'Analyse',
     vaccination: 'Vaccination',
     hospitalization: 'Hospitalisation',
+    imaging: 'Imagerie',
     alert: 'Alerte',
 };
 
@@ -84,6 +87,7 @@ const TYPE_BADGE: Readonly<Record<EventType, string>> = {
     lab_result: 'bg-purple-100 text-purple-700',
     vaccination: 'bg-green-100 text-green-700',
     hospitalization: 'bg-orange-100 text-orange-700',
+    imaging: 'bg-cyan-100 text-cyan-700',
     alert: 'bg-red-100 text-red-700',
 };
 
@@ -294,9 +298,9 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
         this.loading.set(true);
         this.currentPage = 1;
 
-        this.timelineService.getTimeline(this.patientId() || undefined, this.buildFilter()).subscribe({
+        this.timelineService.getTimeline(this.patientId() || undefined, this.buildFilter() as any).subscribe({
             next: (data) => {
-                this.events.set(data);
+                this.events.set(data as any);
                 this.totalEvents = data.length;
                 this.applyFilters();
                 this.loading.set(false);
@@ -373,7 +377,6 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
         const d = now.getDate();
         switch (range) {
             case 'month': return new Date(y, m - 1, d);
-            case '3months': return new Date(y, m - 3, d);
             case '6months': return new Date(y, m - 6, d);
             case 'year': return new Date(y - 1, m, d);
             default: return new Date(0);
@@ -498,9 +501,9 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
         const labels: Record<DateRange, string> = {
             all: 'Toute la période',
             month: 'Dernier mois',
-            '3months': '3 derniers mois',
             '6months': '6 derniers mois',
             year: `Année ${this.currentYear}`,
+            custom: 'Personnalisé',
         };
         return labels[range] ?? range;
     }

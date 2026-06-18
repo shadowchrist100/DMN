@@ -11,6 +11,8 @@ class RelativeReq(BaseModel):
 
 class CreatePatientReq(BaseModel):
     user_id: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     relative: Optional[RelativeReq] = None
 
 
@@ -29,6 +31,8 @@ class RelatedPersonResp(BaseModel):
 class PatientResp(BaseModel):
     id: str
     user_id: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     relatives: list[RelatedPersonResp]
 
 

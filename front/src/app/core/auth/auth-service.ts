@@ -110,7 +110,7 @@ export function mapApiUserToIuser(apiUser: ApiUser): Iuser {
             firstName: apiUser.first_name ?? '',
             birthDate: apiUser.birth_date ? new Date(apiUser.birth_date) : new Date(),
             gender: (apiUser.gender as Gender) ?? 'male',
-            npi: apiUser.npi ? Number(apiUser.npi) : 0,
+            npi: apiUser.npi ?? '',
             maritalStatus: (apiUser.matrimonial_status as MaritalStatus) ?? 'single',
             multipleBirth: null,
             phone: apiUser.phone ?? '',
@@ -208,4 +208,9 @@ export class AuthService {
         return { message: 'Mot de passe réinitialisé avec succès.' };
     }
 
+    async logout(): Promise<void> {
+        await firstValueFrom(
+            this.http.post(`${API.AUTH_BASE_URL}/logout`, {})
+        );
+    }
 }

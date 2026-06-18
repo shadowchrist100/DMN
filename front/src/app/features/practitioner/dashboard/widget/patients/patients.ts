@@ -1,14 +1,17 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { DatePipe, CommonModule } from '@angular/common';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Patient, Priority } from './patient.model';
 import { PatientService } from '../../../services/patient.service';
 import { AuditService } from '../../../services/audit.service';
 import { AuthStore } from '../../../../../core/auth/auth.store';
+import { MedicalPractitionerService } from '../../../services/medical-practitioner.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-patients',
-  imports: [DatePipe],
+  imports: [DatePipe, CommonModule, FormsModule, RouterLink],
   templateUrl: './patients.html',
   styleUrl: './patients.css',
 })
@@ -21,9 +24,21 @@ export class Patients {
   displayedCount = signal(0);
   hasMorePatients = signal(true);
   notificationCount = signal(2);
-  pendingReports = signal(5);
+  searchQuery = signal('');
+  searchResults = signal<Patient[]>([]);
+  searchTimer: ReturnType<typeof setTimeout> | null = null;
+  searchLoading = signal(false);
 
-  userId = computed(() => String(this.authStore.user()?.identity?.npi ?? ''));
+  showNewPatientModal = signal(false);
+  newPatientSearchQuery = signal('');
+  newPatientSearchResults = signal<{ user_id: string; npi: string; full_name: string | null }[]>([]);
+  newPatientSearchLoading = signal(false);
+  newPatientSearchTimer: ReturnType<typeof setTimeout> | null = null;
+  accessRequestSent = signal(false);
+  accessRequestError = signal<string | null>(null);
+  selectedPatientForAccess: { user_id: string; full_name: string | null } | null = null;
+
+  userId = computed(() => this.authStore.userId() ?? '');
 
   practitioner = computed(() => ({
     name: `Dr. ${this.authStore.user()?.identity?.firstName ?? ''} ${this.authStore.user()?.identity?.lastName ?? ''}`,
@@ -32,12 +47,24 @@ export class Patients {
     avatar: this.authStore.user()?.identity?.photoPath ?? '',
   }));
 
+  newConsultationMode = signal(false);
+
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private patientService = inject(PatientService);
   private auditService = inject(AuditService);
+  private medicalPrac = inject(MedicalPractitionerService);
 
   ngOnInit(): void {
     this.auditService.setUserId(this.userId());
+    this.route.queryParams.subscribe(params => {
+      const q = params['q'] || '';
+      if (q) {
+        this.searchQuery.set(q);
+        this.performSearch(q);
+      }
+      this.newConsultationMode.set(params['action'] === 'new-consultation');
+    });
     this.loadPatients();
   }
 
@@ -65,18 +92,47 @@ export class Patients {
     }
   }
 
+  onSearchInput(value: string): void {
+    this.searchQuery.set(value);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.performSearch(value), 300);
+  }
+
+  private async performSearch(q?: string): Promise<void> {
+    const query = q ?? this.searchQuery().trim();
+    if (query.length < 2) {
+      this.searchResults.set([]);
+      this.filteredCount.set(this.patients().length);
+      return;
+    }
+    try {
+      this.searchLoading.set(true);
+      const results = await this.patientService.searchPatients(query);
+      this.searchResults.set(results);
+      this.filteredCount.set(results.length);
+      this.displayedCount.set(Math.min(9, results.length));
+      this.hasMorePatients.set(results.length > 9);
+    } catch (e) {
+      console.error('Erreur recherche patients:', e);
+    } finally {
+      this.searchLoading.set(false);
+    }
+  }
+
   openPatientFile(npi: string): void {
     this.auditService.logAction('open_patient_file', { npi });
-    this.router.navigate(['/patient', npi, 'overview']);
+    localStorage.setItem('selectedPatientNpi', npi);
+    const extras = this.newConsultationMode()
+      ? { queryParams: { newActe: 'true' } }
+      : {};
+    this.router.navigate(['/practitioner/patient', npi], extras);
   }
 
   navigateTo(route: string): void {
     const routes: Record<string, string[]> = {
       dashboard: ['/practitioner/dashboard'],
-      reports: ['/practitioner/reports'],
-      prescriptions: ['/practitioner/prescriptions'],
-      analyses: ['/practitioner/analyses'],
-      audit: ['/practitioner/audit']
+      consents: ['/practitioner/consents'],
+      organizations: ['/practitioner/organizations'],
     };
 
     if (routes[route]) {
@@ -84,10 +140,84 @@ export class Patients {
     }
   }
 
+  navigateToDossier(): void {
+    const npi = localStorage.getItem('selectedPatientNpi');
+    if (npi) {
+      this.router.navigate(['/practitioner/patient', npi]);
+    }
+  }
+
   loadMorePatients(): void {
     // TODO: Pagination API
     console.log('Load more patients');
   }
+
+  openNewPatientModal(): void {
+    this.showNewPatientModal.set(true);
+    this.newPatientSearchQuery.set('');
+    this.newPatientSearchResults.set([]);
+    this.accessRequestSent.set(false);
+    this.accessRequestError.set(null);
+    this.selectedPatientForAccess = null;
+  }
+
+  closeNewPatientModal(): void {
+    this.showNewPatientModal.set(false);
+  }
+
+  onNewPatientSearchInput(value: string): void {
+    this.newPatientSearchQuery.set(value);
+    if (this.newPatientSearchTimer) clearTimeout(this.newPatientSearchTimer);
+    this.newPatientSearchTimer = setTimeout(() => this.performNewPatientSearch(), 300);
+  }
+
+  private async performNewPatientSearch(): Promise<void> {
+    const q = this.newPatientSearchQuery().trim();
+    if (q.length < 2) {
+      this.newPatientSearchResults.set([]);
+      return;
+    }
+    this.newPatientSearchLoading.set(true);
+    try {
+      const results = await firstValueFrom(this.medicalPrac.searchPatients(q));
+      this.newPatientSearchResults.set(results);
+    } catch (e) {
+      console.error('Erreur recherche nouveau patient:', e);
+      this.newPatientSearchResults.set([]);
+    } finally {
+      this.newPatientSearchLoading.set(false);
+    }
+  }
+
+  selectPatientForAccess(patient: { user_id: string; full_name: string | null }): void {
+    this.selectedPatientForAccess = patient;
+  }
+
+  async sendAccessRequest(): Promise<void> {
+    if (!this.selectedPatientForAccess) return;
+    this.accessRequestError.set(null);
+    this.accessRequestSent.set(false);
+    const uid = this.userId();
+    if (!uid) return;
+    try {
+      await firstValueFrom(this.medicalPrac.createAccessRequest(uid, {
+        patient_user_id: this.selectedPatientForAccess.user_id,
+        reason: 'Demande d\'accès au dossier médical',
+        duration: '24h',
+        perimeter: 'all',
+      }));
+      this.accessRequestSent.set(true);
+      this.selectedPatientForAccess = null;
+    } catch (e: any) {
+      this.accessRequestError.set(e?.error?.detail || 'Erreur lors de l\'envoi de la demande');
+    }
+  }
+
+  displayPatients = computed(() => {
+    const results = this.searchResults();
+    if (results.length > 0) return results.slice(0, this.displayedCount());
+    return this.patients().slice(0, this.displayedCount());
+  });
 
   getPriorityBadgeClass(priority: Priority): string {
     const classes: Record<Priority, string> = {

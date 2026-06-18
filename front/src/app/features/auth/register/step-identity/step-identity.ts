@@ -64,7 +64,7 @@ export class StepIdentity implements OnInit {
                     firstName: val.firstName,
                     birthDate: new Date(val.birthDate),
                     gender: val.gender,
-                    npi: Number(val.npi),
+                    npi: val.npi ?? '',
                     maritalStatus: val.maritalStatus ?? 'single',
                     multipleBirth: val.isMultipleBirth ? Number(val.birthOrder) : null,
                     phone: `${val.phonePrefix} ${val.phone}`,

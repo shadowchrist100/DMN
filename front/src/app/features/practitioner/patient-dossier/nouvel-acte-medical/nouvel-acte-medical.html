@@ -1,0 +1,528 @@
+<div class="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 overflow-y-auto bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] flex flex-col clinical-shadow">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
+      <div class="flex items-center gap-4">
+        <button (click)="close.emit()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+        <div>
+          <h2 class="text-lg font-black text-[#002B5C] tracking-tight">Nouvel acte médical</h2>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Étape {{ currentStepIndex() + 1 }} / {{ stepOrder.length }} — {{ stepLabels[currentStep()] }}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        @for (step of stepOrder; track step; let i = $index) {
+          <div class="w-8 h-1 rounded-full transition-colors"
+            [class.bg-[#002B5C]]="i <= currentStepIndex()"
+            [class.bg-slate-200]="i > currentStepIndex()">
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-6">
+
+      <!-- ===== ÉTAPE 1 : TYPE D'ACTE ===== -->
+      @if (currentStep() === 'type') {
+      <div class="max-w-xl mx-auto space-y-6">
+        <p class="text-sm text-slate-600 text-center">Quel type d'acte médical souhaitez-vous enregistrer ?</p>
+        <div class="grid grid-cols-2 gap-4">
+          <button (click)="state.update(s => ({...s, typeActe: 'Consultation'})); nextStep()"
+            class="p-6 rounded-xl border-2 text-center transition-all cursor-pointer hover:shadow-md"
+            [class.border-[#002B5C]]="state().typeActe === 'Consultation'"
+            [class.border-slate-200]="state().typeActe !== 'Consultation'">
+            <span class="material-symbols-outlined text-4xl text-[#1E40AF] block mb-2">stethoscope</span>
+            <span class="font-bold text-sm">Consultation</span>
+            <p class="text-[10px] text-slate-500 mt-1">Examen clinique, diagnostic et prescription</p>
+          </button>
+          <button (click)="state.update(s => ({...s, typeActe: 'Examen'})); nextStep()"
+            class="p-6 rounded-xl border-2 border-slate-200 text-center transition-all cursor-pointer hover:shadow-md hover:border-slate-400">
+            <span class="material-symbols-outlined text-4xl text-purple-600 block mb-2">biotech</span>
+            <span class="font-bold text-sm">Examen</span>
+            <p class="text-[10px] text-slate-500 mt-1">Analyse, imagerie ou autre examen</p>
+          </button>
+          <button (click)="state.update(s => ({...s, typeActe: 'VACCINATION'})); nextStep()"
+            class="p-6 rounded-xl border-2 border-slate-200 text-center transition-all cursor-pointer hover:shadow-md hover:border-slate-400">
+            <span class="material-symbols-outlined text-4xl text-green-600 block mb-2">vaccines</span>
+            <span class="font-bold text-sm">Vaccination</span>
+            <p class="text-[10px] text-slate-500 mt-1">Administration de vaccin</p>
+          </button>
+          <button (click)="state.update(s => ({...s, typeActe: 'Autre'})); nextStep()"
+            class="p-6 rounded-xl border-2 border-slate-200 text-center transition-all cursor-pointer hover:shadow-md hover:border-slate-400">
+            <span class="material-symbols-outlined text-4xl text-slate-600 block mb-2">more_horiz</span>
+            <span class="font-bold text-sm">Autre acte</span>
+            <p class="text-[10px] text-slate-500 mt-1">Chirurgie, soins, etc.</p>
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- ===== ÉTAPE 2 : CONSULTATION ===== -->
+      @if (currentStep() === 'consultation') {
+      <div class="max-w-2xl mx-auto space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Motif</label>
+            <input [ngModel]="state().motif" (ngModelChange)="updateState('motif', $event)" placeholder="Motif de la consultation"
+              class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 focus:border-[#002B5C] outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Durée (minutes)</label>
+            <input type="number" [ngModel]="state().dureeMinutes" (ngModelChange)="updateState('dureeMinutes', $event)" placeholder="30"
+              class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 focus:border-[#002B5C] outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Raisons</label>
+          <textarea [ngModel]="state().raisons" (ngModelChange)="updateState('raisons', $event)" rows="2" placeholder="Raisons de la consultation..."
+            class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 focus:border-[#002B5C] outline-none resize-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Observations</label>
+          <textarea [ngModel]="state().observations" (ngModelChange)="updateState('observations', $event)" rows="3" placeholder="Observations cliniques..."
+            class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 focus:border-[#002B5C] outline-none resize-none"></textarea>
+        </div>
+
+        <!-- Constantes vitales -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold text-slate-600 uppercase tracking-wide">Constantes vitales</label>
+            <span class="text-[10px] text-slate-400">{{ state().vitalConstants.length }} saisie(s)</span>
+          </div>
+
+          @if (state().vitalConstants.length > 0) {
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+            @for (vc of state().vitalConstants; track vc.code) {
+            <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+              <span class="text-xs font-semibold text-slate-700 flex-1">
+                {{ vitalConstantRefs().find(r => r.code === vc.code)?.nom || vc.code }}
+              </span>
+              <span class="text-sm font-bold text-[#002B5C]">{{ vc.valeur }}</span>
+              <button (click)="removeVitalConstant(vc.code)" class="text-red-400 hover:text-red-600 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            }
+          </div>
+          }
+
+          <div class="flex items-end gap-2">
+            <div class="flex-1">
+              <select [ngModel]="newVitalConstantCode()" (ngModelChange)="newVitalConstantCode.set($event)"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 outline-none bg-white">
+                <option value="">Sélectionner...</option>
+                @for (ref of vitalConstantRefs(); track ref.code) {
+                <option [value]="ref.code">{{ ref.nom }} ({{ ref.unite_mesure }})</option>
+                }
+              </select>
+            </div>
+            <div class="w-24">
+              <input type="number" [ngModel]="newVitalConstantValue()" (ngModelChange)="newVitalConstantValue.set($event)" placeholder="Valeur"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 outline-none" />
+            </div>
+            <button (click)="addVitalConstant()"
+              class="bg-[#002B5C] text-white px-3 py-2.5 rounded-lg text-sm font-bold hover:bg-[#001f42] transition-colors cursor-pointer">
+              <span class="material-symbols-outlined text-sm">add</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- ===== ÉTAPE 3 : DIAGNOSTICS ===== -->
+      @if (currentStep() === 'diagnostics') {
+      <div class="max-w-2xl mx-auto space-y-5">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Rechercher un diagnostic</label>
+          <div class="flex gap-2">
+            <input [ngModel]="diagnosisSearchQuery()" (ngModelChange)="diagnosisSearchQuery.set($event)" (input)="searchDiagnosis()"
+              placeholder="Code CIM-11 ou libellé..."
+              class="flex-1 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 focus:border-[#002B5C] outline-none" />
+          </div>
+
+          @if (diagnosisSearchResults.length > 0) {
+          <div class="mt-2 border border-slate-200 rounded-lg max-h-40 overflow-y-auto">
+            @for (ref of diagnosisSearchResults; track ref.id) {
+            <button (click)="newDiagnosisRefId.set(ref.id)"
+              class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 transition-colors flex items-center gap-2 cursor-pointer"
+              [class.bg-blue-50]="newDiagnosisRefId() === ref.id">
+              <span class="font-mono text-[10px] font-bold bg-[#002B5C] text-white px-1.5 py-0.5 rounded">{{ ref.code_cid11 }}</span>
+              <span class="text-slate-700">{{ ref.libelle }}</span>
+            </button>
+            }
+          </div>
+          }
+        </div>
+
+        @if (newDiagnosisRefId()) {
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+          <p class="text-sm font-semibold text-[#002B5C]">{{ selectedDiagnosisName }}</p>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Note clinique</label>
+            <textarea [ngModel]="newDiagnosisNote()" (ngModelChange)="newDiagnosisNote.set($event)" rows="2" placeholder="Note clinique..."
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#002B5C]/20 outline-none resize-none"></textarea>
+          </div>
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" [ngModel]="newDiagnosisStatus()" (ngModelChange)="newDiagnosisStatus.set($event)" value="confirmed" class="text-[#002B5C]" />
+              Confirmé
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" [ngModel]="newDiagnosisStatus()" (ngModelChange)="newDiagnosisStatus.set($event)" value="suspected" class="text-amber-500" />
+              Suspecté
+            </label>
+          </div>
+          <button (click)="addDiagnosis()"
+            class="bg-[#002B5C] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#001f42] transition-colors cursor-pointer">
+            Ajouter ce diagnostic
+          </button>
+        </div>
+        }
+
+        @if (state().diagnoses.length > 0) {
+        <div>
+          <p class="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Diagnostics ajoutés ({{ state().diagnoses.length }})</p>
+          <div class="space-y-2">
+            @for (diag of state().diagnoses; track $index) {
+            <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-lg px-4 py-3">
+              <span class="material-symbols-outlined text-sm text-[#1E40AF]">medical_information</span>
+              <span class="text-sm font-medium flex-1">{{ getDiagnosisLabel(diag.diagnosis_ref_id) }}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded"
+                [class.bg-green-100.text-green-700]="diag.statut_verification === 'confirmed'"
+                [class.bg-amber-100.text-amber-700]="diag.statut_verification === 'suspected'">
+                {{ diag.statut_verification === 'confirmed' ? 'Confirmé' : 'Suspecté' }}
+              </span>
+              <button (click)="removeDiagnosis($index)" class="text-red-400 hover:text-red-600 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- ===== ÉTAPE 4 : PRESCRIPTIONS ===== -->
+      @if (currentStep() === 'prescriptions') {
+      <div class="max-w-2xl mx-auto space-y-6">
+
+        <!-- ── Médicaments ── -->
+        <section class="bg-slate-50 rounded-xl p-4 space-y-3">
+          <h4 class="text-xs font-black text-[#002B5C] uppercase tracking-wide flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">medication</span> Médicaments
+          </h4>
+
+          @if (state().medications.length > 0) {
+          <div class="space-y-2">
+            @for (med of state().medications; track $index) {
+            <div class="flex items-center gap-3 bg-white border border-green-200 rounded-lg px-3 py-2 text-sm">
+              <span class="font-medium flex-1">{{ getMedicationName(med.medication_ref_id) }}</span>
+              <span class="text-slate-500">{{ med.posologie }}</span>
+              <span class="text-slate-500">{{ med.duree_jours }}j</span>
+              <button (click)="removeMedication($index)" class="text-red-400 hover:text-red-600 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            }
+          </div>
+          }
+
+          <div class="flex gap-2">
+            <div class="flex-1 relative">
+              <input [ngModel]="medicationSearchQuery()" (ngModelChange)="medicationSearchQuery.set($event)" (input)="searchMedications()"
+                placeholder="Rechercher un médicament..."
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+              @if (medicationSearchResults.length > 0) {
+              <div class="absolute top-full left-0 right-0 z-10 bg-white border border-slate-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
+                @for (ref of medicationSearchResults; track ref.id) {
+                <button (click)="newMedicationRefId.set(ref.id); medicationSearchQuery.set(ref.nom_commercial); medicationRefs.set(medicationRefs())"
+                  class="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 cursor-pointer"
+                  [class.bg-blue-50]="newMedicationRefId() === ref.id">
+                  <span class="font-semibold">{{ ref.nom_commercial }}</span>
+                  <span class="text-slate-400 text-[10px] ml-2">{{ ref.dc_nom }} — {{ ref.forme_galenique }}</span>
+                </button>
+                }
+              </div>
+              }
+            </div>
+          </div>
+
+          @if (newMedicationRefId()) {
+          <div class="flex items-end gap-2">
+            <div class="flex-1">
+              <label class="text-[10px] font-bold text-slate-500 block mb-0.5">Posologie</label>
+              <input [ngModel]="newMedicationPosologie()" (ngModelChange)="newMedicationPosologie.set($event)" placeholder="ex: 1 comprimé par jour"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+            </div>
+            <div class="w-24">
+              <label class="text-[10px] font-bold text-slate-500 block mb-0.5">Durée (jours)</label>
+              <input type="number" [ngModel]="newMedicationDuree()" (ngModelChange)="newMedicationDuree.set($event)" placeholder="90"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+            </div>
+            <button (click)="addMedication()"
+              class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition-colors cursor-pointer">
+              Ajouter
+            </button>
+          </div>
+          }
+        </section>
+
+        <!-- ── Examens ── -->
+        <section class="bg-slate-50 rounded-xl p-4 space-y-3">
+          <h4 class="text-xs font-black text-[#002B5C] uppercase tracking-wide flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">biotech</span> Examens
+          </h4>
+
+          @if (state().examens.length > 0) {
+          <div class="space-y-2">
+            @for (ex of state().examens; track $index) {
+            <div class="flex items-center gap-3 bg-white border border-purple-200 rounded-lg px-3 py-2 text-sm">
+              <span class="font-medium flex-1">{{ ex.libelle }}</span>
+              <span class="text-slate-500 text-[10px]">{{ ex.nature_examination }}</span>
+              <button (click)="removeExamen($index)" class="text-red-400 hover:text-red-600 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            }
+          </div>
+          }
+
+          <div class="flex items-end gap-2">
+            <div class="flex-1">
+              <input [ngModel]="newExamenLibelle()" (ngModelChange)="newExamenLibelle.set($event)" placeholder="Libellé de l'examen"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+            </div>
+            <div>
+              <select [ngModel]="newExamenNature()" (ngModelChange)="newExamenNature.set($event)"
+                class="border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                <option value="LABORATOIRE">Laboratoire</option>
+                <option value="radiographie">Radiographie</option>
+                <option value="ANALYSE">Analyse</option>
+              </select>
+            </div>
+            <button (click)="addExamen()"
+              class="bg-purple-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition-colors cursor-pointer">
+              Ajouter
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Vaccins ── -->
+        <section class="bg-slate-50 rounded-xl p-4 space-y-3">
+          <h4 class="text-xs font-black text-[#002B5C] uppercase tracking-wide flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">vaccines</span> Vaccins
+          </h4>
+
+          @if (state().vaccines.length > 0) {
+          <div class="space-y-2">
+            @for (vac of state().vaccines; track $index) {
+            <div class="flex items-center gap-3 bg-white border border-green-200 rounded-lg px-3 py-2 text-sm">
+              <span class="font-medium flex-1">{{ vac.libelle }}</span>
+              <button (click)="removeVaccin($index)" class="text-red-400 hover:text-red-600 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            }
+          </div>
+          }
+
+          <div class="flex items-end gap-2">
+            <input [ngModel]="newVaccinLibelle()" (ngModelChange)="newVaccinLibelle.set($event)" placeholder="Nom du vaccin"
+              class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+            <button (click)="addVaccin()"
+              class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition-colors cursor-pointer">
+              Ajouter
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Instructions de soins ── -->
+        <section class="bg-slate-50 rounded-xl p-4 space-y-3">
+          <h4 class="text-xs font-black text-[#002B5C] uppercase tracking-wide flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">healing</span> Instructions de soins
+          </h4>
+
+          @if (state().careInstructions.length > 0) {
+          <div class="space-y-2">
+            @for (ci of state().careInstructions; track $index) {
+            <div class="flex items-center gap-3 bg-white border border-amber-200 rounded-lg px-3 py-2 text-sm">
+              <span class="font-medium flex-1">{{ ci.description_generale }}</span>
+              <button (click)="removeCareInstruction($index)" class="text-red-400 hover:text-red-600 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            }
+          </div>
+          }
+
+          <div class="flex items-end gap-2">
+            <div class="flex-1">
+              <input [ngModel]="newSoinDescription()" (ngModelChange)="newSoinDescription.set($event)" placeholder="Description de l'instruction"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+            </div>
+            <div>
+              <select [ngModel]="newSoinType()" (ngModelChange)="newSoinType.set($event)"
+                class="border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                <option value="rehabilitation">Réhabilitation</option>
+                <option value="soins_infirmiers">Soins infirmiers</option>
+                <option value="education">Éducation</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+            <button (click)="addCareInstruction()"
+              class="bg-amber-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-amber-700 transition-colors cursor-pointer">
+              Ajouter
+            </button>
+          </div>
+        </section>
+      </div>
+      }
+
+      <!-- ===== ÉTAPE 5 : RÉCAPITULATIF ===== -->
+      @if (currentStep() === 'review') {
+      <div class="max-w-2xl mx-auto space-y-4">
+        <h3 class="font-black text-[#002B5C] text-lg">Récapitulatif de l'acte médical</h3>
+
+        <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-500">Type d'acte</span>
+            <span class="font-semibold">{{ state().typeActe }}</span>
+          </div>
+          @if (state().motif) {
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-500">Motif</span>
+            <span class="font-semibold">{{ state().motif }}</span>
+          </div>
+          }
+          @if (state().dureeMinutes) {
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-500">Durée</span>
+            <span class="font-semibold">{{ state().dureeMinutes }} min</span>
+          </div>
+          }
+          @if (state().raisons) {
+          <div>
+            <p class="text-xs text-slate-500 mb-1">Raisons</p>
+            <p class="text-sm bg-white rounded-lg p-3 border border-slate-100">{{ state().raisons }}</p>
+          </div>
+          }
+        </div>
+
+        @if (state().vitalConstants.length > 0) {
+        <div class="bg-slate-50 rounded-xl p-4">
+          <p class="text-xs font-bold text-slate-600 uppercase mb-2">Constantes vitales ({{ state().vitalConstants.length }})</p>
+          <div class="grid grid-cols-3 gap-2">
+            @for (vc of state().vitalConstants; track vc.code) {
+            <div class="bg-white rounded-lg p-3 border border-slate-100">
+              <p class="text-[10px] text-slate-500">{{ vitalConstantRefs().find(r => r.code === vc.code)?.nom || vc.code }}</p>
+              <p class="text-lg font-bold text-[#002B5C]">{{ vc.valeur }}</p>
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        @if (state().diagnoses.length > 0) {
+        <div class="bg-slate-50 rounded-xl p-4">
+          <p class="text-xs font-bold text-slate-600 uppercase mb-2">Diagnostics ({{ state().diagnoses.length }})</p>
+          <div class="space-y-1">
+            @for (diag of state().diagnoses; track $index) {
+            <div class="bg-white rounded-lg px-3 py-2 text-sm border border-slate-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm text-[#1E40AF]">check_circle</span>
+              {{ getDiagnosisLabel(diag.diagnosis_ref_id) }}
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        @if (state().medications.length > 0 || state().examens.length > 0 || state().vaccines.length > 0 || state().careInstructions.length > 0) {
+        <div class="bg-slate-50 rounded-xl p-4">
+          <p class="text-xs font-bold text-slate-600 uppercase mb-2">Prescriptions</p>
+          <div class="space-y-1">
+            @for (med of state().medications; track $index) {
+            <div class="bg-white rounded-lg px-3 py-2 text-sm border border-green-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm text-green-600">medication</span>
+              {{ getMedicationName(med.medication_ref_id) }} — {{ med.posologie }} ({{ med.duree_jours }}j)
+            </div>
+            }
+            @for (ex of state().examens; track $index) {
+            <div class="bg-white rounded-lg px-3 py-2 text-sm border border-purple-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm text-purple-600">biotech</span>
+              {{ ex.libelle }}
+            </div>
+            }
+            @for (vac of state().vaccines; track $index) {
+            <div class="bg-white rounded-lg px-3 py-2 text-sm border border-green-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm text-green-600">vaccines</span>
+              {{ vac.libelle }}
+            </div>
+            }
+            @for (ci of state().careInstructions; track $index) {
+            <div class="bg-white rounded-lg px-3 py-2 text-sm border border-amber-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm text-amber-600">healing</span>
+              {{ ci.description_generale }}
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        @if (error()) {
+        <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
+          {{ error() }}
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 shrink-0">
+      <div>
+        @if (currentStepIndex() > 0) {
+        <button (click)="prevStep()"
+          class="flex items-center gap-1 text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium cursor-pointer">
+          <span class="material-symbols-outlined text-sm">arrow_back</span>
+          Retour
+        </button>
+        }
+      </div>
+      <div class="flex items-center gap-3">
+        <button (click)="close.emit()"
+          class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 transition-colors cursor-pointer">
+          Annuler
+        </button>
+
+        @if (currentStep() !== 'review') {
+        <button (click)="nextStep()"
+          class="flex items-center gap-1 bg-[#002B5C] text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-[#001f42] transition-colors cursor-pointer">
+          Suivant
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+        }
+
+        @if (currentStep() === 'review') {
+        <button (click)="submit()" [disabled]="saving()"
+          class="flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-green-700 transition-colors disabled:opacity-50 cursor-pointer">
+          @if (saving()) {
+          <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          Enregistrement...
+          } @else {
+          <span class="material-symbols-outlined text-sm">save</span>
+          Enregistrer l'acte médical
+          }
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>

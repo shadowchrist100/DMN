@@ -16,7 +16,7 @@ from sqlmodel import select, Session as SQLSession
 
 from app.database import engine, Session
 from app.types.enums import (
-    Speciality, StatutVerification,
+    Speciality, StatutVerification, Duration as DurationEnum, Perimeter,
 )
 
 from app.models import *
@@ -349,7 +349,7 @@ def create_patients(
             continue
 
         # 1. Créer le patient
-        patient = Patient(user_id=pt["user_id"])
+        patient = Patient(user_id=pt["user_id"], first_name=pt["prenom"], last_name=pt["nom"])
         session.add(patient)
         session.flush()
 
@@ -423,33 +423,25 @@ def create_patients(
             )
             session.add(vc)
 
-        # Allergies
-        for allergy_data in pt["allergies"]:
-            nature, categorie, libelle, criticite, statut_clinique, decouverte, reactions_str = \
-                allergy_data
-            # Créer un Diagnosis de type allergy
-            diag_allergy = Diagnosis(
-                statut_verification="confirmed",
-                date_diagnosis=decouverte,
-                note_clinique=f"Allergie à {libelle}",
-                medical_act_id=consult_1.id,
-                diagnosis_ref_id=diagnosis_refs["8A00"].id if "8A00" in diagnosis_refs else None,
-                type_diagnosis="allergy",
-            )
-            session.add(diag_allergy)
-            session.flush()
-
-            allergy = Allergy(
-                id=diag_allergy.id,
-                nature_allergie=nature,
-                categorie=categorie,
-                libelle=libelle,
-                criticite=criticite,
-                statut_clinique=statut_clinique,
-                discover_at=decouverte,
-                reactions_text=reactions_str,
-            )
-            session.add(allergy)
+            # Allergies
+            for allergy_data in pt["allergies"]:
+                nature, categorie, libelle, criticite, statut_clinique, decouverte, reactions_str = \
+                    allergy_data
+                allergy = Allergy(
+                    statut_verification="confirmed",
+                    date_diagnosis=decouverte,
+                    note_clinique=f"Allergie à {libelle}",
+                    medical_act_id=consult_1.id,
+                    diagnosis_ref_id=diagnosis_refs["8A00"].id if "8A00" in diagnosis_refs else None,
+                    nature_allergie=nature,
+                    categorie=categorie,
+                    libelle=libelle,
+                    criticite=criticite,
+                    statut_clinique=statut_clinique,
+                    discover_at=decouverte,
+                    reactions_text=reactions_str,
+                )
+                session.add(allergy)
 
         # Vaccinations
         for vaccin in pt["vaccinations"]:
@@ -654,6 +646,46 @@ def create_relatives(session: SQLSession, patients: dict[str, Patient]):
         print(f"  ✓ Contact créé : {rel_data['nom_complet']} ({rel_data['lien']})")
 
 
+def create_authorizations(
+    session: SQLSession,
+    practitioners: dict[str, Practitioner],
+    patients: dict[str, Patient],
+):
+    """Crée des Authorizations actives entre chaque praticien et chaque patient."""
+    for pract_key, practitioner in practitioners.items():
+        for pat_key, patient in patients.items():
+            dmn = session.exec(
+                select(DMN).where(DMN.patient_id == patient.id)
+            ).first()
+            if not dmn:
+                continue
+
+            existing = session.exec(
+                select(Authorization).where(
+                    Authorization.practitioner_id == practitioner.id,
+                    Authorization.dmn_id == dmn.id,
+                )
+            ).first()
+            if existing:
+                continue
+
+            auth = Authorization(
+                perimeter=Perimeter.ALL,
+                granted_at=date.today(),
+                expire_at=date.today(),
+                duration=DurationEnum.H_24,
+                is_actif=True,
+                is_urgence=False,
+                authorization_type="seed",
+                dmn_id=dmn.id,
+                practitioner_id=practitioner.id,
+            )
+            session.add(auth)
+            print(f"  ✓ Autorisation : {pract_key} → {pat_key}")
+
+    session.commit()
+
+
 # ─── Main ──────────────────────────────────────────────────────────────────────
 
 def seed(force: bool = False):
@@ -700,6 +732,10 @@ def seed(force: bool = False):
         # Phase 5 : contacts d'urgence
         print("\n[Phase 5] Contacts / proches...")
         create_relatives(session, patients)
+
+        # Phase 6 : autorisations d'accès
+        print("\n[Phase 6] Autorisations praticien → patient...")
+        create_authorizations(session, practitioners, patients)
 
         print("\n=== Seed terminé avec succès ===")
 

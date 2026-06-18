@@ -77,7 +77,7 @@ export class Register {
                 birth_date: user.identity.birthDate.toISOString().split('T')[0],
                 matrimonial_status: user.identity.maritalStatus,
                 phone: user.identity.phone,
-                npi: String(user.identity.npi),
+                npi: user.identity.npi,
                 city: user.identity.city,
                 address: user.identity.address,
             };

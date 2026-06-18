@@ -9,6 +9,7 @@
         </nav>
     </div>
 
+    @if (visite) {
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <!-- Carte visite principale -->
         <div class="md:col-span-3 bg-white border border-slate-200 rounded-xl p-6 relative overflow-hidden">
@@ -60,6 +61,7 @@
             <button class="mt-4 text-secondary text-xs font-bold hover:underline">Voir le profil</button>
         </div>
     </div>
+    }
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Colonne gauche (2/3) -->

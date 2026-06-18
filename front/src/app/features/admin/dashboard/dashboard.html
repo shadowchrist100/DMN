@@ -1,158 +1,254 @@
-<div class="min-h-screen bg-[#f8f9ff] font-['Public_Sans'] flex">
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  DASHBOARD ADMIN — contenu uniquement                  ║
+     ║  La sidebar est fournie par AdminShell                 ║
+     ╚══════════════════════════════════════════════════════╝ -->
+<div class="flex flex-col flex-1 min-h-screen">
 
-  @if (isMobile && sidebarOpen()) {
-  <div class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden" (click)="toggleSidebar()"></div>
-  }
-
-  <aside class="fixed left-0 top-0 z-40 h-screen w-64 bg-[#002B5C] text-white flex flex-col border-r border-white/10 transition-transform duration-300"
-    [class.translate-x-0]="!isMobile || sidebarOpen()"
-    [class.-translate-x-full]="isMobile && !sidebarOpen()">
-
-    <div class="px-6 py-5 border-b border-white/10">
-      <h1 class="text-lg font-black uppercase tracking-tighter">DMN Admin</h1>
-      <p class="text-[10px] text-blue-100/50 uppercase tracking-widest mt-0.5">Portail Administration</p>
-    </div>
-
-    <div class="px-4 py-4 border-b border-white/10">
-      <div class="flex items-center gap-3 bg-white/5 rounded-xl px-3 py-3">
-        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-          <span class="material-symbols-outlined text-white">admin_panel_settings</span>
-        </div>
-        <div class="min-w-0">
-          <p class="text-xs font-bold truncate text-white">{{ authStore.user()?.identity?.firstName }} {{ authStore.user()?.identity?.lastName }}</p>
-          <p class="text-[10px] text-blue-100/60 truncate">{{ authStore.userRole() }}</p>
-        </div>
+  <!-- ─── HEADER ──────────────────────────────────────────── -->
+  <header class="hidden lg:flex sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200
+                 px-6 py-4 items-center justify-between shadow-sm">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-secondary text-xl">dashboard</span>
+      <div>
+        <h2 class="text-lg font-black text-[#002B5C] uppercase tracking-wide">Tableau de bord</h2>
+        <p class="text-[10px] text-slate-400 uppercase tracking-widest">Administration · DMN</p>
       </div>
     </div>
+    <div class="flex items-center gap-3">
+      <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full font-medium">
+        {{ authStore.user()?.auth?.email }}
+      </span>
+      <span class="text-xs bg-[#002B5C]/10 text-[#002B5C] px-3 py-1.5 rounded-full font-bold capitalize">
+        {{ authStore.userRole() }}
+      </span>
+    </div>
+  </header>
 
-    <nav class="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-      @for (item of navItems(); track item.key) {
-      <a [routerLink]="'/admin/' + item.key"
-        class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all"
-        [class.bg-white]="router.url.includes(item.key) && item.key !== 'dashboard' ? false : router.url === '/admin/dashboard' && item.key === 'dashboard'"
-        [class.text-primary]="router.url === '/admin/dashboard' && item.key === 'dashboard'"
-        [class.text-blue-100/70]="router.url !== '/admin/dashboard' || item.key !== 'dashboard'"
-        [class.hover:bg-white/5]="router.url !== '/admin/dashboard' || item.key !== 'dashboard'"
-        [class.bg-white/10]="item.key !== 'dashboard' && router.url.includes(item.key)">
-        <span class="material-symbols-outlined text-[20px]">{{ item.icon }}</span>
-        <span class="flex-1">{{ item.label }}</span>
-        @if (item.key === 'pending-users' && pendingUsersCount() > 0) {
-        <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ pendingUsersCount() }}</span>
-        }
-        @if (item.key === 'pending-organizations' && pendingOrgsCount() > 0) {
-        <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ pendingOrgsCount() }}</span>
-        }
+  <!-- ─── CONTENU PRINCIPAL ────────────────────────────────── -->
+  <div class="flex-1 p-6 md:p-8 space-y-8">
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-32">
+      <div class="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    } @else {
+
+    <!-- ── STATS CARDS ─────────────────────────────────────── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+      <!-- Utilisateurs en attente -->
+      <a routerLink="/admin/pending-users"
+         class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm
+                hover:shadow-md hover:-translate-y-0.5 transition-all group">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-blue-600 text-2xl">people</span>
+          </div>
+          @if (pendingUsersCount() > 0) {
+          <span class="bg-red-100 text-red-700 text-xs font-black px-2.5 py-1 rounded-full animate-pulse">
+            Urgent
+          </span>
+          }
+        </div>
+        <p class="text-3xl font-black text-slate-900">{{ pendingUsersCount() }}</p>
+        <p class="text-sm text-slate-500 mt-1">Utilisateurs en attente</p>
+        <p class="text-xs text-blue-600 font-bold mt-2 group-hover:underline">
+          Vérifier maintenant →
+        </p>
       </a>
-      }
-    </nav>
 
-    <div class="p-4 border-t border-white/10">
-      <button (click)="onLogout()"
-        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-blue-100/50 hover:text-red-300 hover:bg-white/5 transition-colors">
-        <span class="material-symbols-outlined text-[20px]">logout</span>
-        Déconnexion
-      </button>
+      <!-- Organisations en attente -->
+      <a routerLink="/admin/pending-organizations"
+         class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm
+                hover:shadow-md hover:-translate-y-0.5 transition-all group">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-amber-600 text-2xl">domain_disabled</span>
+          </div>
+          @if (pendingOrgsCount() > 0) {
+          <span class="bg-amber-100 text-amber-700 text-xs font-black px-2.5 py-1 rounded-full">
+            En attente
+          </span>
+          }
+        </div>
+        <p class="text-3xl font-black text-slate-900">{{ pendingOrgsCount() }}</p>
+        <p class="text-sm text-slate-500 mt-1">Organisations en attente</p>
+        <p class="text-xs text-amber-600 font-bold mt-2 group-hover:underline">
+          Valider →
+        </p>
+      </a>
+
+      <!-- Total organisations -->
+      <a routerLink="/admin/organizations"
+         class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm
+                hover:shadow-md hover:-translate-y-0.5 transition-all group">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-emerald-600 text-2xl">apartment</span>
+          </div>
+          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Total</span>
+        </div>
+        <p class="text-3xl font-black text-slate-900">{{ totalOrgsCount() }}</p>
+        <p class="text-sm text-slate-500 mt-1">Organisations actives</p>
+        <p class="text-xs text-emerald-600 font-bold mt-2 group-hover:underline">Gérer →</p>
+      </a>
+
+      <!-- Niveau d'accès -->
+      <div class="bg-gradient-to-br from-[#002B5C] to-[#004b99] rounded-2xl p-6 shadow-sm text-white">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-white text-2xl"
+                  style="font-variation-settings:'FILL' 1">admin_panel_settings</span>
+          </div>
+          <span class="text-[10px] text-white/60 font-bold uppercase tracking-wide">Rôle</span>
+        </div>
+        <p class="text-xl font-black capitalize">{{ authStore.userRole() }}</p>
+        <p class="text-sm text-blue-200 mt-1">Niveau d'accès</p>
+        <div class="flex items-center gap-1 mt-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span class="text-[10px] text-emerald-300 font-bold uppercase">Session active</span>
+        </div>
+      </div>
+
     </div>
-  </aside>
 
-  <main class="flex-1 ml-0 lg:ml-64">
-    <header class="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-200 px-6 py-4 flex items-center gap-4">
-      @if (isMobile) {
-      <button (click)="toggleSidebar()" class="p-2 rounded-lg hover:bg-slate-100">
-        <span class="material-symbols-outlined">menu</span>
-      </button>
-      }
-      <h2 class="text-lg font-bold text-slate-900 flex-1">Tableau de bord</h2>
-      <div class="text-xs text-slate-500">{{ authStore.user()?.auth?.email }}</div>
-    </header>
+    <!-- ── GRILLE PRINCIPALE ───────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-    <div class="p-6 space-y-6">
-      @if (loading()) {
-      <div class="flex items-center justify-center py-20">
-        <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-      } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <span class="material-symbols-outlined text-3xl text-blue-600">people</span>
-            <span class="text-xs text-slate-400">Total</span>
-          </div>
-          <p class="text-3xl font-black text-slate-900">{{ pendingUsersCount() }}</p>
-          <p class="text-sm text-slate-500 mt-1">Utilisateurs en attente</p>
+      <!-- Actions rapides -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-lg">bolt</span>
+          <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">Actions rapides</h3>
         </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <span class="material-symbols-outlined text-3xl text-amber-600">domain_disabled</span>
-            <span class="text-xs text-slate-400">En attente</span>
-          </div>
-          <p class="text-3xl font-black text-slate-900">{{ pendingOrgsCount() }}</p>
-          <p class="text-sm text-slate-500 mt-1">Organisations en attente</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <span class="material-symbols-outlined text-3xl text-emerald-600">apartment</span>
-            <span class="text-xs text-slate-400">Total</span>
-          </div>
-          <p class="text-3xl font-black text-slate-900">{{ totalOrgsCount() }}</p>
-          <p class="text-sm text-slate-500 mt-1">Organisations</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <span class="material-symbols-outlined text-3xl text-indigo-600">admin_panel_settings</span>
-            <span class="text-xs text-slate-400">Rôle</span>
-          </div>
-          <p class="text-3xl font-black text-slate-900 truncate">{{ authStore.userRole() }}</p>
-          <p class="text-sm text-slate-500 mt-1">Votre niveau d'accès</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <h3 class="font-bold text-slate-900 mb-4">Actions rapides</h3>
-          <div class="space-y-3">
-            @if (authStore.hasRole(['admin', 'admin_medical'])) {
-            <a routerLink="/admin/pending-users"
-              class="flex items-center gap-3 p-4 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
-              <span class="material-symbols-outlined">person_search</span>
-              <span class="font-medium">Vérifier les utilisateurs en attente</span>
-              @if (pendingUsersCount() > 0) {
-              <span class="ml-auto bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingUsersCount() }}</span>
-              }
-            </a>
-            <a routerLink="/admin/pending-organizations"
-              class="flex items-center gap-3 p-4 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
-              <span class="material-symbols-outlined">domain_verification</span>
-              <span class="font-medium">Valider les organisations</span>
-              @if (pendingOrgsCount() > 0) {
-              <span class="ml-auto bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pendingOrgsCount() }}</span>
-              }
-            </a>
+        <div class="p-5 space-y-3">
+          @if (authStore.hasRole(['admin', 'admin_medical'])) {
+          <a routerLink="/admin/pending-users"
+             class="flex items-center gap-3 p-4 rounded-xl bg-blue-50 text-blue-700
+                    hover:bg-blue-100 transition-colors group">
+            <span class="material-symbols-outlined">person_search</span>
+            <div class="flex-1">
+              <p class="font-bold text-sm">Vérifier les utilisateurs en attente</p>
+              <p class="text-xs text-blue-600/70 mt-0.5">Patients &amp; praticiens non vérifiés</p>
+            </div>
+            @if (pendingUsersCount() > 0) {
+            <span class="bg-blue-600 text-white text-xs font-black px-2.5 py-1 rounded-full">
+              {{ pendingUsersCount() }}
+            </span>
             }
-            @if (authStore.hasRole(['admin', 'admin_medical', 'admin_organisation'])) {
-            <a routerLink="/admin/organizations"
-              class="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors">
-              <span class="material-symbols-outlined">add_business</span>
-              <span class="font-medium">Gérer les organisations</span>
-            </a>
+          </a>
+          <a routerLink="/admin/pending-organizations"
+             class="flex items-center gap-3 p-4 rounded-xl bg-amber-50 text-amber-700
+                    hover:bg-amber-100 transition-colors group">
+            <span class="material-symbols-outlined">domain_verification</span>
+            <div class="flex-1">
+              <p class="font-bold text-sm">Valider les organisations</p>
+              <p class="text-xs text-amber-600/70 mt-0.5">Établissements en attente d'activation</p>
+            </div>
+            @if (pendingOrgsCount() > 0) {
+            <span class="bg-amber-600 text-white text-xs font-black px-2.5 py-1 rounded-full">
+              {{ pendingOrgsCount() }}
+            </span>
             }
-          </div>
+          </a>
+          }
+          @if (authStore.hasRole(['admin', 'admin_medical', 'admin_organisation'])) {
+          <a routerLink="/admin/organizations"
+             class="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 text-emerald-700
+                    hover:bg-emerald-100 transition-colors">
+            <span class="material-symbols-outlined">add_business</span>
+            <div class="flex-1">
+              <p class="font-bold text-sm">Gérer les organisations</p>
+              <p class="text-xs text-emerald-600/70 mt-0.5">Voir toutes les structures de santé</p>
+            </div>
+          </a>
+          }
         </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <h3 class="font-bold text-slate-900 mb-4">Raccourcis</h3>
-          <div class="space-y-3">
-            <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors text-left">
-              <span class="material-symbols-outlined">description</span>
-              <span class="font-medium">Rapports d'activité</span>
-            </button>
-            <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors text-left">
-              <span class="material-symbols-outlined">settings</span>
-              <span class="font-medium">Paramètres</span>
-            </button>
-          </div>
+      </section>
+
+      <!-- Raccourcis & Informations système -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-lg">apps</span>
+          <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm">Informations système</h3>
         </div>
-      </div>
-      }
+        <div class="p-5 space-y-3">
+          <!-- Statut système -->
+          <div class="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+            <div class="flex-1">
+              <p class="font-bold text-emerald-800 text-sm">Système opérationnel</p>
+              <p class="text-xs text-emerald-600/70 mt-0.5">Tous les services DMN fonctionnent normalement</p>
+            </div>
+          </div>
+          <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 text-slate-700
+                         hover:bg-slate-100 transition-colors text-left">
+            <span class="material-symbols-outlined">description</span>
+            <div class="flex-1">
+              <p class="font-bold text-sm">Rapports d'activité</p>
+              <p class="text-xs text-slate-500 mt-0.5">Exporter les statistiques de la plateforme</p>
+            </div>
+          </button>
+          <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 text-slate-700
+                         hover:bg-slate-100 transition-colors text-left">
+            <span class="material-symbols-outlined">settings</span>
+            <div class="flex-1">
+              <p class="font-bold text-sm">Paramètres de la plateforme</p>
+              <p class="text-xs text-slate-500 mt-0.5">Configuration générale du portail DMN</p>
+            </div>
+          </button>
+          <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 text-slate-700
+                         hover:bg-slate-100 transition-colors text-left">
+            <span class="material-symbols-outlined">security</span>
+            <div class="flex-1">
+              <p class="font-bold text-sm">Journal de sécurité</p>
+              <p class="text-xs text-slate-500 mt-0.5">Audits et traçabilité des accès</p>
+            </div>
+          </button>
+        </div>
+      </section>
+
     </div>
-  </main>
-</div>
+
+    <!-- ── CONFORMITÉ ─────────────────────────────────────── -->
+    <section class="bg-gradient-to-r from-[#002B5C]/5 to-blue-50 border border-[#002B5C]/10
+                    rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6">
+      <div class="flex-1">
+        <h3 class="font-black text-[#002B5C] text-sm uppercase tracking-wide mb-1">
+          Cadre Réglementaire &amp; Conformité
+        </h3>
+        <p class="text-slate-500 text-xs leading-relaxed">
+          Le Dossier Médical Numérique (DMN) est conforme aux exigences de l'APDP Bénin,
+          certifié PSSIE et opère sous le cadre légal de la loi n°2017-20 portant code du numérique au Bénin.
+        </p>
+      </div>
+      <div class="flex gap-3 shrink-0 flex-wrap justify-center">
+        <div class="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="material-symbols-outlined text-[#002B5C] text-lg">verified</span>
+          <span class="text-xs font-black text-[#002B5C] uppercase tracking-wide">APDP Bénin</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="material-symbols-outlined text-emerald-600 text-lg">shield</span>
+          <span class="text-xs font-black text-emerald-700 uppercase tracking-wide">PSSIE</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="material-symbols-outlined text-blue-600 text-lg">lock</span>
+          <span class="text-xs font-black text-blue-700 uppercase tracking-wide">AES-256</span>
+        </div>
+      </div>
+    </section>
+
+    } <!-- /else loading -->
+
+  </div><!-- /contenu principal -->
+
+  <!-- ─── FOOTER ──────────────────────────────────────────── -->
+  <footer class="bg-white border-t border-slate-200 px-6 py-4">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-3
+                text-[10px] text-slate-400 uppercase tracking-widest">
+      <p>© 2026 Ministère de la Santé — Gouvernement du Bénin</p>
+      <p>DMN Admin Portal v1.0 · Chiffrement AES-256</p>
+    </div>
+  </footer>
+
+</div><!-- /flex-col -->

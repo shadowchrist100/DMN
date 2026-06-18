@@ -15,6 +15,8 @@ class Patient(SQLModel, table=True):
         primary_key=True,
     )
     user_id: str = Field(unique=True, index=True)
+    first_name: Optional[str] = Field(default=None, index=True)
+    last_name: Optional[str] = Field(default=None, index=True)
     relatives: List["Relative"] = Relationship(
         back_populates="patients",
         link_model=PatientRelative

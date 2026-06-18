@@ -4,10 +4,10 @@ from uuid import UUID
 
 from app.database import get_session
 from app.auth import CurrentUser, verify_jwt
-from app.deps import check_owner
+from app.deps import check_owner, check_patient_access
 from app.schemas.patient import (
     CreatePatientReq, PatientResp,
-    RelativeResp, RelatedPersonResp,
+    RelativeReq, RelativeResp, RelatedPersonResp,
     RelativeUpdateReq, PatientProfileUpdateReq,
 )
 from app.schemas.medical import (
@@ -41,6 +41,8 @@ def create_patient(
     return PatientResp(
         id=str(patient.id),
         user_id=patient.user_id,
+        first_name=patient.first_name,
+        last_name=patient.last_name,
         relatives=[
             RelatedPersonResp(
                 relative=RelativeResp(
@@ -62,7 +64,7 @@ def get_patient_profile(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     patient = MedicalRepository.get_patient_by_user_id(session, user_id)
     if not patient:
         not_found("Patient introuvable")
@@ -100,7 +102,7 @@ def get_patient_allergies(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     allergies = MedicalRepository.get_allergies(session, user_id)
     result = []
     for a in allergies:
@@ -132,7 +134,7 @@ def get_patient_examens(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     examens = MedicalRepository.get_examens(session, user_id)
     result = []
     for e in examens:
@@ -157,7 +159,7 @@ def get_patient_prescriptions(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     prescriptions = MedicalRepository.get_prescriptions(session, user_id)
     result = []
     for p in prescriptions:
@@ -183,7 +185,7 @@ def get_patient_authorizations(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     authorizations = MedicalRepository.get_authorizations(session, user_id)
     result = []
     for a in authorizations:
@@ -216,7 +218,7 @@ def get_patient_pathologies(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     diseases = MedicalRepository.get_diseases(session, user_id)
     result = []
     for d in diseases:
@@ -237,7 +239,7 @@ def get_patient_consultations(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     consultations = MedicalRepository.get_consultations(session, user_id)
     result = []
     for c in consultations:
@@ -265,7 +267,7 @@ def get_patient_vaccinations(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     vaccinations = MedicalRepository.get_vaccinations(session, user_id)
     result = []
     for v in vaccinations:
@@ -293,7 +295,7 @@ def get_patient_relatives(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     patient = MedicalRepository.get_patient_by_user_id(session, user_id)
     if not patient:
         not_found("Patient introuvable")
@@ -413,7 +415,7 @@ def get_patient_dashboard_summary(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     patient = MedicalRepository.get_patient_by_user_id(session, user_id)
     if not patient:
         not_found("Patient introuvable")
@@ -451,7 +453,7 @@ def get_patient_dashboard_stats(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     stats = MedicalRepository.get_dashboard_stats(session, user_id)
     return DashboardStatsResp(**stats)
 
@@ -462,7 +464,7 @@ def get_patient_dashboard_alerts(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     raw = MedicalRepository.get_alerts(session, user_id)
     return [AlertResp(**a) for a in raw]
 
@@ -473,7 +475,7 @@ def get_patient_dashboard_access_log(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     raw = MedicalRepository.get_access_log(session, user_id)
     return [AccessLogResp(**l) for l in raw]
 
@@ -484,7 +486,7 @@ def get_patient_dashboard_timeline(
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    check_patient_access(user_id, current_user, session)
     events = MedicalRepository.get_timeline(session, user_id)
     return [TimelineEventResp(**e) for e in events]
 

@@ -71,6 +71,10 @@ export class AdminOrganizations {
     this.formError.set('');
   }
 
+  updatePayload(key: keyof OrganizationPayload, value: any) {
+    this.formPayload.update(p => ({ ...p, [key]: value }));
+  }
+
   async onSubmit() {
     const payload = this.formPayload();
     if (!payload.name || !payload.type || !payload.city || !payload.address) {

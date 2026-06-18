@@ -12,7 +12,7 @@ export interface Iuser {
         firstName: string,
         birthDate: Date,
         gender: Gender,
-        npi: number,
+        npi: string,
         maritalStatus: MaritalStatus,
         multipleBirth: null | number,
         phone: string,

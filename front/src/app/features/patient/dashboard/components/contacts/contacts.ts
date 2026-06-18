@@ -16,15 +16,15 @@ export class Contacts implements OnInit {
 
     loading = signal(true);
     contacts = signal<RelativeDTO[]>([]);
+    saving = signal(false);
+    isUrgence = signal(false);
 
-    formData: RelativeCreateReq = {
+    formData = {
         first_name: '',
         last_name: '',
         phone: '',
         code_relation: '',
     };
-
-    saving = signal(false);
 
     ngOnInit(): void {
         this.loadContacts();
@@ -45,10 +45,17 @@ export class Contacts implements OnInit {
         if (!this.formData.first_name || !this.formData.last_name || !this.formData.phone) return;
 
         this.saving.set(true);
-        this.relativeService.create(this.formData).subscribe({
+        const payload: RelativeCreateReq = {
+            first_name: this.formData.first_name,
+            last_name: this.formData.last_name,
+            phone: this.formData.phone,
+            code_relation: this.formData.code_relation,
+        };
+        this.relativeService.create(payload).subscribe({
             next: (created) => {
                 this.contacts.update(list => [...list, created]);
                 this.formData = { first_name: '', last_name: '', phone: '', code_relation: '' };
+                this.isUrgence.set(false);
                 this.saving.set(false);
             },
             error: () => this.saving.set(false),

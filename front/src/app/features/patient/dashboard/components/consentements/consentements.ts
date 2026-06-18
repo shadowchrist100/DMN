@@ -17,6 +17,14 @@ export interface Consentement {
     actif: boolean;
 }
 
+export interface AuditEntry {
+    icon: string;
+    action: string;
+    horodatage: string;
+    metaClass: string;
+    meta: string;
+}
+
 @Component({
     selector: 'app-consentements',
     standalone: true,
@@ -78,6 +86,16 @@ export class Consentements implements OnInit {
             c.etablissement.toLowerCase().includes(q)
         );
     });
+
+    readonly auditEntries = computed<AuditEntry[]>(() =>
+        this.authorizations().map(a => ({
+            icon: 'assignment_ind',
+            action: `Accès accordé à ${a.practitioner_name || 'un praticien'}`,
+            horodatage: a.granted_at ? new Date(a.granted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—',
+            metaClass: a.is_actif ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 bg-slate-100',
+            meta: a.is_actif ? 'Actif' : 'Inactif',
+        }))
+    );
 
     ngOnInit(): void {
         this.loadData();

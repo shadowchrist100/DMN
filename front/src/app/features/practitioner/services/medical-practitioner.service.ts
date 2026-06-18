@@ -18,6 +18,8 @@ export interface OrganisationDTO {
     type: string;
     role: string;
     is_actif: boolean;
+    start_date?: string;
+    end_date?: string;
 }
 
 export interface PatientSummaryDTO {
@@ -64,7 +66,6 @@ export interface PractitionerDashboardStatsDTO {
     consultations_this_week: number;
     completed_visits: number;
     upcoming_visits: number;
-    pending_reports: number;
 }
 
 export interface AccessRequestDTO {
@@ -118,11 +119,102 @@ export interface PatientSearchResultDTO {
     city: string | null;
 }
 
+export interface ConsentDTO {
+    id: string;
+    patient_npi: string;
+    patient_name: string;
+    perimeter: string;
+    duration: string;
+    status: 'active' | 'pending' | 'expired';
+    granted_at: string | null;
+    expires_at: string | null;
+    is_urgence: boolean;
+    reason: string;
+}
+
 export interface CreateAccessRequestDTO {
     patient_user_id: string;
     reason: string;
     duration: string;
     perimeter: string;
+}
+
+// ── Nouvel acte médical ──────────────────────────────────────────────────────
+
+export interface VitalConstantRefDTO {
+    code: string;
+    nom: string;
+    unite_mesure: string;
+}
+
+export interface DiagnosisRefDTO {
+    id: string;
+    code_cid11: string;
+    libelle: string;
+    type_ref: string;
+}
+
+export interface MedicationRefDTO {
+    id: string;
+    code_medicament: string;
+    nom_commercial: string;
+    dc_nom: string;
+    forme_galenique: string;
+}
+
+export interface VitalConstantEntry {
+    code: string;
+    valeur: number;
+}
+
+export interface DiagnosisEntry {
+    diagnosis_ref_id: string;
+    note_clinique?: string;
+    statut_verification: string;
+}
+
+export interface MedicationPrescriptionEntry {
+    medication_ref_id: string;
+    posologie: string;
+    duree_jours: number;
+    description_generale?: string;
+}
+
+export interface ExamenPrescriptionEntry {
+    code_loinc?: string;
+    libelle: string;
+    nature_examination: string;
+    special_instructions?: string;
+}
+
+export interface VaccinePrescriptionEntry {
+    code_cvx?: string;
+    libelle: string;
+    special_instructions?: string;
+}
+
+export interface CareInstructionEntry {
+    sous_type: string;
+    nombre_seances?: number;
+    frequence_hebdo?: string;
+    objectifs?: string;
+    titre_consigne?: string;
+    recommandations?: string;
+    description_generale?: string;
+}
+
+export interface CreateMedicalActDTO {
+    type_acte: string;
+    motif?: string;
+    raisons?: string;
+    observations_text?: string;
+    duree_minutes?: number;
+    vital_constants: VitalConstantEntry[];
+    diagnoses: DiagnosisEntry[];
+    medications: MedicationPrescriptionEntry[];
+    examens: ExamenPrescriptionEntry[];
+    vaccines: VaccinePrescriptionEntry[];
+    care_instructions: CareInstructionEntry[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -183,5 +275,36 @@ export class MedicalPractitionerService {
 
     createAccessRequest(userId: string, data: CreateAccessRequestDTO): Observable<{ id: string; status: string }> {
         return this.http.post<{ id: string; status: string }>(`${this.pracBase}/${userId}/access-requests`, data);
+    }
+
+    getPractitionerConsents(userId: string): Observable<ConsentDTO[]> {
+        return this.http.get<ConsentDTO[]>(`${this.pracBase}/${userId}/consents`);
+    }
+
+    // ── Références ───────────────────────────────────────────────────────
+
+    getVitalConstantRefs(): Observable<VitalConstantRefDTO[]> {
+        return this.http.get<VitalConstantRefDTO[]>(`${API.MEDICAL_BASE_URL}/vital-constant-references`);
+    }
+
+    getDiagnosisRefs(q: string = ''): Observable<DiagnosisRefDTO[]> {
+        return this.http.get<DiagnosisRefDTO[]>(`${API.MEDICAL_BASE_URL}/diagnosis-references?q=${encodeURIComponent(q)}`);
+    }
+
+    getMedicationRefs(q: string = ''): Observable<MedicationRefDTO[]> {
+        return this.http.get<MedicationRefDTO[]>(`${API.MEDICAL_BASE_URL}/medication-references?q=${encodeURIComponent(q)}`);
+    }
+
+    // ── Création acte médical ────────────────────────────────────────────
+
+    createMedicalAct(
+        practitionerUserId: string,
+        patientUserId: string,
+        data: CreateMedicalActDTO,
+    ): Observable<{ id: string; status: string }> {
+        return this.http.post<{ id: string; status: string }>(
+            `${this.pracBase}/${practitionerUserId}/patients/${patientUserId}/medical-acts`,
+            data,
+        );
     }
 }
