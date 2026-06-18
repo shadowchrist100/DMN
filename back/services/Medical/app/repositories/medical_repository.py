@@ -28,6 +28,14 @@ class MedicalRepository:
 
     @staticmethod
     def get_patient_by_user_id(session: Session, user_id: str) -> Patient | None:
+        try:
+            user_uuid = UUID(user_id)
+            patient = session.get(Patient, user_uuid)
+            if patient:
+                return patient
+        except ValueError:
+            pass
+
         return session.exec(
             select(Patient).where(Patient.user_id == user_id)
         ).first()

@@ -44,6 +44,14 @@ class PractitionerRepository:
 
     @staticmethod
     def get_by_user_id(session: Session, user_id: str) -> Practitioner | None:
+        try:
+            user_uuid = UUID(user_id)
+            practitioner = session.get(Practitioner, user_uuid)
+            if practitioner:
+                return practitioner
+        except ValueError:
+            pass
+
         return session.exec(
             select(Practitioner).where(Practitioner.user_id == user_id)
         ).first()
