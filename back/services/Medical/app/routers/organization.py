@@ -16,7 +16,7 @@ from app.types.enums import StatutVerification
 from app.exceptions import not_found, bad_request, forbidden
 from app.deps import ADMIN_ROLES
 
-router = APIRouter(prefix="/api", tags=["organization"], dependencies=[Depends(verify_jwt)])
+router = APIRouter(prefix="/api", tags=["organization"])
 
 
 def _to_resp(org: HealthcareSystem) -> OrganizationResp:

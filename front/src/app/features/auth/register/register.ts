@@ -92,6 +92,10 @@ export class Register {
                 };
             }
 
+            if (files.photoFile) {
+                payload.photo = files.photoFile;
+            }
+
             if (userType === 'PRACTITIONER' && user.practitioner) {
                 payload.order_number = String(user.practitioner.orderNumber);
                 payload.speciality = mapSpeciality(user.practitioner.speciality);

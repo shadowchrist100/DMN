@@ -52,6 +52,7 @@ export interface RegisterPayload {
     npi: string;
     city: string;
     address: string;
+    photo?: File;
     photo_path?: string;
     documents?: {
         type_document: string;
@@ -160,6 +161,10 @@ export class AuthService {
             if (val !== undefined && val !== null) {
                 formData.append(key, String(val));
             }
+        }
+
+        if (payload.photo) {
+            formData.append('photo', payload.photo);
         }
 
         if (payload.emergencyContact) {

@@ -17,7 +17,7 @@ export interface AdminUser {
   npi: string;
   status_account: string;
   created_at: string;
-  identity_documents?: { type_document: string; file_path: string }[];
+  identity_documents?: { id: number; type_document: string; file_name: string }[];
 }
 
 export interface AdminOrganization {

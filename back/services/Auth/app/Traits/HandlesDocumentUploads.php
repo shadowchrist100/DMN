@@ -8,6 +8,6 @@ trait HandlesDocumentUploads
 {
     protected function storeDocumentFile(UploadedFile $file, string $typeDocument): string
     {
-        return $file->store('documents/' . $typeDocument, 'public');
+        return $file->store('documents/' . $typeDocument, 'local');
     }
 }

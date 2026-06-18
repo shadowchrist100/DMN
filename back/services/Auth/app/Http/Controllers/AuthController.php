@@ -38,6 +38,7 @@ class AuthController extends Controller
             'matrimonial_status' => ['required_if:role,patient,practitioner', 'string'],
             'phone' => ['required', 'string'],
             'npi' => ['required_if:role,patient,practitioner', 'string'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
             'photo_path' => ['nullable', 'string'],
             'city' => ['required_if:role,patient,practitioner', 'string', 'max:255'],
             'address' => ['required_if:role,patient,practitioner', 'string', 'max:255'],
@@ -62,10 +63,15 @@ class AuthController extends Controller
             'emergencyContact.lastName' => ['required_if:role,patient', 'string'],
             'emergencyContact.phone' => ['required_if:role,patient', 'string'],
             'emergencyContact.code_relation' => ['required_if:role,patient', 'string'],
-            'emergencyContact.confirmed' => ['required_if:role,patient', 'accepted'],
+            'emergencyContact.confirmed' => ['required_if:role,patient', 'in:1,true,yes,on'],
         ]);
 
         $user = $this->userService->register($data);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('photos', 'local');
+            $user->update(['photo_path' => $path]);
+        }
 
         $user->sendEmailVerificationNotification();
 

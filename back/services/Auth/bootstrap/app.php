@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.admin.orga' => \App\Http\Middleware\CheckAdminOrganisation::class,
             'check.admin.medical' => \App\Http\Middleware\CheckAdminMedical::class,
         ]);
+
+        $middleware->redirectGuestsTo(fn (\Illuminate\Http\Request $request) =>
+            $request->is('api/*') ? null : route('login')
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

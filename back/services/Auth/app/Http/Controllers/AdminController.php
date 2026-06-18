@@ -71,9 +71,28 @@ class AdminController extends Controller
             $query->where('role', $role);
         }
 
-        return response()->json([
-            'users' => $query->orderBy('created_at', 'desc')->get(),
+        $users = $query->with('identityDocuments')->orderBy('created_at', 'desc')->get()->map(fn($user) => [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'gender' => $user->gender,
+            'phone' => $user->phone,
+            'city' => $user->city,
+            'address' => $user->address,
+            'birth_date' => $user->birth_date?->format('Y-m-d'),
+            'npi' => $user->npi,
+            'status_account' => $user->status_account,
+            'created_at' => $user->created_at,
+            'identity_documents' => $user->identityDocuments->map(fn($doc) => [
+                'id' => $doc->id,
+                'type_document' => $doc->type_document,
+                'file_name' => basename($doc->file_path),
+            ]),
         ]);
+
+        return response()->json(['users' => $users]);
     }
 
     public function listPendingOrganizations(): JsonResponse
