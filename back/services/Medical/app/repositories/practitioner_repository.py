@@ -136,9 +136,8 @@ class PractitionerRepository:
 
     @classmethod
     def get_pending_access_requests(cls, session: Session, user_id: str) -> list[dict]:
-        role_ids = cls._get_practitioner_role_ids(session, user_id)
-        dmn_ids = cls._get_patient_dmn_ids(session, role_ids)
-        if not dmn_ids:
+        practitioner = cls.get_by_user_id(session, user_id)
+        if not practitioner:
             return []
 
         authorizations = session.exec(
@@ -146,7 +145,7 @@ class PractitionerRepository:
             .join(DMN, DMN.id == Authorization.dmn_id)
             .join(Patient, Patient.id == DMN.patient_id)
             .outerjoin(Practitioner, Practitioner.id == Authorization.practitioner_id)
-            .where(Authorization.dmn_id.in_(dmn_ids))
+            .where(Authorization.practitioner_id == practitioner.id)
             .where(Authorization.is_actif == False)
             .order_by(Authorization.granted_at.desc())
             .limit(20)

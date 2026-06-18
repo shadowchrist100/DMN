@@ -529,8 +529,7 @@ class MedicalRepository:
             .where(Authorization.dmn_id == dmn_id)
             .where(Authorization.is_actif == False)
             .order_by(Authorization.granted_at.desc())
-        .all()
-        )
+        ).all()
 
         result = []
         for auth, practitioner in authorizations:
