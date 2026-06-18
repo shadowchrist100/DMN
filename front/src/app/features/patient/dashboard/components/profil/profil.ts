@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthStore } from '../../../../../core/auth/auth.store';
+import { MedicalService } from '../../../services/medical.service';
 
 @Component({
     selector: 'app-profil',
@@ -7,28 +9,58 @@ import { CommonModule } from '@angular/common';
     imports: [CommonModule],
     templateUrl: './profil.html',
 })
-export class Profil {
+export class Profil implements OnInit {
 
-    patient = {
-        nom: 'ADJOVI',
-        prenoms: 'Yasmine Reine',
-        dateNaissance: '14 Octobre 1985',
-        age: 38,
-        sexe: 'Féminin',
-        civil: 'Mariée',
-        naissanceMultiple: false,
-        adresse: 'Carré 1245, Quartier Fidjrossè, Cotonou, Bénin',
-        nin: 'BEN-982-110',
-        photo: 'https://i.pravatar.cc/160?img=32',
-    };
+    private medicalService = inject(MedicalService);
 
-    contacts = [
-        { type: 'Téléphone', valeur: '+229 97 00 00 00', priorite: 1, etiquette: 'Personnel', valide: true },
-        { type: 'Email', valeur: 'yasmine.adjovi@email.bj', priorite: 2, etiquette: 'Professionnel', valide: false },
-    ];
+    authStore = AuthStore;
+    medicalProfile = signal<{ blood_type: string | null; rhesus_factor: string | null } | null>(null);
 
-    personnesLiees = [
-        { nom: 'Marc ADJOVI', relation: 'Époux', role: "Contact d'Urgence", telephone: '+229 96 11 22 33' },
-        { nom: 'Hélène TOUPE', relation: 'Mère', role: 'Tuteur', telephone: '+229 95 44 55 66' },
-    ];
+    get patient() {
+        const identity = this.authStore.user()?.identity;
+        if (!identity) return null;
+
+        let age = 0;
+        if (identity.birthDate) {
+            age = Math.floor((Date.now() - new Date(identity.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+        }
+
+        return {
+            nom: identity.lastName?.toUpperCase() || '—',
+            prenoms: identity.firstName || '—',
+            dateNaissance: identity.birthDate
+                ? new Date(identity.birthDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+                : '—',
+            age,
+            sexe: identity.gender === 'homme' ? 'Masculin' : identity.gender === 'femme' ? 'Féminin' : '—',
+            civil: identity.maritalStatus || '—',
+            naissanceMultiple: identity.multipleBirth ? identity.multipleBirth > 1 : false,
+            adresse: [identity.address, identity.city].filter(Boolean).join(', ') || '—',
+            nin: identity.npi?.toString() || '—',
+            photo: identity.photoPath || 'https://i.pravatar.cc/160?img=32',
+        };
+    }
+
+    get contacts() {
+        const user = this.authStore.user();
+        if (!user) return [];
+        return [
+            { type: 'Téléphone', valeur: user.identity?.phone || '—', priorite: 1, etiquette: 'Personnel', valide: true },
+            { type: 'Email', valeur: user.auth?.email || '—', priorite: 2, etiquette: 'Principal', valide: false },
+            { type: 'Adresse', valeur: [user.identity?.address, user.identity?.city].filter(Boolean).join(', ') || '—', priorite: 3, etiquette: 'Domicile', valide: true },
+        ];
+    }
+
+    get personnesLiees() {
+        return [];
+    }
+
+    ngOnInit(): void {
+        const userId = this.authStore.user()?.identity?.npi?.toString();
+        if (userId) {
+            this.medicalService.getProfile(userId).subscribe({
+                next: (profile) => this.medicalProfile.set(profile),
+            });
+        }
+    }
 }

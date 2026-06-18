@@ -294,15 +294,17 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
         this.loading.set(true);
         this.currentPage = 1;
 
-        // En production : this.timelineService.getTimeline(this.patientId(), this.buildFilter())
-        setTimeout(() => {
-            // Utilise directement MOCK_TIMELINE importé du modèle
-            const data: TimelineEvent[] = MOCK_TIMELINE;
-            this.events.set(data);
-            this.totalEvents = data.length;
-            this.applyFilters();
-            this.loading.set(false);
-        }, 600);
+        this.timelineService.getTimeline(this.patientId() || undefined, this.buildFilter()).subscribe({
+            next: (data) => {
+                this.events.set(data);
+                this.totalEvents = data.length;
+                this.applyFilters();
+                this.loading.set(false);
+            },
+            error: () => {
+                this.loading.set(false);
+            },
+        });
     }
 
     // ── Filtres ──────────────────────────────────────────────────────────

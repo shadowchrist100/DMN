@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MedicalService, PrescriptionDTO } from '../../../services/medical.service';
 import { Prescription, PrescriptionType, PrescriptionStatut, MOCK_PRESCRIPTIONS } from './prescription.model';
+import { AuthStore } from '../../../../../core/auth/auth.store';
 
 const TYPE_MAP: Record<string, PrescriptionType> = {
     'EXAMINATION': 'analyse',
@@ -21,15 +22,22 @@ export class PrescriptionService {
 
     private medical = inject(MedicalService);
 
+    private get userId(): string | undefined {
+        return AuthStore.user()?.identity?.npi?.toString();
+    }
+
     getPrescriptions(userId?: string): Observable<Prescription[]> {
-        if (!userId) return of(MOCK_PRESCRIPTIONS);
-        return this.medical.getPrescriptions(userId).pipe(
+        const uid = userId || this.userId;
+        if (!uid) return of(MOCK_PRESCRIPTIONS);
+        return this.medical.getPrescriptions(uid).pipe(
             map(dtos => dtos.map(dto => this.mapPrescription(dto))),
         );
     }
 
-    getPrescriptionById(userId: string, uuid: string): Observable<Prescription | undefined> {
-        return this.medical.getPrescriptions(userId).pipe(
+    getPrescriptionById(uuid: string): Observable<Prescription | undefined> {
+        const uid = this.userId;
+        if (!uid) return of(undefined);
+        return this.medical.getPrescriptions(uid).pipe(
             map(dtos => {
                 const dto = dtos.find(p => p.uuid === uuid);
                 return dto ? this.mapPrescription(dto) : undefined;

@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthStore } from '../../../../../core/auth/auth.store';
+import { MedicalService, PatientProfileUpdateReq } from '../../../services/medical.service';
 
 @Component({
     selector: 'app-profil-edit',
@@ -8,21 +10,63 @@ import { FormsModule } from '@angular/forms';
     imports: [CommonModule, FormsModule],
     templateUrl: './profil-edit.html',
 })
-export class ProfilEdit {
+export class ProfilEdit implements OnInit {
+
+    private medicalService = inject(MedicalService);
+
+    saving = signal(false);
 
     formData = {
-        nom: 'SOGLO',
-        prenoms: 'Koffi Armand',
-        dateNaissance: '1985-05-14',
-        sexe: 'M',
-        civil: 'marie',
+        nom: '',
+        prenoms: '',
+        dateNaissance: '',
+        sexe: '',
+        civil: '',
         naissanceMultiple: false,
-        adresse: 'Carré 402, Lot 12-A, Quartier Haie Vive, Cotonou, Littoral, Bénin',
+        adresse: '',
+        blood_type: '',
+        rhesus_factor: '',
     };
 
-    npi = '1029384756';
+    npi = '';
+
+    ngOnInit(): void {
+        const identity = AuthStore.user()?.identity;
+        if (identity) {
+            this.formData.nom = identity.lastName || '';
+            this.formData.prenoms = identity.firstName || '';
+            this.formData.dateNaissance = identity.birthDate
+                ? new Date(identity.birthDate).toISOString().split('T')[0]
+                : '';
+            this.formData.sexe = identity.gender === 'homme' ? 'M' : identity.gender === 'femme' ? 'F' : '';
+            this.formData.civil = identity.maritalStatus || '';
+            this.formData.adresse = [identity.address, identity.city].filter(Boolean).join(', ');
+            this.npi = identity.npi?.toString() || '';
+        }
+
+        const userId = AuthStore.user()?.identity?.npi?.toString();
+        if (userId) {
+            this.medicalService.getProfile(userId).subscribe({
+                next: (profile) => {
+                    this.formData.blood_type = profile.blood_type || '';
+                    this.formData.rhesus_factor = profile.rhesus_factor || '';
+                },
+            });
+        }
+    }
 
     onSave(): void {
-        // TODO: appeler PatientService.update()
+        const userId = AuthStore.user()?.identity?.npi?.toString();
+        if (!userId) return;
+
+        this.saving.set(true);
+        const payload: PatientProfileUpdateReq = {};
+        if (this.formData.blood_type) payload.blood_type = this.formData.blood_type;
+        if (this.formData.rhesus_factor) payload.rhesus_factor = this.formData.rhesus_factor;
+
+        this.medicalService.updatePatientProfile(userId, payload).subscribe({
+            next: () => this.saving.set(false),
+            error: () => this.saving.set(false),
+        });
     }
 }

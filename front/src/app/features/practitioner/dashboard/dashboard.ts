@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import {
     Practitioner,
@@ -16,6 +17,7 @@ import { PractitionerService } from '../services/practitioner.service';
 import { PatientService } from '../services/patient.service';
 import { ConsentService } from '../services/consent.service';
 import { AuditService } from '../services/audit.service';
+import { MedicalPractitionerService } from '../services/medical-practitioner.service';
 import { AuthStore } from '../../../core/auth/auth.store';
 
 @Component({
@@ -50,6 +52,9 @@ export class Dashboard implements OnInit {
     private patientService = inject(PatientService);
     private consentService = inject(ConsentService);
     private auditService = inject(AuditService);
+    private medicalPrac = inject(MedicalPractitionerService);
+
+    userId = computed(() => String(this.authStore.user()?.identity?.npi ?? ''));
 
     filteredPatients = computed(() => {
         const patients = this.followedPatients();
@@ -70,19 +75,27 @@ export class Dashboard implements OnInit {
     });
 
     ngOnInit(): void {
+        this.consentService.setUserId(this.userId());
+        this.auditService.setUserId(this.userId());
         this.loadDashboardData();
     }
 
     private async loadDashboardData(): Promise<void> {
         this.loading.set(true);
+        const uid = this.userId();
+        if (!uid) {
+            this.loading.set(false);
+            return;
+        }
 
         try {
-            const [practitioner, patients, requests, orgs, activities] = await Promise.all([
-                this.practitionerService.getCurrentPractitioner(),
-                this.patientService.getFollowedPatients(),
+            const [practitioner, patients, requests, orgs, activities, statsDto] = await Promise.all([
+                this.practitionerService.getCurrentPractitioner(uid),
+                this.patientService.getFollowedPatients(uid),
                 this.consentService.getPendingAccessRequests(),
-                this.practitionerService.getPractitionerOrganizations(),
-                this.auditService.getRecentActivities(10)
+                this.practitionerService.getPractitionerOrganizations(uid),
+                this.auditService.getRecentActivities(10),
+                firstValueFrom(this.medicalPrac.getPractitionerDashboardStats(uid)),
             ]);
 
             this.practitioner.set(practitioner);
@@ -91,29 +104,22 @@ export class Dashboard implements OnInit {
             this.organizations.set(orgs);
             this.recentActivities.set(activities);
 
-            this.calculateStats(patients, requests);
+            if (statsDto) {
+                this.stats.set({
+                    followedPatients: statsDto.followed_patients,
+                    newPatientsThisMonth: statsDto.new_patients_this_month,
+                    consultationsThisWeek: statsDto.consultations_this_week,
+                    completedVisits: statsDto.completed_visits,
+                    upcomingVisits: statsDto.upcoming_visits,
+                    pendingReports: statsDto.pending_reports,
+                });
+            }
 
         } catch (error) {
             console.error('Erreur chargement dashboard:', error);
         } finally {
             this.loading.set(false);
         }
-    }
-
-    private calculateStats(patients: FollowedPatient[], requests: AccessRequest[]): void {
-        const now = new Date();
-        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-
-        this.stats.set({
-            followedPatients: patients.length,
-            newPatientsThisMonth: patients.filter(p =>
-                new Date(p.createdAt) >= monthAgo
-            ).length,
-            consultationsThisWeek: 12,
-            completedVisits: 8,
-            upcomingVisits: 4,
-            pendingReports: 5
-        });
     }
 
     // ===== HELPERS =====

@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, inject, signal, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, HostListener, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { TimeLinesComponent } from "./components/time-lines/time-lines";
 import { Prescriptions } from "./components/prescriptions/prescriptions";
 import { Examens } from "./components/examens/examens";
@@ -15,6 +15,8 @@ import { ActeView } from "./components/acte-view/acte-view";
 import { NavIconPipe } from '../pipes/nav-icon-pipe';
 import { NavLabelPipe } from '../pipes/nav-label-pipe';
 import { AuthStore } from '../../../core/auth/auth.store';
+import { DashboardService } from './services/dashboard.service';
+import { MedicalService, DashboardSummaryDTO, AlertDTO, AccessLogDTO, PendingAccessRequestDTO } from '../services/medical.service';
 
 export type ViewKey =
     | 'dashboard' | 'historique' | 'prescriptions'
@@ -35,15 +37,15 @@ export interface HealthProfile {
     sexe: string;
     groupeSanguin: string;
     rhesus: string;
-    poids: number;   // kg
-    taille: number;   // cm
+    poids: number;
+    taille: number;
     imc: number;
     statutImc: string;
     allergiePrincipale: string;
     pathologiesChroni: string[];
     dernierePrise: string;
     avatar: string;
-    nin: string;   // Numéro d'identification national
+    nin: string;
 }
 
 export interface AlerteItem {
@@ -52,7 +54,6 @@ export interface AlerteItem {
     date: string;
     auteur?: string;
 }
-
 
 export interface AccesRecent {
     qui: string;
@@ -70,14 +71,24 @@ export interface AccesRecent {
 })
 export class Dashboard implements OnInit, OnDestroy {
 
+    // ── Injections ────────────────────────────────────────────────────────────
+    private router = inject(Router);
+    private dashboardService = inject(DashboardService);
+    private medicalService = inject(MedicalService);
+
     // ── UI state ─────────────────────────────────────────────────────────────
     view = signal<ViewKey>('dashboard');
     profileMenuOpen = false;
     sidebarOpen = false;
     isMobile = false;
     alertPanelOpen = false;
-    alertCount = 3;
     authStore = AuthStore;
+
+    // ── Données dynamiques ────────────────────────────────────────────────────
+    loading = signal(true);
+    dashboardData = signal<DashboardSummaryDTO | null>(null);
+    alertes = signal<AlertDTO[]>([]);
+    accesRecents = signal<AccessLogDTO[]>([]);
 
     // ── Navigation ────────────────────────────────────────────────────────────
     readonly navItems: NavItem[] = [
@@ -91,27 +102,53 @@ export class Dashboard implements OnInit, OnDestroy {
         { key: 'profil', label: 'Mon Profil', icon: 'person' },
     ];
 
-    // ── Données patient (à remplacer par un service) ──────────────────────────
-    patient: HealthProfile = {
-        nom: 'AGOSSOU',
-        prenom: 'Kofi Emmanuel',
-        age: 47,
-        dateNaissance: '12 Mars 1977',
-        sexe: 'Masculin',
-        groupeSanguin: 'O',
-        rhesus: '+',
-        poids: 82,
-        taille: 178,
-        imc: 25.9,
-        statutImc: 'Surpoids léger',
-        allergiePrincipale: 'Pénicilline G',
-        pathologiesChroni: ['Hypertension artérielle', 'Hypercholestérolémie'],
-        dernierePrise: '14 Septembre 2023',
-        avatar: 'https://i.pravatar.cc/150?img=68',
-        nin: 'BJ-2024-00047821',
-    };
+    // ── Profil patient construit depuis les données utilisateur + DMN ───────
+    patient = computed<HealthProfile>(() => {
+        const user = this.authStore.user();
+        const data = this.dashboardData();
+        const identity = user?.identity;
 
-    get imc(): number { return this.patient.imc; }
+        const nom = identity?.lastName?.toUpperCase() || '—';
+        const prenom = identity?.firstName || '—';
+
+        let age = 0;
+        let dateNaissance = '—';
+        if (identity?.birthDate) {
+            const bd = new Date(identity.birthDate);
+            dateNaissance = bd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            age = Math.floor((Date.now() - bd.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+        }
+
+        const sexe = identity?.gender === 'homme' ? 'Masculin' : identity?.gender === 'femme' ? 'Féminin' : '—';
+        const nin = identity?.npi?.toString() || '—';
+        const avatar = identity?.photoPath || 'https://i.pravatar.cc/150?img=68';
+        const groupeSanguin = data?.profile?.blood_type || '—';
+        const rhesus = data?.profile?.rhesus_factor || '';
+
+        return {
+            nom,
+            prenom,
+            age,
+            dateNaissance,
+            sexe,
+            groupeSanguin,
+            rhesus,
+            poids: 0,
+            taille: 0,
+            imc: 0,
+            statutImc: '—',
+            allergiePrincipale: '—',
+            pathologiesChroni: [],
+            dernierePrise: data?.profile?.date_creation
+                ? new Date(data.profile.date_creation).toLocaleDateString('fr-FR')
+                : '—',
+            avatar,
+            nin,
+        };
+    });
+
+    get imc(): number { return this.patient().imc; }
+
     get imcClass(): string {
         const i = this.imc;
         if (i < 18.5) return 'text-blue-600';
@@ -120,56 +157,54 @@ export class Dashboard implements OnInit, OnDestroy {
         return 'text-red-600';
     }
 
-    alertes: AlerteItem[] = [
-        {
-            type: 'prescription',
-            message: 'Nouvelle prescription émise : Amlodipine 5 mg — 1 cp/jour pendant 30 jours',
-            date: '03/06/2026',
-            auteur: 'Dr. Kouandété Koffi'
-        },
-        {
-            type: 'urgence',
-            message: 'Accès au dossier via protocole d\'urgence — Urgences CHU Cotonou',
-            date: '28/05/2026',
-            auteur: 'Dr. F. Adjovi (garde)'
-        },
-        {
-            type: 'examen',
-            message: 'Résultat d\'examen disponible : Bilan lipidique complet — LDL à 1,62 g/L',
-            date: '24/05/2026',
-            auteur: 'Labo Central Cotonou'
-        },
-        {
-            type: 'info',
-            message: 'Consentement de partage de dossier renouvelé pour Dr. Aïssatou Bello',
-            date: '15/05/2026',
-            auteur: 'Patient'
-        },
-    ];
+    alertCount = computed(() => this.alertes().length);
+    pendingRequests = signal<PendingAccessRequestDTO[]>([]);
+    pendingRequestsCount = computed(() => this.pendingRequests().length);
 
-    accesRecents: AccesRecent[] = [
-        { qui: 'Dr. Kouandété Koffi', role: 'Cardiologue', date: 'Aujourd\'hui 10:45', icon: 'cardiology' },
-        { qui: 'Dr. Aïssatou Bello', role: 'Médecine Interne', date: 'Hier 14:20', icon: 'stethoscope' },
-        { qui: 'Labo Central Cotonou', role: 'Laboratoire', date: '24/05/2024', icon: 'biotech' },
-    ];
+    quickStats = computed(() => {
+        const stats = this.dashboardData()?.stats;
+        return [
+            { label: 'Examens', value: String(stats?.examens_count ?? 0), icon: 'biotech', color: 'bg-blue-50 text-blue-600', route: 'examens' },
+            { label: 'Prescriptions', value: String(stats?.prescriptions_count ?? 0), icon: 'medication', color: 'bg-violet-50 text-violet-600', route: 'prescriptions' },
+            { label: 'Allergies', value: String(stats?.allergies_count ?? 0), icon: 'allergy', color: 'bg-red-50 text-red-600', route: 'allergies' },
+            { label: 'Consentements', value: String(stats?.authorizations_count ?? 0), icon: 'verified_user', color: 'bg-emerald-50 text-emerald-600', route: 'consentements' },
+        ];
+    });
 
-    quickStats = [
-        { label: 'Examens', value: '11', icon: 'biotech', color: 'bg-blue-50 text-blue-600', route: 'examens' },
-        { label: 'Prescriptions', value: '4', icon: 'medication', color: 'bg-violet-50 text-violet-600', route: 'prescriptions' },
-        { label: 'Allergies', value: '4', icon: 'allergy', color: 'bg-red-50 text-red-600', route: 'allergies' },
-        { label: 'Consentements', value: '2', icon: 'verified_user', color: 'bg-emerald-50 text-emerald-600', route: 'consentements' },
-    ];
-
-    private routeSub!: Subscription;
-    private router = inject(Router);
+    private sub!: Subscription;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     ngOnInit(): void {
         this.checkScreenSize();
+        this.loadDashboardData();
     }
 
     ngOnDestroy(): void {
-        this.routeSub?.unsubscribe();
+        this.sub?.unsubscribe();
+    }
+
+    private loadDashboardData(): void {
+        this.loading.set(true);
+
+        this.dashboardService.loadPendingRequests().subscribe(requests => {
+            this.pendingRequests.set(requests);
+        });
+
+        this.sub = this.dashboardService.loadSummary().subscribe({
+            next: (data) => {
+                this.dashboardData.set(data);
+                this.alertes.set(data.alerts ?? []);
+                this.accesRecents.set(data.access_logs ?? []);
+                this.loading.set(false);
+            },
+            error: () => {
+                this.loading.set(false);
+            },
+        });
+    }
+
+    async respondToRequest(requestId: string, action: 'accept' | 'decline', perimeter?: string, duration?: string): Promise<void> {
+        await firstValueFrom(this.dashboardService.respondToRequest(requestId, action, perimeter, duration));
     }
 
     @HostListener('window:resize')
@@ -180,7 +215,7 @@ export class Dashboard implements OnInit, OnDestroy {
         if (!this.isMobile) this.sidebarOpen = false;
     }
 
-    // ── Actions ───────────────────────────────────────────────────────────────
+    // ── Navigation ───────────────────────────────────────────────────────────
     setView(key: String): void {
         this.view.set(key as ViewKey);
         this.sidebarOpen = false;
@@ -191,32 +226,31 @@ export class Dashboard implements OnInit, OnDestroy {
     toggleProfileMenu(): void { this.profileMenuOpen = !this.profileMenuOpen; }
     toggleAlertPanel(): void { this.alertPanelOpen = !this.alertPanelOpen; }
 
-    onSearchWithinDossier(event: Event): void {
-        // const query = (event.target as HTMLInputElement).value;
-    }
+    onSearchWithinDossier(event: Event): void { }
 
     openHelp(): void { window.open('https://dmn.benin/help', '_blank'); }
-    openSettings(): void { /* router.navigate(['/parametres']) */ }
+    openSettings(): void { }
+
     onLogout(): void {
         this.authStore.clearAuth();
         this.router.navigate(['/auth/login']);
     }
 
-    alertBadge(type: AlerteItem['type']): string {
+    alertBadge(type: string): string {
         return {
             prescription: 'bg-violet-100 text-violet-700 border-violet-200',
             urgence: 'bg-red-100 text-red-700 border-red-200',
             examen: 'bg-blue-100 text-blue-700 border-blue-200',
             info: 'bg-slate-100 text-slate-600 border-slate-200',
-        }[type];
+        }[type] || 'bg-slate-100 text-slate-600';
     }
 
-    alertIcon(type: AlerteItem['type']): string {
+    alertIcon(type: string): string {
         return {
             prescription: 'medication',
             urgence: 'emergency',
             examen: 'biotech',
             info: 'info',
-        }[type];
+        }[type] || 'info';
     }
 }

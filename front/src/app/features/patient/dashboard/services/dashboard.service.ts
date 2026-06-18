@@ -1,7 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { MedicalService, AllergyDTO, ExamenDTO } from '../../services/medical.service';
+import { map, tap } from 'rxjs/operators';
+import { MedicalService, AllergyDTO, ExamenDTO, DashboardSummaryDTO, AlertDTO, AccessLogDTO, PendingAccessRequestDTO } from '../../services/medical.service';
+import { AuthStore } from '../../../../core/auth/auth.store';
 
 export type TypeExamen =
     | 'Biologie' | 'Imagerie' | 'Radiologie'
@@ -87,17 +88,70 @@ export class DashboardService {
 
     private medical = inject(MedicalService);
 
+    readonly summary = signal<DashboardSummaryDTO | null>(null);
+    readonly loading = signal(false);
+    readonly pendingRequests = signal<PendingAccessRequestDTO[]>([]);
+
+    private get userId(): string | undefined {
+        return AuthStore.user()?.identity?.npi?.toString() || undefined;
+    }
+
+    loadSummary(): Observable<DashboardSummaryDTO> {
+        const uid = this.userId;
+        if (!uid) return of({} as DashboardSummaryDTO);
+
+        this.loading.set(true);
+        return this.medical.getDashboardSummary(uid).pipe(
+            tap(data => {
+                this.summary.set(data);
+                this.loading.set(false);
+            }),
+        );
+    }
+
     getAllergies(userId?: string): Observable<Allergie[]> {
-        if (!userId) return of(MOCK_ALLERGIES);
-        return this.medical.getAllergies(userId).pipe(
+        const uid = userId || this.userId;
+        if (!uid) return of(MOCK_ALLERGIES);
+        return this.medical.getAllergies(uid).pipe(
             map(dtos => dtos.map((dto, index) => this.mapAllergie(dto, index))),
         );
     }
 
     getExamens(userId?: string): Observable<Examen[]> {
-        if (!userId) return of(MOCK_EXAMENS);
-        return this.medical.getExamens(userId).pipe(
+        const uid = userId || this.userId;
+        if (!uid) return of(MOCK_EXAMENS);
+        return this.medical.getExamens(uid).pipe(
             map(dtos => dtos.map(dto => this.mapExamen(dto))),
+        );
+    }
+
+    getAlerts(userId?: string): Observable<AlertDTO[]> {
+        const uid = userId || this.userId;
+        if (!uid) return of([]);
+        return this.medical.getDashboardAlerts(uid);
+    }
+
+    getAccessLog(userId?: string): Observable<AccessLogDTO[]> {
+        const uid = userId || this.userId;
+        if (!uid) return of([]);
+        return this.medical.getDashboardAccessLog(uid);
+    }
+
+    loadPendingRequests(): Observable<PendingAccessRequestDTO[]> {
+        const uid = this.userId;
+        if (!uid) return of([]);
+        return this.medical.getPendingAccessRequests(uid).pipe(
+            tap(data => this.pendingRequests.set(data)),
+        );
+    }
+
+    respondToRequest(requestId: string, action: 'accept' | 'decline', perimeter?: string, duration?: string): Observable<{ status: string }> {
+        const uid = this.userId;
+        if (!uid) throw new Error('User not authenticated');
+        return this.medical.respondToAccessRequest(uid, requestId, { action, perimeter, duration }).pipe(
+            tap(() => {
+                this.pendingRequests.update(list => list.filter(r => r.id !== requestId));
+            }),
         );
     }
 

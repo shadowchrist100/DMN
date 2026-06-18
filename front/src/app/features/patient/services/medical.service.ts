@@ -65,6 +65,105 @@ export interface AuthorizationDTO {
     practitioner_speciality: string | null;
 }
 
+export interface RelativeDTO {
+    relative: {
+        id: string;
+        first_name: string;
+        last_name: string;
+        phone: string;
+    };
+    code_relation: string;
+}
+
+export interface RelativeCreateReq {
+    first_name: string;
+    last_name: string;
+    phone: string;
+    code_relation: string;
+}
+
+export interface RelativeUpdateReq {
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    code_relation?: string;
+    email?: string;
+    emergency_contact?: boolean;
+}
+
+export interface DashboardStatsDTO {
+    examens_count: number;
+    prescriptions_count: number;
+    allergies_count: number;
+    consentements_count: number;
+    pathologies_count: number;
+    consultations_count: number;
+    vaccinations_count: number;
+}
+
+export interface AlertDTO {
+    id: string;
+    type: string;
+    message: string;
+    date: string;
+    auteur: string | null;
+}
+
+export interface AccessLogDTO {
+    id: string;
+    qui: string;
+    role: string;
+    date: string;
+    icon: string;
+}
+
+export interface DashboardSummaryDTO {
+    profile: PatientProfile;
+    stats: DashboardStatsDTO;
+    alerts: AlertDTO[];
+    access_logs: AccessLogDTO[];
+}
+
+export interface TimelineEventDTO {
+    id: string;
+    type: string;
+    title: string;
+    description: string | null;
+    date: string;
+    facility: string | null;
+    practitioner_name: string | null;
+    practitioner_role: string | null;
+    priority: string;
+    status: string;
+    diagnosis: string | null;
+    notes: string | null;
+    icon: string;
+    badge_text: string | null;
+    badge_type: string | null;
+}
+
+export interface PatientProfileUpdateReq {
+    blood_type?: string;
+    rhesus_factor?: string;
+}
+
+export interface PendingAccessRequestDTO {
+    id: string;
+    practitioner_user_id: string;
+    practitioner_name: string;
+    practitioner_speciality: string;
+    reason: string;
+    requested_at: string;
+    perimeter: string;
+    duration: string;
+}
+
+export interface RespondAccessRequestReq {
+    action: 'accept' | 'decline';
+    perimeter?: string;
+    duration?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MedicalService {
 
@@ -90,5 +189,73 @@ export class MedicalService {
 
     getAuthorizations(userId: string): Observable<AuthorizationDTO[]> {
         return this.http.get<AuthorizationDTO[]>(`${this.baseUrl}/${userId}/authorizations`);
+    }
+
+    getPathologies(userId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/${userId}/pathologies`);
+    }
+
+    getConsultations(userId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/${userId}/consultations`);
+    }
+
+    getVaccinations(userId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/${userId}/vaccinations`);
+    }
+
+    // ── Relatives / Contacts ─────────────────────────────────────────────
+
+    getRelatives(userId: string): Observable<RelativeDTO[]> {
+        return this.http.get<RelativeDTO[]>(`${this.baseUrl}/${userId}/relatives`);
+    }
+
+    createRelative(userId: string, data: RelativeCreateReq): Observable<RelativeDTO> {
+        return this.http.post<RelativeDTO>(`${this.baseUrl}/${userId}/relatives`, data);
+    }
+
+    updateRelative(userId: string, relativeId: string, data: RelativeUpdateReq): Observable<RelativeDTO> {
+        return this.http.put<RelativeDTO>(`${this.baseUrl}/${userId}/relatives/${relativeId}`, data);
+    }
+
+    deleteRelative(userId: string, relativeId: string): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/${userId}/relatives/${relativeId}`);
+    }
+
+    // ── Dashboard ────────────────────────────────────────────────────────
+
+    getDashboardSummary(userId: string): Observable<DashboardSummaryDTO> {
+        return this.http.get<DashboardSummaryDTO>(`${this.baseUrl}/${userId}/dashboard/summary`);
+    }
+
+    getDashboardStats(userId: string): Observable<DashboardStatsDTO> {
+        return this.http.get<DashboardStatsDTO>(`${this.baseUrl}/${userId}/dashboard/stats`);
+    }
+
+    getDashboardAlerts(userId: string): Observable<AlertDTO[]> {
+        return this.http.get<AlertDTO[]>(`${this.baseUrl}/${userId}/dashboard/alerts`);
+    }
+
+    getDashboardAccessLog(userId: string): Observable<AccessLogDTO[]> {
+        return this.http.get<AccessLogDTO[]>(`${this.baseUrl}/${userId}/dashboard/access-log`);
+    }
+
+    getDashboardTimeline(userId: string): Observable<TimelineEventDTO[]> {
+        return this.http.get<TimelineEventDTO[]>(`${this.baseUrl}/${userId}/dashboard/timeline`);
+    }
+
+    // ── Profile Update ───────────────────────────────────────────────────
+
+    updatePatientProfile(userId: string, data: PatientProfileUpdateReq): Observable<PatientProfile> {
+        return this.http.put<PatientProfile>(`${this.baseUrl}/${userId}/profile`, data);
+    }
+
+    // ── Access Requests ──────────────────────────────────────────────────
+
+    getPendingAccessRequests(userId: string): Observable<PendingAccessRequestDTO[]> {
+        return this.http.get<PendingAccessRequestDTO[]>(`${this.baseUrl}/${userId}/access-requests/pending`);
+    }
+
+    respondToAccessRequest(userId: string, requestId: string, data: RespondAccessRequestReq): Observable<{ status: string }> {
+        return this.http.put<{ status: string }>(`${this.baseUrl}/${userId}/access-requests/${requestId}/respond`, data);
     }
 }

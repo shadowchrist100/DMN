@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { Patient, Priority } from './patient.model';
 import { PatientService } from '../../../services/patient.service';
 import { AuditService } from '../../../services/audit.service';
+import { AuthStore } from '../../../../../core/auth/auth.store';
 
 @Component({
   selector: 'app-patients',
@@ -12,6 +13,7 @@ import { AuditService } from '../../../services/audit.service';
   styleUrl: './patients.css',
 })
 export class Patients {
+  authStore = AuthStore;
   loading = signal(true);
   patients = signal<Patient[]>([]);
   totalPatients = signal(0);
@@ -21,26 +23,34 @@ export class Patients {
   notificationCount = signal(2);
   pendingReports = signal(5);
 
-  practitioner = {
-    name: 'Dr. Sarah AGOSSA',
-    specialty: 'Médecine Générale',
-    rpps: '1000456789',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC_wbjSaptTJKnjj2Bd47-SBu-2ObqC9jJf6SDutNa5WlR3u3TwTyY62noEzF4i7NoYP-MKAm88NdtyTSQ24xrCtWA_U9EsUWKEw5uHO3f1uSHpRXVGmBry10LOpsuuGqAFl4uFYqD0KUsonVl0e0yzQB4UIwyXHlPG3VIS8NGTyEo5iNlm1ZatJUQg1Q_08apL2idCqnhfHSZV2b4DlUeycHFXbwCxa-oV6xbDQ_st83VFk1OBr-c-aQPzLHmpNRgfW18TRlF1Qaq_'
-  };
+  userId = computed(() => String(this.authStore.user()?.identity?.npi ?? ''));
+
+  practitioner = computed(() => ({
+    name: `Dr. ${this.authStore.user()?.identity?.firstName ?? ''} ${this.authStore.user()?.identity?.lastName ?? ''}`,
+    specialty: this.authStore.user()?.practitioner?.speciality ?? 'Médecine Générale',
+    rpps: String(this.authStore.user()?.practitioner?.orderNumber ?? ''),
+    avatar: this.authStore.user()?.identity?.photoPath ?? '',
+  }));
 
   private router = inject(Router);
   private patientService = inject(PatientService);
   private auditService = inject(AuditService);
 
   ngOnInit(): void {
+    this.auditService.setUserId(this.userId());
     this.loadPatients();
   }
 
   private async loadPatients(): Promise<void> {
     this.loading.set(true);
+    const uid = this.userId();
+    if (!uid) {
+      this.loading.set(false);
+      return;
+    }
 
     try {
-      const patients = await this.patientService.getPatientsList();
+      const patients = await this.patientService.getPatientsList(uid);
 
       this.patients.set(patients);
       this.totalPatients.set(patients.length);

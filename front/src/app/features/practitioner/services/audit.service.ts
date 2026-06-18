@@ -1,104 +1,37 @@
-import { Injectable } from '@angular/core';
-import { ActivityLog, ActivityType } from '../dashboard/dashboard.model';
+import { Injectable, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { ActivityLog } from '../dashboard/dashboard.model';
+import { MedicalPractitionerService } from './medical-practitioner.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuditService {
-  private mockActivities: ActivityLog[] = [
-    {
-      id: 'ACT-001',
-      type: 'consultation',
-      action: 'Consultation réalisée',
-      patientName: 'Kouassi Adebayo',
-      patientNpi: '1029384756',
-      facility: 'Hôpital de Zone Calavi',
-      timestamp: new Date('2024-05-12T14:30:00'),
-      badge: { text: 'Finalisé', type: 'success' },
-    },
-    {
-      id: 'ACT-002',
-      type: 'lab_result',
-      action: 'Résultat d\'analyse disponible',
-      patientName: 'Moussa Ballo',
-      patientNpi: '9283746152',
-      facility: 'Laboratoire National de Santé Publique',
-      timestamp: new Date('2024-05-12T10:15:00'),
-      badge: { text: 'Nouveau', type: 'info' },
-    },
-    {
-      id: 'ACT-003',
-      type: 'prescription',
-      action: 'Renouvellement ordonnance signé',
-      patientName: 'Jean-Pierre Dossou',
-      patientNpi: '5566778899',
-      facility: 'Hôpital de Zone Calavi',
-      timestamp: new Date('2024-05-11T16:00:00'),
-      badge: { text: 'Signé', type: 'success' },
-    },
-    {
-      id: 'ACT-004',
-      type: 'consent',
-      action: 'Demande d\'accès acceptée',
-      patientName: 'Pauline Kodjo',
-      patientNpi: '7733992211',
-      facility: 'Cabinet Médical Les Cocotiers',
-      timestamp: new Date('2024-05-11T09:45:00'),
-      badge: { text: 'Approuvé', type: 'success' },
-    },
-    {
-      id: 'ACT-005',
-      type: 'hospitalization',
-      action: 'Compte rendu d\'hospitalisation déposé',
-      patientName: 'Ibrahim Adamou',
-      patientNpi: '9988776655',
-      facility: 'CNHU-HKM Cotonou',
-      timestamp: new Date('2024-05-10T08:00:00'),
-      badge: { text: 'Urgent', type: 'warning' },
-    },
-    {
-      id: 'ACT-006',
-      type: 'imaging',
-      action: 'Compte rendu d\'imagerie disponible',
-      patientName: 'Kouassi Adebayo',
-      patientNpi: '1029384756',
-      facility: 'Centre d\'Imagerie Médicale Calavi',
-      timestamp: new Date('2024-05-09T15:30:00'),
-      badge: { text: 'Validé', type: 'success' },
-    },
-    {
-      id: 'ACT-007',
-      type: 'consultation',
-      action: 'Consultation reprogrammée',
-      patientName: 'Aminata Sow',
-      patientNpi: '1122334455',
-      facility: 'Hôpital de Zone Calavi',
-      timestamp: new Date('2024-05-09T11:00:00'),
-      badge: { text: 'Modifié', type: 'warning' },
-    },
-  ];
+  private medicalPrac = inject(MedicalPractitionerService);
+
+  private userId: string = '';
+
+  setUserId(id: string): void {
+    this.userId = id;
+  }
 
   getRecentActivities(limit: number): Promise<ActivityLog[]> {
-    return Promise.resolve(this.mockActivities.slice(0, limit));
+    return firstValueFrom(this.medicalPrac.getPractitionerActivities(this.userId, limit)).then(
+      dtos => dtos.map(dto => ({
+        id: dto.id,
+        type: dto.type as ActivityLog['type'],
+        action: dto.action,
+        patientName: dto.patient_name || undefined,
+        patientNpi: dto.patient_npi || undefined,
+        facility: dto.facility,
+        timestamp: new Date(dto.timestamp),
+        badge: dto.badge_text ? {
+          text: dto.badge_text,
+          type: dto.badge_type as 'success' | 'warning' | 'info' | 'critical',
+        } : undefined,
+      }))
+    );
   }
 
-  logAction(action: string, _metadata?: Record<string, unknown>): Promise<void> {
-    const type = this.inferType(action);
-    this.mockActivities.unshift({
-      id: `ACT-${Date.now()}`,
-      type,
-      action,
-      facility: 'Hôpital de Zone Calavi',
-      timestamp: new Date(),
-    });
+  logAction(_action: string, _metadata?: Record<string, unknown>): Promise<void> {
     return Promise.resolve();
-  }
-
-  private inferType(action: string): ActivityType {
-    if (action.includes('consultation') || action.includes('Consultation')) return 'consultation';
-    if (action.includes('prescription') || action.includes('ordonnance')) return 'prescription';
-    if (action.includes('analyse') || action.includes('résultat')) return 'lab_result';
-    if (action.includes('accès') || action.includes('consentement')) return 'consent';
-    if (action.includes('hospitalisation')) return 'hospitalization';
-    if (action.includes('imagerie')) return 'imaging';
-    return 'consultation';
   }
 }

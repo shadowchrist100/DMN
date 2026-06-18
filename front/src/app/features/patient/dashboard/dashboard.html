@@ -25,11 +25,11 @@
         <!-- ── Mini profil patient dans la sidebar ── -->
         <div class="px-4 py-4 border-b border-white/10">
             <div class="flex items-center gap-3 bg-white/5 rounded-xl px-3 py-3">
-                <img [src]="patient.avatar" [alt]="patient.prenom"
+                <img [src]="patient().avatar" [alt]="patient().prenom"
                     class="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0">
                 <div class="min-w-0">
-                    <p class="text-xs font-black text-white truncate">{{ patient.prenom }}</p>
-                    <p class="text-[10px] text-blue-100/60 truncate">{{ patient.nom }}</p>
+                    <p class="text-xs font-black text-white truncate">{{ patient().prenom }}</p>
+                    <p class="text-[10px] text-blue-100/60 truncate">{{ patient().nom }}</p>
                     <div class="flex items-center gap-1.5 mt-0.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                         <span class="text-[9px] text-emerald-300 font-bold uppercase">Dossier actif</span>
@@ -49,8 +49,8 @@
                 <span class="material-symbols-outlined text-[20px]" [class.text-secondary]="view() === item.key">{{
                     item.icon }}</span>
                 {{ item.label }}
-                @if (item.key === 'allergies') {
-                <span class="ml-auto bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">4</span>
+                @if (item.key === 'allergies' && dashboardData()?.stats?.allergies_count) {
+                <span class="ml-auto bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{{ dashboardData()?.stats?.allergies_count }}</span>
                 }
             </button>
             }
@@ -111,10 +111,10 @@
                     <button (click)="toggleAlertPanel()"
                         class="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <span class="material-symbols-outlined text-slate-500">notifications</span>
-                        @if (alertCount > 0) {
+                        @if (alertCount() > 0) {
                         <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white
                             text-[10px] font-black rounded-full flex items-center justify-center animate-pulse">
-                            {{ alertCount }}
+                            {{ alertCount() }}
                         </span>
                         }
                     </button>
@@ -132,10 +132,10 @@
                     <div class="relative">
                         <button (click)="toggleProfileMenu()"
                             class="flex items-center gap-2 p-1 hover:bg-slate-100 rounded-full transition-colors">
-                            <img [src]="patient.avatar" [alt]="patient.prenom"
+                            <img [src]="patient().avatar" [alt]="patient().prenom"
                                 class="w-8 h-8 rounded-full object-cover border-2 border-slate-200">
                             <span class="hidden md:block text-sm font-semibold text-slate-700">
-                                {{ patient.prenom }}
+                                {{ patient().prenom }}
                             </span>
                             <span
                                 class="material-symbols-outlined text-slate-400 text-base hidden md:block">expand_more</span>
@@ -144,8 +144,8 @@
                         <div
                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
                             <div class="px-4 py-3 border-b border-slate-100">
-                                <p class="text-xs font-bold text-slate-800">{{ patient.prenom }} {{ patient.nom }}</p>
-                                <p class="text-[10px] text-slate-400 font-mono">NIN : {{ patient.nin }}</p>
+                                <p class="text-xs font-bold text-slate-800">{{ patient().prenom }} {{ patient().nom }}</p>
+                                <p class="text-[10px] text-slate-400 font-mono">NIN : {{ patient().nin }}</p>
                             </div>
                             <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Mon Profil</a>
                             <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Paramètres</a>
@@ -171,7 +171,7 @@
                     </button>
                 </div>
                 <div class="divide-y divide-slate-100 max-h-72 overflow-y-auto">
-                    @for (a of alertes; track a.message) {
+                    @for (a of alertes(); track a.id) {
                     <div class="px-4 py-3 flex gap-3 items-start hover:bg-slate-50">
                         <span class="material-symbols-outlined text-base mt-0.5"
                             [class.text-red-500]="a.type === 'urgence'"
@@ -201,13 +201,13 @@
                 <div>
                     <p class="text-slate-400 text-sm">Bienvenue sur votre espace santé,</p>
                     <h2 class="font-['Public_Sans'] font-extrabold text-2xl md:text-3xl text-[#002B5C]">
-                        Bonjour, {{ patient.prenom }} 👋
+                        Bonjour, {{ patient().prenom }} 👋
                     </h2>
                 </div>
                 <span class="text-xs bg-white border border-slate-200 shadow-sm px-3 py-1.5 rounded-full
                         text-slate-500 font-medium flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-sm">update</span>
-                    Dossier mis à jour le {{ patient.dernierePrise }}
+                    Dossier mis à jour le {{ patient().dernierePrise }}
                 </span>
             </div>
 
@@ -230,7 +230,7 @@
                     <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-10 mb-6">
                         <!-- Avatar -->
                         <div class="relative">
-                            <img [src]="patient.avatar" [alt]="patient.prenom"
+                            <img [src]="patient().avatar" [alt]="patient().prenom"
                                 class="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg">
                             <span
                                 class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 border-2 border-white rounded-full"></span>
@@ -239,16 +239,16 @@
                         <div class="flex-1 min-w-0 pb-1">
                             <div class="flex flex-wrap items-center gap-2 mb-0.5">
                                 <h3 class="font-['Public_Sans'] font-extrabold text-xl text-[#002B5C]">
-                                    {{ patient.prenom }} {{ patient.nom }}
+                                    {{ patient().prenom }} {{ patient().nom }}
                                 </h3>
                                 <span
                                     class="bg-blue-50 text-secondary text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100">
-                                    {{ patient.sexe }}
+                                    {{ patient().sexe }}
                                 </span>
                             </div>
-                            <p class="text-sm text-slate-500">{{ patient.age }} ans · Né(e) le {{ patient.dateNaissance
+                            <p class="text-sm text-slate-500">{{ patient().age }} ans · Né(e) le {{ patient().dateNaissance
                                 }}</p>
-                            <p class="text-[10px] font-mono text-slate-400 mt-0.5">NIN : {{ patient.nin }}</p>
+                            <p class="text-[10px] font-mono text-slate-400 mt-0.5">NIN : {{ patient().nin }}</p>
                         </div>
                         <button (click)="setView('historique')" class="shrink-0  bg-[#002B5C] text-white px-4 py-2 rounded-xl text-xs font-bold
                         flex items-center gap-1.5 hover:bg-[#004b99] transition-colors">
@@ -266,7 +266,7 @@
                             <span class="material-symbols-outlined text-red-500 text-2xl mb-1"
                                 style="font-variation-settings: 'FILL' 1">bloodtype</span>
                             <p class="text-2xl font-black text-red-600">
-                                {{ patient.groupeSanguin }}{{ patient.rhesus }}
+                                {{ patient().groupeSanguin }}{{ patient().rhesus }}
                             </p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Groupe sanguin</p>
                         </div>
@@ -275,7 +275,7 @@
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
                             <span class="material-symbols-outlined text-slate-400 text-xl mb-1">weight</span>
-                            <p class="text-2xl font-black text-slate-800">{{ patient.poids }}</p>
+                            <p class="text-2xl font-black text-slate-800">{{ patient().poids }}</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase">kg · Poids</p>
                         </div>
 
@@ -283,7 +283,7 @@
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
                             <span class="material-symbols-outlined text-slate-400 text-xl mb-1">height</span>
-                            <p class="text-2xl font-black text-slate-800">{{ patient.taille }}</p>
+                            <p class="text-2xl font-black text-slate-800">{{ patient().taille }}</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase">cm · Taille</p>
                         </div>
 
@@ -291,16 +291,16 @@
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
                             <span class="material-symbols-outlined text-slate-400 text-xl mb-1">fitness_center</span>
-                            <p class="text-2xl font-black" [class]="imcClass">{{ patient.imc }}</p>
+                            <p class="text-2xl font-black" [class]="imcClass">{{ patient().imc }}</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase">IMC</p>
-                            <p class="text-[9px] font-semibold mt-0.5" [class]="imcClass">{{ patient.statutImc }}</p>
+                            <p class="text-[9px] font-semibold mt-0.5" [class]="imcClass">{{ patient().statutImc }}</p>
                         </div>
 
                         <!-- Âge -->
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
                             <span class="material-symbols-outlined text-slate-400 text-xl mb-1">cake</span>
-                            <p class="text-2xl font-black text-slate-800">{{ patient.age }}</p>
+                            <p class="text-2xl font-black text-slate-800">{{ patient().age }}</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase">ans · Âge</p>
                         </div>
 
@@ -308,19 +308,19 @@
                         <div class="flex flex-col items-center justify-center bg-red-50 border border-red-100
                             rounded-xl p-4 text-center">
                             <span class="material-symbols-outlined text-red-500 text-xl mb-1">allergy</span>
-                            <p class="text-xs font-black text-red-600 leading-tight">{{ patient.allergiePrincipale }}
+                            <p class="text-xs font-black text-red-600 leading-tight">{{ patient().allergiePrincipale }}
                             </p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Allergie critique</p>
                         </div>
                     </div>
 
                     <!-- ── Pathologies chroniques ────────────────────────────── -->
-                    @if (patient.pathologiesChroni.length > 0) {
+                    @if (patient().pathologiesChroni.length > 0) {
                     <div class="flex flex-wrap gap-2">
                         <p class="w-full text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
                             Pathologies chroniques
                         </p>
-                        @for (p of patient.pathologiesChroni; track p) {
+                        @for (p of patient().pathologiesChroni; track p) {
                         <span class="flex items-center gap-1.5 bg-[#002B5C]/5 text-[#002B5C] border border-[#002B5C]/10
                                 text-xs font-semibold px-3 py-1.5 rounded-full">
                             <span class="material-symbols-outlined text-sm">stethoscope</span>
@@ -334,7 +334,7 @@
 
             <!-- ── Stats rapides ──────────────────────────────────────────── -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                @for (stat of quickStats; track stat.label) {
+                @for (stat of quickStats(); track stat.label) {
                 <button (click)="setView(stat.route)" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md
                         hover:-translate-y-0.5 transition-all text-left group">
                     <div class="flex items-start justify-between mb-3">
@@ -370,7 +370,7 @@
                             </span> -->
                         </h3>
                         <div class="divide-y divide-slate-100">
-                            @for (a of alertes; track a.message) {
+                            @for (a of alertes(); track a.id) {
                             <div class="px-5 py-4 flex items-start gap-3">
                                 <div class="mt-0.5 w-7 h-7 shrink-0 rounded-lg flex items-center justify-center"
                                     [class.bg-violet-50]="a.type === 'prescription'"
@@ -408,7 +408,7 @@
                         </h4>
                     </div>
                     <div class="divide-y divide-slate-100">
-                        @for (a of accesRecents; track a.qui) {
+                        @for (a of accesRecents(); track a.id) {
                         <div class="px-5 py-4 flex items-center gap-3">
                             <div class="h-9 w-9 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
                                 <span class="material-symbols-outlined text-secondary text-lg">{{ a.icon }}</span>

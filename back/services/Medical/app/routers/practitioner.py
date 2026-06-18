@@ -9,8 +9,13 @@ from app.schemas.practitioner import CreatePractitionerReq, PractitionerResp
 from app.schemas.medical import (
     PractitionerProfileResp, PatientSummaryResp,
     OrganisationInfo, AddPractitionerRoleReq,
+    PractitionerDashboardStatsResp, AccessRequestResp,
+    PractitionerActivityResp, PatientSearchResult,
+    CreateAccessRequestReq,
 )
+from app.schemas.patient import PatientListResp
 from app.services.practitioner_service import PractitionerService
+from app.repositories.practitioner_repository import PractitionerRepository
 from app.models.practitioner import Practitioner
 from app.models.practitioner_role import PractitionerRole
 from app.models.healthcare_system import HealthcareSystem
@@ -187,4 +192,111 @@ def get_practitioner_patients(
             last_consultation=str(last_act.id) if last_act else None,
         ))
 
+    return result
+
+
+@router.get("/practitioners/by-user/{user_id}/dashboard/stats", response_model=PractitionerDashboardStatsResp)
+def get_practitioner_dashboard_stats(
+    user_id: str,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    stats = PractitionerRepository.get_dashboard_stats(session, user_id)
+    return PractitionerDashboardStatsResp(**stats)
+
+
+@router.get("/practitioners/by-user/{user_id}/access-requests", response_model=list[AccessRequestResp])
+def get_practitioner_access_requests(
+    user_id: str,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    requests = PractitionerRepository.get_pending_access_requests(session, user_id)
+    return [AccessRequestResp(**r) for r in requests]
+
+
+@router.put("/practitioners/by-user/{user_id}/access-requests/{request_id}/accept")
+def accept_access_request(
+    user_id: str,
+    request_id: UUID,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    ok = PractitionerRepository.accept_access_request(session, request_id)
+    if not ok:
+        not_found("Demande d'accès introuvable")
+    session.commit()
+    return {"status": "accepted"}
+
+
+@router.put("/practitioners/by-user/{user_id}/access-requests/{request_id}/decline")
+def decline_access_request(
+    user_id: str,
+    request_id: UUID,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    ok = PractitionerRepository.decline_access_request(session, request_id)
+    if not ok:
+        not_found("Demande d'accès introuvable")
+    session.commit()
+    return {"status": "declined"}
+
+
+@router.get("/practitioners/by-user/{user_id}/activities", response_model=list[PractitionerActivityResp])
+def get_practitioner_activities(
+    user_id: str,
+    limit: int = 10,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    activities = PractitionerRepository.get_recent_activities(session, user_id, limit)
+    return [PractitionerActivityResp(**a) for a in activities]
+
+
+@router.get("/practitioners/by-user/{user_id}/patients/list", response_model=list[PatientListResp])
+def get_practitioner_patients_list(
+    user_id: str,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    patients = PractitionerRepository.get_patient_list(session, user_id)
+    return [PatientListResp(**p) for p in patients]
+
+
+@router.get("/practitioners/patients/search", response_model=list[PatientSearchResult])
+def search_patients(
+    q: str = "",
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    results = PractitionerRepository.search_patients(session, q)
+    return [PatientSearchResult(**r) for r in results]
+
+
+@router.post("/practitioners/by-user/{user_id}/access-requests", status_code=201)
+def create_access_request(
+    user_id: str,
+    body: CreateAccessRequestReq,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    result = PractitionerRepository.create_access_request(
+        session,
+        practitioner_user_id=user_id,
+        patient_user_id=body.patient_user_id,
+        reason=body.reason,
+        duration=body.duration,
+        perimeter=body.perimeter,
+    )
+    if not result:
+        not_found("Patient ou dossier médical introuvable")
+    session.commit()
     return result

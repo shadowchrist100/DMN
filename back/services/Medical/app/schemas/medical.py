@@ -129,3 +129,122 @@ class PatientSummaryResp(BaseModel):
     user_id: str
     blood_type: Optional[str] = None
     last_consultation: Optional[str] = None
+
+
+class AlertResp(BaseModel):
+    id: str
+    type: str  # prescription, urgence, examen, info
+    message: str
+    date: str
+    auteur: Optional[str] = None
+
+
+class AccessLogResp(BaseModel):
+    id: str
+    qui: str
+    role: str
+    date: str
+    icon: str
+
+
+class DashboardStatsResp(BaseModel):
+    examens_count: int
+    prescriptions_count: int
+    allergies_count: int
+    consentements_count: int
+    pathologies_count: int
+    consultations_count: int
+    vaccinations_count: int
+
+
+class DashboardSummaryResp(BaseModel):
+    profile: PatientProfileResp
+    stats: DashboardStatsResp
+    alerts: list[AlertResp]
+    access_logs: list[AccessLogResp]
+
+
+class TimelineEventResp(BaseModel):
+    id: str
+    type: str
+    title: str
+    description: Optional[str] = None
+    date: str
+    facility: Optional[str] = None
+    practitioner_name: Optional[str] = None
+    practitioner_role: Optional[str] = None
+    priority: str
+    status: str
+    diagnosis: Optional[str] = None
+    notes: Optional[str] = None
+    icon: str
+    badge_text: Optional[str] = None
+    badge_type: Optional[str] = None
+
+
+class PractitionerDashboardStatsResp(BaseModel):
+    followed_patients: int = 0
+    new_patients_this_month: int = 0
+    consultations_this_week: int = 0
+    completed_visits: int = 0
+    upcoming_visits: int = 0
+    pending_reports: int = 0
+
+
+class AccessRequestResp(BaseModel):
+    id: str
+    patient_npi: str
+    patient_name: str
+    reason: str
+    requested_at: str
+    urgency: str
+    requested_by_name: str
+    requested_by_role: str
+    requested_by_facility: str
+    expires_at: str
+
+
+class PractitionerActivityResp(BaseModel):
+    id: str
+    type: str
+    action: str
+    patient_name: Optional[str] = None
+    patient_npi: Optional[str] = None
+    facility: str
+    timestamp: str
+    badge_text: Optional[str] = None
+    badge_type: Optional[str] = None
+
+
+class PatientSearchResult(BaseModel):
+    user_id: str
+    npi: str
+    full_name: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    phone: Optional[str] = None
+    city: Optional[str] = None
+
+
+class CreateAccessRequestReq(BaseModel):
+    patient_user_id: str
+    reason: str = ""
+    duration: str = "24h"
+    perimeter: str = "all"
+
+
+class PendingAccessRequestResp(BaseModel):
+    id: str
+    practitioner_user_id: str
+    practitioner_name: str
+    practitioner_speciality: str
+    reason: str
+    requested_at: str
+    perimeter: str
+    duration: str
+
+
+class RespondAccessRequestReq(BaseModel):
+    action: str  # "accept" or "decline"
+    perimeter: Optional[str] = None
+    duration: Optional[str] = None

@@ -30,6 +30,110 @@
         <!-- Colonne principale (3/4) -->
         <div class="xl:col-span-3 space-y-6">
 
+            <!-- Demandes d'accès en attente -->
+            @if (pendingRequests().length > 0) {
+            <section class="bg-white border border-amber-200 rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-500">verified_user</span>
+                        Demandes d'accès en attente
+                        <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                            {{ pendingRequests().length }}
+                        </span>
+                    </h3>
+                </div>
+
+                @if (respondSuccess()) {
+                <p class="text-green-600 text-sm mb-3 bg-green-50 p-2 rounded-lg">✓ {{ respondSuccess() }}</p>
+                }
+
+                <div class="space-y-3">
+                    @for (req of pendingRequests(); track req.id) {
+                    <div class="border border-slate-200 rounded-xl p-4 hover:bg-slate-50/50 transition-colors">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-center gap-3 flex-1">
+                                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-amber-700 text-lg">person</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800 text-sm">{{ req.practitioner_name }}</p>
+                                    <p class="text-[10px] text-slate-400">{{ req.practitioner_speciality }}</p>
+                                    <p class="text-xs text-slate-500 mt-1 italic">"{{ req.reason }}"</p>
+                                </div>
+                            </div>
+
+                            @if (acceptFormRequest()?.id === req.id) {
+                            <div class="flex gap-2 shrink-0">
+                                <button (click)="cancelAcceptForm()"
+                                    class="px-3 py-1.5 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50">
+                                    Annuler
+                                </button>
+                            </div>
+                            } @else {
+                            <div class="flex gap-2 shrink-0">
+                                <button (click)="declineRequest(req.id)" [disabled]="respondingId() === req.id"
+                                    class="px-3 py-1.5 text-xs font-bold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50">
+                                    Refuser
+                                </button>
+                                <button (click)="showAcceptForm(req)" [disabled]="respondingId() === req.id"
+                                    class="px-3 py-1.5 text-xs font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
+                                    Accepter
+                                </button>
+                            </div>
+                            }
+                        </div>
+
+                        <!-- Accept form -->
+                        @if (acceptFormRequest()?.id === req.id) {
+                        <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+                                    Périmètre d'accès
+                                </label>
+                                <div class="flex gap-2">
+                                    <button (click)="acceptPerimeter.set('all')"
+                                        class="flex-1 px-3 py-2 rounded-lg text-xs font-bold border transition-all"
+                                        [class]="acceptPerimeter() === 'all'
+                                            ? 'bg-[#002B5C] text-white border-[#002B5C]'
+                                            : 'bg-white text-slate-600 border-slate-200 hover:border-[#002B5C]'">
+                                        Complet
+                                    </button>
+                                    <button (click)="acceptPerimeter.set('prescriptions')"
+                                        class="flex-1 px-3 py-2 rounded-lg text-xs font-bold border transition-all"
+                                        [class]="acceptPerimeter() === 'prescriptions'
+                                            ? 'bg-[#002B5C] text-white border-[#002B5C]'
+                                            : 'bg-white text-slate-600 border-slate-200 hover:border-[#002B5C]'">
+                                        Prescriptions
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Durée</label>
+                                <select [(ngModel)]="acceptDuration"
+                                    class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#002B5C] outline-none">
+                                    <option value="24h">24 Heures</option>
+                                    <option value="7j">7 Jours</option>
+                                    <option value="30j">30 Jours</option>
+                                    <option value="indeterminee">Indéterminée</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-end">
+                                <button (click)="confirmAccept()" [disabled]="respondingId() === req.id"
+                                    class="bg-green-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-1">
+                                    @if (respondingId() === req.id) {
+                                    <span class="material-symbols-outlined text-sm animate-spin">sync</span>
+                                    }
+                                    Confirmer l'accès
+                                </button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </section>
+            }
+
             <!-- Accorder un consentement -->
             <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
                 <h3 class="font-bold text-primary flex items-center gap-2 mb-6">

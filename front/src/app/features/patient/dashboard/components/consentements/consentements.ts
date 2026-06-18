@@ -1,6 +1,10 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { MedicalService, AuthorizationDTO, PendingAccessRequestDTO } from '../../../services/medical.service';
+import { AuthStore } from '../../../../../core/auth/auth.store';
+import { DashboardService } from '../../services/dashboard.service';
 
 export interface Consentement {
     id: string;
@@ -13,26 +17,30 @@ export interface Consentement {
     actif: boolean;
 }
 
-export interface AuditEntry {
-    icon: string;
-    action: string;
-    detail: string;
-    horodatage: string;
-    meta: string;
-    metaClass: string;
-}
-
 @Component({
     selector: 'app-consentements',
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './consentements.html',
 })
-export class Consentements {
+export class Consentements implements OnInit {
+
+    private medicalService = inject(MedicalService);
+    private dashboardService = inject(DashboardService);
 
     searchQuery = signal('');
     selectedDuree = signal('24h');
     selectedPerimetre: string[] = [];
+    loading = signal(true);
+    refreshing = signal(false);
+    authorizations = signal<AuthorizationDTO[]>([]);
+    pendingRequests = signal<PendingAccessRequestDTO[]>([]);
+
+    respondingId = signal<string | null>(null);
+    respondSuccess = signal('');
+    acceptFormRequest = signal<PendingAccessRequestDTO | null>(null);
+    acceptPerimeter = signal('all');
+    acceptDuration = signal('24h');
 
     readonly perimetreOptions = [
         { value: 'complet', label: 'Complet' },
@@ -49,26 +57,52 @@ export class Consentements {
         { value: 'indeterminee', label: 'Indéterminée (Révocable à tout moment)' },
     ];
 
-    readonly consentements: Consentement[] = [
-        { id: 'c1', praticien: 'Dr. Koffi ADJAMOSSI', specialite: 'Cardiologue', etablissement: 'CNHU-HKM', initiales: 'KA', perimetre: 'Complet', validite: 'Jusqu\'au 12/05/24', actif: true },
-        { id: 'c2', praticien: 'Dr. Marie SOGLO', specialite: 'Médecin Généraliste', etablissement: 'Clinique BIOS', initiales: 'MS', perimetre: 'Analyses uniquement', validite: '24h restant', actif: true },
-        { id: 'c3', praticien: 'Dr. Gaston DOSSOU', specialite: 'Hématologue', etablissement: 'CNHU-HKM', initiales: 'GD', perimetre: 'Complet', validite: 'Expiré', actif: false },
-    ];
-
-    readonly auditEntries: AuditEntry[] = [
-        { icon: 'history_edu', action: 'Dr. Koffi ADJAMOSSI a consulté Dossier Cardiologie', detail: '', horodatage: "Aujourd'hui, 09:42", meta: 'IP: 197.234.xx.xx', metaClass: 'bg-slate-100 text-slate-500' },
-        { icon: 'biotech', action: 'Labo Central a téléchargé Analyses Sanguines', detail: '', horodatage: 'Hier, 16:15', meta: 'Portail Santé', metaClass: 'bg-slate-100 text-slate-500' },
-        { icon: 'block', action: 'Accès révoqué pour Clinique Saint-Jean', detail: '', horodatage: '10 Mai 2024, 11:20', meta: 'ACTION PATIENT', metaClass: 'bg-red-50 text-red-600' },
-    ];
+    readonly consentements = computed<Consentement[]>(() =>
+        this.authorizations().map(a => ({
+            id: a.id,
+            praticien: a.practitioner_name || 'Praticien',
+            specialite: a.practitioner_speciality || '—',
+            etablissement: '—',
+            initiales: (a.practitioner_name || 'XX').split(' ').map(s => s[0]).join('').slice(0, 2),
+            perimetre: a.perimeter === 'all' ? 'Complet' : a.perimeter || 'Complet',
+            validite: a.expire_at ? `Jusqu'au ${new Date(a.expire_at).toLocaleDateString('fr-FR')}` : 'Indéterminée',
+            actif: a.is_actif,
+        }))
+    );
 
     readonly consentementsFiltres = computed(() => {
         const q = this.searchQuery().toLowerCase();
-        return this.consentements.filter(c =>
+        return this.consentements().filter(c =>
             c.praticien.toLowerCase().includes(q) ||
             c.specialite.toLowerCase().includes(q) ||
             c.etablissement.toLowerCase().includes(q)
         );
     });
+
+    ngOnInit(): void {
+        this.loadData();
+    }
+
+    private loadData(): void {
+        const userId = AuthStore.user()?.identity?.npi?.toString();
+        if (!userId) {
+            this.loading.set(false);
+            return;
+        }
+
+        this.loading.set(true);
+        this.medicalService.getAuthorizations(userId).subscribe({
+            next: (data) => {
+                this.authorizations.set(data);
+                this.loading.set(false);
+            },
+            error: () => this.loading.set(false),
+        });
+
+        this.medicalService.getPendingAccessRequests(userId).subscribe({
+            next: (data) => this.pendingRequests.set(data),
+        });
+    }
 
     togglePerimetre(value: string): void {
         if (this.selectedPerimetre.includes(value)) {
@@ -79,7 +113,56 @@ export class Consentements {
     }
 
     toggleConsentement(id: string): void {
-        const c = this.consentements.find(c => c.id === id);
-        if (c) c.actif = !c.actif;
+        this.authorizations.update(list =>
+            list.map(a => a.id === id ? { ...a, is_actif: !a.is_actif } : a)
+        );
+    }
+
+    showAcceptForm(request: PendingAccessRequestDTO): void {
+        this.acceptFormRequest.set(request);
+        this.acceptPerimeter.set(request.perimeter || 'all');
+        this.acceptDuration.set(request.duration || '24h');
+    }
+
+    cancelAcceptForm(): void {
+        this.acceptFormRequest.set(null);
+    }
+
+    async confirmAccept(): Promise<void> {
+        const request = this.acceptFormRequest();
+        if (!request) return;
+
+        this.respondingId.set(request.id);
+        try {
+            await firstValueFrom(this.dashboardService.respondToRequest(
+                request.id, 'accept',
+                this.acceptPerimeter(),
+                this.acceptDuration(),
+            ));
+            this.respondSuccess.set('Accès accordé avec succès');
+            this.pendingRequests.update(list => list.filter(r => r.id !== request.id));
+            this.acceptFormRequest.set(null);
+            const userId = AuthStore.user()?.identity?.npi?.toString();
+            if (userId) {
+                this.medicalService.getAuthorizations(userId).subscribe(data => this.authorizations.set(data));
+            }
+        } catch {
+            this.respondSuccess.set('Erreur lors de l\'acceptation');
+        } finally {
+            this.respondingId.set(null);
+            setTimeout(() => this.respondSuccess.set(''), 3000);
+        }
+    }
+
+    async declineRequest(requestId: string): Promise<void> {
+        this.respondingId.set(requestId);
+        try {
+            await firstValueFrom(this.dashboardService.respondToRequest(requestId, 'decline'));
+            this.pendingRequests.update(list => list.filter(r => r.id !== requestId));
+        } catch {
+            // ignore
+        } finally {
+            this.respondingId.set(null);
+        }
     }
 }
