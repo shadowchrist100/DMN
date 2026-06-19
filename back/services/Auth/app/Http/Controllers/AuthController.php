@@ -259,6 +259,16 @@ class AuthController extends Controller
         return response()->json(['message' => 'Email de vérification renvoyé.']);
     }
 
+    public function show(User $user): JsonResponse
+    {
+        return response()->json([
+            'user' => $user,
+            'photo_url' => $user->photo_path
+                ? url('/api/photos/' . basename($user->photo_path))
+                : null,
+        ]);
+    }
+
     public function showPhoto(string $filename)
     {
         $path = 'photos/' . basename($filename);

@@ -175,6 +175,19 @@ export interface MedicationRefDTO {
     forme_galenique: string;
 }
 
+export interface ExaminationRefDTO {
+    id: string;
+    code: string;
+    libelle: string;
+    nature: string;
+}
+
+export interface VaccineRefDTO {
+    id: string;
+    code_cvx: string;
+    libelle: string;
+}
+
 export interface VitalConstantEntry {
     code: string;
     valeur: number;
@@ -219,7 +232,6 @@ export interface CareInstructionEntry {
 export interface CreateMedicalActDTO {
     type_acte: string;
     motif?: string;
-    raisons?: string;
     observations_text?: string;
     duree_minutes?: number;
     vital_constants: VitalConstantEntry[];
@@ -310,6 +322,14 @@ export class MedicalPractitionerService {
 
     getMedicationRefs(q: string = ''): Observable<MedicationRefDTO[]> {
         return this.http.get<MedicationRefDTO[]>(`${API.MEDICAL_BASE_URL}/medication-references?q=${encodeURIComponent(q)}`);
+    }
+
+    getExaminationRefs(): Observable<ExaminationRefDTO[]> {
+        return this.http.get<ExaminationRefDTO[]>(`${API.MEDICAL_BASE_URL}/examination-references`);
+    }
+
+    getVaccineRefs(): Observable<VaccineRefDTO[]> {
+        return this.http.get<VaccineRefDTO[]>(`${API.MEDICAL_BASE_URL}/vaccine-references`);
     }
 
     // ── Création acte médical ────────────────────────────────────────────

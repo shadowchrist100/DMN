@@ -77,6 +77,18 @@ export interface Traitement {
   renouvelable: boolean;
 }
 
+export interface PrescriptionItem {
+  id: string;
+  type: 'examen' | 'medicament' | 'vaccin';
+  libelle: string;
+  statut: string;
+  datePrescription: Date;
+  prescripteur: string;
+  specialite: string;
+  instructions: string;
+  details: string;
+}
+
 export interface Vaccin {
   id: string;
   nom: string;
@@ -173,6 +185,25 @@ export class DossierService {
         severite: 'Modérée',
         dateDiagnostic: new Date(dto.date),
         notes: dto.note_clinique || undefined,
+      }))
+    );
+  }
+
+  getPrescriptions(patientUserId?: string): Promise<PrescriptionItem[]> {
+    if (!patientUserId) return Promise.resolve([]);
+    return firstValueFrom(this.medical.getPrescriptions(patientUserId)).then(dtos =>
+      dtos.map(dto => ({
+        id: dto.uuid,
+        type: (dto.type_prescription === 'examen' ? 'examen'
+              : dto.type_prescription === 'vaccin' ? 'vaccin'
+              : 'medicament') as 'examen' | 'medicament' | 'vaccin',
+        libelle: dto.libelle || dto.nature_examination || 'Prescription',
+        statut: dto.statut || 'active',
+        datePrescription: new Date(dto.date_prescription),
+        prescripteur: dto.prescripteur_nom || '',
+        specialite: dto.prescripteur_specialite || '',
+        instructions: dto.special_instructions || '',
+        details: dto.code_loinc || dto.code_cvx || '',
       }))
     );
   }

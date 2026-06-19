@@ -291,6 +291,19 @@ class MedicationRefResp(BaseModel):
     forme_galenique: str
 
 
+class ExaminationRefResp(BaseModel):
+    id: str
+    code: str
+    libelle: str
+    nature: str
+
+
+class VaccineRefResp(BaseModel):
+    id: str
+    code_cvx: str
+    libelle: str
+
+
 # ─── Création d'acte médical ───────────────────────────────────────────────────
 
 class VitalConstantEntry(BaseModel):

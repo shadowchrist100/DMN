@@ -116,6 +116,7 @@ class MedicalRepository:
 
         rows = session.execute(
             select(MedicalAct, ExaminationAct)
+            .select_from(MedicalAct)
             .outerjoin(ExaminationAct, ExaminationAct.id == MedicalAct.id)
             .where(MedicalAct.dmn_id == dmn_id)
             .where(MedicalAct.type_acte == TypeActe.EXAMEN)
@@ -227,6 +228,7 @@ class MedicalRepository:
 
         rows = session.execute(
             select(MedicalAct, Consultation, PractitionerRole, Practitioner, HealthcareSystem)
+            .select_from(MedicalAct)
             .outerjoin(Consultation, Consultation.id == MedicalAct.id)
             .outerjoin(PractitionerRole, PractitionerRole.id == MedicalAct.practitioner_role_id)
             .outerjoin(Practitioner, Practitioner.id == PractitionerRole.practitioner_id)
@@ -262,6 +264,7 @@ class MedicalRepository:
 
         rows = session.execute(
             select(MedicalAct, Vaccination)
+            .select_from(MedicalAct)
             .outerjoin(Vaccination, Vaccination.id == MedicalAct.id)
             .where(MedicalAct.dmn_id == dmn_id)
             .where(MedicalAct.type_acte == TypeActe.VACCINATION)

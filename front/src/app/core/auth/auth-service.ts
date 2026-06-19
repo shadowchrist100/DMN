@@ -104,6 +104,11 @@ function normalizeRole(role: string | undefined): userRole {
     return role as userRole;
 }
 
+export interface UserDetailResponse {
+    user: ApiUser;
+    photo_url: string | null;
+}
+
 export function mapApiUserToIuser(apiUser: ApiUser): Iuser {
     return {
         identity: {
@@ -224,6 +229,12 @@ export class AuthService {
     async logout(): Promise<void> {
         await firstValueFrom(
             this.http.post(`${API.AUTH_BASE_URL}/logout`, {})
+        );
+    }
+
+    async getUser(userId: string): Promise<UserDetailResponse> {
+        return firstValueFrom(
+            this.http.get<UserDetailResponse>(`${API.AUTH_BASE_URL}/users/${userId}`)
         );
     }
 }

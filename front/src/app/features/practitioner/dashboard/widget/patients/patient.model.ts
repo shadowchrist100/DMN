@@ -28,4 +28,5 @@ export interface Patient {
     activePrescriptions: number;
     allergies?: string[];
     chronicConditions?: string[];
+    photoUrl?: string;
 }

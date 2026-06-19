@@ -162,10 +162,15 @@
                (click)="openPatientFile(patient.npi)">
 
         <div class="flex items-start gap-3 mb-4">
+          @if (patient.photoUrl) {
+          <img [src]="patient.photoUrl" alt="Photo"
+               class="w-14 h-14 rounded-xl object-cover shrink-0 border-2 border-white shadow-sm">
+          } @else {
           <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0
                       bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-white shadow-sm">
             <span class="text-[#002B5C] font-black text-lg">{{ patient.initials }}</span>
           </div>
+          }
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-0.5">
               <h3 class="font-bold text-[#002B5C] text-base truncate">{{ patient.name }}</h3>

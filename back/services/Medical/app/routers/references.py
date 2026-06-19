@@ -7,10 +7,14 @@ from app.schemas.medical import (
     VitalConstantRefResp,
     DiagnosisRefResp,
     MedicationRefResp,
+    ExaminationRefResp,
+    VaccineRefResp,
 )
 from app.models.vital_constant_reference import VitalConstantReference
 from app.models.diagnosis_reference import DiagnosisReference
 from app.models.medication_reference import MedicationReference
+from app.models.examination_reference import ExaminationReference
+from app.models.vaccine_reference import VaccineReference
 
 router = APIRouter(prefix="/api", tags=["references"])
 
@@ -72,5 +76,29 @@ def get_medication_refs(
             dc_nom=r.dc_nom,
             forme_galenique=r.forme_galenique,
         )
+        for r in refs
+    ]
+
+
+@router.get("/examination-references", response_model=list[ExaminationRefResp])
+def get_examination_refs(
+    session: Session = Depends(get_session),
+    _current_user: CurrentUser = Depends(verify_jwt),
+):
+    refs = session.exec(select(ExaminationReference).order_by(ExaminationReference.libelle)).all()
+    return [
+        ExaminationRefResp(id=str(r.id), code=r.code, libelle=r.libelle, nature=r.nature)
+        for r in refs
+    ]
+
+
+@router.get("/vaccine-references", response_model=list[VaccineRefResp])
+def get_vaccine_refs(
+    session: Session = Depends(get_session),
+    _current_user: CurrentUser = Depends(verify_jwt),
+):
+    refs = session.exec(select(VaccineReference).order_by(VaccineReference.libelle)).all()
+    return [
+        VaccineRefResp(id=str(r.id), code_cvx=r.code_cvx, libelle=r.libelle)
         for r in refs
     ]

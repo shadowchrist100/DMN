@@ -79,12 +79,6 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Raisons</label>
-          <textarea [ngModel]="state().raisons" (ngModelChange)="updateState('raisons', $event)" rows="2" placeholder="Raisons de la consultation..."
-            class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 focus:border-[#002B5C] outline-none resize-none"></textarea>
-        </div>
-
-        <div>
           <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Observations</label>
           <textarea [ngModel]="state().observations" (ngModelChange)="updateState('observations', $event)" rows="3" placeholder="Observations cliniques..."
             class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#002B5C]/20 focus:border-[#002B5C] outline-none resize-none"></textarea>
@@ -297,15 +291,12 @@
 
           <div class="flex items-end gap-2">
             <div class="flex-1">
-              <input [ngModel]="newExamenLibelle()" (ngModelChange)="newExamenLibelle.set($event)" placeholder="Libellé de l'examen"
-                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
-            </div>
-            <div>
-              <select [ngModel]="newExamenNature()" (ngModelChange)="newExamenNature.set($event)"
-                class="border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none bg-white">
-                <option value="LABORATOIRE">Laboratoire</option>
-                <option value="radiographie">Radiographie</option>
-                <option value="ANALYSE">Analyse</option>
+              <select [ngModel]="newExamenRefId()" (ngModelChange)="newExamenRefId.set($event)"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                <option value="">Sélectionner un examen...</option>
+                @for (ref of examinationRefs(); track ref.id) {
+                <option [value]="ref.id">{{ ref.libelle }}</option>
+                }
               </select>
             </div>
             <button (click)="addExamen()"
@@ -335,8 +326,15 @@
           }
 
           <div class="flex items-end gap-2">
-            <input [ngModel]="newVaccinLibelle()" (ngModelChange)="newVaccinLibelle.set($event)" placeholder="Nom du vaccin"
-              class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+            <div class="flex-1">
+              <select [ngModel]="newVaccinRefId()" (ngModelChange)="newVaccinRefId.set($event)"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none bg-white">
+                <option value="">Sélectionner un vaccin...</option>
+                @for (ref of vaccineRefs(); track ref.id) {
+                <option [value]="ref.id">{{ ref.libelle }}</option>
+                }
+              </select>
+            </div>
             <button (click)="addVaccin()"
               class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition-colors cursor-pointer">
               Ajouter
@@ -408,10 +406,10 @@
             <span class="font-semibold">{{ state().dureeMinutes }} min</span>
           </div>
           }
-          @if (state().raisons) {
+          @if (state().observations) {
           <div>
-            <p class="text-xs text-slate-500 mb-1">Raisons</p>
-            <p class="text-sm bg-white rounded-lg p-3 border border-slate-100">{{ state().raisons }}</p>
+            <p class="text-xs text-slate-500 mb-1">Observations</p>
+            <p class="text-sm bg-white rounded-lg p-3 border border-slate-100">{{ state().observations }}</p>
           </div>
           }
         </div>

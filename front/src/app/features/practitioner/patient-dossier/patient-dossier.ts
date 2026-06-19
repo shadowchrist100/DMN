@@ -5,18 +5,19 @@ import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../core/auth/auth.store';
 import { AuthService } from '../../../core/auth/auth-service';
 import { MedicalPractitionerService, PatientProfileDTO } from '../services/medical-practitioner.service';
+import { UserDetailResponse } from '../../../core/auth/auth-service';
 import { Historiques } from './historiques/historiques';
 import { Examens } from './examens/examens';
-import { Traitements } from './traitements/traitements';
 import { Pathologies } from './pathologies/pathologies';
 import { Vaccins } from './vaccins/vaccins';
-import { Documents } from './documents/documents';
+import { Prescriptions } from './prescriptions/prescriptions';
+import { NouvelActeMedical } from './nouvel-acte-medical/nouvel-acte-medical';
 
-export type TabId = 'overview' | 'historiques' | 'analyses' | 'traitements' | 'pathologies' | 'vaccins' | 'documents';
+export type TabId = 'overview' | 'historiques' | 'analyses' | 'prescriptions' | 'pathologies' | 'vaccins';
 
 @Component({
     selector: 'app-patient-dossier',
-    imports: [CommonModule, Historiques, Examens, Traitements, Pathologies, Vaccins, Documents],
+    imports: [CommonModule, Historiques, Examens, Pathologies, Vaccins, Prescriptions, NouvelActeMedical],
     templateUrl: './patient-dossier.html',
     styleUrl: './patient-dossier.css',
 })
@@ -30,6 +31,7 @@ export class PatientDossier {
     showNewActe = signal(false);
     patientNpi = signal('');
     patientProfile = signal<PatientProfileDTO | null>(null);
+    patientPhoto = signal<string | null>(null);
     loadingProfile = signal(false);
     now = new Date();
     consentDateDebut = '15/10/' + (this.now.getFullYear() - 1);
@@ -55,8 +57,14 @@ export class PatientDossier {
     private async loadProfile(npi: string) {
         this.loadingProfile.set(true);
         try {
-            const profile = await firstValueFrom(this.medicalPrac.getPatientProfile(npi));
+            const [profile, authUser] = await Promise.all([
+                firstValueFrom(this.medicalPrac.getPatientProfile(npi)),
+                this.authService.getUser(npi).catch(() => null),
+            ]);
             this.patientProfile.set(profile);
+            if (authUser) {
+                this.patientPhoto.set(authUser.photo_url);
+            }
         } catch (e) {
             console.error('Failed to load patient profile', e);
         } finally {
@@ -68,10 +76,9 @@ export class PatientDossier {
         { id: 'overview', label: "Vue d'ensemble", icon: 'timeline' },
         { id: 'historiques', label: 'Historiques', icon: 'stethoscope' },
         { id: 'analyses', label: 'Analyses', icon: 'biotech' },
-        { id: 'traitements', label: 'Traitements', icon: 'medication' },
+        { id: 'prescriptions', label: 'Prescriptions', icon: 'description' },
         { id: 'pathologies', label: 'Pathologies', icon: 'medical_information' },
         { id: 'vaccins', label: 'Vaccins', icon: 'vaccines' },
-        { id: 'documents', label: 'Documents', icon: 'description' },
     ];
 
     selectTab(tabId: TabId): void {

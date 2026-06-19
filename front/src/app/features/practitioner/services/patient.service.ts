@@ -3,10 +3,26 @@ import { firstValueFrom } from 'rxjs';
 import { FollowedPatient } from '../dashboard/dashboard.model';
 import { Patient } from '../dashboard/widget/patients/patient.model';
 import { MedicalPractitionerService } from './medical-practitioner.service';
+import { AuthService } from '../../../core/auth/auth-service';
 
 @Injectable({ providedIn: 'root' })
 export class PatientService {
   private medicalPrac = inject(MedicalPractitionerService);
+  private auth = inject(AuthService);
+
+  private async enrichWithPhoto<T extends { npi: string; photoUrl?: string }>(patients: T[]): Promise<T[]> {
+    const enriched = await Promise.all(
+      patients.map(async (p) => {
+        try {
+          const resp = await this.auth.getUser(p.npi);
+          return { ...p, photoUrl: resp.photo_url || undefined };
+        } catch {
+          return p;
+        }
+      })
+    );
+    return enriched;
+  }
 
   searchPatients(query: string): Promise<Patient[]> {
     if (!query || query.trim().length < 2) return Promise.resolve([]);
@@ -48,8 +64,8 @@ export class PatientService {
     );
   }
 
-  getPatientsList(practitionerUserId: string): Promise<Patient[]> {
-    return firstValueFrom(this.medicalPrac.getPractitionerPatientsList(practitionerUserId)).then(
+  async getPatientsList(practitionerUserId: string): Promise<Patient[]> {
+    const patients = await firstValueFrom(this.medicalPrac.getPractitionerPatientsList(practitionerUserId)).then(
       dtos => dtos.map(dto => ({
         npi: dto.npi,
         name: dto.name,
@@ -70,5 +86,6 @@ export class PatientService {
         activePrescriptions: dto.active_prescriptions,
       }))
     );
+    return this.enrichWithPhoto(patients);
   }
 }

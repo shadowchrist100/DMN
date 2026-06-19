@@ -142,6 +142,7 @@ class PractitionerRepository:
         if role_ids:
             acts = session.exec(
                 select(MedicalAct, Consultation)
+                .select_from(MedicalAct)
                 .outerjoin(Consultation, Consultation.id == MedicalAct.id)
                 .where(MedicalAct.practitioner_role_id.in_(role_ids))
                 .where(MedicalAct.type_acte == TypeActe.CONSULTATION)
@@ -484,24 +485,18 @@ class PractitionerRepository:
         if not dmn:
             return None
 
-        # 1. Créer le MedicalAct (Consultation)
-        act = MedicalAct(
+        # 1. Créer la Consultation (hérite de MedicalAct — SQLAlchemy gère les deux tables)
+        act = Consultation(
             dmn_id=dmn.id,
             practitioner_role_id=role.id,
             type_acte="Consultation",
             raisons=raisons,
             observations_text=observations_text,
-        )
-        session.add(act)
-        session.flush()
-
-        # 2. Créer la Consultation
-        consult = Consultation(
-            id=act.id,
             duree_minutes=duree_minutes,
             motif=motif,
         )
-        session.add(consult)
+        session.add(act)
+        session.flush()
 
         # 3. Constantes vitales
         for vc in vital_constants:

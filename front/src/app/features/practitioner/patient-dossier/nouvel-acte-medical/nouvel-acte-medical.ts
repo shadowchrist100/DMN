@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MedicalPractitionerService } from '../../services/medical-practitioner.service';
 import { AuthStore } from '../../../../core/auth/auth.store';
 import type {
-  VitalConstantRefDTO, DiagnosisRefDTO, MedicationRefDTO,
+  VitalConstantRefDTO, DiagnosisRefDTO, MedicationRefDTO, ExaminationRefDTO, VaccineRefDTO,
   VitalConstantEntry, DiagnosisEntry, MedicationPrescriptionEntry,
   ExamenPrescriptionEntry, VaccinePrescriptionEntry, CareInstructionEntry,
 } from '../../services/medical-practitioner.service';
@@ -12,7 +12,6 @@ import type {
 export interface MedicalActState {
   typeActe: string;
   motif: string;
-  raisons: string;
   observations: string;
   dureeMinutes: number | null;
   vitalConstants: VitalConstantEntry[];
@@ -60,7 +59,6 @@ export class NouvelActeMedical {
   state = signal<MedicalActState>({
     typeActe: 'Consultation',
     motif: '',
-    raisons: '',
     observations: '',
     dureeMinutes: null,
     vitalConstants: [],
@@ -77,6 +75,8 @@ export class NouvelActeMedical {
   diagnosisSearchQuery = signal('');
   medicationRefs = signal<MedicationRefDTO[]>([]);
   medicationSearchQuery = signal('');
+  examinationRefs = signal<ExaminationRefDTO[]>([]);
+  vaccineRefs = signal<VaccineRefDTO[]>([]);
 
   // Constantes vitales temporaires
   newVitalConstantCode = signal('');
@@ -126,6 +126,8 @@ export class NouvelActeMedical {
   ngOnInit() {
     this.service.getVitalConstantRefs().subscribe(refs => this.vitalConstantRefs.set(refs));
     this.service.getDiagnosisRefs().subscribe(refs => this.diagnosisRefs.set(refs));
+    this.service.getExaminationRefs().subscribe(refs => this.examinationRefs.set(refs));
+    this.service.getVaccineRefs().subscribe(refs => this.vaccineRefs.set(refs));
   }
 
   updateState(key: keyof MedicalActState, value: any) {
@@ -252,20 +254,30 @@ export class NouvelActeMedical {
 
   // ── Examens prescrits ──────────────────────────────────────────────────
 
-  newExamenLibelle = signal('');
-  newExamenNature = signal('LABORATOIRE');
+  newExamenRefId = signal('');
+
+  get selectedExamenLibelle(): string {
+    const ref = this.examinationRefs().find(r => r.id === this.newExamenRefId());
+    return ref ? ref.libelle : '';
+  }
+
+  get selectedExamenNature(): string {
+    const ref = this.examinationRefs().find(r => r.id === this.newExamenRefId());
+    return ref ? ref.nature : 'LABORATOIRE';
+  }
 
   addExamen() {
-    if (!this.newExamenLibelle()) return;
+    if (!this.newExamenRefId()) return;
+    const ref = this.examinationRefs().find(r => r.id === this.newExamenRefId());
+    if (!ref) return;
     this.state.update(s => ({
       ...s,
       examens: [...s.examens, {
-        libelle: this.newExamenLibelle(),
-        nature_examination: this.newExamenNature(),
+        libelle: ref.libelle,
+        nature_examination: ref.nature,
       }],
     }));
-    this.newExamenLibelle.set('');
-    this.newExamenNature.set('LABORATOIRE');
+    this.newExamenRefId.set('');
   }
 
   removeExamen(index: number) {
@@ -277,15 +289,22 @@ export class NouvelActeMedical {
 
   // ── Vaccins ────────────────────────────────────────────────────────────
 
-  newVaccinLibelle = signal('');
+  newVaccinRefId = signal('');
+
+  get selectedVaccinLibelle(): string {
+    const ref = this.vaccineRefs().find(r => r.id === this.newVaccinRefId());
+    return ref ? ref.libelle : '';
+  }
 
   addVaccin() {
-    if (!this.newVaccinLibelle()) return;
+    if (!this.newVaccinRefId()) return;
+    const ref = this.vaccineRefs().find(r => r.id === this.newVaccinRefId());
+    if (!ref) return;
     this.state.update(s => ({
       ...s,
-      vaccines: [...s.vaccines, { libelle: this.newVaccinLibelle() }],
+      vaccines: [...s.vaccines, { libelle: ref.libelle }],
     }));
-    this.newVaccinLibelle.set('');
+    this.newVaccinRefId.set('');
   }
 
   removeVaccin(index: number) {
@@ -332,7 +351,6 @@ export class NouvelActeMedical {
     const body = {
       type_acte: s.typeActe,
       motif: s.motif || undefined,
-      raisons: s.raisons || undefined,
       observations_text: s.observations || undefined,
       duree_minutes: s.dureeMinutes || undefined,
       vital_constants: s.vitalConstants,

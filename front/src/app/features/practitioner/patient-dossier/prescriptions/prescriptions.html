@@ -1,0 +1,85 @@
+<section class="bg-white border border-slate-200 rounded-2xl overflow-hidden clinical-shadow">
+
+    <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-white">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#1E40AF]">description</span>
+                    Prescriptions
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">
+                    <span class="font-semibold text-[#1E40AF]">{{ nbTotal() }} prescription(s)</span> •
+                    <span class="text-green-700">{{ nbActives() }} active(s)</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-5 border-b border-slate-100 bg-slate-50/30">
+        <div class="bg-white p-4 rounded-xl border border-slate-100">
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbTotal() }}</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Total</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-100">
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbExamens() }}</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Examens</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-100">
+            <p class="text-2xl font-black text-[#002B5C]">{{ nbMedicaments() }}</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Médicaments</p>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <div class="p-12 text-center text-slate-400">Chargement...</div>
+    } @else if (error()) {
+    <div class="p-12 text-center text-red-500">{{ error() }}</div>
+    } @else if (!prescriptions().length) {
+    <div class="p-12 text-center text-slate-400">Aucune prescription</div>
+    } @else {
+    <div class="p-6 space-y-3">
+        @for (p of prescriptions(); track p.id) {
+        <div class="flex items-start gap-4 p-4 bg-white rounded-xl border border-slate-100 hover:shadow-md transition-shadow"
+             [class.border-blue-200]="p.type === 'examen'"
+             [class.border-green-200]="p.type === 'medicament'"
+             [class.border-amber-200]="p.type === 'vaccin'">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                 [class.bg-blue-100]="p.type === 'examen'"
+                 [class.bg-green-100]="p.type === 'medicament'"
+                 [class.bg-amber-100]="p.type === 'vaccin'">
+                <span class="material-symbols-outlined text-sm"
+                      [class.text-blue-600]="p.type === 'examen'"
+                      [class.text-green-600]="p.type === 'medicament'"
+                      [class.text-amber-600]="p.type === 'vaccin'">
+                    @if (p.type === 'examen') {biotech}
+                    @if (p.type === 'medicament') {medication}
+                    @if (p.type === 'vaccin') {vaccines}
+                </span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <p class="font-bold text-sm text-slate-900">{{ p.libelle }}</p>
+                    @if (p.statut === 'active') {
+                    <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+                    } @else {
+                    <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded">{{ p.statut }}</span>
+                    }
+                </div>
+                <p class="text-xs text-slate-500">
+                    {{ p.datePrescription | date:'dd/MM/yyyy' }}
+                    @if (p.prescripteur) { • {{ p.prescripteur }} }
+                    @if (p.specialite) { ({{ p.specialite }}) }
+                </p>
+                @if (p.instructions) {
+                <p class="text-xs text-slate-600 mt-1 italic">{{ p.instructions }}</p>
+                }
+                @if (p.details) {
+                <p class="text-[10px] text-slate-400 mt-1 font-mono">{{ p.details }}</p>
+                }
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+</section>
