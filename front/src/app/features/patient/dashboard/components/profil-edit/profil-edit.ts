@@ -44,7 +44,7 @@ export class ProfilEdit implements OnInit {
             this.npi = identity.npi?.toString() || '';
         }
 
-        const userId = AuthStore.user()?.identity?.npi?.toString();
+        const userId = AuthStore.userId();
         if (userId) {
             this.medicalService.getProfile(userId).subscribe({
                 next: (profile) => {
@@ -56,7 +56,7 @@ export class ProfilEdit implements OnInit {
     }
 
     onSave(): void {
-        const userId = AuthStore.user()?.identity?.npi?.toString();
+        const userId = AuthStore.userId();
         if (!userId) return;
 
         this.saving.set(true);

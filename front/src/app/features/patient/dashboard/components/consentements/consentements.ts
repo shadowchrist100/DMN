@@ -102,7 +102,7 @@ export class Consentements implements OnInit {
     }
 
     private loadData(): void {
-        const userId = AuthStore.user()?.identity?.npi?.toString();
+        const userId = AuthStore.userId();
         if (!userId) {
             this.loading.set(false);
             return;
@@ -160,7 +160,7 @@ export class Consentements implements OnInit {
             this.respondSuccess.set('Accès accordé avec succès');
             this.pendingRequests.update(list => list.filter(r => r.id !== request.id));
             this.acceptFormRequest.set(null);
-            const userId = AuthStore.user()?.identity?.npi?.toString();
+            const userId = AuthStore.userId();
             if (userId) {
                 this.medicalService.getAuthorizations(userId).subscribe(data => this.authorizations.set(data));
             }

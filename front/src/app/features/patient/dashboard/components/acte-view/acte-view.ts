@@ -17,7 +17,7 @@ export class ActeView implements OnInit {
     consultations = signal<ConsultationDTO[]>([]);
 
     get userId(): string | undefined {
-        return this.authStore.user()?.identity?.npi?.toString();
+        return AuthStore.userId();
     }
 
     ngOnInit(): void {

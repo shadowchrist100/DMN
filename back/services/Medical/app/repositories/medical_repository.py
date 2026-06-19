@@ -288,7 +288,7 @@ class MedicalRepository:
                 "examens_count": 0,
                 "prescriptions_count": 0,
                 "allergies_count": 0,
-                "authorizations_count": 0,
+                "consentements_count": 0,
                 "pathologies_count": 0,
                 "consultations_count": 0,
                 "vaccinations_count": 0,

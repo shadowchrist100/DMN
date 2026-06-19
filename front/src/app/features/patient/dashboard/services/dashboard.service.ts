@@ -93,7 +93,7 @@ export class DashboardService {
     readonly pendingRequests = signal<PendingAccessRequestDTO[]>([]);
 
     private get userId(): string | undefined {
-        return AuthStore.user()?.identity?.npi?.toString() || undefined;
+        return AuthStore.userId() || undefined;
     }
 
     loadSummary(): Observable<DashboardSummaryDTO> {

@@ -20,14 +20,29 @@ from app.schemas.medical import (
 )
 from app.services.patient_service import PatientService
 from app.repositories.medical_repository import MedicalRepository
+from app.repositories.patient_repository import PatientRepository
 from app.repositories.relative_repository import RelativeRepository
 from app.models.authorization import Authorization
 from app.models.practitioner import Practitioner
+from app.models.patient import Patient
 from app.models.patient import Patient
 from app.models.patient_relative import PatientRelative
 from app.exceptions import not_found
 
 router = APIRouter(prefix="/api", tags=["patient"])
+
+
+def _ensure_patient(session: Session, user_id: str, current_user: CurrentUser) -> Patient:
+    """Retourne le patient ou le crée si l'utilisateur est le propriétaire."""
+    patient = MedicalRepository.get_patient_by_user_id(session, user_id)
+    if not patient:
+        if user_id == current_user.id or user_id == current_user.npi or current_user.role in ("admin", "admin_medical"):
+            patient = PatientRepository.create(session, user_id)
+            session.commit()
+            session.refresh(patient)
+        else:
+            not_found("Patient introuvable")
+    return patient
 
 
 @router.post("/patients", status_code=201, response_model=PatientResp)
@@ -65,10 +80,7 @@ def get_patient_profile(
     current_user: CurrentUser = Depends(verify_jwt),
 ):
     check_patient_access(user_id, current_user, session)
-    patient = MedicalRepository.get_patient_by_user_id(session, user_id)
-    if not patient:
-        not_found("Patient introuvable")
-
+    patient = _ensure_patient(session, user_id, current_user)
     dmn = MedicalRepository.get_dmn_by_patient_id(session, patient.id)
 
     return PatientProfileResp(
@@ -416,10 +428,7 @@ def get_patient_dashboard_summary(
     current_user: CurrentUser = Depends(verify_jwt),
 ):
     check_patient_access(user_id, current_user, session)
-    patient = MedicalRepository.get_patient_by_user_id(session, user_id)
-    if not patient:
-        not_found("Patient introuvable")
-
+    patient = _ensure_patient(session, user_id, current_user)
     dmn = MedicalRepository.get_dmn_by_patient_id(session, patient.id)
 
     profile = PatientProfileResp(

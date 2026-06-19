@@ -23,6 +23,8 @@ Route::middleware('auth:api')->group(function () {
 
 Route::post('/refresh', [AuthController::class, 'refresh']);
 
+Route::get('/photos/{filename}', [AuthController::class, 'showPhoto']);
+
 Route::middleware(['auth:api', 'check.admin'])->group(function () {
     Route::post('/admin/create', [AdminController::class, 'createAdmin']);
 });

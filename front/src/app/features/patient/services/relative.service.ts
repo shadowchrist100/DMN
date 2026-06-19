@@ -9,7 +9,7 @@ export class RelativeService {
     private medical = inject(MedicalService);
 
     private get userId(): string {
-        const uid = AuthStore.user()?.identity?.npi?.toString();
+        const uid = AuthStore.userId();
         if (!uid) throw new Error('Utilisateur non authentifié');
         return uid;
     }

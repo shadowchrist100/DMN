@@ -14,7 +14,7 @@ export class TimelineService {
     private medicalService = inject(MedicalService);
 
     private get userId(): string | undefined {
-        return AuthStore.user()?.identity?.npi?.toString();
+        return AuthStore.userId();
     }
 
     /**

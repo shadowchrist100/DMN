@@ -343,8 +343,7 @@ export class NouvelActeMedical {
       care_instructions: s.careInstructions,
     };
 
-    const identity = this.auth.user()?.identity;
-    const userId = identity?.npi?.toString();
+    const userId = this.auth.userId();
     if (!userId) {
       this.error.set('Utilisateur non identifié');
       this.saving.set(false);

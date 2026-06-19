@@ -23,7 +23,7 @@ export class PrescriptionService {
     private medical = inject(MedicalService);
 
     private get userId(): string | undefined {
-        return AuthStore.user()?.identity?.npi?.toString();
+        return AuthStore.userId();
     }
 
     getPrescriptions(userId?: string): Observable<Prescription[]> {

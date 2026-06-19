@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -257,6 +257,22 @@ class AuthController extends Controller
         $user->sendEmailVerificationNotification();
 
         return response()->json(['message' => 'Email de vérification renvoyé.']);
+    }
+
+    public function showPhoto(string $filename)
+    {
+        $path = 'photos/' . basename($filename);
+
+        foreach (['public', 'local'] as $disk) {
+            if (Storage::disk($disk)->exists($path)) {
+                return response()->file(
+                    Storage::disk($disk)->path($path),
+                    ['Content-Type' => Storage::disk($disk)->mimeType($path)]
+                );
+            }
+        }
+
+        return response()->json(['message' => 'Photo introuvable.'], 404);
     }
 
     private function jsonWithCookie(array $data, string $token, int $status = 200): JsonResponse

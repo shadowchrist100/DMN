@@ -24,9 +24,21 @@ from app.models.medical_act import MedicalAct
 from app.models.dmn import DMN
 from app.models.patient import Patient
 from app.exceptions import not_found, bad_request, forbidden
-from app.types.enums import StatutVerification
+from app.types.enums import Speciality, StatutVerification
 
 router = APIRouter(prefix="/api", tags=["practitioner"])
+
+
+def _ensure_practitioner(session: Session, user_id: str, current_user: CurrentUser) -> Practitioner:
+    practitioner = PractitionerRepository.get_by_user_id_or_npi(session, user_id, current_user.npi)
+    if not practitioner:
+        if user_id == current_user.id or user_id == current_user.npi or current_user.role in ("admin", "admin_medical"):
+            practitioner = PractitionerRepository.create(session, user_id, Speciality.MEDECIN)
+            session.commit()
+            session.refresh(practitioner)
+        else:
+            not_found("Praticien introuvable")
+    return practitioner
 
 
 @router.post("/practitioners", status_code=201, response_model=PractitionerResp)
@@ -97,12 +109,7 @@ def add_practitioner_role(
     current_user: CurrentUser = Depends(verify_jwt),
 ):
     check_owner(user_id, current_user)
-    practitioner = session.exec(
-        select(Practitioner).where(Practitioner.user_id == user_id)
-    ).first()
-    if not practitioner:
-        not_found("Praticien introuvable")
-
+    practitioner = _ensure_practitioner(session, user_id, current_user)
     org = session.exec(
         select(HealthcareSystem).where(HealthcareSystem.id == body.organization_id)
     ).first()
@@ -301,9 +308,7 @@ def create_access_request(
     current_user: CurrentUser = Depends(verify_jwt),
 ):
     check_owner(user_id, current_user)
-    practitioner = PractitionerRepository.get_by_user_id_or_npi(
-        session, user_id, current_user.npi
-    )
+    practitioner = _ensure_practitioner(session, user_id, current_user)
     result = PractitionerRepository.create_access_request(
         session,
         practitioner=practitioner,

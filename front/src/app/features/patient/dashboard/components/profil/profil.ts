@@ -56,7 +56,7 @@ export class Profil implements OnInit {
     }
 
     ngOnInit(): void {
-        const userId = this.authStore.user()?.identity?.npi?.toString();
+        const userId = AuthStore.userId();
         if (userId) {
             this.medicalService.getProfile(userId).subscribe({
                 next: (profile) => this.medicalProfile.set(profile),
