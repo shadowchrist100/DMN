@@ -5,6 +5,8 @@ from app.models.practitioner import Practitioner
 from app.models.practitioner_role import PractitionerRole
 from app.models.medical_act import MedicalAct
 from app.models.consultation import Consultation
+from app.models.examination_act import ExaminationAct
+from app.models.vaccination import Vaccination
 from app.models.prescription_examen import PrescriptionExamen
 from app.models.prescription_order import PrescriptionOrder
 from app.models.prescription_directive import PrescriptionDirective
@@ -445,21 +447,34 @@ class PractitionerRepository:
         }
 
     @classmethod
+    def _build_act(cls, type_acte: str, /, **kwargs):
+        if type_acte == "Consultation":
+            return Consultation(**kwargs)
+        elif type_acte == "Examen":
+            return ExaminationAct(**kwargs)
+        elif type_acte == "VACCINATION":
+            return Vaccination(**kwargs)
+        else:
+            return MedicalAct(**kwargs)
+
+    @classmethod
     def create_medical_act(
         cls,
         session: Session,
         practitioner_user_id: str,
         patient_user_id: str,
-        motif: str | None,
-        raisons: str | None,
-        observations_text: str | None,
-        duree_minutes: int | None,
-        vital_constants: list[dict],
-        diagnoses: list[dict],
-        medications: list[dict],
-        examens: list[dict],
-        vaccines: list[dict],
-        care_instructions: list[dict],
+        type_acte: str = "Consultation",
+        motif: str | None = None,
+        raisons: str | None = None,
+        observations_text: str | None = None,
+        duree_minutes: int | None = None,
+        prescription_examen_id: str | None = None,
+        vital_constants: list[dict] | None = None,
+        diagnoses: list[dict] | None = None,
+        medications: list[dict] | None = None,
+        examens: list[dict] | None = None,
+        vaccines: list[dict] | None = None,
+        care_instructions: list[dict] | None = None,
     ) -> UUID | None:
         practitioner = cls.get_by_user_id(session, practitioner_user_id)
         if not practitioner:
@@ -485,37 +500,67 @@ class PractitionerRepository:
         if not dmn:
             return None
 
-        # 1. Créer la Consultation (hérite de MedicalAct — SQLAlchemy gère les deux tables)
-        act = Consultation(
+        # 1. Créer l'acte selon son type
+        base_kwargs = dict(
             dmn_id=dmn.id,
             practitioner_role_id=role.id,
-            type_acte="Consultation",
+            type_acte=type_acte,
             raisons=raisons,
             observations_text=observations_text,
-            duree_minutes=duree_minutes,
-            motif=motif,
         )
+
+        if type_acte == "Consultation":
+            act = Consultation(
+                **base_kwargs,
+                duree_minutes=duree_minutes,
+                motif=motif,
+            )
+        elif type_acte == "Examen":
+            ex = (examens or [{}])[0]
+            act = ExaminationAct(
+                **base_kwargs,
+                code_loinc=ex.get("code_loinc", ""),
+                libelle_examen=ex.get("libelle", ""),
+                type_examen=ex.get("nature_examination", "LABORATOIRE"),
+                value="",
+                interpretation="",
+                prescription_examen_id=UUID(prescription_examen_id) if prescription_examen_id else None,
+            )
+        elif type_acte == "VACCINATION":
+            vac = (vaccines or [{}])[0]
+            act = Vaccination(
+                **base_kwargs,
+                injection_site=None,
+                sequence_dose=None,
+                batch_number=None,
+                next_reminder=None,
+                note=vac.get("libelle"),
+            )
+        else:
+            act = MedicalAct(**base_kwargs)
+
         session.add(act)
         session.flush()
 
-        # 3. Constantes vitales
-        for vc in vital_constants:
-            v = VitalConstant(
-                medical_act_id=act.id,
-                vital_constant_reference_code=vc["code"],
-                valeur=vc["valeur"],
-                date_mesure=datetime.now(),
-            )
-            session.add(v)
+        # 3. Constantes vitales (Consultation seulement)
+        if type_acte == "Consultation":
+            for vc in (vital_constants or []):
+                v = VitalConstant(
+                    medical_act_id=act.id,
+                    vital_constant_reference_code=vc["code"],
+                    valeur=vc["valeur"],
+                    date_mesure=datetime.now(),
+                )
+                session.add(v)
 
-        # 4. PrescriptionOrder + diagnostics
-        if diagnoses or medications or examens or vaccines or care_instructions:
+        # 4. Prescriptions (Consultation seulement)
+        if type_acte == "Consultation" and (diagnoses or medications or examens or vaccines or care_instructions):
             po = PrescriptionOrder(medical_act_id=act.id, statut="active")
             session.add(po)
             session.flush()
 
             # 4a. Diagnostics
-            for diag in diagnoses:
+            for diag in (diagnoses or []):
                 ref = session.get(DiagnosisReference, UUID(diag["diagnosis_ref_id"]))
                 d = Diagnosis(
                     statut_verification=diag.get("statut_verification", "confirmed"),
@@ -523,12 +568,12 @@ class PractitionerRepository:
                     note_clinique=diag.get("note_clinique"),
                     medical_act_id=act.id,
                     diagnosis_ref_id=UUID(diag["diagnosis_ref_id"]) if ref else None,
-                    type_diagnosis="disease",
+                    type_diagnosis="standard",
                 )
                 session.add(d)
 
             # 4b. Prescriptions médicaments
-            for med in medications:
+            for med in (medications or []):
                 md = MedicationDirective(
                     description_generale=med.get("description_generale", ""),
                     prescription_order_id=po.id,
@@ -540,7 +585,7 @@ class PractitionerRepository:
                 session.add(md)
 
             # 4c. Prescriptions examens
-            for ex in examens:
+            for ex in (examens or []):
                 e = Examination(
                     date_prescription=datetime.now(),
                     statut="En cours",
@@ -554,7 +599,7 @@ class PractitionerRepository:
                 session.add(e)
 
             # 4d. Prescriptions vaccins
-            for vac in vaccines:
+            for vac in (vaccines or []):
                 v = Vaccine(
                     date_prescription=datetime.now(),
                     statut="En cours",
@@ -567,7 +612,7 @@ class PractitionerRepository:
                 session.add(v)
 
             # 4e. Instructions de soins
-            for ci in care_instructions:
+            for ci in (care_instructions or []):
                 s = PrescriptionDeSoins(
                     description_generale=ci.get("description_generale", ""),
                     prescription_order_id=po.id,

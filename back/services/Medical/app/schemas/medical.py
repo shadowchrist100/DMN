@@ -353,6 +353,7 @@ class CreateMedicalActReq(BaseModel):
     raisons: Optional[str] = None
     observations_text: Optional[str] = None
     duree_minutes: Optional[int] = None
+    prescription_examen_id: Optional[str] = None
 
     vital_constants: list[VitalConstantEntry] = []
 

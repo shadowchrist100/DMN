@@ -26,6 +26,11 @@ from app.models.authorization import Authorization
 from app.models.practitioner import Practitioner
 from app.models.patient import Patient
 from app.models.patient_relative import PatientRelative
+from app.models.dmn import DMN
+from app.models.medical_act import MedicalAct
+from app.models.prescription_examen import PrescriptionExamen
+from app.models.examination import Examination
+from app.models.vaccine import Vaccine
 from app.exceptions import not_found
 
 router = APIRouter(prefix="/api", tags=["patient"])
@@ -299,6 +304,60 @@ def get_patient_vaccinations(
             note=v.get("note"),
             raisons=v.get("raisons"),
             rapport_text=v.get("rapport_text"),
+        ))
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  PRESCRIPTIONS ACTIVES (examens / vaccins)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@router.get("/patients/by-user/{user_id}/active-prescriptions",
+            response_model=list[PrescriptionResp])
+def get_active_prescriptions(
+    user_id: str,
+    type: str = "",
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_patient_access(user_id, current_user, session)
+    dmn = session.exec(
+        select(DMN).join(Patient, Patient.id == DMN.patient_id)
+        .where(Patient.user_id == user_id)
+    ).first()
+    if not dmn:
+        not_found("Dossier médical introuvable")
+
+    query = (
+        select(PrescriptionExamen, MedicalAct, Examination, Vaccine)
+        .select_from(PrescriptionExamen)
+        .join(MedicalAct, MedicalAct.id == PrescriptionExamen.medical_act_id)
+        .outerjoin(Examination, Examination.id == PrescriptionExamen.id)
+        .outerjoin(Vaccine, Vaccine.id == PrescriptionExamen.id)
+        .where(MedicalAct.dmn_id == dmn.id)
+        .where(PrescriptionExamen.statut.in_(["En cours", "active"]))
+    )
+    if type == "examination":
+        query = query.where(PrescriptionExamen.type_prescription == "examination")
+    elif type == "vaccin":
+        query = query.where(PrescriptionExamen.type_prescription == "vaccin")
+
+    rows = session.execute(query).all()
+    result = []
+    for pe, ma, exam, vacc in rows:
+        libelle = exam.libelle if exam else (vacc.libelle if vacc else "")
+        code = exam.code_loinc if exam else (vacc.code_cvx if vacc else "")
+        result.append(PrescriptionResp(
+            uuid=str(pe.id),
+            type_prescription=pe.type_prescription,
+            libelle=libelle,
+            statut=pe.statut,
+            date_prescription=pe.date_prescription,
+            special_instructions=pe.special_instructions,
+            code_loinc=code if exam else None,
+            code_cvx=code if vacc else None,
+            nature_examination=exam.nature_examination if exam else None,
         ))
     return result
 

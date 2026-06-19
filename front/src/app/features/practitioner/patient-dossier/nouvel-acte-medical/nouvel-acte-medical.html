@@ -10,12 +10,12 @@
         <div>
           <h2 class="text-lg font-black text-[#002B5C] tracking-tight">Nouvel acte médical</h2>
           <p class="text-xs text-slate-500 mt-0.5">
-            Étape {{ currentStepIndex() + 1 }} / {{ stepOrder.length }} — {{ stepLabels[currentStep()] }}
+            Étape {{ currentStepIndex() + 1 }} / {{ currentStepOrder().length }} — {{ stepLabels[currentStep()] }}
           </p>
         </div>
       </div>
       <div class="flex items-center gap-1">
-        @for (step of stepOrder; track step; let i = $index) {
+        @for (step of currentStepOrder(); track step; let i = $index) {
           <div class="w-8 h-1 rounded-full transition-colors"
             [class.bg-[#002B5C]]="i <= currentStepIndex()"
             [class.bg-slate-200]="i > currentStepIndex()">
@@ -32,7 +32,7 @@
       <div class="max-w-xl mx-auto space-y-6">
         <p class="text-sm text-slate-600 text-center">Quel type d'acte médical souhaitez-vous enregistrer ?</p>
         <div class="grid grid-cols-2 gap-4">
-          <button (click)="state.update(s => ({...s, typeActe: 'Consultation'})); nextStep()"
+          <button (click)="selectType('Consultation')"
             class="p-6 rounded-xl border-2 text-center transition-all cursor-pointer hover:shadow-md"
             [class.border-[#002B5C]]="state().typeActe === 'Consultation'"
             [class.border-slate-200]="state().typeActe !== 'Consultation'">
@@ -40,25 +40,66 @@
             <span class="font-bold text-sm">Consultation</span>
             <p class="text-[10px] text-slate-500 mt-1">Examen clinique, diagnostic et prescription</p>
           </button>
-          <button (click)="state.update(s => ({...s, typeActe: 'Examen'})); nextStep()"
+          <button (click)="selectType('Examen')"
             class="p-6 rounded-xl border-2 border-slate-200 text-center transition-all cursor-pointer hover:shadow-md hover:border-slate-400">
             <span class="material-symbols-outlined text-4xl text-purple-600 block mb-2">biotech</span>
             <span class="font-bold text-sm">Examen</span>
             <p class="text-[10px] text-slate-500 mt-1">Analyse, imagerie ou autre examen</p>
           </button>
-          <button (click)="state.update(s => ({...s, typeActe: 'VACCINATION'})); nextStep()"
+          <button (click)="selectType('VACCINATION')"
             class="p-6 rounded-xl border-2 border-slate-200 text-center transition-all cursor-pointer hover:shadow-md hover:border-slate-400">
             <span class="material-symbols-outlined text-4xl text-green-600 block mb-2">vaccines</span>
             <span class="font-bold text-sm">Vaccination</span>
             <p class="text-[10px] text-slate-500 mt-1">Administration de vaccin</p>
           </button>
-          <button (click)="state.update(s => ({...s, typeActe: 'Autre'})); nextStep()"
+          <button (click)="selectType('Autre')"
             class="p-6 rounded-xl border-2 border-slate-200 text-center transition-all cursor-pointer hover:shadow-md hover:border-slate-400">
             <span class="material-symbols-outlined text-4xl text-slate-600 block mb-2">more_horiz</span>
             <span class="font-bold text-sm">Autre acte</span>
             <p class="text-[10px] text-slate-500 mt-1">Chirurgie, soins, etc.</p>
           </button>
         </div>
+
+        @if (state().typeActe === 'Examen' || state().typeActe === 'VACCINATION') {
+        <div class="border-t border-slate-200 pt-6">
+          <h4 class="text-sm font-bold text-slate-700 mb-3">Prescriptions en cours</h4>
+          @if (loadingPrescriptions()) {
+          <div class="flex items-center gap-2 text-sm text-slate-500">
+            <span class="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></span>
+            Chargement...
+          </div>
+          } @else if (activePrescriptions().length === 0) {
+          <p class="text-sm text-slate-400 italic">Aucune prescription active pour ce type d'acte.</p>
+          } @else {
+          <div class="space-y-2">
+            @for (p of activePrescriptions(); track p.uuid) {
+            <button (click)="selectedPrescriptionId.set(p.uuid); acteMode = 'prescription'"
+              class="w-full text-left flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer"
+              [class.border-[#002B5C]]="selectedPrescriptionId() === p.uuid"
+              [class.border-slate-200]="selectedPrescriptionId() !== p.uuid">
+              <span class="material-symbols-outlined text-sm"
+                [class.text-purple-600]="state().typeActe === 'Examen'"
+                [class.text-green-600]="state().typeActe === 'VACCINATION'">
+                {{ state().typeActe === 'Examen' ? 'biotech' : 'vaccines' }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">{{ p.libelle }}</p>
+                <p class="text-[10px] text-slate-500">Prescrit le {{ p.date_prescription | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold">{{ p.statut }}</span>
+            </button>
+            }
+          </div>
+          }
+          <div class="mt-4">
+            <button (click)="acteMode = 'new'; selectedPrescriptionId.set('')"
+              class="text-sm text-[#002B5C] font-semibold hover:underline cursor-pointer"
+              [class.opacity-50]="acteMode === 'new'">
+              + Nouvel acte (sans prescription existante)
+            </button>
+          </div>
+        </div>
+        }
       </div>
       }
 

@@ -145,6 +145,18 @@ export interface ConsentDTO {
     reason: string;
 }
 
+export interface PrescriptionResp {
+    uuid: string;
+    type_prescription: string;
+    libelle: string;
+    statut: string;
+    date_prescription: string;
+    special_instructions: string;
+    code_loinc?: string | null;
+    code_cvx?: string | null;
+    nature_examination?: string | null;
+}
+
 export interface CreateAccessRequestDTO {
     patient_user_id: string;
     reason: string;
@@ -234,6 +246,7 @@ export interface CreateMedicalActDTO {
     motif?: string;
     observations_text?: string;
     duree_minutes?: number;
+    prescription_examen_id?: string;
     vital_constants: VitalConstantEntry[];
     diagnoses: DiagnosisEntry[];
     medications: MedicationPrescriptionEntry[];
@@ -330,6 +343,15 @@ export class MedicalPractitionerService {
 
     getVaccineRefs(): Observable<VaccineRefDTO[]> {
         return this.http.get<VaccineRefDTO[]>(`${API.MEDICAL_BASE_URL}/vaccine-references`);
+    }
+
+    // ── Prescriptions actives pour un patient ────────────────────────────
+
+    getActivePrescriptions(patientUserId: string, type: string = ''): Observable<PrescriptionResp[]> {
+        const params = type ? `?type=${encodeURIComponent(type)}` : '';
+        return this.http.get<PrescriptionResp[]>(
+            `${this.patBase}/${patientUserId}/active-prescriptions${params}`,
+        );
     }
 
     // ── Création acte médical ────────────────────────────────────────────

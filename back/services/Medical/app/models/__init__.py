@@ -33,6 +33,8 @@ from .care_episode import CareEpisode
 from .vital_constant import VitalConstant
 from .vital_constant_reference import VitalConstantReference
 from .medication_reference import MedicationReference
+from .examination_reference import ExaminationReference
+from .vaccine_reference import VaccineReference
 
 __all__ = [
     "Patient",
@@ -64,4 +66,6 @@ __all__ = [
     "VitalConstant",
     "VitalConstantReference",
     "MedicationReference",
+    "ExaminationReference",
+    "VaccineReference",
 ]

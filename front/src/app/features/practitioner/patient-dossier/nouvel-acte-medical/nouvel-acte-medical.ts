@@ -7,6 +7,7 @@ import type {
   VitalConstantRefDTO, DiagnosisRefDTO, MedicationRefDTO, ExaminationRefDTO, VaccineRefDTO,
   VitalConstantEntry, DiagnosisEntry, MedicationPrescriptionEntry,
   ExamenPrescriptionEntry, VaccinePrescriptionEntry, CareInstructionEntry,
+  PrescriptionResp,
 } from '../../services/medical-practitioner.service';
 
 export interface MedicalActState {
@@ -53,7 +54,15 @@ export class NouvelActeMedical {
 
   stepOrder: WizardStep[] = ['type', 'consultation', 'diagnostics', 'prescriptions', 'review'];
 
-  currentStepIndex = computed(() => this.stepOrder.indexOf(this.currentStep()));
+  currentStepOrder = computed<WizardStep[]>(() => {
+    const type = this.state().typeActe;
+    if (type === 'Examen' || type === 'VACCINATION') {
+      return ['type', 'review'];
+    }
+    return this.stepOrder;
+  });
+
+  currentStepIndex = computed(() => this.currentStepOrder().indexOf(this.currentStep()));
 
   // Données du formulaire
   state = signal<MedicalActState>({
@@ -77,6 +86,12 @@ export class NouvelActeMedical {
   medicationSearchQuery = signal('');
   examinationRefs = signal<ExaminationRefDTO[]>([]);
   vaccineRefs = signal<VaccineRefDTO[]>([]);
+
+  // Prescriptions actives pour le type Examen/VACCINATION
+  activePrescriptions = signal<PrescriptionResp[]>([]);
+  loadingPrescriptions = signal(false);
+  selectedPrescriptionId = signal('');
+  acteMode: 'new' | 'prescription' = 'new';
 
   // Constantes vitales temporaires
   newVitalConstantCode = signal('');
@@ -141,17 +156,46 @@ export class NouvelActeMedical {
   }
 
   nextStep() {
+    const order = this.currentStepOrder();
     const idx = this.currentStepIndex();
-    if (idx < this.stepOrder.length - 1) {
-      this.currentStep.set(this.stepOrder[idx + 1]);
+    if (idx < order.length - 1) {
+      this.currentStep.set(order[idx + 1]);
     }
   }
 
   prevStep() {
+    const order = this.currentStepOrder();
     const idx = this.currentStepIndex();
     if (idx > 0) {
-      this.currentStep.set(this.stepOrder[idx - 1]);
+      this.currentStep.set(order[idx - 1]);
     }
+  }
+
+  // ── Choix du type d'acte ──────────────────────────────────────────────
+
+  selectType(typeActe: string) {
+    this.state.update(s => ({...s, typeActe}));
+    if (typeActe === 'Examen' || typeActe === 'VACCINATION') {
+      this.loadActivePrescriptions(typeActe);
+    }
+    this.nextStep();
+  }
+
+  private loadActivePrescriptions(typeActe: string) {
+    const type = typeActe === 'Examen' ? 'examination' : 'vaccin';
+    const patientUserId = this.patientUserId();
+    if (!patientUserId) return;
+    this.loadingPrescriptions.set(true);
+    this.service.getActivePrescriptions(patientUserId, type).subscribe({
+      next: (prescriptions) => {
+        this.activePrescriptions.set(prescriptions);
+        this.loadingPrescriptions.set(false);
+      },
+      error: () => {
+        this.activePrescriptions.set([]);
+        this.loadingPrescriptions.set(false);
+      },
+    });
   }
 
   // ── Constantes vitales ─────────────────────────────────────────────────
@@ -348,11 +392,12 @@ export class NouvelActeMedical {
     this.error.set('');
 
     const s = this.state();
-    const body = {
+    const body: import('../../services/medical-practitioner.service').CreateMedicalActDTO = {
       type_acte: s.typeActe,
       motif: s.motif || undefined,
       observations_text: s.observations || undefined,
       duree_minutes: s.dureeMinutes || undefined,
+      prescription_examen_id: this.selectedPrescriptionId() || undefined,
       vital_constants: s.vitalConstants,
       diagnoses: s.diagnoses,
       medications: s.medications,
