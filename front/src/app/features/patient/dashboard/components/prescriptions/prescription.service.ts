@@ -22,7 +22,7 @@ export class PrescriptionService {
 
     private medical = inject(MedicalService);
 
-    private get userId(): string | undefined {
+    private get userId(): string | null {
         return AuthStore.userId();
     }
 

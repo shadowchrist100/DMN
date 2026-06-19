@@ -13,7 +13,7 @@ export class TimelineService {
     private http = inject(HttpClient);
     private medicalService = inject(MedicalService);
 
-    private get userId(): string | undefined {
+    private get userId(): string | null {
         return AuthStore.userId();
     }
 

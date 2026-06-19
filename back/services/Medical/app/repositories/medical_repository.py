@@ -547,7 +547,7 @@ class MedicalRepository:
             result.append({
                 "id": str(auth.id),
                 "practitioner_user_id": practitioner.user_id if practitioner else "",
-                "practitioner_name": f"Dr. {practitioner.user_id[:8] if practitioner else 'Inconnu'}",
+                "practitioner_name": f"Dr. {practitioner.last_name if practitioner else 'Inconnu'}.{practitioner.first_name if practitioner else 'Inconnu'} ",
                 "practitioner_speciality": practitioner.speciality.value if practitioner and practitioner.speciality else "",
                 "reason": auth.authorization_type or "",
                 "requested_at": auth.granted_at.isoformat() if auth.granted_at else "",

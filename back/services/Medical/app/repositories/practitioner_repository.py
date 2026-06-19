@@ -31,9 +31,13 @@ class PractitionerRepository:
         speciality: Speciality,
         order_number: str | None = None,
         organization_id: str | None = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
     ) -> Practitioner:
         practitioner = Practitioner(
             user_id=user_id,
+            first_name=first_name,
+            last_name=last_name,
             speciality=speciality,
             order_number=order_number,
             organization_id=organization_id,

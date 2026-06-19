@@ -20,6 +20,8 @@ class PractitionerRegistration implements UserRegistration
     {
         return [
             'user_id'         => (string) $user->id,
+            'first_name'      => $data['first_name'] ?? $user->first_name,
+            'last_name'       => $data['last_name'] ?? $user->last_name,
             'specialty'       => $data['speciality'] ?? null,
             'order_number'    => $data['order_number'] ?? null,
             'organization_id' => $data['organization_id'] ?? null,

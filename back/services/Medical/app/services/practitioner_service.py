@@ -28,6 +28,8 @@ class PractitionerService:
         practitioner = PractitionerRepository.create(
             session,
             user_id=req.user_id,
+            first_name=req.first_name,
+            last_name=req.last_name,
             speciality=req.specialty,
             order_number=req.order_number,
             organization_id=req.organization_id,

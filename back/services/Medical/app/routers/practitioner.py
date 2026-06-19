@@ -16,6 +16,7 @@ from app.schemas.medical import (
 )
 from app.schemas.patient import PatientListResp
 from app.services.practitioner_service import PractitionerService
+from app.repositories.medical_repository import MedicalRepository
 from app.repositories.practitioner_repository import PractitionerRepository
 from app.models.practitioner import Practitioner
 from app.models.practitioner_role import PractitionerRole
@@ -33,7 +34,10 @@ def _ensure_practitioner(session: Session, user_id: str, current_user: CurrentUs
     practitioner = PractitionerRepository.get_by_user_id_or_npi(session, user_id, current_user.npi)
     if not practitioner:
         if user_id == current_user.id or user_id == current_user.npi or current_user.role in ("admin", "admin_medical"):
-            practitioner = PractitionerRepository.create(session, user_id, Speciality.MEDECIN)
+            practitioner = PractitionerRepository.create(
+                session, user_id, Speciality.MEDECIN,
+                first_name=current_user.first_name, last_name=current_user.last_name,
+            )
             session.commit()
             session.refresh(practitioner)
         else:
@@ -50,6 +54,8 @@ def create_practitioner(
     return PractitionerResp(
         id=str(practitioner.id),
         user_id=practitioner.user_id,
+        first_name=practitioner.first_name,
+        last_name=practitioner.last_name,
         speciality=practitioner.speciality.value,
         order_number=practitioner.order_number,
         organization_id=practitioner.organization_id,
@@ -309,6 +315,18 @@ def create_access_request(
 ):
     check_owner(user_id, current_user)
     practitioner = _ensure_practitioner(session, user_id, current_user)
+
+    patient = MedicalRepository.get_patient_by_user_id(session, body.patient_user_id)
+    if not patient:
+        from app.repositories.patient_repository import PatientRepository as PatRepo
+        patient = PatRepo.create(session, body.patient_user_id)
+        session.flush()
+
+    dmn = MedicalRepository.get_dmn_by_patient_id(session, patient.id)
+    if not dmn:
+        from app.services.patient_service import PatientService
+        PatientService.create_dmn(session, body.patient_user_id)
+
     result = PractitionerRepository.create_access_request(
         session,
         practitioner=practitioner,

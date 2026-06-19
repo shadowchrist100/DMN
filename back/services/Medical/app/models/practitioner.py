@@ -14,6 +14,8 @@ class Practitioner(SQLModel, table=True):
         primary_key=True,
     )
     user_id: str = Field(unique=True, index=True)
+    first_name: Optional[str] = Field(default=None)
+    last_name: Optional[str] = Field(default=None)
     speciality: Speciality
     order_number: Optional[str] = None
     organization_id: Optional[str] = None

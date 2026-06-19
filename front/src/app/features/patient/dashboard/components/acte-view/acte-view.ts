@@ -16,7 +16,7 @@ export class ActeView implements OnInit {
     loading = signal(true);
     consultations = signal<ConsultationDTO[]>([]);
 
-    get userId(): string | undefined {
+    get userId(): string | null {
         return AuthStore.userId();
     }
 
