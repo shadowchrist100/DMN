@@ -20,6 +20,7 @@ import {
 
 import { TimelineService } from '../../../services/timelines.services';
 import { ExportService } from '../../../services/export.service';
+import { AuthStore } from '../../../../../core/auth/auth.store';
 
 // ─── Interfaces internes au composant ──────────────────────────────────────
 
@@ -290,8 +291,10 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
     // ── Chargement ──────────────────────────────────────────────────────
 
     private loadPatientInfo(): void {
-        // TODO: remplacer par un appel PatientService.getById(this.patientId())
-        this.patientName.set('KOFFI Jean-Baptiste');
+        const identity = AuthStore.user()?.identity;
+        if (identity?.firstName || identity?.lastName) {
+            this.patientName.set(`${identity.lastName} ${identity.firstName}`.trim());
+        }
     }
 
     private loadTimeline(): void {

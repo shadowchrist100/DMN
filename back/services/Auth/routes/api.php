@@ -32,15 +32,15 @@ Route::middleware(['auth:api', 'check.admin'])->group(function () {
 Route::middleware(['auth:api', 'check.admin.medical'])->group(function () {
     Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser']);
     Route::get('/admin/pending-users', [AdminController::class, 'listPendingUsers']);
-    Route::get('/admin/pending-organizations', [AdminController::class, 'listPendingOrganizations']);
-    Route::post('/admin/validate-organization/{organization}', [AdminController::class, 'validateOrganization']);
-    Route::get('/admin/organizations', [AdminController::class, 'listOrganizations']);
 
     Route::get('/users/{user}/documents', [DocumentController::class, 'getUserDocuments']);
     Route::get('/documents/{document}/download', [DocumentController::class, 'download']);
 });
 
 Route::middleware(['auth:api', 'check.admin.orga'])->group(function () {
+    Route::get('/admin/organizations', [AdminController::class, 'listOrganizations']);
+    Route::get('/admin/pending-organizations', [AdminController::class, 'listPendingOrganizations']);
+    Route::post('/admin/validate-organization/{organization}', [AdminController::class, 'validateOrganization']);
     Route::get('/organizations', [OrganizationProxyController::class, 'index']);
     Route::post('/organizations', [OrganizationProxyController::class, 'store']);
     Route::get('/organizations/{organization}', [OrganizationProxyController::class, 'show']);

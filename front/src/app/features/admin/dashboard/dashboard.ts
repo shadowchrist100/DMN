@@ -39,4 +39,6 @@ export class AdminDashboard {
       this.loading.set(false);
     }
   }
+
+  currentYear = new Date().getFullYear();
 }

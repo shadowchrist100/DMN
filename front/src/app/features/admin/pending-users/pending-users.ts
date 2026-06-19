@@ -127,4 +127,6 @@ export class AdminPendingUsers {
     this.authStore.clearAuth();
     this.router.navigate(['/auth/login']);
   }
+
+  currentYear = new Date().getFullYear();
 }

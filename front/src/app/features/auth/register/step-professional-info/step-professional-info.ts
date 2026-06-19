@@ -50,7 +50,7 @@ export class StepProfessionalInfo implements OnInit {
 
     ngOnInit(): void {
         this.professionalInfoForm = this.fb.group({
-            orderNumber: ['', Validators.required],
+            orderNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
             speciality: ['', Validators.required],
             organizations: this.fb.array([]),
         }, { updateOn: 'blur' });
@@ -104,7 +104,7 @@ export class StepProfessionalInfo implements OnInit {
         const validOrgs = this.selectedOrgs().filter(o => o.role.trim().length > 0);
         if (validOrgs.length > 0) {
             this.store.setPractitionerInfo(
-                Number(this.professionalInfoForm.value.orderNumber),
+                this.professionalInfoForm.value.orderNumber,
                 this.professionalInfoForm.value.speciality,
                 validOrgs,
             );

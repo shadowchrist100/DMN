@@ -12,6 +12,7 @@ export class Allergies implements OnInit {
   private dossierService = inject(DossierService);
   loading = signal(true);
   allergies = signal<Allergie[]>([]);
+  dateVerification = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 
   allergiesActives = computed(() => this.allergies().filter(a => a.statut === 'active'));
   allergiesSeveres = computed(() => this.allergies().filter(a => a.severite === 'severe' && a.statut === 'active'));

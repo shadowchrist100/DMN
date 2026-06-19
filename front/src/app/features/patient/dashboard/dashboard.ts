@@ -254,4 +254,6 @@ export class Dashboard implements OnInit, OnDestroy {
             info: 'info',
         }[type] || 'info';
     }
+
+    currentYear = new Date().getFullYear();
 }

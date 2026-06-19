@@ -94,13 +94,13 @@
             <td class="px-6 py-4 text-slate-500">{{ org.city }}</td>
             <td class="px-6 py-4">
               <span class="text-xs font-bold px-2 py-1 rounded-full"
-                [class.bg-emerald-50]="org.status === 'active'"
-                [class.text-emerald-700]="org.status === 'active'"
-                [class.bg-amber-50]="org.status === 'En attente'"
-                [class.text-amber-700]="org.status === 'En attente'"
-                [class.bg-red-50]="org.status === 'suspended'"
-                [class.text-red-700]="org.status === 'suspended'">
-                {{ org.status }}
+                [class.bg-emerald-50]="org.verification_status === 'Validé'"
+                [class.text-emerald-700]="org.verification_status === 'Validé'"
+                [class.bg-amber-50]="org.verification_status === 'En attente'"
+                [class.text-amber-700]="org.verification_status === 'En attente'"
+                [class.bg-red-50]="org.verification_status === 'Rejeté'"
+                [class.text-red-700]="org.verification_status === 'Rejeté'">
+                {{ org.verification_status }}
               </span>
             </td>
             <td class="px-6 py-4 text-right">
@@ -127,7 +127,7 @@
   <!-- Footer -->
   <footer class="bg-white border-t border-slate-200 px-6 py-3 text-center">
     <p class="text-[10px] text-slate-400 uppercase tracking-widest">
-      © 2026 Ministère de la Santé — DMN Admin Portal
+      © {{ currentYear }} Ministère de la Santé — DMN Admin Portal
     </p>
   </footer>
 

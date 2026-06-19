@@ -101,6 +101,13 @@ export class Examens implements OnInit {
         this.examens().filter(e => this.statutValeur(e) === 'critique')
     );
 
+    derniereMaj = computed(() => {
+        const dates = this.examens().map(e => e.date_realisation).filter(Boolean);
+        if (!dates.length) return 'Aucun résultat';
+        const last = dates.reduce((a, b) => a > b ? a : b);
+        return new Date(last).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    });
+
     ngOnInit(): void {
         this.dashboardService.getExamens().subscribe(data => {
             this.examens.set(data);

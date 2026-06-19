@@ -19,4 +19,6 @@ export class NotFound {
   goBack() {
     this.location.back();
   }
+
+  currentYear = new Date().getFullYear();
 }

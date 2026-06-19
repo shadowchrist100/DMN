@@ -1,3 +1,4 @@
+from datetime import date
 from fastapi import HTTPException
 from sqlmodel import Session, select
 
@@ -40,11 +41,13 @@ def check_patient_access(user_id: str, current_user: CurrentUser, session: Sessi
         ).first()
         if not practitioner:
             raise HTTPException(status_code=403, detail="Profil praticien introuvable")
+        today = date.today()
         auth = session.exec(
             select(Authorization).where(
                 Authorization.practitioner_id == practitioner.id,
                 Authorization.dmn_id == dmn.id,
                 Authorization.is_actif == True,
+                Authorization.expire_at >= today,
             )
         ).first()
         if auth:

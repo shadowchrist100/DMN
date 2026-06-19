@@ -56,7 +56,7 @@ class AuthController extends Controller
                 'max:5120',
             ],
 
-            'order_number' => ['required_if:role,practitioner', 'string'],
+            'order_number' => ['nullable', 'required_if:role,practitioner', 'string', 'regex:/^\d{10}$/'],
             'speciality' => ['required_if:role,practitioner', 'string'],
             'organization_id' => ['required_if:role,practitioner', 'string'],
 

@@ -21,7 +21,7 @@ export interface Iuser {
         photoPath: string,
     },
     practitioner: {
-        orderNumber: number,
+        orderNumber: string,
         speciality: string;
         organizations: PractitionerOrganization[];
     } | null,

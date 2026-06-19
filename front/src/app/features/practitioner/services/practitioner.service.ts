@@ -11,9 +11,9 @@ export class PractitionerService {
   getCurrentPractitioner(userId: string): Promise<Practitioner> {
     return firstValueFrom(this.medicalPrac.getPractitionerProfile(userId)).then(dto => ({
       id: dto.id,
-      firstName: dto.speciality,
-      lastName: '',
-      name: `Dr. ${dto.speciality.charAt(0).toUpperCase() + dto.speciality.slice(1)}`,
+      firstName: dto.first_name || dto.speciality,
+      lastName: dto.last_name || '',
+      name: `Dr. ${dto.last_name || dto.speciality}`,
       specialty: dto.speciality,
       rpps: dto.order_number || '',
       avatar: '',

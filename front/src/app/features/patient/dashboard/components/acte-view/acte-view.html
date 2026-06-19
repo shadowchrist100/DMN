@@ -74,7 +74,7 @@
                         <span class="material-symbols-outlined text-secondary">monitoring</span>
                         Observations cliniques
                     </h3>
-                    <span class="text-xs font-bold text-slate-400">Dernière mise à jour : 10:45</span>
+                    <span class="text-xs font-bold text-slate-400">Dernière mise à jour : {{ derniereMaj }}</span>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -98,7 +98,7 @@
                         <div class="border-l-4 border-slate-200 pl-4 py-1">
                             <p class="text-sm font-semibold text-primary">Notes cliniques :</p>
                             <p class="text-sm text-slate-600 mt-1 leading-relaxed">
-                                Patient conscient et orienté. Auscultation cardiaque révèle un souffle systolique léger au foyer mitral. Murmure vésiculaire normal. Pas d'oedèmes des membres inférieurs.
+                                {{ notesCliniques || 'Aucune note clinique' }}
                             </p>
                         </div>
                         <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
@@ -106,7 +106,7 @@
                                 <span class="material-symbols-outlined text-yellow-600 text-sm">info</span>
                                 <p class="text-xs font-bold text-yellow-800 uppercase">Recommandation</p>
                             </div>
-                            <p class="text-xs text-yellow-800">Surveillance de la tension artérielle recommandée au vu des antécédents familiaux.</p>
+                            <p class="text-xs text-yellow-800">{{ recommandation || 'Aucune recommandation' }}</p>
                         </div>
                     </div>
                 </div>

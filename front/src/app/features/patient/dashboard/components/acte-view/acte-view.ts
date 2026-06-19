@@ -52,6 +52,21 @@ export class ActeView implements OnInit {
         ];
     }
 
+    get notesCliniques(): string {
+        return this.consultations()[0]?.observations_text || '';
+    }
+
+    get recommandation(): string {
+        return '';
+    }
+
+    get derniereMaj(): string {
+        const c = this.consultations()[0];
+        if (!c || !c.rapport_text) return '—';
+        const d = new Date(c.rapport_text);
+        return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
     get diagnostics() {
         return [] as { code: string; libelle: string; statut: string; severite: string }[];
     }

@@ -253,4 +253,6 @@ export class Dashboard implements OnInit {
         this.authStore.clearAuth();
         this.router.navigate(['/auth/login']);
     }
+
+    currentYear = new Date().getFullYear();
 }

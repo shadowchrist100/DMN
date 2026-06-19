@@ -6,6 +6,8 @@ import { API } from '../../../core/config/api.config';
 export interface PractitionerProfileDTO {
     id: string;
     user_id: string;
+    first_name: string | null;
+    last_name: string | null;
     speciality: string;
     order_number: string | null;
     organization_id: string | null;
@@ -22,9 +24,20 @@ export interface OrganisationDTO {
     end_date?: string;
 }
 
+export interface PatientProfileDTO {
+    id: string;
+    user_id: string;
+    first_name: string | null;
+    last_name: string | null;
+    blood_type: string | null;
+    rhesus_factor: string | null;
+}
+
 export interface PatientSummaryDTO {
     id: string;
     user_id: string;
+    first_name: string | null;
+    last_name: string | null;
     blood_type: string | null;
     last_consultation: string | null;
 }
@@ -231,6 +244,10 @@ export class MedicalPractitionerService {
 
     getPractitionerPatients(userId: string): Observable<PatientSummaryDTO[]> {
         return this.http.get<PatientSummaryDTO[]>(`${this.pracBase}/${userId}/patients`);
+    }
+
+    getPatientProfile(userId: string): Observable<PatientProfileDTO> {
+        return this.http.get<PatientProfileDTO>(`${this.patBase}/${userId}`);
     }
 
     getPatientPathologies(userId: string): Observable<DiseaseDTO[]> {

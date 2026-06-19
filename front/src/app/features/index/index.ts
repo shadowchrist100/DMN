@@ -16,4 +16,6 @@ export class Index {
     handleSignOn(){
         this.router.navigateByUrl('auth/register');
     }
+
+    currentYear = new Date().getFullYear();
 }

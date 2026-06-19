@@ -97,7 +97,7 @@ export class Register {
             }
 
             if (userType === 'PRACTITIONER' && user.practitioner) {
-                payload.order_number = String(user.practitioner.orderNumber);
+                payload.order_number = user.practitioner.orderNumber;
                 payload.speciality = mapSpeciality(user.practitioner.speciality);
                 if (user.practitioner.organizations?.length) {
                     payload.organization_id = user.practitioner.organizations[0].organizationId;
@@ -148,4 +148,6 @@ export class Register {
         this.store.setSubmited(false);
         this.store.setContinueSteps(false);
     }
+
+    currentYear = new Date().getFullYear();
 }

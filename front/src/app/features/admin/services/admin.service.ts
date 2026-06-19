@@ -29,7 +29,8 @@ export interface AdminOrganization {
   address: string;
   phone?: string;
   email?: string;
-  status: string;
+  verification_status: string;
+  is_actif: boolean;
   created_by?: string;
   validated_by?: string;
   validated_at?: string;

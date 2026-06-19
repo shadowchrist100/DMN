@@ -111,7 +111,7 @@
                 </label>
                 <input
                     class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                    id="firstname" formControlName="firstName" placeholder="Ex: Jean-Luc" type="text" />
+                    id="firstname" formControlName="firstName" placeholder="Ex: Jean" type="text" />
                 @if (isInvalid('firstName')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
@@ -130,7 +130,7 @@
                 </label>
                 <input
                     class="w-full h-14 px-5 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm focus:shadow-md"
-                    id="lastname" formControlName="lastName" placeholder="Ex: AHOUANVOEBLA" type="text" />
+                    id="lastname" formControlName="lastName" placeholder="Ex: NOM" type="text" />
                 @if (isInvalid('lastName')) {
                 <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
                     <span class="material-symbols-outlined text-[14px]">error_outline</span>
@@ -450,7 +450,7 @@
                 </label>
                 <textarea
                     class="w-full px-5 py-4 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl focus:border-secondary outline-none transition-all font-body-md placeholder:text-on-surface-variant/30 shadow-sm min-h-25"
-                    id="address" formControlName="address" placeholder="Ex: Lot 452, Quartier Zongo, Maison Kouandété"
+                    id="address" formControlName="address" placeholder="Ex: Lot 452, Quartier Zongo"
                     rows="3">
                 </textarea>
                 @if (isInvalid('address')) {

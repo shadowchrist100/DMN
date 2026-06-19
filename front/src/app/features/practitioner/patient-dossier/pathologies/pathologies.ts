@@ -13,6 +13,7 @@ export class Pathologies implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   pathologies = signal<Pathologie[]>([]);
+  dateVerification = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 
   @Input() patientUserId: string | undefined;
 

@@ -32,7 +32,7 @@
     </div>
 
     <!-- ===== STATS SYNTHÉTIQUES ===== -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 p-5 border-b border-slate-100 bg-slate-50/30">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 border-b border-slate-100 bg-slate-50/30">
 
         <!-- Consultations -->
         <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-[#1E40AF]/30 transition-colors">
@@ -65,21 +65,11 @@
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Analyses</p>
         </div>
 
-        <!-- Imagerie -->
-        <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-indigo-300 transition-colors">
-            <div class="flex items-center justify-between mb-2">
-                <span class="material-symbols-outlined text-indigo-600 text-lg">radiology</span>
-                <span class="text-[10px] text-slate-500 font-medium">Dernier: il y a 2 mois</span>
-            </div>
-            <p class="text-2xl font-black text-[#002B5C]">5</p>
-            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Examens imagerie</p>
-        </div>
-
         <!-- Ordonnances -->
         <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-green-300 transition-colors">
             <div class="flex items-center justify-between mb-2">
                 <span class="material-symbols-outlined text-green-600 text-lg">medication</span>
-                <span class="text-[10px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded">3 actives</span>
+                <span class="text-[10px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded">{{ nbPrescriptionsActives() }} actives</span>
             </div>
             <p class="text-2xl font-black text-[#002B5C]">{{ nbPrescriptions() }}</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-1">Ordonnances</p>
@@ -95,42 +85,7 @@
             </span>
             Faits médicaux marquants
         </h4>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-
-            <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-amber-200">
-                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-red-600">emergency</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[10px] text-red-700 font-bold uppercase">Urgence vitale</p>
-                    <p class="text-xs font-semibold text-slate-900 mt-0.5">Appendicectomie</p>
-                    <p class="text-[10px] text-slate-500">Mars 2024 • CNHU-HKM</p>
-                </div>
-            </div>
-
-            <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-amber-200">
-                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-blue-600">monitoring</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[10px] text-blue-700 font-bold uppercase">Diagnostic majeur</p>
-                    <p class="text-xs font-semibold text-slate-900 mt-0.5">HTA essentielle (I10)</p>
-                    <p class="text-[10px] text-slate-500">Diagnostiquée en 2018</p>
-                </div>
-            </div>
-
-            <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-amber-200">
-                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-purple-600">surgery</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[10px] text-purple-700 font-bold uppercase">Intervention</p>
-                    <p class="text-xs font-semibold text-slate-900 mt-0.5">Cholécystectomie</p>
-                    <p class="text-[10px] text-slate-500">Juin 2020 • HZ Calavi</p>
-                </div>
-            </div>
-
-        </div>
+        <p class="text-xs text-slate-500 text-center py-3">Aucun fait marquant enregistré</p>
     </div>
 
     <!-- ===== FILTRES RAPIDES ===== -->
@@ -166,8 +121,8 @@
                 <select
                     class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-[#1E40AF]">
                     <option>Toute la période</option>
-                    <option>Année 2024</option>
-                    <option>Année 2023</option>
+                    <option>Année {{ currentYear }}</option>
+                    <option>Année {{ currentYear - 1 }}</option>
                     <option>5 dernières années</option>
                 </select>
             </div>

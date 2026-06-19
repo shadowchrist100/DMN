@@ -13,6 +13,7 @@ export class Examens implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   examens = signal<Examen[]>([]);
+  currentYear = new Date().getFullYear();
 
   @Input() patientUserId: string | undefined;
 

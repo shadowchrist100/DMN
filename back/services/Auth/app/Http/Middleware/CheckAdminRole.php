@@ -10,7 +10,7 @@ class CheckAdminRole
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()?->role !== 'admin') {
+        if (!in_array($request->user()?->role, ['admin', 'admin_medical', 'admin_organisation'])) {
             return response()->json([
                 'message' => 'Action non autorisée.',
             ], 403);

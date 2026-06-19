@@ -1,3 +1,4 @@
+from datetime import date
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 from uuid import UUID
@@ -22,6 +23,7 @@ from app.models.practitioner import Practitioner
 from app.models.practitioner_role import PractitionerRole
 from app.models.healthcare_system import HealthcareSystem
 from app.models.medical_act import MedicalAct
+from app.models.authorization import Authorization
 from app.models.dmn import DMN
 from app.models.patient import Patient
 from app.exceptions import not_found, bad_request, forbidden
@@ -100,6 +102,8 @@ def get_practitioner_profile(
     return PractitionerProfileResp(
         id=str(practitioner.id),
         user_id=practitioner.user_id,
+        first_name=practitioner.first_name,
+        last_name=practitioner.last_name,
         speciality=practitioner.speciality.value,
         order_number=practitioner.order_number,
         organization_id=practitioner.organization_id,
@@ -167,15 +171,26 @@ def get_practitioner_patients(
         )
     ).all()
 
-    if not role_ids:
-        return []
+    dmn_ids: set[UUID] = set()
 
-    dmn_ids = session.exec(
-        select(MedicalAct.dmn_id).where(
-            MedicalAct.practitioner_role_id.in_(role_ids),
-            MedicalAct.dmn_id.isnot(None),
+    if role_ids:
+        medical_dmn_ids = session.exec(
+            select(MedicalAct.dmn_id).where(
+                MedicalAct.practitioner_role_id.in_(role_ids),
+                MedicalAct.dmn_id.isnot(None),
+            ).distinct()
+        ).all()
+        dmn_ids.update(medical_dmn_ids)
+
+    today = date.today()
+    auth_dmn_ids = session.exec(
+        select(Authorization.dmn_id).where(
+            Authorization.practitioner_id == practitioner.id,
+            Authorization.is_actif == True,
+            Authorization.expire_at >= today,
         ).distinct()
     ).all()
+    dmn_ids.update(auth_dmn_ids)
 
     if not dmn_ids:
         return []
@@ -202,6 +217,8 @@ def get_practitioner_patients(
         result.append(PatientSummaryResp(
             id=str(patient.id),
             user_id=patient.user_id,
+            first_name=patient.first_name,
+            last_name=patient.last_name,
             blood_type=dmn.blood_type if dmn else None,
             last_consultation=str(last_act.id) if last_act else None,
         ))
@@ -367,11 +384,13 @@ def create_medical_act(
     ).first()
     if not dmn:
         not_found("Dossier médical introuvable")
+    today = date.today()
     auth = session.exec(
         select(Authorization).where(
             Authorization.practitioner_id == practitioner.id,
             Authorization.dmn_id == dmn.id,
             Authorization.is_actif == True,
+            Authorization.expire_at >= today,
         )
     ).first()
     if not auth:

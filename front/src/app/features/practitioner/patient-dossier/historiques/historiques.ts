@@ -13,6 +13,7 @@ export class Historiques implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   evenements = signal<EvenementHistorique[]>([]);
+  currentYear = new Date().getFullYear();
 
   @Input() patientUserId: string | undefined;
 
@@ -20,6 +21,7 @@ export class Historiques implements OnInit {
   nbHospitalisations = computed(() => this.evenements().filter(e => e.type === 'hospitalisation').length);
   nbAnalyses = computed(() => this.evenements().filter(e => e.type === 'analyse').length);
   nbPrescriptions = computed(() => this.evenements().filter(e => e.type === 'prescription').length);
+  nbPrescriptionsActives = computed(() => this.evenements().filter(e => e.type === 'prescription' && e.statut === 'active').length);
   nbTotal = computed(() => this.evenements().length);
 
   ngOnInit(): void {

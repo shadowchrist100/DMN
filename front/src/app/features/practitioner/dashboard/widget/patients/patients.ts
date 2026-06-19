@@ -239,4 +239,5 @@ export class Patients {
     return labels[priority];
   }
 
+  currentYear = new Date().getFullYear();
 }

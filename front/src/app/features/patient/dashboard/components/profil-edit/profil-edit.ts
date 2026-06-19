@@ -15,6 +15,8 @@ export class ProfilEdit implements OnInit {
     private medicalService = inject(MedicalService);
 
     saving = signal(false);
+    derniereMaj = signal('—');
+    currentYear = new Date().getFullYear();
 
     formData = {
         nom: '',
@@ -50,6 +52,9 @@ export class ProfilEdit implements OnInit {
                 next: (profile) => {
                     this.formData.blood_type = profile.blood_type || '';
                     this.formData.rhesus_factor = profile.rhesus_factor || '';
+                    if (profile.date_creation) {
+                        this.derniereMaj.set(new Date(profile.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }));
+                    }
                 },
             });
         }

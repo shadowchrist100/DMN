@@ -47,7 +47,7 @@ export const RegisterStore = {
         }));
     },
 
-    setPractitionerInfo(orderNumber: number, speciality: string, organizations: PractitionerOrganization[]) {
+    setPractitionerInfo(orderNumber: string, speciality: string, organizations: PractitionerOrganization[]) {
         _user.update(u => ({
             ...(u ?? {} as Iuser),
             practitioner: { orderNumber, speciality, organizations },

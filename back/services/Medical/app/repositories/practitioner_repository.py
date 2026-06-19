@@ -89,20 +89,36 @@ class PractitionerRepository:
         ).all())
 
     @classmethod
-    def _get_patient_dmn_ids(cls, session: Session, role_ids: list[UUID]) -> list[UUID]:
-        if not role_ids:
-            return []
-        return list(session.exec(
-            select(MedicalAct.dmn_id).where(
-                MedicalAct.practitioner_role_id.in_(role_ids),
-                MedicalAct.dmn_id.isnot(None),
-            ).distinct()
-        ).all())
+    def _get_patient_dmn_ids(cls, session: Session, role_ids: list[UUID], practitioner_id: UUID | None = None) -> list[UUID]:
+        dmn_ids: set[UUID] = set()
+
+        if role_ids:
+            medical_dmn_ids = session.exec(
+                select(MedicalAct.dmn_id).where(
+                    MedicalAct.practitioner_role_id.in_(role_ids),
+                    MedicalAct.dmn_id.isnot(None),
+                ).distinct()
+            ).all()
+            dmn_ids.update(medical_dmn_ids)
+
+        if practitioner_id:
+            today = date.today()
+            auth_dmn_ids = session.exec(
+                select(Authorization.dmn_id).where(
+                    Authorization.practitioner_id == practitioner_id,
+                    Authorization.is_actif == True,
+                    Authorization.expire_at >= today,
+                ).distinct()
+            ).all()
+            dmn_ids.update(auth_dmn_ids)
+
+        return list(dmn_ids)
 
     @classmethod
     def get_dashboard_stats(cls, session: Session, user_id: str) -> dict:
+        practitioner = cls.get_by_user_id(session, user_id)
         role_ids = cls._get_practitioner_role_ids(session, user_id)
-        dmn_ids = cls._get_patient_dmn_ids(session, role_ids)
+        dmn_ids = cls._get_patient_dmn_ids(session, role_ids, practitioner.id if practitioner else None)
 
         followed_patients = len(dmn_ids)
 
@@ -260,6 +276,7 @@ class PractitionerRepository:
 
         acts = session.exec(
             select(MedicalAct, Consultation, PractitionerRole, DMN, Patient)
+            .select_from(MedicalAct)
             .outerjoin(Consultation, Consultation.id == MedicalAct.id)
             .join(PractitionerRole, PractitionerRole.id == MedicalAct.practitioner_role_id)
             .join(DMN, DMN.id == MedicalAct.dmn_id)
@@ -287,8 +304,9 @@ class PractitionerRepository:
 
     @classmethod
     def get_patient_list(cls, session: Session, user_id: str) -> list[dict]:
+        practitioner = cls.get_by_user_id(session, user_id)
         role_ids = cls._get_practitioner_role_ids(session, user_id)
-        dmn_ids = cls._get_patient_dmn_ids(session, role_ids)
+        dmn_ids = cls._get_patient_dmn_ids(session, role_ids, practitioner.id if practitioner else None)
         if not dmn_ids:
             return []
 
@@ -313,6 +331,7 @@ class PractitionerRepository:
 
             critical_diagnosis = session.execute(
                 select(Diagnosis, Allergy)
+                .select_from(Diagnosis)
                 .outerjoin(Allergy, Allergy.id == Diagnosis.id)
                 .where(Diagnosis.medical_act_id.in_(
                     select(MedicalAct.id).where(MedicalAct.dmn_id == dmn.id)

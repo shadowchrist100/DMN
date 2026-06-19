@@ -24,8 +24,14 @@ class AdminController extends Controller
 
     public function createAdmin(Request $request): JsonResponse
     {
+        $allowedRoles = ['admin_organisation'];
+
+        if (in_array($request->user()?->role, ['admin', 'admin_medical'])) {
+            $allowedRoles[] = 'admin_medical';
+        }
+
         $data = $request->validate([
-            'role' => ['required', Rule::in(['admin_organisation', 'admin_medical'])],
+            'role' => ['required', Rule::in($allowedRoles)],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
@@ -96,9 +102,15 @@ class AdminController extends Controller
         return response()->json(['users' => $users]);
     }
 
-    public function listPendingOrganizations(): JsonResponse
+    public function listPendingOrganizations(Request $request): JsonResponse
     {
-        $result = $this->orgClient->list(['status' => 'En attente']);
+        $params = ['status' => 'En attente'];
+
+        if ($request->user()->role === 'admin_organisation') {
+            $params['created_by'] = $request->user()->id;
+        }
+
+        $result = $this->orgClient->list($params);
 
         return response()->json($result);
     }
@@ -149,7 +161,13 @@ class AdminController extends Controller
 
     public function listOrganizations(Request $request): JsonResponse
     {
-        $result = $this->orgClient->list($request->only('status'));
+        $params = $request->only('status');
+
+        if ($request->user()->role === 'admin_organisation') {
+            $params['created_by'] = $request->user()->id;
+        }
+
+        $result = $this->orgClient->list($params);
 
         return response()->json($result);
     }

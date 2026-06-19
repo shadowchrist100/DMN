@@ -29,16 +29,22 @@ export class PatientService {
 
   getFollowedPatients(practitionerUserId: string): Promise<FollowedPatient[]> {
     return firstValueFrom(this.medicalPrac.getPractitionerPatients(practitionerUserId)).then(
-      dtos => dtos.map(dto => ({
-        npi: dto.user_id,
-        name: `Patient ${dto.user_id.slice(0, 8)}`,
-        initials: dto.user_id.slice(0, 2).toUpperCase(),
-        age: 0,
-        gender: 'M' as const,
-        lastVisit: new Date(),
-        isCritical: false,
-        createdAt: new Date(),
-      }))
+      dtos => dtos.map(dto => {
+        const first = dto.first_name || '';
+        const last = dto.last_name || '';
+        const name = [first, last].filter(Boolean).join(' ') || `Patient ${dto.user_id.slice(0, 8)}`;
+        const initials = (first[0] || '') + (last[0] || '') || dto.user_id.slice(0, 2).toUpperCase();
+        return {
+          npi: dto.user_id,
+          name,
+          initials,
+          age: 0,
+          gender: 'M' as const,
+          lastVisit: new Date(),
+          isCritical: false,
+          createdAt: new Date(),
+        };
+      })
     );
   }
 

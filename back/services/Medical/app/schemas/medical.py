@@ -6,6 +6,8 @@ from datetime import date, datetime
 class PatientProfileResp(BaseModel):
     id: str
     user_id: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     blood_type: Optional[str] = None
     rhesus_factor: Optional[str] = None
     date_creation: Optional[datetime] = None
@@ -118,6 +120,8 @@ class AddPractitionerRoleReq(BaseModel):
 class PractitionerProfileResp(BaseModel):
     id: str
     user_id: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     speciality: str
     order_number: Optional[str] = None
     organization_id: Optional[str] = None
@@ -127,6 +131,8 @@ class PractitionerProfileResp(BaseModel):
 class PatientSummaryResp(BaseModel):
     id: str
     user_id: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     blood_type: Optional[str] = None
     last_consultation: Optional[str] = None
 

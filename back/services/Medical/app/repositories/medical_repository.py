@@ -71,6 +71,7 @@ class MedicalRepository:
 
         rows = session.execute(
             select(Diagnosis, DiagnosisReference, Allergy)
+            .select_from(Diagnosis)
             .outerjoin(DiagnosisReference, DiagnosisReference.id == Diagnosis.diagnosis_ref_id)
             .outerjoin(Allergy, Allergy.id == Diagnosis.id)
             .where(Diagnosis.medical_act_id.in_(ma_ids))
@@ -246,6 +247,8 @@ class MedicalRepository:
                 "observations_text": medical_act.observations_text,
                 "practitioner_role": practitioner_role.role if practitioner_role else None,
                 "practitioner_user_id": practitioner.user_id if practitioner else None,
+                "practitioner_first_name": practitioner.first_name if practitioner else None,
+                "practitioner_last_name": practitioner.last_name if practitioner else None,
                 "speciality": practitioner.speciality.value if practitioner else None,
                 "healthcare_nom": healthcare_system.nom if healthcare_system else None,
             })
@@ -381,6 +384,7 @@ class MedicalRepository:
         if medical_act_ids:
             critical_allergies = session.execute(
                 select(Diagnosis, Allergy)
+                .select_from(Diagnosis)
                 .outerjoin(Allergy, Allergy.id == Diagnosis.id)
                 .where(Diagnosis.medical_act_id.in_(medical_act_ids))
                 .where(Diagnosis.type_diagnosis == "allergy")
@@ -419,9 +423,10 @@ class MedicalRepository:
         for medical_act, practitioner_role, practitioner, healthcare_system in rows:
             if practitioner and practitioner.user_id not in seen:
                 seen.add(practitioner.user_id)
+                p_name = f"Dr. {practitioner.first_name or ''} {practitioner.last_name or ''}".strip() if practitioner else "Praticien"
                 entries.append({
                     "id": str(medical_act.id),
-                    "qui": practitioner.user_id or "Praticien",
+                    "qui": p_name,
                     "role": practitioner_role.role if practitioner_role else (practitioner.speciality.value if practitioner.speciality else "Médecin"),
                     "date": str(medical_act.id),
                     "icon": "stethoscope",
@@ -457,7 +462,7 @@ class MedicalRepository:
                 "description": medical_act.raisons or "",
                 "date": str(medical_act.id),
                 "facility": healthcare_system.nom if healthcare_system else None,
-                "practitioner_name": practitioner.user_id if practitioner else None,
+                "practitioner_name": f"Dr. {practitioner.first_name or ''} {practitioner.last_name or ''}".strip() if practitioner else None,
                 "practitioner_role": practitioner_role.role if practitioner_role else None,
                 "priority": "medium",
                 "status": "completed",

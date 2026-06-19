@@ -25,11 +25,16 @@ from app.repositories.relative_repository import RelativeRepository
 from app.models.authorization import Authorization
 from app.models.practitioner import Practitioner
 from app.models.patient import Patient
-from app.models.patient import Patient
 from app.models.patient_relative import PatientRelative
 from app.exceptions import not_found
 
 router = APIRouter(prefix="/api", tags=["patient"])
+
+
+def _build_practitioner_name(first_name: str | None, last_name: str | None) -> str | None:
+    if first_name or last_name:
+        return f"Dr. {(first_name or '')} {(last_name or '')}".strip()
+    return None
 
 
 def _ensure_patient(session: Session, user_id: str, current_user: CurrentUser) -> Patient:
@@ -86,6 +91,8 @@ def get_patient_profile(
     return PatientProfileResp(
         id=str(patient.id),
         user_id=patient.user_id,
+        first_name=patient.first_name,
+        last_name=patient.last_name,
         blood_type=dmn.blood_type if dmn else None,
         rhesus_factor=dmn.rhesus_factor if dmn else None,
         date_creation=dmn.date_creation if dmn else None,
@@ -206,7 +213,7 @@ def get_patient_authorizations(
         if a.practitioner_id:
             p = session.get(Practitioner, a.practitioner_id)
             if p:
-                practitioner_name = p.user_id
+                practitioner_name = _build_practitioner_name(p.first_name, p.last_name)
                 practitioner_speciality = p.speciality.value if p.speciality else None
 
         result.append(AuthorizationResp(
@@ -266,7 +273,7 @@ def get_patient_consultations(
             raisons=c.get("raisons"),
             rapport_text=c.get("rapport_text"),
             observations_text=c.get("observations_text"),
-            practitioner_name=c.get("practitioner_user_id"),
+            practitioner_name=_build_practitioner_name(c.get("practitioner_first_name"), c.get("practitioner_last_name")),
             practitioner_speciality=c.get("speciality"),
             healthcare_nom=c.get("healthcare_nom"),
         ))

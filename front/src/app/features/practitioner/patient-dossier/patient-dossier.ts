@@ -1,8 +1,10 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../core/auth/auth.store';
 import { AuthService } from '../../../core/auth/auth-service';
+import { MedicalPractitionerService, PatientProfileDTO } from '../services/medical-practitioner.service';
 import { Historiques } from './historiques/historiques';
 import { Examens } from './examens/examens';
 import { Traitements } from './traitements/traitements';
@@ -22,14 +24,26 @@ export class PatientDossier {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private authService = inject(AuthService);
+    private medicalPrac = inject(MedicalPractitionerService);
     protected authStore = AuthStore;
     selectedTab = signal<TabId>('overview');
     showNewActe = signal(false);
     patientNpi = signal('');
+    patientProfile = signal<PatientProfileDTO | null>(null);
+    loadingProfile = signal(false);
+    now = new Date();
+    consentDateDebut = '15/10/' + (this.now.getFullYear() - 1);
+    consentDateFin = '15/10/' + this.now.getFullYear();
+    lastAccessDate = this.now.toLocaleDateString('fr-FR') + ' à ' + this.now.getHours().toString().padStart(2, '0') + ':' + this.now.getMinutes().toString().padStart(2, '0');
+    currentYear = this.now.getFullYear();
 
     constructor() {
         this.route.params.subscribe(params => {
-            this.patientNpi.set(params['npi'] || '');
+            const npi = params['npi'] || '';
+            this.patientNpi.set(npi);
+            if (npi) {
+                this.loadProfile(npi);
+            }
         });
         this.route.queryParams.subscribe(params => {
             if (params['newActe'] === 'true') {
@@ -38,11 +52,23 @@ export class PatientDossier {
         });
     }
 
+    private async loadProfile(npi: string) {
+        this.loadingProfile.set(true);
+        try {
+            const profile = await firstValueFrom(this.medicalPrac.getPatientProfile(npi));
+            this.patientProfile.set(profile);
+        } catch (e) {
+            console.error('Failed to load patient profile', e);
+        } finally {
+            this.loadingProfile.set(false);
+        }
+    }
+
     tabs: { id: TabId; label: string; icon: string; badge?: { text: string; class: string } }[] = [
         { id: 'overview', label: "Vue d'ensemble", icon: 'timeline' },
-        { id: 'historiques', label: 'Historiques', icon: 'stethoscope', badge: { text: '24', class: 'bg-slate-100 text-slate-600' } },
+        { id: 'historiques', label: 'Historiques', icon: 'stethoscope' },
         { id: 'analyses', label: 'Analyses', icon: 'biotech' },
-        { id: 'traitements', label: 'Traitements', icon: 'medication', badge: { text: '3 actifs', class: 'bg-green-100 text-green-700' } },
+        { id: 'traitements', label: 'Traitements', icon: 'medication' },
         { id: 'pathologies', label: 'Pathologies', icon: 'medical_information' },
         { id: 'vaccins', label: 'Vaccins', icon: 'vaccines' },
         { id: 'documents', label: 'Documents', icon: 'description' },

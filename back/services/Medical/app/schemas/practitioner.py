@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from app.types.enums import Speciality
 
@@ -8,7 +8,7 @@ class CreatePractitionerReq(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     specialty: Speciality
-    order_number: Optional[str] = None
+    order_number: Optional[str] = Field(default=None, pattern=r'^\d{10}$')
     organization_id: Optional[str] = None
 
 
