@@ -18,6 +18,8 @@ from app.models.examination_act import ExaminationAct
 from app.models.examination import Examination
 from app.models.vaccine import Vaccine
 from app.models.consultation import Consultation
+from app.models.vital_constant import VitalConstant
+from app.models.vital_constant_reference import VitalConstantReference
 from app.models.vaccination import Vaccination
 from app.models.reaction import Reaction
 from app.models.reaction_reference import ReactionReference as ReactionRef
@@ -463,7 +465,7 @@ class MedicalRepository:
                 "type": "consultation",
                 "title": f"Consultation — {consultation.motif if consultation else 'Consultation médicale'}",
                 "description": medical_act.raisons or "",
-                "date": str(medical_act.id),
+                "date": medical_act.created_at.isoformat() if medical_act.created_at else str(medical_act.id),
                 "facility": healthcare_system.nom if healthcare_system else None,
                 "practitioner_name": f"Dr. {practitioner.first_name or ''} {practitioner.last_name or ''}".strip() if practitioner else None,
                 "practitioner_role": practitioner_role.role if practitioner_role else None,
@@ -492,7 +494,7 @@ class MedicalRepository:
                 "type": "lab_result" if has_result else "examen",
                 "title": f"Examen — {examination_act.libelle_examen if examination_act else 'Examen médical'}",
                 "description": medical_act.raisons or "",
-                "date": str(medical_act.id),
+                "date": medical_act.created_at.isoformat() if medical_act.created_at else str(medical_act.id),
                 "facility": None,
                 "practitioner_name": None,
                 "practitioner_role": None,
@@ -520,7 +522,7 @@ class MedicalRepository:
                 "type": "vaccination",
                 "title": f"Vaccination — {vaccination.note if vaccination else 'Vaccination'}",
                 "description": medical_act.raisons or "",
-                "date": str(medical_act.id),
+                "date": medical_act.created_at.isoformat() if medical_act.created_at else str(medical_act.id),
                 "facility": None,
                 "practitioner_name": None,
                 "practitioner_role": None,
@@ -610,3 +612,23 @@ class MedicalRepository:
             session.delete(auth)
 
         return True
+
+    @staticmethod
+    def revoke_authorization(session: Session, authorization_id: UUID) -> bool:
+        auth = session.get(Authorization, authorization_id)
+        if not auth:
+            return False
+        session.delete(auth)
+        return True
+
+    @staticmethod
+    def get_latest_vital_constant(session: Session, dmn_id: UUID, code: str) -> float | None:
+        vc = session.exec(
+            select(VitalConstant)
+            .join(MedicalAct, MedicalAct.id == VitalConstant.medical_act_id)
+            .where(MedicalAct.dmn_id == dmn_id)
+            .where(VitalConstant.vital_constant_reference_code == code)
+            .order_by(VitalConstant.date_mesure.desc())
+            .limit(1)
+        ).first()
+        return vc.valeur if vc else None

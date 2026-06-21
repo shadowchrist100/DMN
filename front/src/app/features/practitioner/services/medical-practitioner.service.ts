@@ -31,6 +31,8 @@ export interface PatientProfileDTO {
     last_name: string | null;
     blood_type: string | null;
     rhesus_factor: string | null;
+    taille: number | null;
+    poids: number | null;
 }
 
 export interface PatientSummaryDTO {
@@ -223,12 +225,20 @@ export interface ExamenPrescriptionEntry {
     libelle: string;
     nature_examination: string;
     special_instructions?: string;
+    valeur?: string;
+    interpretation?: string;
+    type_examen?: string;
 }
 
 export interface VaccinePrescriptionEntry {
     code_cvx?: string;
     libelle: string;
     special_instructions?: string;
+    injection_site?: string;
+    sequence_dose?: number;
+    batch_number?: string;
+    next_reminder?: string;
+    note?: string;
 }
 
 export interface CareInstructionEntry {
@@ -275,6 +285,10 @@ export class MedicalPractitionerService {
         return this.http.get<PatientProfileDTO>(`${this.patBase}/${userId}`);
     }
 
+    getAccessStatus(practitionerUserId: string, patientUserId: string): Observable<any> {
+        return this.http.get(`${this.pracBase}/${practitionerUserId}/patients/${patientUserId}/access-status`);
+    }
+
     getPatientPathologies(userId: string): Observable<DiseaseDTO[]> {
         return this.http.get<DiseaseDTO[]>(`${this.patBase}/${userId}/pathologies`);
     }
@@ -295,12 +309,8 @@ export class MedicalPractitionerService {
         return this.http.get<AccessRequestDTO[]>(`${this.pracBase}/${userId}/access-requests`);
     }
 
-    acceptAccessRequest(userId: string, requestId: string): Observable<{ status: string }> {
-        return this.http.put<{ status: string }>(`${this.pracBase}/${userId}/access-requests/${requestId}/accept`, {});
-    }
-
-    declineAccessRequest(userId: string, requestId: string): Observable<{ status: string }> {
-        return this.http.put<{ status: string }>(`${this.pracBase}/${userId}/access-requests/${requestId}/decline`, {});
+    revokeAccessRequest(userId: string, requestId: string): Observable<{ status: string }> {
+        return this.http.delete<{ status: string }>(`${this.pracBase}/${userId}/access-requests/${requestId}`);
     }
 
     getPractitionerActivities(userId: string, limit: number = 10): Observable<PractitionerActivityDTO[]> {

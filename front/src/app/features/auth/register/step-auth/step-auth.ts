@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { RegisterStore } from '../register.store';
 
 interface PasswordCriterion {
@@ -28,7 +29,7 @@ const BAR_COLORS = ['', 'bg-error', 'bg-warning', 'bg-success', 'bg-success'];
 @Component({
     selector: 'app-step-auth',
     standalone: true,
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterLink],
     templateUrl: './step-auth.html',
     styleUrl: './step-auth.css',
 })
@@ -72,7 +73,8 @@ export class StepAuth implements OnInit {
                 confirmPassword: ['', [Validators.required]],
                 identityDocType: ['', [Validators.required]],
                 identityFile: [null, [Validators.required]],
-                medicalCardFile: [null] // Configuré conditionnellement juste après
+                medicalCardFile: [null], // Configuré conditionnellement juste après
+                acceptTerms: [false, [Validators.requiredTrue]],
             },
             {
                 validators: this.passwordMismatchValidator()

@@ -93,6 +93,9 @@ def get_patient_profile(
     patient = _ensure_patient(session, user_id, current_user)
     dmn = MedicalRepository.get_dmn_by_patient_id(session, patient.id)
 
+    taille = MedicalRepository.get_latest_vital_constant(session, dmn.id, "HEIGHT") if dmn else None
+    poids = MedicalRepository.get_latest_vital_constant(session, dmn.id, "WEIGHT") if dmn else None
+
     return PatientProfileResp(
         id=str(patient.id),
         user_id=patient.user_id,
@@ -101,6 +104,8 @@ def get_patient_profile(
         blood_type=dmn.blood_type if dmn else None,
         rhesus_factor=dmn.rhesus_factor if dmn else None,
         date_creation=dmn.date_creation if dmn else None,
+        taille=taille,
+        poids=poids,
     )
 
 
@@ -597,12 +602,17 @@ def update_patient_profile(
     session.commit()
     session.refresh(dmn)
 
+    taille = MedicalRepository.get_latest_vital_constant(session, dmn.id, "HEIGHT")
+    poids = MedicalRepository.get_latest_vital_constant(session, dmn.id, "WEIGHT")
+
     return PatientProfileResp(
         id=str(patient.id),
         user_id=patient.user_id,
         blood_type=dmn.blood_type,
         rhesus_factor=dmn.rhesus_factor,
         date_creation=dmn.date_creation,
+        taille=taille,
+        poids=poids,
     )
 
 
@@ -637,3 +647,18 @@ def respond_to_access_request(
         not_found("Demande d'accès introuvable")
     session.commit()
     return {"status": body.action}
+
+
+@router.delete("/patients/by-user/{user_id}/authorizations/{authorization_id}")
+def revoke_authorization(
+    user_id: str,
+    authorization_id: UUID,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_patient_access(user_id, current_user, session)
+    ok = MedicalRepository.revoke_authorization(session, authorization_id)
+    if not ok:
+        not_found("Autorisation introuvable")
+    session.commit()
+    return {"status": "revoked"}

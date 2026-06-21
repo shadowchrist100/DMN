@@ -2,25 +2,38 @@ import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Practitioner, Organization } from '../dashboard/dashboard.model';
 import { MedicalPractitionerService } from './medical-practitioner.service';
+import { AuthService } from '../../../core/auth/auth-service';
+import { API } from '../../../core/config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class PractitionerService {
   private medicalPrac = inject(MedicalPractitionerService);
+  private authService = inject(AuthService);
   private activeOrganizationId = signal<string | null>(null);
 
-  getCurrentPractitioner(userId: string): Promise<Practitioner> {
-    return firstValueFrom(this.medicalPrac.getPractitionerProfile(userId)).then(dto => ({
+  async getCurrentPractitioner(userId: string): Promise<Practitioner> {
+    const dto = await firstValueFrom(this.medicalPrac.getPractitionerProfile(userId));
+    let avatar = '';
+    let email = '';
+    try {
+      const userResp = await this.authService.getUser(userId);
+      email = userResp.user.email ?? '';
+      avatar = userResp.photo_url ?? '';
+    } catch {
+      // auth info non disponible
+    }
+    return {
       id: dto.id,
       firstName: dto.first_name || dto.speciality,
       lastName: dto.last_name || '',
-      name: `Dr. ${dto.last_name || dto.speciality}`,
+      name: `Dr. ${dto.first_name || ''} ${dto.last_name || dto.speciality}`.trim(),
       specialty: dto.speciality,
       rpps: dto.order_number || '',
-      avatar: '',
+      avatar,
       primaryFacility: dto.organizations[0]?.nom || '',
-      email: '',
+      email,
       phone: '',
-    }));
+    };
   }
 
   getPractitionerOrganizations(userId: string): Promise<Organization[]> {

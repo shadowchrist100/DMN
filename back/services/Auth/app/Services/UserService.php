@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\EmergencyContact;
 use Illuminate\Support\Facades\DB;
 use App\Factories\RegistrationFactory;
 
@@ -26,6 +27,17 @@ class UserService
 
             $strategy = $this->factory->getStrategy($data['role']);
             $strategy->create($user, $data);
+
+            if ($data['role'] === 'patient' && isset($data['emergencyContact'])) {
+                EmergencyContact::create([
+                    'patient_user_id' => $user->id,
+                    'first_name'      => $data['emergencyContact']['firstName'] ?? '',
+                    'last_name'       => $data['emergencyContact']['lastName'] ?? '',
+                    'email'           => $data['emergencyContact']['email'] ?? '',
+                    'phone'           => $data['emergencyContact']['phone'] ?? '',
+                    'relation'        => $data['emergencyContact']['code_relation'] ?? '',
+                ]);
+            }
 
             $this->sendToMedical($user, $data);
 

@@ -130,10 +130,23 @@ export class Consentements implements OnInit {
         }
     }
 
-    toggleConsentement(id: string): void {
-        this.authorizations.update(list =>
-            list.map(a => a.id === id ? { ...a, is_actif: !a.is_actif } : a)
+    async revokeConsentement(id: string): Promise<void> {
+        const auth = this.authorizations().find(a => a.id === id);
+        if (!auth) return;
+        const confirmed = confirm(
+            `Révoquer l'accès de ${auth.practitioner_name || 'ce praticien'} ?`
         );
+        if (!confirmed) return;
+
+        this.respondingId.set(id);
+        try {
+            await firstValueFrom(this.dashboardService.revokeAuthorization(id));
+            this.authorizations.update(list => list.filter(a => a.id !== id));
+        } catch {
+            // ignore
+        } finally {
+            this.respondingId.set(null);
+        }
     }
 
     showAcceptForm(request: PendingAccessRequestDTO): void {

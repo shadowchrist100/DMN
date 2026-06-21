@@ -10,6 +10,8 @@ export interface PatientProfile {
     blood_type: string | null;
     rhesus_factor: string | null;
     date_creation: string | null;
+    taille: number | null;
+    poids: number | null;
 }
 
 export interface AllergyDTO {
@@ -278,5 +280,9 @@ export class MedicalService {
 
     respondToAccessRequest(userId: string, requestId: string, data: RespondAccessRequestReq): Observable<{ status: string }> {
         return this.http.put<{ status: string }>(`${this.baseUrl}/${userId}/access-requests/${requestId}/respond`, data);
+    }
+
+    revokeAuthorization(userId: string, authorizationId: string): Observable<{ status: string }> {
+        return this.http.delete<{ status: string }>(`${this.baseUrl}/${userId}/authorizations/${authorizationId}`);
     }
 }

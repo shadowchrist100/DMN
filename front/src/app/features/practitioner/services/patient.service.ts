@@ -43,25 +43,33 @@ export class PatientService {
     );
   }
 
-  getFollowedPatients(practitionerUserId: string): Promise<FollowedPatient[]> {
-    return firstValueFrom(this.medicalPrac.getPractitionerPatients(practitionerUserId)).then(
-      dtos => dtos.map(dto => {
-        const first = dto.first_name || '';
-        const last = dto.last_name || '';
-        const name = [first, last].filter(Boolean).join(' ') || `Patient ${dto.user_id.slice(0, 8)}`;
-        const initials = (first[0] || '') + (last[0] || '') || dto.user_id.slice(0, 2).toUpperCase();
-        return {
-          npi: dto.user_id,
-          name,
-          initials,
-          age: 0,
-          gender: 'M' as const,
-          lastVisit: new Date(),
-          isCritical: false,
-          createdAt: new Date(),
-        };
-      })
-    );
+  async getFollowedPatients(practitionerUserId: string): Promise<FollowedPatient[]> {
+    const dtos = await firstValueFrom(this.medicalPrac.getPractitionerPatients(practitionerUserId));
+    const patients = await Promise.all(dtos.map(async dto => {
+      const first = dto.first_name || '';
+      const last = dto.last_name || '';
+      const name = [first, last].filter(Boolean).join(' ') || `Patient ${dto.user_id.slice(0, 8)}`;
+      const initials = (first[0] || '') + (last[0] || '') || dto.user_id.slice(0, 2).toUpperCase();
+      let photoUrl: string | undefined;
+      try {
+        const resp = await this.auth.getUser(dto.user_id);
+        photoUrl = resp.photo_url || undefined;
+      } catch {
+        // photo non disponible
+      }
+      return {
+        npi: dto.user_id,
+        name,
+        initials,
+        age: 0,
+        gender: 'M' as const,
+        lastVisit: new Date(),
+        isCritical: false,
+        createdAt: new Date(),
+        photoUrl,
+      };
+    }));
+    return patients;
   }
 
   async getPatientsList(practitionerUserId: string): Promise<Patient[]> {
@@ -72,7 +80,10 @@ export class PatientService {
         initials: dto.initials,
         age: dto.age,
         gender: dto.gender as 'M' | 'F',
-        lastContact: dto.last_contact ? new Date(dto.last_contact) : new Date(),
+        lastContact: (() => {
+            const d = dto.last_contact ? new Date(dto.last_contact) : new Date();
+            return isNaN(d.getTime()) ? new Date() : d;
+        })(),
         priority: dto.priority as Patient['priority'],
         isCritical: dto.is_critical,
         primaryDiagnosis: dto.primary_diagnosis_code ? {

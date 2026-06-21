@@ -247,19 +247,7 @@ class PractitionerRepository:
         return result
 
     @staticmethod
-    def accept_access_request(
-        session: Session,
-        request_id: UUID,
-    ) -> bool:
-        auth = session.get(Authorization, request_id)
-        if not auth:
-            return False
-        auth.is_actif = True
-        session.add(auth)
-        return True
-
-    @staticmethod
-    def decline_access_request(
+    def revoke_access_request(
         session: Session,
         request_id: UUID,
     ) -> bool:
@@ -289,8 +277,14 @@ class PractitionerRepository:
             .limit(limit)
         ).all()
 
+        seen = set()
+        now = datetime.utcnow()
         for medical_act, consultation, role, dmn, patient in acts:
+            if medical_act.id in seen:
+                continue
+            seen.add(medical_act.id)
             action = f"Consultation réalisée" if consultation else f"Acte médical ({medical_act.type_acte})"
+            ts = medical_act.created_at if hasattr(medical_act, 'created_at') and medical_act.created_at else now
             activities.append({
                 "id": str(medical_act.id),
                 "type": "consultation" if consultation else medical_act.type_acte.lower(),
@@ -298,7 +292,7 @@ class PractitionerRepository:
                 "patient_name": f"{patient.first_name or ''} {patient.last_name or ''}".strip() or f"Patient {patient.user_id[:8]}" if patient else None,
                 "patient_npi": patient.user_id if patient else None,
                 "facility": role.role if role else "",
-                "timestamp": str(medical_act.id),
+                "timestamp": ts.isoformat(),
                 "badge_text": "Finalisé" if medical_act.rapport_text else "En attente",
                 "badge_type": "success" if medical_act.rapport_text else "warning",
             })
@@ -356,7 +350,7 @@ class PractitionerRepository:
                 "initials": initials,
                 "age": 0,
                 "gender": "M",
-                "last_contact": str(last_act.id) if last_act else None,
+                "last_contact": last_act.created_at.isoformat() if last_act and last_act.created_at else None,
                 "priority": "critical" if is_critical else "low",
                 "is_critical": is_critical,
                 "primary_diagnosis_code": None,
@@ -434,6 +428,8 @@ class PractitionerRepository:
             is_actif=False,
             is_urgence=False,
             authorization_type=reason,
+            type_autorisation="access_request",
+            auteur_autorisation_id=None,
             dmn_id=dmn.id,
             practitioner_id=practitioner.id,
         )
@@ -521,26 +517,44 @@ class PractitionerRepository:
                 **base_kwargs,
                 code_loinc=ex.get("code_loinc", ""),
                 libelle_examen=ex.get("libelle", ""),
-                type_examen=ex.get("nature_examination", "LABORATOIRE"),
-                value="",
-                interpretation="",
+                type_examen=ex.get("type_examen", "BILAN"),
+                value=ex.get("valeur", ""),
+                interpretation=ex.get("interpretation", ""),
                 prescription_examen_id=UUID(prescription_examen_id) if prescription_examen_id else None,
             )
         elif type_acte == "VACCINATION":
             vac = (vaccines or [{}])[0]
             act = Vaccination(
                 **base_kwargs,
-                injection_site=None,
-                sequence_dose=None,
-                batch_number=None,
-                next_reminder=None,
-                note=vac.get("libelle"),
+                injection_site=vac.get("injection_site"),
+                sequence_dose=vac.get("sequence_dose"),
+                batch_number=vac.get("batch_number"),
+                next_reminder=vac.get("next_reminder"),
+                note=vac.get("note") or vac.get("libelle"),
             )
         else:
             act = MedicalAct(**base_kwargs)
 
         session.add(act)
         session.flush()
+
+        # 2b. Auto-détection du groupe sanguin à partir des résultats d'examen
+        if type_acte == "Examen" and act.code_loinc == "11562-6" and act.value:
+            blood_map = {
+                "O+": ("O", "positif"), "A+": ("A", "positif"), "B+": ("B", "positif"), "AB+": ("AB", "positif"),
+                "O-": ("O", "negatif"), "A-": ("A", "negatif"), "B-": ("B", "negatif"), "AB-": ("AB", "negatif"),
+                "A Positif": ("A", "positif"), "B Positif": ("B", "positif"), "O Positif": ("O", "positif"), "AB Positif": ("AB", "positif"),
+                "A Negatif": ("A", "negatif"), "B Negatif": ("B", "negatif"), "O Negatif": ("O", "negatif"), "AB Negatif": ("AB", "negatif"),
+                "Groupe A": ("A", None), "Groupe B": ("B", None), "Groupe O": ("O", None), "Groupe AB": ("AB", None),
+                "A": ("A", None), "B": ("B", None), "O": ("O", None), "AB": ("AB", None),
+            }
+            val = act.value.strip()
+            if val in blood_map:
+                bt, rh = blood_map[val]
+                dmn.blood_type = bt
+                if rh:
+                    dmn.rhesus_factor = rh
+                session.add(dmn)
 
         # 3. Constantes vitales (Consultation seulement)
         if type_acte == "Consultation":

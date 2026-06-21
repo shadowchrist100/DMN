@@ -1,0 +1,104 @@
+<div class="min-h-screen bg-white">
+  <header class="bg-[#002B5C] text-white px-6 py-4 flex items-center gap-4">
+    <button (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="text-sm font-medium">Retour</span>
+    </button>
+    <div class="w-px h-6 bg-white/20"></div>
+    <h1 class="text-lg font-bold">Politique de Confidentialité</h1>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-12 space-y-8 text-slate-700 leading-relaxed">
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">1. Introduction</h2>
+      <p>La présente politique de confidentialité définit la manière dont le Ministère de la Santé de la République du Bénin collecte, utilise, stocke et protège vos données personnelles dans le cadre du Dossier Médical National (DMN) Portal.</p>
+      <p class="mt-2">Conformément à la Loi N° 2017-20 du 20 Avril 2018 portant Code du Numérique en République du Bénin et aux directives de l'Autorité de Protection des Données Personnelles (APDP), nous nous engageons à garantir la sécurité et la confidentialité de vos informations de santé.</p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">2. Données collectées</h2>
+      <p>Dans le cadre de votre inscription et de l'utilisation du DMN Portal, nous collectons les catégories de données suivantes :</p>
+      <ul class="list-disc pl-6 mt-2 space-y-1">
+        <li><strong>Données d'identification :</strong> nom, prénom, NPI, date de naissance, sexe, numéro de téléphone, adresse email</li>
+        <li><strong>Données de santé :</strong> antécédents médicaux, allergies, prescriptions, examens, pathologies, vaccinations</li>
+        <li><strong>Données professionnelles (praticiens) :</strong> spécialité, numéro d'ordre, établissements de rattachement</li>
+        <li><strong>Données de connexion :</strong> logs d'accès, horodatage, adresse IP</li>
+        <li><strong>Documents justificatifs :</strong> pièces d'identité, cartes professionnelles</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">3. Base légale du traitement</h2>
+      <p>Le traitement de vos données repose sur :</p>
+      <ul class="list-disc pl-6 mt-2 space-y-1">
+        <li>Votre consentement explicite (acceptation des CGU et de la présente politique)</li>
+        <li>L'obligation légale de tenue du Dossier Médical National</li>
+        <li>L'intérêt public pour la continuité des soins sur le territoire national</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">4. Finalités du traitement</h2>
+      <p>Vos données sont traitées exclusivement pour :</p>
+      <ul class="list-disc pl-6 mt-2 space-y-1">
+        <li>La création et la gestion de votre dossier médical national</li>
+        <li>La coordination des soins entre professionnels de santé autorisés</li>
+        <li>La gestion des consentements et des accès aux données</li>
+        <li>Le respect des obligations légales et réglementaires</li>
+        <li>L'amélioration du système de santé publique</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">5. Partage des données</h2>
+      <p>Vos données sont accessibles uniquement :</p>
+      <ul class="list-disc pl-6 mt-2 space-y-1">
+        <li>À vous-même en tant que titulaire du dossier</li>
+        <li>Aux professionnels de santé que vous avez autorisés via votre consentement explicite</li>
+        <li>Aux personnels habilités du Ministère de la Santé dans le cadre de leurs missions</li>
+      </ul>
+      <p class="mt-2">Aucune donnée n'est transmise à des tiers en dehors du cadre légal prévu par la réglementation béninoise.</p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">6. Sécurité des données</h2>
+      <p>Nous mettons en œuvre des mesures techniques et organisationnelles conformes aux standards PSSIE (Politique de Sécurité des Systèmes d'Information de l'État) :</p>
+      <ul class="list-disc pl-6 mt-2 space-y-1">
+        <li>Chiffrement AES-256 des données au repos</li>
+        <li>Chiffrement TLS 1.3 des données en transit</li>
+        <li>Authentification multifacteur pour les professionnels de santé</li>
+        <li>Journalisation exhaustive des accès</li>
+        <li>Hébergement souverain sur le territoire béninois</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">7. Durée de conservation</h2>
+      <p>Vos données de santé sont conservées conformément aux dispositions légales en vigueur. Les données d'identification sont conservées pendant toute la durée de votre inscription et jusqu'à 5 ans après la clôture de votre compte. Les logs de connexion sont conservés 1 an conformément aux obligations légales.</p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">8. Vos droits</h2>
+      <p>Conformément à la réglementation APDP, vous disposez des droits suivants :</p>
+      <ul class="list-disc pl-6 mt-2 space-y-1">
+        <li><strong>Droit d'accès :</strong> obtenir une copie de vos données</li>
+        <li><strong>Droit de rectification :</strong> demander la correction de données inexactes</li>
+        <li><strong>Droit à l'effacement :</strong> demander la suppression de votre compte et de vos données</li>
+        <li><strong>Droit d'opposition :</strong> vous opposer au traitement de vos données</li>
+        <li><strong>Droit à la portabilité :</strong> récupérer vos données dans un format structuré</li>
+      </ul>
+      <p class="mt-2">Pour exercer ces droits, contactez le Délégué à la Protection des Données (DPD) du Ministère de la Santé.</p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">9. Contact</h2>
+      <p>Pour toute question relative à la protection de vos données :</p>
+      <div class="mt-2 p-4 bg-slate-50 rounded-xl">
+        <p><strong>Délégué à la Protection des Données</strong></p>
+        <p>Ministère de la Santé - République du Bénin</p>
+        <p>Email : dpd&#64;sante.benin.bj</p>
+        <p>Autorité de contrôle : APDP - www.apdp.bj</p>
+      </div>
+    </section>
+  </main>
+</div>

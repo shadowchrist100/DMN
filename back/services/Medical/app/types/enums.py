@@ -53,6 +53,7 @@ class Perimeter(str, Enum):
 class Duration(str, Enum):
     MIN_30 = "30min"
     H_1 = "1h"
+    H_2 = "2h"
     H_24 = "24h"
     J_7 = "7j"
     J_30 = "30j"

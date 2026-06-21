@@ -37,6 +37,7 @@ return [
 
     'medical' => [
         'base_url' => env('MEDICAL_SERVICE_URL', 'http://localhost:8082'),
+        'internal_api_key' => env('MEDICAL_INTERNAL_API_KEY', ''),
     ],
 
 ];

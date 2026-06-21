@@ -71,14 +71,9 @@ export class ConsentService {
     );
   }
 
-  acceptAccessRequest(id: string): Promise<void> {
+  revokeAccessRequest(id: string): Promise<void> {
     const uid = this.userId();
-    return firstValueFrom(this.medicalPrac.acceptAccessRequest(uid, id)).then(() => undefined);
-  }
-
-  declineAccessRequest(id: string, _reason?: string): Promise<void> {
-    const uid = this.userId();
-    return firstValueFrom(this.medicalPrac.declineAccessRequest(uid, id)).then(() => undefined);
+    return firstValueFrom(this.medicalPrac.revokeAccessRequest(uid, id)).then(() => undefined);
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────

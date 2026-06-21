@@ -125,6 +125,8 @@ export class Dashboard implements OnInit, OnDestroy {
         const avatar = identity?.photoPath || 'https://i.pravatar.cc/150?img=68';
         const groupeSanguin = data?.profile?.blood_type || '—';
         const rhesus = data?.profile?.rhesus_factor || '';
+        const taille = data?.profile?.taille ?? 0;
+        const poids = data?.profile?.poids ?? 0;
 
         return {
             nom,
@@ -134,8 +136,8 @@ export class Dashboard implements OnInit, OnDestroy {
             sexe,
             groupeSanguin,
             rhesus,
-            poids: 0,
-            taille: 0,
+            poids,
+            taille,
             imc: 0,
             statutImc: '—',
             allergiePrincipale: '—',

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { DatePipe, CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { Patient, Priority } from './patient.model';
 import { PatientService } from '../../../services/patient.service';
 import { AuditService } from '../../../services/audit.service';
 import { AuthStore } from '../../../../../core/auth/auth.store';
+import { AuthService } from '../../../../../core/auth/auth-service';
 import { MedicalPractitionerService } from '../../../services/medical-practitioner.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -38,6 +39,13 @@ export class Patients {
   accessRequestError = signal<string | null>(null);
   selectedPatientForAccess: { user_id: string; full_name: string | null } | null = null;
 
+  // Protocole d'urgence
+  urgentState = signal<'idle' | 'loading' | 'countdown' | 'approved' | 'expired' | 'forcing' | 'forced' | 'error'>('idle');
+  urgentSessionId = signal<string | null>(null);
+  urgentRemainingSeconds = signal(180);
+  urgentError = signal<string | null>(null);
+  private urgentTimer: ReturnType<typeof setInterval> | null = null;
+
   userId = computed(() => this.authStore.userId() ?? '');
 
   practitioner = computed(() => ({
@@ -54,6 +62,7 @@ export class Patients {
   private patientService = inject(PatientService);
   private auditService = inject(AuditService);
   private medicalPrac = inject(MedicalPractitionerService);
+  private authService = inject(AuthService);
 
   ngOnInit(): void {
     this.auditService.setUserId(this.userId());
@@ -162,6 +171,7 @@ export class Patients {
   }
 
   closeNewPatientModal(): void {
+    this.cancelEmergencyProtocol();
     this.showNewPatientModal.set(false);
   }
 
@@ -211,6 +221,113 @@ export class Patients {
     } catch (e: any) {
       this.accessRequestError.set(e?.error?.detail || 'Erreur lors de l\'envoi de la demande');
     }
+  }
+
+  // ── Protocole d'urgence ──────────────────────────────────
+
+  async initiateEmergencyProtocol(): Promise<void> {
+    if (!this.selectedPatientForAccess) return;
+    this.urgentError.set(null);
+    this.urgentState.set('loading');
+    try {
+      const res = await this.authService.initierUrgence(this.selectedPatientForAccess.user_id);
+      this.urgentSessionId.set(res.session_id);
+      this.urgentState.set('countdown');
+      this.startUrgentCountdown(res.expires_at);
+      this.startUrgentPolling(res.session_id);
+    } catch (e: any) {
+      this.urgentState.set('error');
+      this.urgentError.set(e?.error?.error || e?.error?.detail || 'Erreur lors de l\'initialisation du protocole d\'urgence');
+    }
+  }
+
+  private startUrgentCountdown(expiresAt: string): void {
+    const target = new Date(expiresAt).getTime();
+    const tick = () => {
+      const remaining = Math.max(0, Math.floor((target - Date.now()) / 1000));
+      this.urgentRemainingSeconds.set(remaining);
+      if (remaining <= 0) {
+        if (this.urgentState() === 'countdown') {
+          this.urgentState.set('expired');
+        }
+        this.stopUrgentTimer();
+      }
+    };
+    tick();
+    this.urgentTimer = setInterval(tick, 1000);
+  }
+
+  private startUrgentPolling(sessionId: string): void {
+    const poll = async () => {
+      try {
+        const status = await this.authService.getStatutUrgence(sessionId);
+        if (status.status === 'approuve_contact') {
+          this.urgentState.set('approved');
+          this.urgentRemainingSeconds.set(0);
+          this.stopUrgentTimer();
+        } else if (status.status === 'expire') {
+          this.urgentState.set('expired');
+          this.stopUrgentTimer();
+        }
+      } catch {
+        // ignore polling errors
+      }
+    };
+    // Poll every 3 seconds
+    const intervalId = setInterval(poll, 3000);
+    // Store the interval for cleanup — reuse urgentTimer as it's already used for countdown
+    const origCleanup = this.ngOnDestroy?.bind(this);
+    const origStop = this.stopUrgentTimer.bind(this);
+    const pollingInterval = { id: intervalId };
+    (this as any).__urgentPolling = pollingInterval;
+  }
+
+  private stopUrgentTimer(): void {
+    if (this.urgentTimer) {
+      clearInterval(this.urgentTimer);
+      this.urgentTimer = null;
+    }
+  }
+
+  private stopUrgentPolling(): void {
+    const polling = (this as any).__urgentPolling as { id: ReturnType<typeof setInterval> } | undefined;
+    if (polling) {
+      clearInterval(polling.id);
+      (this as any).__urgentPolling = undefined;
+    }
+  }
+
+  async forceEmergencyAccess(): Promise<void> {
+    const sessionId = this.urgentSessionId();
+    if (!sessionId) return;
+    this.urgentState.set('forcing');
+    try {
+      await this.authService.forcerUrgence(sessionId);
+      this.urgentState.set('forced');
+    } catch (e: any) {
+      this.urgentState.set('error');
+      this.urgentError.set(e?.error?.error || e?.error?.detail || 'Erreur lors du forçage de l\'accès');
+    }
+  }
+
+  cancelEmergencyProtocol(): void {
+    this.stopUrgentTimer();
+    this.stopUrgentPolling();
+    this.urgentState.set('idle');
+    this.urgentSessionId.set(null);
+    this.urgentRemainingSeconds.set(180);
+    this.urgentError.set(null);
+  }
+
+  ngOnDestroy(): void {
+    this.stopUrgentTimer();
+    this.stopUrgentPolling();
+  }
+
+  openPatientFileFromUrgence(npi: string): void {
+    this.cancelEmergencyProtocol();
+    this.closeNewPatientModal();
+    this.openPatientFile(npi);
   }
 
   displayPatients = computed(() => {

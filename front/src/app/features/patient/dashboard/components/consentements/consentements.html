@@ -213,14 +213,15 @@
                         </div>
                         <div class="flex items-center gap-3">
                             @if (c.actif) {
-                            <span class="text-sm font-bold text-red-500 cursor-pointer hover:underline" (click)="toggleConsentement(c.id)">Révoquer l'accès</span>
-                            } @else {
-                            <span class="text-sm font-bold text-emerald-600 cursor-pointer hover:underline" (click)="toggleConsentement(c.id)">Réactiver</span>
+                            <button (click)="revokeConsentement(c.id)" [disabled]="respondingId() === c.id"
+                                class="text-sm font-bold text-red-500 hover:text-red-700 hover:underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                @if (respondingId() === c.id) {
+                                <span class="material-symbols-outlined text-sm animate-spin inline-block">sync</span>
+                                } @else {
+                                Révoquer l'accès
+                                }
+                            </button>
                             }
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" [checked]="c.actif" (change)="toggleConsentement(c.id)" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                            </label>
                         </div>
                     </div>
                 </div>

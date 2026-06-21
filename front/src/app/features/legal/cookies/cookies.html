@@ -1,0 +1,63 @@
+<div class="min-h-screen bg-white">
+  <header class="bg-[#002B5C] text-white px-6 py-4 flex items-center gap-4">
+    <button (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="text-sm font-medium">Retour</span>
+    </button>
+    <div class="w-px h-6 bg-white/20"></div>
+    <h1 class="text-lg font-bold">Politique des Cookies</h1>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-12 space-y-8 text-slate-700 leading-relaxed">
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">1. Qu'est-ce qu'un cookie ?</h2>
+      <p>Un cookie est un petit fichier texte stocké sur votre navigateur lors de la visite d'un site web. Il permet de mémoriser des informations relatives à votre navigation pour améliorer votre expérience utilisateur.</p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">2. Cookies utilisés sur DMN Portal</h2>
+      <div class="overflow-x-auto mt-4">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-slate-100">
+              <th class="text-left p-3 font-bold">Type</th>
+              <th class="text-left p-3 font-bold">Nom</th>
+              <th class="text-left p-3 font-bold">Finalité</th>
+              <th class="text-left p-3 font-bold">Durée</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr>
+              <td class="p-3 font-medium">Essentiel</td>
+              <td class="p-3 font-mono text-xs">session_token</td>
+              <td class="p-3">Maintien de la session utilisateur</td>
+              <td class="p-3">Session</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-medium">Essentiel</td>
+              <td class="p-3 font-mono text-xs">csrf_token</td>
+              <td class="p-3">Protection contre les attaques CSRF</td>
+              <td class="p-3">Session</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-medium">Fonctionnel</td>
+              <td class="p-3 font-mono text-xs">preferences</td>
+              <td class="p-3">Mémorisation des préférences d'affichage</td>
+              <td class="p-3">1 an</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">3. Gestion des cookies</h2>
+      <p>Vous pouvez configurer votre navigateur pour refuser les cookies ou être alerté lors de leur dépôt. Cependant, la désactivation des cookies essentiels peut empêcher le fonctionnement normal de la plateforme.</p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-[#002B5C] mb-4">4. Absence de cookies tiers</h2>
+      <p>DMN Portal n'utilise aucun cookie tiers, de traçage publicitaire ou de réseau social. Aucune donnée n'est transmise à des fins de marketing ou de profilage.</p>
+    </section>
+  </main>
+</div>

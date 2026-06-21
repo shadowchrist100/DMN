@@ -44,6 +44,7 @@ export class StepEmergencyContact implements OnInit {
         this.emergencyForm = this.fb.group({
             firstName: ['', [Validators.required]],
             lastName: ['', [Validators.required]],
+            email: ['', [Validators.required, Validators.email]],
             phonePrefix: ['', [Validators.required]],
             phone: ['', [Validators.required, this.phoneByPrefixValidator()]],
             relation: ['', [Validators.required]],
@@ -64,6 +65,7 @@ export class StepEmergencyContact implements OnInit {
                 this.store.setUserContact({
                     firstName: val.firstName,
                     lastName: val.lastName,
+                    email: val.email,
                     phone: `${val.phonePrefix} ${val.phone}`,
                     relation: val.relation,
                 });

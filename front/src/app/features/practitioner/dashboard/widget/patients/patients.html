@@ -292,19 +292,129 @@
             <p class="text-xs text-blue-700">NPI: {{ selectedPatientForAccess.user_id }}</p>
           </div>
         </div>
-        @if (accessRequestError()) {
-        <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{{ accessRequestError() }}</div>
+
+        @if (urgentState() === 'idle') {
+          @if (accessRequestError()) {
+          <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{{ accessRequestError() }}</div>
+          }
+          <button (click)="sendAccessRequest()"
+                  class="w-full py-2.5 bg-[#002B5C] text-white rounded-xl font-bold text-sm
+                         hover:bg-[#001f42] flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-sm">send</span>
+            Envoyer une demande d'accès
+          </button>
+          <div class="relative flex items-center gap-2">
+            <div class="flex-1 border-t border-slate-200"></div>
+            <span class="text-xs text-slate-400 font-medium">ou</span>
+            <div class="flex-1 border-t border-slate-200"></div>
+          </div>
+          <button (click)="initiateEmergencyProtocol()"
+                  class="w-full py-2.5 bg-red-600 text-white rounded-xl font-bold text-sm
+                         hover:bg-red-700 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-sm">emergency</span>
+            Protocole d'urgence
+          </button>
         }
-        <button (click)="sendAccessRequest()"
-                class="w-full py-2.5 bg-[#002B5C] text-white rounded-xl font-bold text-sm
-                       hover:bg-[#001f42] flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-sm">send</span>
-          Envoyer une demande d'accès
+
+        @if (urgentState() === 'loading' || urgentState() === 'forcing') {
+        <div class="flex items-center justify-center gap-2 py-4">
+          <span class="material-symbols-outlined text-[#1E40AF] animate-spin">progress_activity</span>
+          <span class="text-sm text-slate-600">
+            {{ urgentState() === 'loading' ? 'Initialisation du protocole...' : 'Forçage en cours...' }}
+          </span>
+        </div>
+        }
+
+        @if (urgentState() === 'countdown') {
+        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-amber-600">emergency</span>
+            <p class="text-sm font-bold text-amber-900">Protocole d'urgence initié</p>
+          </div>
+          <p class="text-xs text-amber-700 mb-3">
+            Un email a été envoyé aux contacts d'urgence du patient.
+            En attente d'approbation...
+          </p>
+          <div class="flex items-center justify-center gap-3">
+            <div class="text-3xl font-black text-amber-700 font-mono tabular-nums">
+              {{ urgentRemainingSeconds() }}s
+            </div>
+          </div>
+        </div>
+        <button (click)="cancelEmergencyProtocol()"
+                class="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+          Annuler
         </button>
+        }
+
+        @if (urgentState() === 'approved') {
+        <div class="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+          <span class="material-symbols-outlined text-green-600">check_circle</span>
+          <div>
+            <p class="text-sm font-bold text-green-900">Accès autorisé par le contact d'urgence</p>
+            <p class="text-xs text-green-700">Vous pouvez maintenant consulter le dossier médical.</p>
+          </div>
+        </div>
+        <button (click)="openPatientFileFromUrgence(selectedPatientForAccess.user_id)"
+                class="w-full py-2.5 bg-green-600 text-white rounded-xl font-bold text-sm
+                       hover:bg-green-700 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-sm">folder_open</span>
+          Accéder au dossier médical
+        </button>
+        }
+
+        @if (urgentState() === 'expired') {
+        <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-red-600">timer_off</span>
+            <p class="text-sm font-bold text-red-900">Délai de 3 minutes expiré</p>
+          </div>
+          <p class="text-xs text-red-700 mb-3">
+            Aucun contact d'urgence n'a répondu. Vous pouvez forcer l'accès sous votre responsabilité.
+          </p>
+        </div>
+        <button (click)="forceEmergencyAccess()"
+                class="w-full py-2.5 bg-red-600 text-white rounded-xl font-bold text-sm
+                       hover:bg-red-700 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-sm">lock_open</span>
+          Forcer l'accès (responsabilité engagée)
+        </button>
+        <button (click)="cancelEmergencyProtocol()"
+                class="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+          Annuler
+        </button>
+        }
+
+        @if (urgentState() === 'forced') {
+        <div class="p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-center gap-3">
+          <span class="material-symbols-outlined text-orange-600">lock_open</span>
+          <div>
+            <p class="text-sm font-bold text-orange-900">Accès forcé avec succès</p>
+            <p class="text-xs text-orange-700">L'accès a été enregistré. Vous pouvez consulter le dossier médical.</p>
+          </div>
+        </div>
+        <button (click)="openPatientFileFromUrgence(selectedPatientForAccess.user_id)"
+                class="w-full py-2.5 bg-orange-600 text-white rounded-xl font-bold text-sm
+                       hover:bg-orange-700 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-sm">folder_open</span>
+          Accéder au dossier médical
+        </button>
+        }
+
+        @if (urgentState() === 'error') {
+        <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{{ urgentError() }}</div>
+        <button (click)="cancelEmergencyProtocol()"
+                class="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+          Retour
+        </button>
+        }
+
+        @if (urgentState() === 'idle') {
         <button (click)="selectedPatientForAccess = null"
                 class="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
           Retour à la recherche
         </button>
+        }
         } @else {
         <div class="relative">
           <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>

@@ -199,47 +199,26 @@ export class Dashboard implements OnInit {
         // Le computed signal s'occupe du filtrage automatiquement
     }
 
-    async onAcceptAccess(request: AccessRequest, event: Event): Promise<void> {
+    async onRevokeAccess(request: AccessRequest, event: Event): Promise<void> {
         event.stopPropagation();
 
+        const confirmed = confirm(`Révoquer la demande d'accès pour ${request.patientName} ?`);
+        if (!confirmed) return;
+
         try {
-            await this.consentService.acceptAccessRequest(request.id);
+            await this.consentService.revokeAccessRequest(request.id);
 
             this.pendingAccessRequests.update(requests =>
                 requests.filter(r => r.id !== request.id)
             );
 
-            this.auditService.logAction('accept_access_request', {
+            this.auditService.logAction('revoke_access_request', {
                 requestId: request.id,
                 patientNpi: request.patientNpi
             });
 
         } catch (error) {
-            console.error('Erreur acceptation:', error);
-        }
-    }
-
-    async onDeclineAccess(request: AccessRequest, event: Event): Promise<void> {
-        event.stopPropagation();
-
-        const reason = prompt('Motif du refus (optionnel) :');
-        if (reason === null) return;
-
-        try {
-            await this.consentService.declineAccessRequest(request.id, reason || undefined);
-
-            this.pendingAccessRequests.update(requests =>
-                requests.filter(r => r.id !== request.id)
-            );
-
-            this.auditService.logAction('decline_access_request', {
-                requestId: request.id,
-                patientNpi: request.patientNpi,
-                reason
-            });
-
-        } catch (error) {
-            console.error('Erreur refus:', error);
+            console.error('Erreur révocation:', error);
         }
     }
     

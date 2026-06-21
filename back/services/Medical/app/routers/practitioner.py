@@ -5,7 +5,7 @@ from uuid import UUID
 
 from app.database import get_session
 from app.auth import CurrentUser, verify_jwt
-from app.deps import check_owner
+from app.deps import check_owner, get_practitioner_access_status
 from app.schemas.practitioner import CreatePractitionerReq, PractitionerResp
 from app.schemas.medical import (
     PractitionerProfileResp, PatientSummaryResp,
@@ -260,34 +260,20 @@ def get_practitioner_consents(
     return [PractitionerConsentResp(**c) for c in consents]
 
 
-@router.put("/practitioners/by-user/{user_id}/access-requests/{request_id}/accept")
-def accept_access_request(
+@router.delete("/practitioners/by-user/{user_id}/access-requests/{request_id}")
+def revoke_access_request(
     user_id: str,
     request_id: UUID,
     session: Session = Depends(get_session),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
+    """Révoque une demande d'accès ou une autorisation active du praticien."""
     check_owner(user_id, current_user)
-    ok = PractitionerRepository.accept_access_request(session, request_id)
+    ok = PractitionerRepository.revoke_access_request(session, request_id)
     if not ok:
         not_found("Demande d'accès introuvable")
     session.commit()
-    return {"status": "accepted"}
-
-
-@router.put("/practitioners/by-user/{user_id}/access-requests/{request_id}/decline")
-def decline_access_request(
-    user_id: str,
-    request_id: UUID,
-    session: Session = Depends(get_session),
-    current_user: CurrentUser = Depends(verify_jwt),
-):
-    check_owner(user_id, current_user)
-    ok = PractitionerRepository.decline_access_request(session, request_id)
-    if not ok:
-        not_found("Demande d'accès introuvable")
-    session.commit()
-    return {"status": "declined"}
+    return {"status": "revoked"}
 
 
 @router.get("/practitioners/by-user/{user_id}/activities", response_model=list[PractitionerActivityResp])
@@ -300,6 +286,17 @@ def get_practitioner_activities(
     check_owner(user_id, current_user)
     activities = PractitionerRepository.get_recent_activities(session, user_id, limit)
     return [PractitionerActivityResp(**a) for a in activities]
+
+
+@router.get("/practitioners/by-user/{user_id}/patients/{patient_user_id}/access-status")
+def get_patient_access_status(
+    user_id: str,
+    patient_user_id: str,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    return get_practitioner_access_status(patient_user_id, current_user, session)
 
 
 @router.get("/practitioners/by-user/{user_id}/patients/list", response_model=list[PatientListResp])

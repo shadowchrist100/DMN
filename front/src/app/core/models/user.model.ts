@@ -28,6 +28,7 @@ export interface Iuser {
     contact: {
         firstName: string,
         lastName: string,
+        email: string,
         phone: string,
         relation: string
     } | null,

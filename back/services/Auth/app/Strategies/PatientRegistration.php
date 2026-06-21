@@ -25,6 +25,7 @@ class PatientRegistration implements UserRegistration
             'relative'   => [
                 'first_name'    => $data['emergencyContact']['firstName'] ?? null,
                 'last_name'     => $data['emergencyContact']['lastName'] ?? null,
+                'email'         => $data['emergencyContact']['email'] ?? null,
                 'phone'         => $data['emergencyContact']['phone'] ?? null,
                 'code_relation' => $data['emergencyContact']['code_relation'] ?? null,
             ],

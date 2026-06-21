@@ -62,6 +62,7 @@ class AuthController extends Controller
 
             'emergencyContact.firstName' => ['required_if:role,patient', 'string'],
             'emergencyContact.lastName' => ['required_if:role,patient', 'string'],
+            'emergencyContact.email' => ['required_if:role,patient', 'email'],
             'emergencyContact.phone' => ['required_if:role,patient', 'string'],
             'emergencyContact.code_relation' => ['required_if:role,patient', 'string'],
             'emergencyContact.confirmed' => ['required_if:role,patient', 'in:1,true,yes,on'],

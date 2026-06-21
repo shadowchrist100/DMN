@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\AccountApprovedNotification;
+use App\Notifications\AccountRejectedNotification;
+use App\Notifications\OrganizationValidatedNotification;
 use App\Services\MedicalOrganizationServiceClient;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
@@ -131,6 +134,8 @@ class AdminController extends Controller
                 'status_account' => 'rejected',
             ]);
 
+            $user->notify(new AccountRejectedNotification($user, $request->rejection_reason));
+
             return response()->json([
                 'message' => 'Compte rejeté.',
                 'user' => $user,
@@ -138,6 +143,8 @@ class AdminController extends Controller
         }
 
         $user = $this->userService->verifyUser((string) $user->id);
+
+        $user->notify(new AccountApprovedNotification($user));
 
         return response()->json([
             'message' => 'Compte vérifié avec succès.',
@@ -155,6 +162,16 @@ class AdminController extends Controller
         $data['validated_by'] = $request->user()->id;
 
         $result = $this->orgClient->validate($organization, $data);
+
+        if (isset($result['created_by'])) {
+            $orgAdmin = User::find($result['created_by']);
+            if ($orgAdmin) {
+                $orgAdmin->notify(new OrganizationValidatedNotification(
+                    $result['name'] ?? 'Votre organisation',
+                    $result['is_actif'] ? 'active' : 'suspended',
+                ));
+            }
+        }
 
         return response()->json($result);
     }

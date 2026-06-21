@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING
-from sqlalchemy import Column, UUID, String, Text, ForeignKey
+from sqlalchemy import Column, UUID, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.base import Base
 
@@ -25,6 +26,7 @@ class MedicalAct(Base):
     practitioner_role_id = Column(UUID, ForeignKey("practitionerrole.id"), nullable=True)
     care_episode_id = Column(UUID, ForeignKey("careepisode.id"), nullable=True)
     type_acte = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     __mapper_args__ = {
         "polymorphic_on": "type_acte",

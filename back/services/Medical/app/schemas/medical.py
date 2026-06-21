@@ -11,6 +11,8 @@ class PatientProfileResp(BaseModel):
     blood_type: Optional[str] = None
     rhesus_factor: Optional[str] = None
     date_creation: Optional[datetime] = None
+    taille: Optional[float] = None
+    poids: Optional[float] = None
 
 
 class AllergyResp(BaseModel):
@@ -63,6 +65,8 @@ class AuthorizationResp(BaseModel):
     is_actif: bool
     is_urgence: bool
     authorization_type: str
+    type_autorisation: str = "access_request"
+    auteur_autorisation_id: Optional[str] = None
     practitioner_name: Optional[str] = None
     practitioner_speciality: Optional[str] = None
 
@@ -329,12 +333,20 @@ class ExamenPrescriptionEntry(BaseModel):
     libelle: str
     nature_examination: str = "LABORATOIRE"
     special_instructions: Optional[str] = None
+    valeur: Optional[str] = None
+    interpretation: Optional[str] = None
+    type_examen: str = "BILAN"
 
 
 class VaccinePrescriptionEntry(BaseModel):
     code_cvx: Optional[str] = None
     libelle: str
     special_instructions: Optional[str] = None
+    injection_site: Optional[str] = None
+    sequence_dose: Optional[int] = None
+    batch_number: Optional[str] = None
+    next_reminder: Optional[date] = None
+    note: Optional[str] = None
 
 
 class CareInstructionEntry(BaseModel):

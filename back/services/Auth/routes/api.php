@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\OrganizationProxyController;
+use App\Http\Controllers\UrgenceController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,1');
@@ -22,6 +23,16 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::post('/refresh', [AuthController::class, 'refresh']);
+
+// Protocole d'urgence (route publique pour la validation par le contact)
+Route::post('/urgence/approuver', [UrgenceController::class, 'approuver']);
+
+// Routes protégées pour le praticien
+Route::middleware('auth:api')->group(function () {
+    Route::post('/urgence/initier', [UrgenceController::class, 'initier']);
+    Route::get('/urgence/statut/{session_id}', [UrgenceController::class, 'statut']);
+    Route::post('/urgence/forcer', [UrgenceController::class, 'forcer']);
+});
 
 Route::get('/photos/{filename}', [AuthController::class, 'showPhoto']);
 

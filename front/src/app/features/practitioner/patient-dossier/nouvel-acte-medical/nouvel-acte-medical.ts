@@ -23,7 +23,7 @@ export interface MedicalActState {
   careInstructions: CareInstructionEntry[];
 }
 
-export type WizardStep = 'type' | 'consultation' | 'diagnostics' | 'prescriptions' | 'review';
+export type WizardStep = 'type' | 'consultation' | 'diagnostics' | 'prescriptions' | 'exam-details' | 'vaccination-details' | 'review';
 
 @Component({
   selector: 'app-nouvel-acte-medical',
@@ -49,6 +49,8 @@ export class NouvelActeMedical {
     consultation: 'Consultation',
     diagnostics: 'Diagnostics',
     prescriptions: 'Prescriptions',
+    'exam-details': "Résultats d'examen",
+    'vaccination-details': 'Détails vaccination',
     review: 'Récapitulatif',
   };
 
@@ -56,8 +58,11 @@ export class NouvelActeMedical {
 
   currentStepOrder = computed<WizardStep[]>(() => {
     const type = this.state().typeActe;
-    if (type === 'Examen' || type === 'VACCINATION') {
-      return ['type', 'review'];
+    if (type === 'Examen') {
+      return ['type', 'exam-details', 'review'];
+    }
+    if (type === 'VACCINATION') {
+      return ['type', 'vaccination-details', 'review'];
     }
     return this.stepOrder;
   });
@@ -177,8 +182,10 @@ export class NouvelActeMedical {
     this.state.update(s => ({...s, typeActe}));
     if (typeActe === 'Examen' || typeActe === 'VACCINATION') {
       this.loadActivePrescriptions(typeActe);
+      this.nextStep();
+    } else {
+      this.nextStep();
     }
-    this.nextStep();
   }
 
   private loadActivePrescriptions(typeActe: string) {
@@ -299,10 +306,18 @@ export class NouvelActeMedical {
   // ── Examens prescrits ──────────────────────────────────────────────────
 
   newExamenRefId = signal('');
+  newExamenType = signal('BILAN');
+  newExamenValue = signal('');
+  newExamenInterpretation = signal('');
 
   get selectedExamenLibelle(): string {
     const ref = this.examinationRefs().find(r => r.id === this.newExamenRefId());
     return ref ? ref.libelle : '';
+  }
+
+  get selectedExamenCodeLoinc(): string {
+    const ref = this.examinationRefs().find(r => r.id === this.newExamenRefId());
+    return ref ? ref.code : '';
   }
 
   get selectedExamenNature(): string {
@@ -318,10 +333,16 @@ export class NouvelActeMedical {
       ...s,
       examens: [...s.examens, {
         libelle: ref.libelle,
+        code_loinc: ref.code,
         nature_examination: ref.nature,
+        type_examen: this.newExamenType(),
+        valeur: this.newExamenValue() || undefined,
+        interpretation: this.newExamenInterpretation() || undefined,
       }],
     }));
     this.newExamenRefId.set('');
+    this.newExamenValue.set('');
+    this.newExamenInterpretation.set('');
   }
 
   removeExamen(index: number) {
@@ -334,10 +355,19 @@ export class NouvelActeMedical {
   // ── Vaccins ────────────────────────────────────────────────────────────
 
   newVaccinRefId = signal('');
+  newVaccinInjectionSite = signal('');
+  newVaccinSequenceDose = signal<number | null>(null);
+  newVaccinBatchNumber = signal('');
+  newVaccinNextReminder = signal('');
 
   get selectedVaccinLibelle(): string {
     const ref = this.vaccineRefs().find(r => r.id === this.newVaccinRefId());
     return ref ? ref.libelle : '';
+  }
+
+  get selectedVaccinCodeCvx(): string {
+    const ref = this.vaccineRefs().find(r => r.id === this.newVaccinRefId());
+    return ref ? ref.code_cvx : '';
   }
 
   addVaccin() {
@@ -346,9 +376,20 @@ export class NouvelActeMedical {
     if (!ref) return;
     this.state.update(s => ({
       ...s,
-      vaccines: [...s.vaccines, { libelle: ref.libelle }],
+      vaccines: [...s.vaccines, { 
+        libelle: ref.libelle,
+        code_cvx: ref.code_cvx,
+        injection_site: this.newVaccinInjectionSite() || undefined,
+        sequence_dose: this.newVaccinSequenceDose() || undefined,
+        batch_number: this.newVaccinBatchNumber() || undefined,
+        next_reminder: this.newVaccinNextReminder() || undefined,
+      }],
     }));
     this.newVaccinRefId.set('');
+    this.newVaccinInjectionSite.set('');
+    this.newVaccinSequenceDose.set(null);
+    this.newVaccinBatchNumber.set('');
+    this.newVaccinNextReminder.set('');
   }
 
   removeVaccin(index: number) {

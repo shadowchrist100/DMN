@@ -68,7 +68,7 @@
         </div>
         <p class="text-3xl font-black text-amber-600">{{ pendingAccessRequests().length }}</p>
         <p class="mt-2 text-[10px] text-slate-500 group-hover:text-amber-600 transition-colors">
-          Consentements à valider →
+          En attente de réponse patient →
         </p>
       </button>
 
@@ -131,10 +131,15 @@
                (click)="onOpenDossier(patient.npi)">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-4 flex-1 min-w-0">
+                @if (patient.photoUrl) {
+                <img [src]="patient.photoUrl" alt="Photo"
+                     class="w-11 h-11 rounded-full object-cover shrink-0 border-2 border-white shadow-sm">
+                } @else {
                 <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-100 to-blue-200
                             flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
                   <span class="text-blue-700 font-black text-sm">{{ patient.initials }}</span>
                 </div>
+                }
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 mb-0.5">
                     <p class="font-bold text-slate-800 text-sm truncate">{{ patient.name }}</p>
@@ -173,15 +178,15 @@
       <!-- Colonne droite -->
       <div class="space-y-5">
 
-        <!-- Demandes d'accès en attente -->
+        <!-- Demandes d'accès envoyées -->
         <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-amber-50/30">
             <h3 class="font-black text-[#002B5C] uppercase tracking-wide text-xs flex items-center gap-2">
               <span class="material-symbols-outlined text-amber-500 text-lg">verified_user</span>
-              Demandes d'accès
+              Demandes envoyées
             </h3>
             @if (pendingAccessRequests().length > 0) {
-            <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">
+            <span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
               {{ pendingAccessRequests().length }}
             </span>
             }
@@ -206,15 +211,10 @@
                 </p>
               </div>
               <div class="flex gap-2">
-                <button (click)="onAcceptAccess(request, $event)"
-                        class="flex-1 bg-green-600 text-white text-xs font-bold py-2 rounded-lg
-                               hover:bg-green-700 transition-colors flex items-center justify-center gap-1">
-                  <span class="material-symbols-outlined text-sm">check</span> Accepter
-                </button>
-                <button (click)="onDeclineAccess(request, $event)"
-                        class="flex-1 bg-white border border-slate-200 text-slate-700 text-xs font-bold
-                               py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center justify-center gap-1">
-                  <span class="material-symbols-outlined text-sm">close</span> Refuser
+                <button (click)="onRevokeAccess(request, $event)"
+                        class="flex-1 bg-white border border-red-200 text-red-600 text-xs font-bold
+                               py-2 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-sm">cancel</span> Annuler
                 </button>
               </div>
             </div>

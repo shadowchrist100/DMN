@@ -146,7 +146,7 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
 
     /** Source de vérité : tous les événements du patient */
     events = signal<TimelineEvent[]>([]);
-    /** Sous-ensemble filtré + trié, lu par le template */
+    /** Sous-ensemble filtré + trié + dédoublonné, lu par le template */
     filteredEvents = signal<TimelineEvent[]>([]);
 
     // ── Pagination ──────────────────────────────────────────────────────
@@ -303,8 +303,14 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
 
         this.timelineService.getTimeline(this.patientId() || undefined, this.buildFilter() as any).subscribe({
             next: (data) => {
-                this.events.set(data as any);
-                this.totalEvents = data.length;
+                const seen = new Set<string>();
+                const deduped = (data as any[]).filter(e => {
+                    if (seen.has(e.id)) return false;
+                    seen.add(e.id);
+                    return true;
+                });
+                this.events.set(deduped);
+                this.totalEvents = deduped.length;
                 this.applyFilters();
                 this.loading.set(false);
             },

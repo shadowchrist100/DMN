@@ -15,6 +15,7 @@ from .vaccination import Vaccination
 
 from .diagnosis import Diagnosis
 from .allergy import Allergy
+from .disease import Disease
 from .diagnosis_reference import DiagnosisReference
 from .reaction_reference import ReactionReference
 from .reaction import Reaction
@@ -51,6 +52,7 @@ __all__ = [
     "Vaccination",
     "Diagnosis",
     "Allergy",
+    "Disease",
     "DiagnosisReference",
     "ReactionReference",
     "Reaction",

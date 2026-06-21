@@ -5,6 +5,7 @@ from typing import Optional
 class RelativeReq(BaseModel):
     first_name: str
     last_name: str
+    email: Optional[str] = None
     phone: str
     code_relation: str
 
@@ -20,6 +21,7 @@ class RelativeResp(BaseModel):
     id: str
     first_name: str
     last_name: str
+    email: Optional[str] = None
     phone: str
 
 

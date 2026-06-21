@@ -256,6 +256,29 @@
         </div>
     </div>
 
+    <div class="space-y-4 pt-4">
+        <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <input type="checkbox" id="acceptTerms" formControlName="acceptTerms"
+                class="mt-1 w-5 h-5 rounded border-slate-300 text-secondary focus:ring-secondary shrink-0 cursor-pointer">
+            <label for="acceptTerms" class="text-sm text-slate-600 leading-relaxed cursor-pointer select-none">
+                J'accepte la
+                <a routerLink="/confidentialite" target="_blank"
+                    class="text-secondary font-bold hover:underline">Politique de Confidentialité</a>
+                et les
+                <a routerLink="/mentions-legales" target="_blank"
+                    class="text-secondary font-bold hover:underline">Mentions Légales</a>
+                du Dossier Médical National. Je consens au traitement de mes données personnelles conformément à la
+                réglementation APDP en vigueur.
+            </label>
+        </div>
+        @if (isInvalid('acceptTerms')) {
+        <p class="text-[11px] font-bold text-error flex items-center gap-1.5 px-2">
+            <span class="material-symbols-outlined text-[14px]">error_outline</span>
+            Vous devez accepter les conditions pour créer votre compte.
+        </p>
+        }
+    </div>
+
     <div
         class="mt-12 p-8 bg-primary-container text-white rounded-4xl flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
         <div

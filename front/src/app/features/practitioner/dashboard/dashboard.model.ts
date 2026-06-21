@@ -26,7 +26,7 @@ export type PatientFilter = 'all' | 'recent' | 'critical' | 'follow_up';
 export interface FollowedPatient {
     npi: string;
     name: string;
-    initials: string; // Computed from name
+    initials: string;
     age: number;
     gender: 'M' | 'F';
     lastVisit: Date;
@@ -34,6 +34,7 @@ export interface FollowedPatient {
     isCritical: boolean;
     followUpFrequency?: 'weekly' | 'monthly' | 'quarterly';
     createdAt: Date;
+    photoUrl?: string;
 }
 
 export interface AccessRequest {

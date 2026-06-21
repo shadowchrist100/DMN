@@ -20,6 +20,9 @@ class Authorization(SQLModel, table=True):
     is_urgence: bool
     authorization_type: str = ""
 
+    type_autorisation: str = "access_request"
+    auteur_autorisation_id: Optional[str] = None
+
     dmn_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dmn.id")
     practitioner_id: Optional[uuid.UUID] = Field(default=None, foreign_key="practitioner.id")
 

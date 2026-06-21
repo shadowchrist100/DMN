@@ -312,7 +312,7 @@
                         class="absolute left-0 top-0 bottom-0 w-px bg-linear-to-b from-[#1E40AF]/40 via-[#1E40AF]/20 to-transparent">
                     </div>
 
-                    @for (event of group.events; track event.id; let isLast = $last) {
+                    @for (event of group.events; track $index; let isLast = $last) {
 
                     <!-- Dot de timeline -->
                     <div class="absolute left-0 transform -translate-x-1/2 mt-6"

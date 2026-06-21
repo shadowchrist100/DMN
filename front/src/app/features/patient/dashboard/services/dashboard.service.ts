@@ -161,6 +161,12 @@ export class DashboardService {
         );
     }
 
+    revokeAuthorization(authorizationId: string): Observable<{ status: string }> {
+        const uid = this.userId;
+        if (!uid) throw new Error('User not authenticated');
+        return this.medical.revokeAuthorization(uid, authorizationId);
+    }
+
     private mapAllergie(dto: AllergyDTO, index: number): Allergie {
         const rawType = dto.categorie || '';
         const type: TypeAllergie = CATEGORIE_TO_TYPE[rawType] || 'Autre';

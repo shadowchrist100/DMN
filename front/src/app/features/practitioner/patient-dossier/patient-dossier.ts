@@ -15,6 +15,14 @@ import { NouvelActeMedical } from './nouvel-acte-medical/nouvel-acte-medical';
 
 export type TabId = 'overview' | 'historiques' | 'analyses' | 'prescriptions' | 'pathologies' | 'vaccins';
 
+interface AccessStatus {
+    has_access: boolean;
+    status: 'active' | 'expired' | 'none';
+    message: string;
+    granted_at?: string | null;
+    expire_at?: string | null;
+}
+
 @Component({
     selector: 'app-patient-dossier',
     imports: [CommonModule, Historiques, Examens, Pathologies, Vaccins, Prescriptions, NouvelActeMedical],
@@ -33,16 +41,16 @@ export class PatientDossier {
     patientProfile = signal<PatientProfileDTO | null>(null);
     patientPhoto = signal<string | null>(null);
     loadingProfile = signal(false);
-    now = new Date();
-    consentDateDebut = '15/10/' + (this.now.getFullYear() - 1);
-    consentDateFin = '15/10/' + this.now.getFullYear();
-    lastAccessDate = this.now.toLocaleDateString('fr-FR') + ' à ' + this.now.getHours().toString().padStart(2, '0') + ':' + this.now.getMinutes().toString().padStart(2, '0');
-    currentYear = this.now.getFullYear();
+    accessStatus = signal<AccessStatus | null>(null);
+    errorMessage = signal('');
+
+    currentYear = new Date().getFullYear();
 
     constructor() {
         this.route.params.subscribe(params => {
             const npi = params['npi'] || '';
             this.patientNpi.set(npi);
+            this.errorMessage.set('');
             if (npi) {
                 this.loadProfile(npi);
             }
@@ -56,20 +64,58 @@ export class PatientDossier {
 
     private async loadProfile(npi: string) {
         this.loadingProfile.set(true);
+        this.errorMessage.set('');
+        const userId = this.authStore.userId();
         try {
-            const [profile, authUser] = await Promise.all([
-                firstValueFrom(this.medicalPrac.getPatientProfile(npi)),
+            const [accessStatus, profile, authUser] = await Promise.all([
+                userId ? firstValueFrom(this.medicalPrac.getAccessStatus(userId, npi)).catch(() => null) : Promise.resolve(null),
+                firstValueFrom(this.medicalPrac.getPatientProfile(npi)).catch((e) => {
+                    if (e.status === 403) return null;
+                    throw e;
+                }),
                 this.authService.getUser(npi).catch(() => null),
             ]);
-            this.patientProfile.set(profile);
+            if (accessStatus) {
+                this.accessStatus.set(accessStatus);
+            }
+            if (profile) {
+                this.patientProfile.set(profile);
+            } else if (accessStatus && !accessStatus.has_access) {
+                this.errorMessage.set(accessStatus.message);
+            }
             if (authUser) {
                 this.patientPhoto.set(authUser.photo_url);
             }
         } catch (e) {
             console.error('Failed to load patient profile', e);
+            this.errorMessage.set("Erreur lors du chargement du dossier patient.");
         } finally {
             this.loadingProfile.set(false);
         }
+    }
+
+    get hasAccess(): boolean {
+        return this.accessStatus()?.has_access ?? !!this.patientProfile();
+    }
+
+    get accessStatusText(): string {
+        const s = this.accessStatus();
+        if (!s) return '';
+        return s.message;
+    }
+
+    get accessGrantedAt(): string {
+        const s = this.accessStatus();
+        if (!s?.granted_at) return '';
+        const d = new Date(s.granted_at);
+        return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    get accessExpireAt(): string {
+        const s = this.accessStatus();
+        if (!s?.expire_at) return '';
+        const d = new Date(s.expire_at);
+        return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
     tabs: { id: TabId; label: string; icon: string; badge?: { text: string; class: string } }[] = [

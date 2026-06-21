@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { RegisterStore } from './register.store';
 import { StepTypeCompte } from "./step-type-compte/step-type-compte";
 import { StepIdentity } from "./step-identity/step-identity";
@@ -11,7 +11,7 @@ import { AuthStore } from '../../../core/auth/auth.store';
 
 @Component({
     selector: 'app-register',
-    imports: [StepTypeCompte, StepIdentity, StepEmergencyContact, StepAuth, StepProfessionalInfo],
+    imports: [StepTypeCompte, StepIdentity, StepEmergencyContact, StepAuth, StepProfessionalInfo, RouterLink],
     templateUrl: './register.html',
     styleUrl: './register.css',
 })
@@ -86,6 +86,7 @@ export class Register {
                 payload.emergencyContact = {
                     firstName: user.contact.firstName,
                     lastName: user.contact.lastName,
+                    email: user.contact.email,
                     phone: user.contact.phone,
                     code_relation: user.contact.relation,
                     confirmed: true,

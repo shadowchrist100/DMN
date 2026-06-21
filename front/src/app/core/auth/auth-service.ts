@@ -61,6 +61,7 @@ export interface RegisterPayload {
     emergencyContact?: {
         firstName: string;
         lastName: string;
+        email: string;
         phone: string;
         code_relation: string;
         confirmed: boolean;
@@ -184,6 +185,7 @@ export class AuthService {
             formData.append('emergencyContact[firstName]', payload.emergencyContact.firstName);
             formData.append('emergencyContact[lastName]', payload.emergencyContact.lastName);
             formData.append('emergencyContact[phone]', payload.emergencyContact.phone);
+            formData.append('emergencyContact[email]', payload.emergencyContact.email);
             formData.append('emergencyContact[code_relation]', payload.emergencyContact.code_relation);
             formData.append('emergencyContact[confirmed]', '1');
         }
@@ -235,6 +237,52 @@ export class AuthService {
     async getUser(userId: string): Promise<UserDetailResponse> {
         return firstValueFrom(
             this.http.get<UserDetailResponse>(`${API.AUTH_BASE_URL}/users/${userId}`)
+        );
+    }
+
+    // ── Protocole d'urgence ────────────────────────────────────
+
+    async initierUrgence(patientUserId: string): Promise<{
+        session_id: string;
+        expires_at: string;
+        status: string;
+        contacts_count: number;
+    }> {
+        return firstValueFrom(
+            this.http.post<{
+                session_id: string;
+                expires_at: string;
+                status: string;
+                contacts_count: number;
+            }>(`${API.AUTH_BASE_URL}/urgence/initier`, { patient_user_id: patientUserId })
+        );
+    }
+
+    async getStatutUrgence(sessionId: string): Promise<{
+        session_id: string;
+        status: string;
+        expires_at: string;
+        remaining_seconds: number;
+    }> {
+        return firstValueFrom(
+            this.http.get<{
+                session_id: string;
+                status: string;
+                expires_at: string;
+                remaining_seconds: number;
+            }>(`${API.AUTH_BASE_URL}/urgence/statut/${sessionId}`)
+        );
+    }
+
+    async forcerUrgence(sessionId: string): Promise<{
+        status: string;
+        message: string;
+    }> {
+        return firstValueFrom(
+            this.http.post<{ status: string; message: string }>(
+                `${API.AUTH_BASE_URL}/urgence/forcer`,
+                { session_id: sessionId }
+            )
         );
     }
 }

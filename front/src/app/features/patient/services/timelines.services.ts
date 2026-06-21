@@ -34,12 +34,14 @@ export class TimelineService {
     }
 
     private mapToTimelineEvent(dto: TimelineEventDTO): TimelineEvent {
+        const parsed = new Date(dto.date);
+        const eventDate = isNaN(parsed.getTime()) ? new Date() : parsed;
         return {
             id: dto.id,
             type: dto.type as EventType,
             title: dto.title,
             description: dto.description || undefined,
-            date: new Date(dto.date),
+            date: eventDate,
             facility: dto.facility || '',
             practitioner: {
                 name: dto.practitioner_name || 'Inconnu',
@@ -54,7 +56,7 @@ export class TimelineService {
                 text: dto.badge_text,
                 type: (dto.badge_type as 'completed' | 'pending' | 'alert' | 'archived') || 'completed',
             } : undefined,
-            createdAt: new Date(dto.date),
+            createdAt: eventDate,
             isEditable: false,
             consentRequired: true,
         };
