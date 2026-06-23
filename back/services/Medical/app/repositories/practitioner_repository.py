@@ -392,6 +392,61 @@ class PractitionerRepository:
         return result
 
     @classmethod
+    def create_emergency_access(
+        cls,
+        session: Session,
+        practitioner: Practitioner,
+        patient_user_id: str,
+        reason: str = "Accès d'urgence (break-glass)",
+        duration: str = "24h",
+    ) -> dict | None:
+        patient = session.exec(
+            select(Patient).where(Patient.user_id == patient_user_id)
+        ).first()
+        if not patient:
+            return None
+        dmn = session.exec(
+            select(DMN).where(DMN.patient_id == patient.id)
+        ).first()
+        if not dmn:
+            return None
+
+        duration_enum = DurationEnum(duration) if duration in [e.value for e in DurationEnum] else DurationEnum.H_24
+        delta_map = {
+            DurationEnum.MIN_30: timedelta(minutes=30),
+            DurationEnum.H_1: timedelta(hours=1),
+            DurationEnum.H_2: timedelta(hours=2),
+            DurationEnum.H_24: timedelta(hours=24),
+            DurationEnum.J_7: timedelta(days=7),
+            DurationEnum.J_30: timedelta(days=30),
+            DurationEnum.INDETERMINEE: timedelta(days=365 * 10),
+        }
+        today = date.today()
+        expire_at = today + delta_map.get(duration_enum, timedelta(hours=24))
+
+        auth = Authorization(
+            perimeter=Perimeter.ALL,
+            granted_at=today,
+            expire_at=expire_at,
+            duration=duration_enum,
+            is_actif=True,
+            is_urgence=True,
+            authorization_type="break_glass",
+            type_autorisation="urgence",
+            auteur_autorisation_id=None,
+            dmn_id=dmn.id,
+            practitioner_id=practitioner.id,
+        )
+        session.add(auth)
+        session.flush()
+        session.refresh(auth)
+        return {
+            "id": str(auth.id),
+            "status": "granted",
+            "is_urgence": True,
+        }
+
+    @classmethod
     def create_access_request(
         cls,
         session: Session,
@@ -465,6 +520,7 @@ class PractitionerRepository:
         observations_text: str | None = None,
         duree_minutes: int | None = None,
         prescription_examen_id: str | None = None,
+        organization_id: str | None = None,
         vital_constants: list[dict] | None = None,
         diagnoses: list[dict] | None = None,
         medications: list[dict] | None = None,
@@ -476,11 +532,32 @@ class PractitionerRepository:
         if not practitioner:
             return None
 
-        role = session.exec(
-            select(PractitionerRole).where(
-                PractitionerRole.practitioner_id == practitioner.id
-            )
-        ).first()
+        if organization_id:
+            role = session.exec(
+                select(PractitionerRole).where(
+                    PractitionerRole.practitioner_id == practitioner.id,
+                    PractitionerRole.health_care_system_id == UUID(organization_id),
+                )
+            ).first()
+            if not role:
+                org = session.get(HealthcareSystem, UUID(organization_id))
+                if org and org.is_actif:
+                    role = PractitionerRole(
+                        practitioner_id=practitioner.id,
+                        health_care_system_id=org.id,
+                        role="medecin",
+                        start_date=date.today(),
+                    )
+                    session.add(role)
+                    session.flush()
+                    session.refresh(role)
+        else:
+            role = session.exec(
+                select(PractitionerRole).where(
+                    PractitionerRole.practitioner_id == practitioner.id
+                )
+            ).first()
+
         if not role:
             return None
 
@@ -556,89 +633,90 @@ class PractitionerRepository:
                     dmn.rhesus_factor = rh
                 session.add(dmn)
 
-        # 3. Constantes vitales (Consultation seulement)
-        if type_acte == "Consultation":
-            for vc in (vital_constants or []):
-                v = VitalConstant(
-                    medical_act_id=act.id,
-                    vital_constant_reference_code=vc["code"],
-                    valeur=vc["valeur"],
-                    date_mesure=datetime.now(),
-                )
-                session.add(v)
+        # 3. Constantes vitales
+        for vc in (vital_constants or []):
+            v = VitalConstant(
+                medical_act_id=act.id,
+                vital_constant_reference_code=vc["code"],
+                valeur=vc["valeur"],
+                date_mesure=datetime.now(),
+            )
+            session.add(v)
 
-        # 4. Prescriptions (Consultation seulement)
-        if type_acte == "Consultation" and (diagnoses or medications or examens or vaccines or care_instructions):
+        # 4. Diagnostics
+        for diag in (diagnoses or []):
+            ref_id = diag.get("diagnosis_ref_id")
+            d = Diagnosis(
+                statut_verification=diag.get("statut_verification", "confirmed"),
+                date_diagnosis=date.today(),
+                note_clinique=diag.get("note_clinique"),
+                medical_act_id=act.id,
+                diagnosis_ref_id=UUID(ref_id) if ref_id else None,
+                type_diagnosis="standard",
+            )
+            session.add(d)
+
+        # 5. Ordere de prescriptions (pour médicaments + soins)
+        has_meds_or_soins = (medications and len(medications) > 0) or (care_instructions and len(care_instructions) > 0)
+        po = None
+        if has_meds_or_soins:
             po = PrescriptionOrder(medical_act_id=act.id, statut="active")
             session.add(po)
             session.flush()
 
-            # 4a. Diagnostics
-            for diag in (diagnoses or []):
-                ref = session.get(DiagnosisReference, UUID(diag["diagnosis_ref_id"]))
-                d = Diagnosis(
-                    statut_verification=diag.get("statut_verification", "confirmed"),
-                    date_diagnosis=date.today(),
-                    note_clinique=diag.get("note_clinique"),
-                    medical_act_id=act.id,
-                    diagnosis_ref_id=UUID(diag["diagnosis_ref_id"]) if ref else None,
-                    type_diagnosis="standard",
-                )
-                session.add(d)
+        # 5a. Prescriptions médicaments
+        for med in (medications or []):
+            md = MedicationDirective(
+                description_generale=med.get("description_generale", ""),
+                prescription_order_id=po.id if po else None,
+                type_directive="medicament",
+                medication_ref_id=UUID(med["medication_ref_id"]) if med.get("medication_ref_id") else None,
+                posologie=med.get("posologie", ""),
+                duree_jours=med.get("duree_jours"),
+            )
+            session.add(md)
 
-            # 4b. Prescriptions médicaments
-            for med in (medications or []):
-                md = MedicationDirective(
-                    description_generale=med.get("description_generale", ""),
-                    prescription_order_id=po.id,
-                    type_directive="medicament",
-                    medication_ref_id=UUID(med["medication_ref_id"]),
-                    posologie=med["posologie"],
-                    duree_jours=med["duree_jours"],
-                )
-                session.add(md)
+        # 5b. Prescriptions examens
+        for ex in (examens or []):
+            e = Examination(
+                date_prescription=datetime.now(),
+                statut="En cours",
+                special_instructions=ex.get("special_instructions", ""),
+                medical_act_id=act.id,
+                type_prescription="examination",
+                code_loinc=ex.get("code_loinc", ""),
+                libelle=ex.get("libelle", ""),
+                nature_examination=ex.get("nature_examination", "LABORATOIRE"),
+            )
+            session.add(e)
 
-            # 4c. Prescriptions examens
-            for ex in (examens or []):
-                e = Examination(
-                    date_prescription=datetime.now(),
-                    statut="En cours",
-                    special_instructions=ex.get("special_instructions", ""),
-                    medical_act_id=act.id,
-                    type_prescription="examination",
-                    code_loinc=ex.get("code_loinc", ""),
-                    libelle=ex["libelle"],
-                    nature_examination=ex.get("nature_examination", "LABORATOIRE"),
-                )
-                session.add(e)
+        # 5c. Prescriptions vaccins
+        for vac in (vaccines or []):
+            v = Vaccine(
+                date_prescription=datetime.now(),
+                statut="En cours",
+                special_instructions=vac.get("special_instructions", ""),
+                medical_act_id=act.id,
+                type_prescription="vaccin",
+                code_cvx=vac.get("code_cvx", ""),
+                libelle=vac.get("libelle", ""),
+            )
+            session.add(v)
 
-            # 4d. Prescriptions vaccins
-            for vac in (vaccines or []):
-                v = Vaccine(
-                    date_prescription=datetime.now(),
-                    statut="En cours",
-                    special_instructions=vac.get("special_instructions", ""),
-                    medical_act_id=act.id,
-                    type_prescription="vaccin",
-                    code_cvx=vac.get("code_cvx", ""),
-                    libelle=vac["libelle"],
-                )
-                session.add(v)
-
-            # 4e. Instructions de soins
-            for ci in (care_instructions or []):
-                s = PrescriptionDeSoins(
-                    description_generale=ci.get("description_generale", ""),
-                    prescription_order_id=po.id,
-                    type_directive="soins",
-                    sous_type=ci.get("sous_type", "rehabilitation"),
-                    nombre_seances=ci.get("nombre_seances"),
-                    frequence_hebdo=ci.get("frequence_hebdo"),
-                    objectifs=ci.get("objectifs"),
-                    titre_consigne=ci.get("titre_consigne"),
-                    recommandations=ci.get("recommandations"),
-                )
-                session.add(s)
+        # 5d. Instructions de soins
+        for ci in (care_instructions or []):
+            s = PrescriptionDeSoins(
+                description_generale=ci.get("description_generale", ""),
+                prescription_order_id=po.id if po else None,
+                type_directive="soins",
+                sous_type=ci.get("sous_type", "rehabilitation"),
+                nombre_seances=ci.get("nombre_seances"),
+                frequence_hebdo=ci.get("frequence_hebdo"),
+                objectifs=ci.get("objectifs"),
+                titre_consigne=ci.get("titre_consigne"),
+                recommandations=ci.get("recommandations"),
+            )
+            session.add(s)
 
         session.flush()
         return act.id

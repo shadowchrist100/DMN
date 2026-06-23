@@ -121,6 +121,45 @@ class AuthController extends Controller
         ]);
     }
 
+    public function updateMe(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+
+        $data = $request->validate([
+            'first_name' => ['sometimes', 'string', 'max:255'],
+            'last_name' => ['sometimes', 'string', 'max:255'],
+            'gender' => ['sometimes', 'string', Rule::in(['homme', 'femme'])],
+            'birth_date' => ['sometimes', 'date'],
+            'matrimonial_status' => ['sometimes', 'string'],
+            'phone' => ['sometimes', 'string'],
+            'city' => ['sometimes', 'string', 'max:255'],
+            'address' => ['sometimes', 'string', 'max:255'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
+        ]);
+
+        $allowed = ['first_name', 'last_name', 'gender', 'birth_date', 'matrimonial_status', 'phone', 'city', 'address'];
+        $fill = array_intersect_key($data, array_flip($allowed));
+
+        if (!empty($fill)) {
+            $user->fill($fill);
+        }
+
+        if ($request->hasFile('photo')) {
+            if ($user->photo_path && Storage::disk('public')->exists($user->photo_path)) {
+                Storage::disk('public')->delete($user->photo_path);
+            }
+            $path = $request->file('photo')->store('photos', 'public');
+            $user->photo_path = $path;
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profil mis à jour avec succès.',
+            'user' => $user,
+        ]);
+    }
+
     public function logout(): JsonResponse
     {
         auth()->logout();

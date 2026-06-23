@@ -238,6 +238,15 @@
                     class="text-xs font-bold text-[#002B5C] hover:underline">Gérer</button>
           </div>
           <div class="p-3 space-y-2">
+            @if (organizations().length === 0) {
+            <div class="p-4 text-center text-slate-400">
+              <span class="material-symbols-outlined text-3xl mb-2 block">apartment</span>
+              <p class="text-xs mb-2">Aucun établissement rattaché</p>
+              <p class="text-[10px] text-slate-400">
+                Contactez votre administrateur pour être rattaché à un établissement.
+              </p>
+            </div>
+            }
             @for (org of organizations(); track org.id) {
             <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100
                         hover:border-[#002B5C]/20 hover:bg-slate-50/50 transition-all cursor-pointer"

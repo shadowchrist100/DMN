@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../../../core/auth/auth.store';
-import { MedicalService } from '../../../services/medical.service';
+import { MedicalService, RelativeDTO } from '../../../services/medical.service';
 
 @Component({
     selector: 'app-profil',
@@ -13,8 +13,17 @@ export class Profil implements OnInit {
 
     private medicalService = inject(MedicalService);
 
+    editProfil = output<void>();
+    addContact = output<void>();
+    editContact = output<string>();
+
     authStore = AuthStore;
     medicalProfile = signal<{ blood_type: string | null; rhesus_factor: string | null } | null>(null);
+    personnesLiees = signal<RelativeDTO[]>([]);
+    loadingProfile = signal(true);
+    loadingRelatives = signal(true);
+    errorProfile = signal<string | null>(null);
+    errorRelatives = signal<string | null>(null);
 
     get patient() {
         const identity = this.authStore.user()?.identity;
@@ -51,15 +60,29 @@ export class Profil implements OnInit {
         ];
     }
 
-    get personnesLiees(): Array<{ nom: string; role: string; relation: string; telephone: string }> {
-        return [];
-    }
-
     ngOnInit(): void {
         const userId = AuthStore.userId();
         if (userId) {
             this.medicalService.getProfile(userId).subscribe({
-                next: (profile) => this.medicalProfile.set(profile),
+                next: (profile) => {
+                    this.medicalProfile.set(profile);
+                    this.loadingProfile.set(false);
+                },
+                error: () => {
+                    this.errorProfile.set('Erreur lors du chargement du profil médical.');
+                    this.loadingProfile.set(false);
+                },
+            });
+
+            this.medicalService.getRelatives(userId).subscribe({
+                next: (relatives) => {
+                    this.personnesLiees.set(relatives);
+                    this.loadingRelatives.set(false);
+                },
+                error: () => {
+                    this.errorRelatives.set('Erreur lors du chargement des personnes liées.');
+                    this.loadingRelatives.set(false);
+                },
             });
         }
     }

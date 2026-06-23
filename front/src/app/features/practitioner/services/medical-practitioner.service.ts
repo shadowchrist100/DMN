@@ -55,13 +55,24 @@ export interface DiseaseDTO {
 
 export interface ConsultationDTO {
     id: string;
+    created_at: string | null;
     duree_minutes: number | null;
+    motif: string | null;
     raisons: string | null;
     rapport_text: string | null;
     observations_text: string | null;
-    practitioner_name: string | null;
-    practitioner_speciality: string | null;
+    practitioner_user_id: string | null;
+    practitioner_first_name: string | null;
+    practitioner_last_name: string | null;
+    practitioner_role: string | null;
+    speciality: string | null;
     healthcare_nom: string | null;
+    vital_constants: { code: string; valeur: number; nom?: string; unite_mesure?: string }[];
+    diagnoses: { id: string; statut_verification: string; note_clinique?: string; code_cim?: string; libelle?: string }[];
+    medications: { id: string; nom_commercial?: string; dc_nom?: string; posologie: string; duree_jours: number }[];
+    exam_prescriptions: { id: string; code_loinc?: string; libelle: string; nature_examination?: string; special_instructions?: string; statut?: string }[];
+    vaccine_prescriptions: { id: string; code_cvx?: string; libelle: string; special_instructions?: string; statut?: string }[];
+    care_instructions: { id: string; sous_type?: string; description_generale: string; nombre_seances?: number }[];
 }
 
 export interface VaccinationDTO {
@@ -254,9 +265,11 @@ export interface CareInstructionEntry {
 export interface CreateMedicalActDTO {
     type_acte: string;
     motif?: string;
+    raisons?: string;
     observations_text?: string;
     duree_minutes?: number;
     prescription_examen_id?: string;
+    organization_id?: string;
     vital_constants: VitalConstantEntry[];
     diagnoses: DiagnosisEntry[];
     medications: MedicationPrescriptionEntry[];
@@ -374,6 +387,16 @@ export class MedicalPractitionerService {
         return this.http.post<{ id: string; status: string }>(
             `${this.pracBase}/${practitionerUserId}/patients/${patientUserId}/medical-acts`,
             data,
+        );
+    }
+
+    createEmergencyAccess(
+        practitionerUserId: string,
+        patientUserId: string,
+    ): Observable<{ id: string; status: string }> {
+        return this.http.post<{ id: string; status: string }>(
+            `${this.pracBase}/${practitionerUserId}/patients/${patientUserId}/emergency-access`,
+            { reason: "Forcé par le praticien après expiration du délai", duration: "24h" },
         );
     }
 }

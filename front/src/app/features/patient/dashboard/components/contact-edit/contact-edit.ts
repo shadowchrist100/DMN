@@ -1,8 +1,8 @@
-import { Component, inject, signal, input } from '@angular/core';
+import { Component, inject, signal, input, output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RelativeService } from '../../../services/relative.service';
-import { RelativeUpdateReq } from '../../../services/medical.service';
+import { RelativeUpdateReq, RelativeDTO } from '../../../services/medical.service';
 
 @Component({
     selector: 'app-contact-edit',
@@ -10,13 +10,20 @@ import { RelativeUpdateReq } from '../../../services/medical.service';
     imports: [CommonModule, FormsModule],
     templateUrl: './contact-edit.html',
 })
-export class ContactEdit {
+export class ContactEdit implements OnInit {
 
     private relativeService = inject(RelativeService);
 
     relativeId = input<string>('');
 
+    saved = output<void>();
+    cancelled = output<void>();
+
     saving = signal(false);
+    loading = signal(true);
+    error = signal<string | null>(null);
+
+    isNew = signal(false);
 
     formData = {
         nom: '',
@@ -26,11 +33,35 @@ export class ContactEdit {
         urgence: false,
     };
 
+    ngOnInit(): void {
+        const id = this.relativeId();
+        if (!id) {
+            this.isNew.set(true);
+            this.loading.set(false);
+            return;
+        }
+        this.relativeService.getAll().subscribe({
+            next: (contacts) => {
+                const c = contacts.find(x => x.relative.id === id);
+                if (c) {
+                    this.formData.nom = `${c.relative.first_name} ${c.relative.last_name}`;
+                    this.formData.telephone = c.relative.phone;
+                    this.formData.relation = c.code_relation;
+                }
+                this.loading.set(false);
+            },
+            error: () => {
+                this.error.set('Erreur lors du chargement du contact.');
+                this.loading.set(false);
+            },
+        });
+    }
+
     onSave(): void {
         const id = this.relativeId();
-        if (!id) return;
 
         this.saving.set(true);
+
         const payload: RelativeUpdateReq = {};
         if (this.formData.nom) {
             const parts = this.formData.nom.split(' ');
@@ -46,9 +77,28 @@ export class ContactEdit {
         if (this.formData.relation) payload.code_relation = this.formData.relation;
         payload.emergency_contact = this.formData.urgence;
 
-        this.relativeService.update(id, payload).subscribe({
-            next: () => this.saving.set(false),
-            error: () => this.saving.set(false),
+        const request = id
+            ? this.relativeService.update(id, payload)
+            : this.relativeService.create({
+                first_name: payload.first_name || '',
+                last_name: payload.last_name || '',
+                phone: payload.phone || '',
+                code_relation: payload.code_relation || '',
+            });
+
+        request.subscribe({
+            next: () => {
+                this.saving.set(false);
+                this.saved.emit();
+            },
+            error: () => {
+                this.error.set('Erreur lors de la sauvegarde du contact.');
+                this.saving.set(false);
+            },
         });
+    }
+
+    onCancel(): void {
+        this.cancelled.emit();
     }
 }

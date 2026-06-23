@@ -59,6 +59,14 @@ export class TimelineService {
             createdAt: eventDate,
             isEditable: false,
             consentRequired: true,
+            medications: dto.medications?.map(m => ({
+                name: m.nom_commercial || m.dc_nom || 'Médicament',
+                dosage: m.posologie || '',
+                posology: m.posologie || '',
+                duration: m.duree_jours ? `${m.duree_jours} jours` : undefined,
+                startDate: new Date(),
+                status: 'active' as const,
+            })),
         };
     }
 

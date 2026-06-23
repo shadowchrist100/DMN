@@ -3,6 +3,8 @@
 export type PrescriptionType =
     | 'medicament'
     | 'analyse'
+    | 'vaccin'
+    | 'soins'
     | 'biologie'
     | 'radiographie'
     | 'echographie'

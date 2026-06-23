@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RelativeService } from '../../../services/relative.service';
@@ -14,10 +14,14 @@ export class Contacts implements OnInit {
 
     private relativeService = inject(RelativeService);
 
+    saved = output<void>();
+    cancelled = output<void>();
+
     loading = signal(true);
     contacts = signal<RelativeDTO[]>([]);
     saving = signal(false);
     isUrgence = signal(false);
+    error = signal<string | null>(null);
 
     formData = {
         first_name: '',
@@ -37,7 +41,10 @@ export class Contacts implements OnInit {
                 this.contacts.set(data);
                 this.loading.set(false);
             },
-            error: () => this.loading.set(false),
+            error: () => {
+                this.error.set('Erreur lors du chargement des contacts.');
+                this.loading.set(false);
+            },
         });
     }
 
@@ -57,9 +64,17 @@ export class Contacts implements OnInit {
                 this.formData = { first_name: '', last_name: '', phone: '', code_relation: '' };
                 this.isUrgence.set(false);
                 this.saving.set(false);
+                this.saved.emit();
             },
-            error: () => this.saving.set(false),
+            error: () => {
+                this.error.set('Erreur lors de la création du contact.');
+                this.saving.set(false);
+            },
         });
+    }
+
+    onCancel(): void {
+        this.cancelled.emit();
     }
 
     deleteContact(id: string): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MedicalService, ConsultationDTO } from '../../../services/medical.service';
 import { AuthStore } from '../../../../../core/auth/auth.store';
@@ -13,7 +13,10 @@ export class ActeView implements OnInit {
     private medical = inject(MedicalService);
     private authStore = AuthStore;
 
+    @Input() actId: string = '';
+
     loading = signal(true);
+    errorMessage = signal<string | null>(null);
     consultations = signal<ConsultationDTO[]>([]);
 
     get userId(): string | null {
@@ -23,19 +26,36 @@ export class ActeView implements OnInit {
     ngOnInit(): void {
         const uid = this.userId;
         if (!uid) { this.loading.set(false); return; }
-        this.medical.getConsultations(uid).subscribe({
+        this.loading.set(true);
+        this.errorMessage.set(null);
+        this.medical.getMedicalActs(uid).subscribe({
             next: (data) => { this.consultations.set(data); this.loading.set(false); },
-            error: () => { this.loading.set(false); },
+            error: () => { this.errorMessage.set('Impossible de charger les actes médicaux.'); this.loading.set(false); },
         });
     }
 
+    private selectedAct = computed(() => {
+        const acts = this.consultations();
+        if (this.actId) {
+            return acts.find(a => a.id === this.actId) || null;
+        }
+        return acts[0] || null;
+    });
+
     get visite() {
-        const c = this.consultations()[0];
+        const c = this.selectedAct();
         if (!c) return null;
+        const typeLabels: Record<string, string> = {
+            'Consultation': 'Consultation',
+            'Examen': 'Examen',
+            'VACCINATION': 'Vaccination',
+        };
+        const typeLabel = typeLabels[c.type_acte] || 'Acte médical';
         return {
             id: `#${c.id.slice(0, 8)}`,
-            titre: c.motif || 'Consultation',
-            date: c.rapport_text ? new Date(c.rapport_text).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—',
+            titre: c.motif || typeLabel,
+            typeLabel,
+            date: c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—',
             etablissement: c.healthcare_nom || '—',
             medecin: c.practitioner_name || '—',
             specialite: c.practitioner_speciality || '—',
@@ -44,7 +64,7 @@ export class ActeView implements OnInit {
     }
 
     get observations() {
-        const c = this.consultations()[0];
+        const c = this.selectedAct();
         if (!c) return [];
         return [
             { label: 'Observations', valeur: c.observations_text || '—', unite: '', statut: 'normal' },
@@ -52,30 +72,37 @@ export class ActeView implements OnInit {
         ];
     }
 
+    get diagnostics() {
+        return this.selectedAct()?.diagnoses || [];
+    }
+
+    get medications() {
+        return this.selectedAct()?.medications || [];
+    }
+
+    get examPrescriptions() {
+        return this.selectedAct()?.exam_prescriptions || [];
+    }
+
+    get vaccinePrescriptions() {
+        return this.selectedAct()?.vaccine_prescriptions || [];
+    }
+
+    get careInstructions() {
+        return this.selectedAct()?.care_instructions || [];
+    }
+
     get notesCliniques(): string {
-        return this.consultations()[0]?.observations_text || '';
+        return this.selectedAct()?.observations_text || '';
     }
 
     get recommandation(): string {
-        return '';
+        return this.selectedAct()?.raisons || '';
     }
 
     get derniereMaj(): string {
-        const c = this.consultations()[0];
+        const c = this.selectedAct();
         if (!c || !c.rapport_text) return '—';
-        const d = new Date(c.rapport_text);
-        return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    get diagnostics() {
-        return [] as { code: string; libelle: string; statut: string; severite: string }[];
-    }
-
-    get prescriptions() {
-        return [] as { nom: string; posologie: string; duree: string }[];
-    }
-
-    get rapports() {
-        return [] as { nom: string; date: string; icon: string }[];
+        return '—';
     }
 }

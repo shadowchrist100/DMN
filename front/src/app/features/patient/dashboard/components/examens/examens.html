@@ -4,10 +4,25 @@
 
 <div class="p-2 md:py-2 max-w-360 mx-auto space-y-6">
 
+    @if (errorMessage()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 mb-4">
+      <span class="material-symbols-outlined text-red-600">error_outline</span>
+      <p class="text-sm font-medium">{{ errorMessage() }}</p>
+    </div>
+    }
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-24">
+      <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    }
+
+    @if (!loading()) {
+
     <!-- ── Breadcrumb & En-tête ─────────────────────────────────────────────── -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-            <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+            <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">
                 <span>Patient</span>
                 <span class="mx-2">/</span>
                 <span class="text-secondary">Dossier Médical</span>
@@ -17,7 +32,7 @@
             <h1 class="font-['Public_Sans'] text-3xl font-extrabold text-primary leading-tight">
                 Résultats d'examens
             </h1>
-            <p class="text-sm text-slate-500 mt-1">
+            <p class="text-sm text-slate-600 mt-1">
                 Dernière mise à jour : {{ derniereMaj() }}
             </p>
         </div>
@@ -40,7 +55,7 @@
                 <span class="material-symbols-outlined text-blue-600">science</span>
             </div>
             <div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Total examens</p>
+                <p class="text-[10px] font-bold text-slate-600 uppercase">Total examens</p>
                 <p class="text-2xl font-black text-primary">{{ stats().total }}</p>
             </div>
         </div>
@@ -49,7 +64,7 @@
                 <span class="material-symbols-outlined text-emerald-600">check_circle</span>
             </div>
             <div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Disponibles</p>
+                <p class="text-[10px] font-bold text-slate-600 uppercase">Disponibles</p>
                 <p class="text-2xl font-black text-emerald-600">{{ stats().disponible }}</p>
             </div>
         </div>
@@ -58,7 +73,7 @@
                 <span class="material-symbols-outlined text-red-600">warning</span>
             </div>
             <div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Hors norme</p>
+                <p class="text-[10px] font-bold text-slate-600 uppercase">Hors norme</p>
                 <p class="text-2xl font-black text-red-600">{{ stats().horsnorme }}</p>
             </div>
         </div>
@@ -67,7 +82,7 @@
                 <span class="material-symbols-outlined text-amber-600">hourglass_top</span>
             </div>
             <div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase">En attente</p>
+                <p class="text-[10px] font-bold text-slate-600 uppercase">En attente</p>
                 <p class="text-2xl font-black text-amber-600">{{ stats().enAttente }}</p>
             </div>
         </div>
@@ -95,7 +110,7 @@
             <!-- Recherche -->
             <div class="relative flex-1 min-w-[200px]">
                 <span
-                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 text-lg">search</span>
                 <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
                     placeholder="Rechercher un examen ou code LOINC…" class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg
                  text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30" />
@@ -122,12 +137,12 @@
                 <button (click)="viewMode.set('table')" [class.bg-white]="viewMode() === 'table'"
                     [class.shadow-sm]="viewMode() === 'table'" class="p-1.5 rounded-md transition-all">
                     <span class="material-symbols-outlined text-base" [class.text-primary]="viewMode() === 'table'"
-                        [class.text-slate-400]="viewMode() !== 'table'">table_rows</span>
+                        [class.text-slate-600]="viewMode() !== 'table'">table_rows</span>
                 </button>
                 <button (click)="viewMode.set('cards')" [class.bg-white]="viewMode() === 'cards'"
                     [class.shadow-sm]="viewMode() === 'cards'" class="p-1.5 rounded-md transition-all">
                     <span class="material-symbols-outlined text-base" [class.text-primary]="viewMode() === 'cards'"
-                        [class.text-slate-400]="viewMode() !== 'cards'">grid_view</span>
+                        [class.text-slate-600]="viewMode() !== 'cards'">grid_view</span>
                 </button>
             </div>
         </div>
@@ -142,19 +157,19 @@
             <table class="w-full text-left border-collapse min-w-[780px]">
                 <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>
-                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-400">Examen
+                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-600">Examen
                         </th>
-                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-400">Type
+                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-600">Type
                         </th>
-                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-400">Date
+                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-600">Date
                         </th>
-                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-400">Valeur
+                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-600">Valeur
                         </th>
-                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-400">Plage
+                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-600">Plage
                             réf.</th>
-                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-400">Statut
+                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-600">Statut
                         </th>
-                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-400"></th>
+                        <th class="px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-slate-600"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -175,7 +190,7 @@
                                 <div>
                                     <p class="text-sm font-semibold text-primary leading-tight">{{ ex.libelle_examen }}
                                     </p>
-                                    <p class="text-[10px] text-slate-400 font-mono">{{ ex.code_loinc }}</p>
+                                    <p class="text-[10px] text-slate-600 font-mono">{{ ex.code_loinc }}</p>
                                 </div>
                             </div>
                         </td>
@@ -189,7 +204,7 @@
                         </td>
 
                         <!-- Date -->
-                        <td class="px-5 py-4 text-sm text-slate-500 whitespace-nowrap">
+                        <td class="px-5 py-4 text-sm text-slate-600 whitespace-nowrap">
                             {{ ex.date_realisation | date:'dd/MM/yyyy' }}
                         </td>
 
@@ -201,7 +216,7 @@
                                 [class.text-amber-600]="statutValeur(ex) === 'limite'"
                                 [class.text-blue-600]="statutValeur(ex) === 'bas'"
                                 [class.text-slate-800]="statutValeur(ex) === 'normal'">
-                                {{ ex.valeur }} <span class="text-xs font-normal text-slate-400">{{ ex.unite }}</span>
+                                {{ ex.valeur }} <span class="text-xs font-normal text-slate-600">{{ ex.unite }}</span>
                             </p>
                             <!-- Barre de référence -->
                             @if (ex.valeur_min_normal) {
@@ -214,17 +229,17 @@
                                     [class]="statutValeurConfig[statutValeur(ex)].bar" [style.left.%]="barPercent(ex)">
                                 </div>
                             </div>
-                            <p class="text-[9px] text-slate-400 mt-0.5">
+                            <p class="text-[9px] text-slate-600 mt-0.5">
                                 {{ ex.valeur_min_normal }} – {{ ex.valeur_max_normal }} {{ ex.unite }}
                             </p>
                             }
                             } @else {
-                            <span class="text-xs text-slate-400 italic">{{ ex.valeur }}</span>
+                            <span class="text-xs text-slate-600 italic">{{ ex.valeur }}</span>
                             }
                         </td>
 
                         <!-- Plage réf -->
-                        <td class="px-5 py-4 text-xs text-slate-500 font-mono whitespace-nowrap">
+                        <td class="px-5 py-4 text-xs text-slate-600 font-mono whitespace-nowrap">
                             @if (ex.valeur_min_normal) {
                             {{ ex.valeur_min_normal }} – {{ ex.valeur_max_normal }} {{ ex.unite }}
                             } @else {
@@ -264,7 +279,7 @@
                     <tr>
                         <td colspan="7" class="px-6 py-16 text-center">
                             <span class="material-symbols-outlined text-5xl text-slate-200 block mb-3">search_off</span>
-                            <p class="text-slate-400 font-medium">Aucun examen ne correspond à votre recherche.</p>
+                            <p class="text-slate-600 font-medium">Aucun examen ne correspond à votre recherche.</p>
                         </td>
                     </tr>
                     }
@@ -313,7 +328,7 @@
             <h4 class="font-['Public_Sans'] font-bold text-primary text-base leading-snug mb-1">
                 {{ ex.libelle_examen }}
             </h4>
-            <p class="text-[10px] text-slate-400 font-mono mb-4">LOINC {{ ex.code_loinc }}</p>
+            <p class="text-[10px] text-slate-600 font-mono mb-4">LOINC {{ ex.code_loinc }}</p>
 
             <!-- Valeur + barre -->
             @if (ex.valeur !== 'N/A' && ex.valeur !== '—') {
@@ -326,7 +341,7 @@
                         [class.text-primary]="statutValeur(ex) === 'normal'">
                         {{ ex.valeur }}
                     </span>
-                    <span class="text-xs text-slate-500">{{ ex.unite }}</span>
+                    <span class="text-xs text-slate-600">{{ ex.unite }}</span>
                 </div>
                 @if (ex.valeur_min_normal) {
                 <div class="relative h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -335,7 +350,7 @@
                     <div class="absolute h-full w-2 rounded-full -translate-x-1/2"
                         [class]="statutValeurConfig[statutValeur(ex)].bar" [style.left.%]="barPercent(ex)"></div>
                 </div>
-                <div class="flex justify-between text-[9px] text-slate-400 mt-1">
+                <div class="flex justify-between text-[9px] text-slate-600 mt-1">
                     <span>{{ ex.valeur_min_normal }} {{ ex.unite }}</span>
                     <span>Réf.</span>
                     <span>{{ ex.valeur_max_normal }} {{ ex.unite }}</span>
@@ -346,14 +361,14 @@
 
             <!-- Icône image si disponible -->
             @if (hasImage(ex)) {
-            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-medium mb-3">
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-600 font-medium mb-3">
                 <span class="material-symbols-outlined text-sm">image</span>
                 Image / scan disponible
             </div>
             }
 
             <!-- Date + action -->
-            <div class="flex items-center justify-between text-xs text-slate-500">
+            <div class="flex items-center justify-between text-xs text-slate-600">
                 <span class="flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">calendar_today</span>
                     {{ ex.date_realisation | date:'dd/MM/yyyy' }}
@@ -369,171 +384,171 @@
         @if (filteredExamens().length === 0) {
         <div class="col-span-full flex flex-col items-center justify-center py-16">
             <span class="material-symbols-outlined text-5xl text-slate-200 mb-3">search_off</span>
-            <p class="text-slate-400 font-medium">Aucun examen ne correspond à votre recherche.</p>
+            <p class="text-slate-600 font-medium">Aucun examen ne correspond à votre recherche.</p>
         </div>
         }
     </div>
     }
 
-</div>
-
-<!-- ══════════════════════════════════════════════════════════════
-     MODAL DÉTAIL EXAMEN
-══════════════════════════════════════════════════════════════ -->
-@if (showModal() && selectedExamen()) {
-<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
-    (click)="closeModal()">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col"
-        (click)="$event.stopPropagation()">
-
-        <!-- Header -->
-        <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between gap-4"
-            [class]="'border-l-4 ' + typeConfig[selectedExamen()!.type_examen].border">
-            <div class="flex items-center gap-3">
-                <div class="h-11 w-11 rounded-xl flex items-center justify-center"
-                    [class]="typeConfig[selectedExamen()!.type_examen].bg">
-                    <span class="material-symbols-outlined text-xl"
-                        [class]="typeConfig[selectedExamen()!.type_examen].text">
-                        {{ typeConfig[selectedExamen()!.type_examen].icon }}
-                    </span>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase text-slate-400">{{ selectedExamen()!.type_examen }}</p>
-                    <h3 class="font-['Public_Sans'] font-bold text-primary text-lg leading-tight">
-                        {{ selectedExamen()!.libelle_examen }}
-                    </h3>
-                </div>
-            </div>
-            <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors mt-1">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-
-        <!-- Body -->
-        <div class="p-6 overflow-y-auto space-y-5">
-
-            <!-- Méta-badges -->
-            <div class="flex flex-wrap gap-2">
-                <span
-                    class="text-[10px] font-bold uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-mono">
-                    LOINC {{ selectedExamen()!.code_loinc }}
-                </span>
-                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full"
-                    [class]="statutBadgeClass(selectedExamen()!.statut)">
-                    {{ selectedExamen()!.statut }}
-                </span>
-                @if (selectedExamen()!.statut === 'Résultat disponible') {
-                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full"
-                    [class]="statutValeurConfig[statutValeur(selectedExamen()!)].badge">
-                    {{ statutValeurConfig[statutValeur(selectedExamen()!)].label }}
-                </span>
-                }
-            </div>
-
-            <!-- Valeur + barre large -->
-            @if (selectedExamen()!.valeur !== 'N/A' && selectedExamen()!.valeur !== '—') {
-            <div class="bg-slate-50 border border-slate-100 rounded-xl p-5">
-                <div class="flex items-end justify-between mb-3">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Valeur mesurée</p>
-                        <span class="text-4xl font-black"
-                            [class.text-red-600]="statutValeur(selectedExamen()!) === 'critique' || statutValeur(selectedExamen()!) === 'eleve'"
-                            [class.text-amber-600]="statutValeur(selectedExamen()!) === 'limite'"
-                            [class.text-blue-600]="statutValeur(selectedExamen()!) === 'bas'"
-                            [class.text-primary]="statutValeur(selectedExamen()!) === 'normal'">
-                            {{ selectedExamen()!.valeur }}
+    <!-- MODAL DÉTAIL EXAMEN -->
+    @if (showModal() && selectedExamen()) {
+    <div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+        role="dialog" aria-modal="true" aria-labelledby="modal-title-examens"
+        (click)="closeModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col"
+            (click)="$event.stopPropagation()">
+    
+            <!-- Header -->
+            <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between gap-4"
+                [class]="'border-l-4 ' + typeConfig[selectedExamen()!.type_examen].border">
+                <div class="flex items-center gap-3">
+                    <div class="h-11 w-11 rounded-xl flex items-center justify-center"
+                        [class]="typeConfig[selectedExamen()!.type_examen].bg">
+                        <span class="material-symbols-outlined text-xl"
+                            [class]="typeConfig[selectedExamen()!.type_examen].text">
+                            {{ typeConfig[selectedExamen()!.type_examen].icon }}
                         </span>
-                        <span class="text-base text-slate-400 ml-1">{{ selectedExamen()!.unite }}</span>
                     </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase text-slate-600">{{ selectedExamen()!.type_examen }}</p>
+                        <h3 id="modal-title-examens" class="font-['Public_Sans'] font-bold text-primary text-lg leading-tight">
+                            {{ selectedExamen()!.libelle_examen }}
+                        </h3>
+                    </div>
+                </div>
+                <button (click)="closeModal()" class="text-slate-600 hover:text-slate-600 transition-colors mt-1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+    
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto space-y-5">
+    
+                <!-- Méta-badges -->
+                <div class="flex flex-wrap gap-2">
+                    <span
+                        class="text-[10px] font-bold uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-mono">
+                        LOINC {{ selectedExamen()!.code_loinc }}
+                    </span>
+                    <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full"
+                        [class]="statutBadgeClass(selectedExamen()!.statut)">
+                        {{ selectedExamen()!.statut }}
+                    </span>
+                    @if (selectedExamen()!.statut === 'Résultat disponible') {
+                    <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full"
+                        [class]="statutValeurConfig[statutValeur(selectedExamen()!)].badge">
+                        {{ statutValeurConfig[statutValeur(selectedExamen()!)].label }}
+                    </span>
+                    }
+                </div>
+    
+                <!-- Valeur + barre large -->
+                @if (selectedExamen()!.valeur !== 'N/A' && selectedExamen()!.valeur !== '—') {
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-5">
+                    <div class="flex items-end justify-between mb-3">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase mb-1">Valeur mesurée</p>
+                            <span class="text-4xl font-black"
+                                [class.text-red-600]="statutValeur(selectedExamen()!) === 'critique' || statutValeur(selectedExamen()!) === 'eleve'"
+                                [class.text-amber-600]="statutValeur(selectedExamen()!) === 'limite'"
+                                [class.text-blue-600]="statutValeur(selectedExamen()!) === 'bas'"
+                                [class.text-primary]="statutValeur(selectedExamen()!) === 'normal'">
+                                {{ selectedExamen()!.valeur }}
+                            </span>
+                            <span class="text-base text-slate-600 ml-1">{{ selectedExamen()!.unite }}</span>
+                        </div>
+                        @if (selectedExamen()!.valeur_min_normal) {
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-600 uppercase font-bold">Plage normale</p>
+                            <p class="text-sm font-mono font-semibold text-slate-600">
+                                {{ selectedExamen()!.valeur_min_normal }} – {{ selectedExamen()!.valeur_max_normal }} {{
+                                selectedExamen()!.unite }}
+                            </p>
+                        </div>
+                        }
+                    </div>
+    
                     @if (selectedExamen()!.valeur_min_normal) {
-                    <div class="text-right">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Plage normale</p>
-                        <p class="text-sm font-mono font-semibold text-slate-600">
-                            {{ selectedExamen()!.valeur_min_normal }} – {{ selectedExamen()!.valeur_max_normal }} {{
-                            selectedExamen()!.unite }}
-                        </p>
+                    <div class="relative h-3 bg-slate-200 rounded-full overflow-hidden mt-2">
+                        <div class="absolute h-full bg-emerald-200 rounded-full"
+                            [style.left.%]="barNormalStart(selectedExamen()!)"
+                            [style.width.%]="barNormalWidth(selectedExamen()!)"></div>
+                        <div class="absolute h-full w-3 rounded-full -translate-x-1/2 shadow"
+                            [class]="statutValeurConfig[statutValeur(selectedExamen()!)].bar"
+                            [style.left.%]="barPercent(selectedExamen()!)"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-600 mt-1.5">
+                        <span>{{ selectedExamen()!.valeur_min_normal! * 0.7 | number:'1.0-2' }} (Min. absolu)</span>
+                        <span class="text-emerald-600 font-bold">Zone normale</span>
+                        <span>{{ selectedExamen()!.valeur_max_normal! * 1.3 | number:'1.0-2' }} (Max. absolu)</span>
                     </div>
                     }
                 </div>
-
-                @if (selectedExamen()!.valeur_min_normal) {
-                <div class="relative h-3 bg-slate-200 rounded-full overflow-hidden mt-2">
-                    <div class="absolute h-full bg-emerald-200 rounded-full"
-                        [style.left.%]="barNormalStart(selectedExamen()!)"
-                        [style.width.%]="barNormalWidth(selectedExamen()!)"></div>
-                    <div class="absolute h-full w-3 rounded-full -translate-x-1/2 shadow"
-                        [class]="statutValeurConfig[statutValeur(selectedExamen()!)].bar"
-                        [style.left.%]="barPercent(selectedExamen()!)"></div>
-                </div>
-                <div class="flex justify-between text-[10px] text-slate-400 mt-1.5">
-                    <span>{{ selectedExamen()!.valeur_min_normal! * 0.7 | number:'1.0-2' }} (Min. absolu)</span>
-                    <span class="text-emerald-600 font-bold">Zone normale</span>
-                    <span>{{ selectedExamen()!.valeur_max_normal! * 1.3 | number:'1.0-2' }} (Max. absolu)</span>
-                </div>
                 }
-            </div>
-            }
-
-            <!-- Interprétation -->
-            <div class="border-l-4 border-blue-600 bg-blue-50 rounded-r-xl p-4">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="material-symbols-outlined text-blue-600 text-base">description</span>
-                    <p class="text-[10px] font-black uppercase text-blue-600 tracking-widest">Interprétation clinique
-                    </p>
-                </div>
-                <p class="text-sm text-slate-700 leading-relaxed">{{ selectedExamen()!.interpretation }}</p>
-            </div>
-
-            <!-- Infos complémentaires -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-50 rounded-xl p-4">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Date de réalisation</p>
-                    <p class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm text-slate-400">calendar_today</span>
-                        {{ selectedExamen()!.date_realisation | date:'dd MMMM yyyy' : '' : 'fr' }}
-                    </p>
-                </div>
-                <div class="bg-slate-50 rounded-xl p-4">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Code LOINC</p>
-                    <p class="text-sm font-mono font-semibold text-slate-800">{{ selectedExamen()!.code_loinc }}</p>
-                </div>
-            </div>
-
-            <!-- Image (si disponible) -->
-            @if (hasImage(selectedExamen()!)) {
-            <div class="border border-slate-200 rounded-xl overflow-hidden">
-                <div class="bg-slate-50 px-4 py-2.5 flex items-center justify-between border-b border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-slate-500 text-sm">image</span>
-                        <span class="text-xs font-bold text-slate-600">Image / Scan associé</span>
+    
+                <!-- Interprétation -->
+                <div class="border-l-4 border-blue-600 bg-blue-50 rounded-r-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="material-symbols-outlined text-blue-600 text-base">description</span>
+                        <p class="text-[10px] font-black uppercase text-blue-600 tracking-widest">Interprétation clinique
+                        </p>
                     </div>
-                    <button (click)="openImage(selectedExamen()!.image_path!)"
-                        class="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
-                        <span class="material-symbols-outlined text-sm">open_in_full</span> Agrandir
-                    </button>
+                    <p class="text-sm text-slate-700 leading-relaxed">{{ selectedExamen()!.interpretation }}</p>
                 </div>
-                <div class="h-48 bg-slate-900 flex items-center justify-center">
-                    <!-- Image placeholder (remplacer src par ex.image_path en production) -->
-                    <div class="flex flex-col items-center text-slate-500">
-                        <span class="material-symbols-outlined text-5xl mb-2 text-slate-600">image</span>
-                        <p class="text-xs">{{ selectedExamen()!.image_path }}</p>
+    
+                <!-- Infos complémentaires -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <p class="text-[10px] font-bold text-slate-600 uppercase mb-1">Date de réalisation</p>
+                        <p class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm text-slate-600">calendar_today</span>
+                            {{ selectedExamen()!.date_realisation | date:'dd MMMM yyyy' : '' : 'fr' }}
+                        </p>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <p class="text-[10px] font-bold text-slate-600 uppercase mb-1">Code LOINC</p>
+                        <p class="text-sm font-mono font-semibold text-slate-800">{{ selectedExamen()!.code_loinc }}</p>
                     </div>
                 </div>
+    
+                <!-- Image (si disponible) -->
+                @if (hasImage(selectedExamen()!)) {
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-50 px-4 py-2.5 flex items-center justify-between border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-slate-600 text-sm">image</span>
+                            <span class="text-xs font-bold text-slate-600">Image / Scan associé</span>
+                        </div>
+                        <button (click)="openImage(selectedExamen()!.image_path!)"
+                            class="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">open_in_full</span> Agrandir
+                        </button>
+                    </div>
+                    <div class="h-48 bg-slate-900 flex items-center justify-center">
+                        <!-- Image placeholder (remplacer src par ex.image_path en production) -->
+                        <div class="flex flex-col items-center text-slate-600">
+                            <span class="material-symbols-outlined text-5xl mb-2 text-slate-600">image</span>
+                            <p class="text-xs">{{ selectedExamen()!.image_path }}</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+    
             </div>
-            }
-        </div>
-
-        <!-- Footer -->
-        <div class="px-6 pb-5 pt-2 flex justify-end gap-3 border-t border-slate-100">
-            <button (click)="closeModal()" class="border border-slate-200 text-slate-600 px-4 py-2 text-xs font-bold uppercase
-                 rounded-lg hover:bg-slate-50 transition-colors">
-                Fermer
-            </button>
-            <button class="bg-primary text-white px-4 py-2 text-xs font-bold uppercase
-                       rounded-lg hover:bg-[#002b5c] transition-colors flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm">download</span> Télécharger
-            </button>
+    
+            <!-- Footer -->
+            <div class="px-6 pb-5 pt-2 flex justify-end gap-3 border-t border-slate-100">
+                <button (click)="closeModal()" class="border border-slate-200 text-slate-600 px-4 py-2 text-xs font-bold uppercase
+                     rounded-lg hover:bg-slate-50 transition-colors">
+                    Fermer
+                </button>
+                <button class="bg-primary text-white px-4 py-2 text-xs font-bold uppercase
+                           rounded-lg hover:bg-[#002b5c] transition-colors flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">download</span> Télécharger
+                </button>
+            </div>
         </div>
     </div>
+    }
+    }
 </div>
-}

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { MedicalService, AllergyDTO, ExamenDTO, DashboardSummaryDTO, AlertDTO, AccessLogDTO, PendingAccessRequestDTO, DiseaseDTO } from '../../services/medical.service';
+import { MedicalService, AllergyDTO, ExamenDTO, DashboardSummaryDTO, AlertDTO, AccessLogDTO, PendingAccessRequestDTO, DiseaseDTO, PractitionerSearchResult, CreateAccessRequestReq, RespondAccessRequestReq } from '../../services/medical.service';
 import { AuthStore } from '../../../../core/auth/auth.store';
 
 export type TypeExamen =
@@ -165,6 +165,20 @@ export class DashboardService {
         const uid = this.userId;
         if (!uid) throw new Error('User not authenticated');
         return this.medical.revokeAuthorization(uid, authorizationId);
+    }
+
+    searchPractitioners(userId: string, q: string): Observable<PractitionerSearchResult[]> {
+        return this.medical.searchPractitioners(userId, q);
+    }
+
+    createAuthorization(userId: string, data: CreateAccessRequestReq): Observable<{ id: string; status: string }> {
+        return this.medical.createAuthorization(userId, data);
+    }
+
+    renewAuthorization(authorizationId: string, data: RespondAccessRequestReq): Observable<{ status: string }> {
+        const uid = this.userId;
+        if (!uid) throw new Error('User not authenticated');
+        return this.medical.renewAuthorization(uid, authorizationId, data);
     }
 
     private mapAllergie(dto: AllergyDTO, index: number): Allergie {

@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, OnDestroy,
+    Component, OnInit, OnDestroy, Output, EventEmitter,
     signal, computed, Signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -138,6 +138,7 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
     loadingMore = signal<boolean>(false);
     isExporting = signal<boolean>(false);
     showFilters = signal<boolean>(false);
+    errorMessage = signal<string | null>(null);
 
     // ── Données ─────────────────────────────────────────────────────────
     patientId = signal<string>('');
@@ -160,6 +161,9 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
     dateRangeValue: DateRange = 'all';
     eventTypeValue: EventType | null = null;
     priorityValue: Priority | 'all' = 'all';
+
+    // ── Événement sortant ──────────────────────────────────────────────
+    @Output() viewActe = new EventEmitter<string>();
 
     /** Signal dédié au type sélectionné (utilisé dans computed) */
     selectedEventType = signal<EventType | null>(null);
@@ -314,7 +318,8 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
                 this.applyFilters();
                 this.loading.set(false);
             },
-            error: () => {
+            error: (err) => {
+                this.errorMessage.set('Impossible de charger l\'historique médical.');
                 this.loading.set(false);
             },
         });
@@ -457,14 +462,8 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
     }
 
     loadMore(): void {
-        if (this.loadingMore()) return;
-        this.loadingMore.set(true);
-        // TODO: appel API avec pagination
-        setTimeout(() => {
-            this.currentPage++;
-            this.hasMoreEvents.set(false); // à adapter selon la réponse API
-            this.loadingMore.set(false);
-        }, 800);
+        // TODO: implement real pagination
+        this.loading.set(false);
     }
 
     // ── Helpers de style ─────────────────────────────────────────────────
@@ -599,7 +598,7 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
     // ── Actions utilisateur ──────────────────────────────────────────────
 
     onViewEventDetails(eventId: string): void {
-        this.router.navigate(['/patient', this.patientId(), 'events', eventId]);
+        this.viewActe.emit(eventId);
     }
 
     onEditEvent(eventId: string): void {
@@ -670,43 +669,6 @@ export class TimeLinesComponent implements OnInit, OnDestroy {
     }
 
     // ── Export ───────────────────────────────────────────────────────────
-
-    async exportTimeline(): Promise<void> {
-        // if (this.isExporting() || !this.filteredEvents().length) return;
-
-        // this.isExporting.set(true);
-        // this.showNotification("Préparation de l'export…", 'success');
-
-        // try {
-        //     const filter: TimelineFilter = {
-        //         ...this.buildFilter(),
-        //         eventIds: this.filteredEvents().map(e => e.id),
-        //     };
-
-        //     const blob = await this.exportService
-        //         .exportPatientTimeline(this.patientId(), 'pdf', filter)
-        //         .toPromise();
-
-        //     if (!blob) throw new Error('Blob vide');
-
-        //     const url = URL.createObjectURL(blob);
-        //     const filename = `DMN_Timeline_${this.patientName().replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-        //     const anchor = document.createElement('a');
-        //     anchor.href = url;
-        //     anchor.download = filename;
-        //     document.body.appendChild(anchor);
-        //     anchor.click();
-        //     document.body.removeChild(anchor);
-        //     URL.revokeObjectURL(url);
-
-        //     this.showNotification('✅ Export téléchargé', 'success');
-        // } catch (err) {
-        //     console.error('[Timeline] Export error:', err);
-        //     this.showNotification("❌ Échec de l'export. Veuillez réessayer.", 'error');
-        // } finally {
-        //     this.isExporting.set(false);
-        // }
-    }
 
     // ── Consentement ─────────────────────────────────────────────────────
 

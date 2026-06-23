@@ -11,7 +11,7 @@ class MedicalOrganizationServiceClient
 
     public function __construct()
     {
-        $this->baseUrl = config('services.medical.base_url', 'http://localhost:8080');
+        $this->baseUrl = config('services.medical.base_url', 'http://localhost:8082');
     }
 
     public function create(array $data): array

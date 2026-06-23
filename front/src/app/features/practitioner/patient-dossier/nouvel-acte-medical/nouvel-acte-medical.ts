@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MedicalPractitionerService } from '../../services/medical-practitioner.service';
+import { MedicalPractitionerService, OrganisationDTO } from '../../services/medical-practitioner.service';
 import { AuthStore } from '../../../../core/auth/auth.store';
 import type {
   VitalConstantRefDTO, DiagnosisRefDTO, MedicationRefDTO, ExaminationRefDTO, VaccineRefDTO,
@@ -13,6 +13,7 @@ import type {
 export interface MedicalActState {
   typeActe: string;
   motif: string;
+  raisons: string;
   observations: string;
   dureeMinutes: number | null;
   vitalConstants: VitalConstantEntry[];
@@ -73,6 +74,7 @@ export class NouvelActeMedical {
   state = signal<MedicalActState>({
     typeActe: 'Consultation',
     motif: '',
+    raisons: '',
     observations: '',
     dureeMinutes: null,
     vitalConstants: [],
@@ -82,6 +84,10 @@ export class NouvelActeMedical {
     vaccines: [],
     careInstructions: [],
   });
+
+  // Organisations du praticien
+  organizations = signal<OrganisationDTO[]>([]);
+  selectedOrganizationId = signal('');
 
   // Références chargées
   vitalConstantRefs = signal<VitalConstantRefDTO[]>([]);
@@ -143,7 +149,20 @@ export class NouvelActeMedical {
     return ref ? ref.nom_commercial : '';
   }
 
+  ngOnDestroy() {
+    this.submitting = false;
+  }
+
   ngOnInit() {
+    const uid = this.auth.userId();
+    if (uid) {
+      this.service.getPractitionerProfile(uid).subscribe(profile => {
+        this.organizations.set(profile.organizations);
+        if (profile.organizations.length > 0) {
+          this.selectedOrganizationId.set(profile.organizations[0].id);
+        }
+      });
+    }
     this.service.getVitalConstantRefs().subscribe(refs => this.vitalConstantRefs.set(refs));
     this.service.getDiagnosisRefs().subscribe(refs => this.diagnosisRefs.set(refs));
     this.service.getExaminationRefs().subscribe(refs => this.examinationRefs.set(refs));
@@ -428,7 +447,11 @@ export class NouvelActeMedical {
 
   // ── Sauvegarde ─────────────────────────────────────────────────────────
 
+  private submitting = false;
+
   submit() {
+    if (this.submitting) return;
+    this.submitting = true;
     this.saving.set(true);
     this.error.set('');
 
@@ -436,9 +459,11 @@ export class NouvelActeMedical {
     const body: import('../../services/medical-practitioner.service').CreateMedicalActDTO = {
       type_acte: s.typeActe,
       motif: s.motif || undefined,
+      raisons: s.raisons || undefined,
       observations_text: s.observations || undefined,
       duree_minutes: s.dureeMinutes || undefined,
       prescription_examen_id: this.selectedPrescriptionId() || undefined,
+      organization_id: this.selectedOrganizationId() || undefined,
       vital_constants: s.vitalConstants,
       diagnoses: s.diagnoses,
       medications: s.medications,
@@ -457,10 +482,12 @@ export class NouvelActeMedical {
     this.service.createMedicalAct(userId, this.patientUserId(), body).subscribe({
       next: (res) => {
         this.saving.set(false);
+        this.submitting = false;
         this.saved.emit(res.id);
       },
       error: (err) => {
         this.saving.set(false);
+        this.submitting = false;
         this.error.set(err.error?.detail || "Erreur lors de l'enregistrement de l'acte médical");
       },
     });

@@ -4,9 +4,22 @@
 
 <div class="p-2 md:py-2 max-w-[1440px] mx-auto">
 
+    @if (errorMessage()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 mb-4">
+      <span class="material-symbols-outlined text-red-600">error_outline</span>
+      <p class="text-sm font-medium">{{ errorMessage() }}</p>
+    </div>
+    }
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-24">
+      <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    } @else {
+
     <!-- ── Breadcrumb & En-tête ─────────────────────────────────────────────── -->
     <div class="mb-8">
-        <nav class="flex text-xs text-slate-500 mb-2 font-medium tracking-wide uppercase">
+        <nav class="flex text-xs text-slate-600 mb-2 font-medium tracking-wide uppercase">
             <a class="hover:text-secondary" href="#">Dossier Médical</a>
             <span class="mx-2">/</span>
             <span class="text-primary font-bold">Allergies et Intolérances</span>
@@ -16,7 +29,7 @@
                 <h3 class="font-['Public_Sans'] text-3xl font-extrabold text-primary leading-tight">
                     Allergies &amp; Intolérances
                 </h3>
-                <p class="text-slate-500 text-sm mt-1">
+                <p class="text-slate-600 text-sm mt-1">
                     Registre complet des sensibilités et réactions indésirables du patient.
                 </p>
             </div>
@@ -46,9 +59,10 @@
                     </h4>
                 </div>
 
+                <ul class="space-y-3">
                 @for (allergie of critiquesAlerts(); track allergie.id) {
-                <div class="bg-white border border-red-100 rounded p-4
-                        flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3 last:mb-0">
+                <li class="bg-white border border-red-100 rounded p-4
+                        flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-4">
                         <div class="bg-red-600 text-white p-3 rounded">
                             <span class="material-symbols-outlined">{{ allergie.icon }}</span>
@@ -72,7 +86,7 @@
                             <span class="material-symbols-outlined text-sm">priority_high</span>
                             Criticité : Élevée
                         </div>
-                        <div class="text-xs text-slate-500 font-medium">
+                        <div class="text-xs text-slate-600 font-medium">
                             Réaction : {{ allergie.reactions[0] }}
                         </div>
                     </div>
@@ -80,27 +94,29 @@
                        uppercase rounded hover:bg-slate-50 transition-colors">
                         Détails
                     </button>
-                </div>
+                </li>
                 }
+            </ul>
             </div>
             }
 
             <!-- Registre complet ────────────────────────────────────────────────── -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-                    <h4 class="font-['Public_Sans'] font-bold text-slate-400 uppercase tracking-widest text-[10px]">
+                    <h2 class="font-['Public_Sans'] font-bold text-slate-600 uppercase tracking-widest text-[10px]">
                         Registre complet ({{ allergies().length }})
-                    </h4>
+                    </h2>
                     <select [ngModel]="sortOption()" (ngModelChange)="onSortChange($event)" class="text-[10px] font-bold uppercase tracking-widest border border-slate-200
-                   rounded px-2 py-1 bg-white text-slate-500 focus:ring-1 focus:ring-secondary/30 cursor-pointer">
+                   rounded px-2 py-1 bg-white text-slate-600 focus:ring-1 focus:ring-secondary/30 cursor-pointer">
                         <option value="criticite">Trier par Criticité</option>
                         <option value="date">Trier par Date</option>
                         <option value="statut">Trier par Statut</option>
                     </select>
                 </div>
 
+                <ul class="space-y-3">
                 @for (allergie of listeTriee(); track allergie.id) {
-                <div class="bg-white border border-slate-200 rounded p-5
+                <li class="bg-white border border-slate-200 rounded p-5
                    flex flex-col md:flex-row md:items-center justify-between gap-6
                    hover:shadow-md transition-all border-l-4 cursor-pointer"
                     [class]="criticiteClasses(allergie.criticite).border" (click)="openDetail(allergie.id)">
@@ -114,12 +130,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 flex-1">
                             <div>
                                 <h5 class="font-bold text-primary text-base">{{ allergie.substance }}</h5>
-                                <span class="text-[10px] font-bold uppercase text-slate-400">
+                                <span class="text-[10px] font-bold uppercase text-slate-600">
                                     {{ allergie.type }} • {{ allergie.sousType }}
                                 </span>
                             </div>
                             <div class="flex flex-col justify-center">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1">Réactions
+                                <span class="text-[10px] font-black uppercase text-slate-600 mb-1">Réactions
                                     Cliniques</span>
                                 <p class="text-xs text-slate-600 leading-relaxed">
                                     {{ allergie.reactions.join(', ') }}.
@@ -134,12 +150,12 @@
                             [class]="criticiteClasses(allergie.criticite).badge">
                             Criticité : {{ allergie.criticite }}
                         </span>
-                        <span class="text-[10px] text-slate-500 font-mono">Statut : {{ allergie.statut }}</span>
-                        <span class="text-[10px] text-slate-400 font-medium">{{ allergie.dateDeclaration }}</span>
+                        <span class="text-[10px] text-slate-600 font-mono">Statut : {{ allergie.statut }}</span>
+                        <span class="text-[10px] text-slate-600 font-medium">{{ allergie.dateDeclaration }}</span>
                     </div>
-                </div>
+                </li>
                 }
-            </div>
+            </ul>
         </div>
 
         <!-- ════════════════════════════════════════════
@@ -153,21 +169,21 @@
                    mb-4 border-b border-slate-100 pb-2">Récapitulatif</h4>
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
-                        <span class="text-xs text-slate-500 font-medium">Total enregistrements</span>
+                        <span class="text-xs text-slate-600 font-medium">Total enregistrements</span>
                         <span class="font-mono text-sm font-bold text-primary">{{ stats.total | number:'2.0-0' }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-xs text-slate-500 font-medium">Allergies Actives</span>
+                        <span class="text-xs text-slate-600 font-medium">Allergies Actives</span>
                         <span class="font-mono text-sm font-bold text-red-600">{{ stats.actives | number:'2.0-0'
                             }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-xs text-slate-500 font-medium">Intolérances</span>
+                        <span class="text-xs text-slate-600 font-medium">Intolérances</span>
                         <span class="font-mono text-sm font-bold text-blue-600">{{ stats.intolerances | number:'2.0-0'
                             }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-xs text-slate-500 font-medium">Suspectées</span>
+                        <span class="text-xs text-slate-600 font-medium">Suspectées</span>
                         <span class="font-mono text-sm font-bold text-yellow-600">{{ stats.suspectees | number:'2.0-0'
                             }}</span>
                     </div>
@@ -180,7 +196,7 @@
                     <span class="material-symbols-outlined text-xl">info</span>
                     <span class="text-xs font-bold uppercase">Guide Clinique</span>
                 </div>
-                <p class="text-[11px] text-slate-500 leading-relaxed">
+                <p class="text-[11px] text-slate-600 leading-relaxed">
                     Les informations affichées ici sont cruciales pour votre sécurité. Toute nouvelle réaction
                     suspecte doit être signalée immédiatement à votre médecin traitant ou via le bouton de
                     déclaration ci-dessus.
@@ -189,6 +205,7 @@
         </div>
     </div>
 </div>
+}
 
 <!-- ══════════════════════════════════════════════════════════
      MODAL DÉTAIL ALLERGIE
@@ -196,6 +213,7 @@
 @if (showModal() && selectedAllergie()) {
 <!-- Backdrop -->
 <div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+    role="dialog" aria-modal="true" aria-labelledby="modal-title-allergies"
     (click)="closeModal()">
 
     <!-- Panel -->
@@ -210,13 +228,13 @@
                     <span class="material-symbols-outlined text-xl">{{ selectedAllergie()!.icon }}</span>
                 </div>
                 <div>
-                    <span class="text-[10px] font-bold uppercase text-slate-400">
+                    <span class="text-[10px] font-bold uppercase text-slate-600">
                         {{ selectedAllergie()!.type }} • {{ selectedAllergie()!.sousType }}
                     </span>
-                    <h3 class="text-lg font-bold text-primary">{{ selectedAllergie()!.substance }}</h3>
+                    <h3 id="modal-title-allergies" class="text-lg font-bold text-primary">{{ selectedAllergie()!.substance }}</h3>
                 </div>
             </div>
-            <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors ml-4">
+            <button (click)="closeModal()" class="text-slate-600 hover:text-slate-600 transition-colors ml-4">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
@@ -237,11 +255,11 @@
 
             <!-- Réactions -->
             <div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Réactions cliniques</p>
+                <p class="text-[10px] font-bold text-slate-600 uppercase mb-2">Réactions cliniques</p>
                 <ul class="space-y-1.5">
                     @for (reaction of selectedAllergie()!.reactions; track $index) {
                     <li class="flex items-start gap-2 bg-slate-50 rounded px-3 py-2">
-                        <span class="material-symbols-outlined text-sm text-slate-400 mt-0.5">arrow_right</span>
+                        <span class="material-symbols-outlined text-sm text-slate-600 mt-0.5">arrow_right</span>
                         <span class="text-xs text-slate-700">{{ reaction }}</span>
                     </li>
                     }
@@ -251,11 +269,11 @@
             <!-- Méta ─────────────────────────────────────────────────────────── -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-slate-50 rounded p-3">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Date de déclaration</p>
+                    <p class="text-[10px] font-bold text-slate-600 uppercase mb-1">Date de déclaration</p>
                     <p class="text-sm font-semibold text-slate-800">{{ selectedAllergie()!.dateDeclaration }}</p>
                 </div>
                 <div class="bg-slate-50 rounded p-3">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Déclaré par</p>
+                    <p class="text-[10px] font-bold text-slate-600 uppercase mb-1">Déclaré par</p>
                     <p class="text-sm font-semibold text-slate-800">{{ selectedAllergie()!.declarePar }}</p>
                 </div>
             </div>

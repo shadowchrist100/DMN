@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DashboardService, Examen, TypeExamen, StatutExamen, StatutValeur } from '../../services/dashboard.service';
 
@@ -47,7 +47,7 @@ const STATUT_VALEUR_CONFIG: Record<StatutValeur, { badge: string; dot: string; l
 @Component({
     selector: 'app-examens',
     standalone: true,
-    imports: [CommonModule, FormsModule, DecimalPipe, DatePipe],
+    imports: [CommonModule, FormsModule],
     templateUrl: './examens.html',
     styleUrls: ['./examens.css'],
 })
@@ -56,6 +56,7 @@ export class Examens implements OnInit {
 
     // ── State ─────────────────────────────────────────────────────────────────
     loading = signal(true);
+    errorMessage = signal<string | null>(null);
     examens = signal<Examen[]>([]);
     searchQuery = signal('');
     selectedType = signal<TypeExamen | 'Tous'>('Tous');
@@ -109,9 +110,17 @@ export class Examens implements OnInit {
     });
 
     ngOnInit(): void {
-        this.dashboardService.getExamens().subscribe(data => {
-            this.examens.set(data);
-            this.loading.set(false);
+        this.loading.set(true);
+        this.errorMessage.set(null);
+        this.dashboardService.getExamens().subscribe({
+            next: (data) => {
+                this.examens.set(data);
+                this.loading.set(false);
+            },
+            error: (err) => {
+                this.errorMessage.set('Impossible de charger les examens.');
+                this.loading.set(false);
+            },
         });
     }
 

@@ -64,12 +64,15 @@ class MedicalServiceClient
 
     public function createPatientDMN(string $userId): array
     {
+        $apiKey = config('services.medical.internal_api_key', '');
         try {
-            $response = Http::timeout(10)->post("{$this->baseUrl}/api/patients/by-user/{$userId}/dmn");
+            $response = Http::timeout(10)
+                ->withHeader('X-API-Key', $apiKey)
+                ->post("{$this->baseUrl}/api/patients/by-user/{$userId}/dmn");
 
             if ($response->failed()) {
                 throw new MedicalServiceException(
-                    'Erreur lors de la création du DMN.',
+                    'Erreur lors de la création du DMN : ' . $response->body(),
                     $response->status()
                 );
             }

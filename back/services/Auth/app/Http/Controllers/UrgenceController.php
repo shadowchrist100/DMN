@@ -143,13 +143,7 @@ class UrgenceController extends Controller
             return response()->json(['error' => 'Session invalide ou déjà traitée.'], 400);
         }
 
-        // Marquer le token comme utilisé
-        $contactToken->update(['used' => true]);
-
-        // Mettre à jour la session
-        $session->update(['status' => 'approuve_contact']);
-
-        // Appel B2B vers FastAPI pour créer l'autorisation d'urgence
+        // Appel B2B vers FastAPI d'abord — ne marquer le token qu'en cas de succès
         try {
             $this->medicalClient->createEmergencyAuthorization(
                 $session->patient_user_id,
@@ -158,9 +152,12 @@ class UrgenceController extends Controller
                 $contactToken->emergency_contact_id,
             );
         } catch (\Exception $e) {
-            // L'autorisation a échoué côté médical
             return response()->json(['error' => 'Erreur lors de la création de l\'autorisation médicale.'], 500);
         }
+
+        // Marquer le token comme utilisé ET mettre à jour la session
+        $contactToken->update(['used' => true]);
+        $session->update(['status' => 'approuve_contact']);
 
         return response()->json([
             'status' => 'approuve',
@@ -204,10 +201,7 @@ class UrgenceController extends Controller
             return response()->json(['error' => 'Session déjà traitée.'], 400);
         }
 
-        // Mettre à jour la session
-        $session->update(['status' => 'force_praticien']);
-
-        // Appel B2B vers FastAPI pour créer l'autorisation d'urgence
+        // Appel B2B vers FastAPI d'abord — ne modifier la session qu'en cas de succès
         try {
             $this->medicalClient->createEmergencyAuthorization(
                 $session->patient_user_id,
@@ -218,6 +212,9 @@ class UrgenceController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Erreur lors de la création de l\'autorisation médicale.'], 500);
         }
+
+        // Mettre à jour la session
+        $session->update(['status' => 'force_praticien']);
 
         return response()->json([
             'status' => 'force',

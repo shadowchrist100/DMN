@@ -30,7 +30,7 @@
 
                     <!-- Titre + fil d'ariane -->
                     <div>
-                        <nav class="flex items-center gap-1.5 text-[11px] text-slate-400 mb-3 uppercase tracking-widest font-semibold"
+                        <nav class="flex items-center gap-1.5 text-[11px] text-slate-600 mb-3 uppercase tracking-widest font-semibold"
                             aria-label="Fil d'Ariane">
                             <a routerLink="/dossiers" class="hover:text-[#002B5C] transition-colors">Dossiers</a>
                             <span class="material-symbols-outlined text-[11px]">chevron_right</span>
@@ -45,7 +45,7 @@
                         <h1 class="text-2xl md:text-3xl font-bold text-[#002B5C] tracking-tight leading-tight">
                             Historique Médical
                         </h1>
-                        <p class="text-slate-500 text-sm mt-1.5">
+                        <p class="text-slate-600 text-sm mt-1.5">
                             <span class="font-bold text-[#1E40AF] text-base">{{ filteredCount() }}</span>
                             événement(s) affiché(s) sur
                             <span class="font-semibold text-slate-700">{{ totalEvents }}</span>
@@ -54,6 +54,13 @@
                             à aujourd'hui
                         </p>
                     </div>
+
+                    @if (errorMessage()) {
+                    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 mb-4">
+                      <span class="material-symbols-outlined text-red-500">error_outline</span>
+                      <p class="text-sm font-medium">{{ errorMessage() }}</p>
+                    </div>
+                    }
 
                     <!-- Compteurs rapides -->
                     <div class="flex flex-wrap gap-3 shrink-0">
@@ -98,7 +105,7 @@
                     <!-- Recherche -->
                     <div class="relative flex-1 min-w-52">
                         <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 text-sm">
                             search
                         </span>
                         <input type="text" [(ngModel)]="searchTermValue" (ngModelChange)="onSearchChange()"
@@ -107,25 +114,14 @@
                             aria-label="Rechercher dans l'historique">
                         @if (searchTermValue) {
                         <button (click)="clearSearch()"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-600 transition-colors"
                             aria-label="Effacer">
                             <span class="material-symbols-outlined text-sm">close</span>
                         </button>
                         }
                     </div>
 
-                    <!-- Export -->
-                    <button (click)="exportTimeline()" [disabled]="isExporting() || !filteredEvents().length"
-                        class="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-[#002B5C] text-white rounded-xl hover:bg-[#001f45] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
-                        aria-label="Exporter l'historique">
-                        @if (!isExporting()) {
-                        <span class="material-symbols-outlined text-sm">download</span>
-                        } @else {
-                        <span
-                            class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        }
-                        <span class="hidden sm:inline">{{ isExporting() ? 'Export…' : 'Exporter PDF' }}</span>
-                    </button>
+
 
                 </div>
 
@@ -135,7 +131,7 @@
                     id="filters-panel">
 
                     <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Période</label>
+                        <label class="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Période</label>
                         <div class="relative">
                             <select [(ngModel)]="dateRangeValue" (ngModelChange)="applyFilters()"
                                 class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent cursor-pointer">
@@ -146,14 +142,14 @@
                                 <option value="year">Année {{ currentYear }}</option>
                             </select>
                             <span
-                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 text-sm pointer-events-none">
                                 expand_more
                             </span>
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Type
+                        <label class="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Type
                             d'événement</label>
                         <div class="relative">
                             <select [(ngModel)]="eventTypeValue" (ngModelChange)="onEventTypeChange()"
@@ -167,14 +163,14 @@
                                 <option value="alert">⚠️ Alertes</option>
                             </select>
                             <span
-                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 text-sm pointer-events-none">
                                 expand_more
                             </span>
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Priorité</label>
+                        <label class="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Priorité</label>
                         <div class="relative">
                             <select [(ngModel)]="priorityValue" (ngModelChange)="applyFilters()"
                                 class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent cursor-pointer">
@@ -185,7 +181,7 @@
                                 <option value="low">🟢 Faible</option>
                             </select>
                             <span
-                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+                                class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 text-sm pointer-events-none">
                                 expand_more
                             </span>
                         </div>
@@ -204,7 +200,7 @@
                 <!-- Chips filtres actifs -->
                 @if (activeFiltersCount() > 0) {
                 <div class="mt-3 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
-                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Actifs :</span>
+                    <span class="text-xs text-slate-600 font-semibold uppercase tracking-wide">Actifs :</span>
                     @if (dateRangeValue !== 'all') {
                     <span
                         class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#002B5C]/10 text-[#002B5C] text-xs font-semibold rounded-full">
@@ -272,7 +268,7 @@
                 <span class="material-symbols-outlined text-4xl text-slate-300" aria-hidden="true">inbox</span>
             </div>
             <h3 class="text-lg font-bold text-slate-800 mb-2">Aucun événement trouvé</h3>
-            <p class="text-slate-500 mb-6 max-w-sm mx-auto text-sm">
+            <p class="text-slate-600 mb-6 max-w-sm mx-auto text-sm">
                 Essayez d'élargir votre recherche ou de réinitialiser les filtres.
             </p>
             <button (click)="resetAllFilters()"
@@ -372,10 +368,10 @@
 
                                             <!-- Méta infos -->
                                             <div
-                                                class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                                                class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
                                                 <span class="flex items-center gap-1">
                                                     <span
-                                                        class="material-symbols-outlined text-[13px] text-slate-400">calendar_today</span>
+                                                        class="material-symbols-outlined text-[13px] text-slate-600">calendar_today</span>
                                                     {{ event.date | date:'dd MMM yyyy' }}
                                                     <span class="text-slate-300 mx-0.5">·</span>
                                                     {{ event.date | date:'HH:mm' }}
@@ -383,14 +379,14 @@
                                                 @if (event.facility) {
                                                 <span class="flex items-center gap-1">
                                                     <span
-                                                        class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
+                                                        class="material-symbols-outlined text-[13px] text-slate-600">location_on</span>
                                                     {{ event.facility }}
                                                 </span>
                                                 }
                                                 @if (event.practitioner.name) {
                                                 <span class="flex items-center gap-1">
                                                     <span
-                                                        class="material-symbols-outlined text-[13px] text-slate-400">stethoscope</span>
+                                                        class="material-symbols-outlined text-[13px] text-slate-600">stethoscope</span>
                                                     {{ event.practitioner.name }}
                                                 </span>
                                                 }
@@ -403,24 +399,24 @@
                                     <div
                                         class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button (click)="onViewEventDetails(event.id)"
-                                            class="p-1.5 text-slate-400 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition-colors"
+                                            class="p-1.5 text-slate-600 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition-colors"
                                             aria-label="Voir les détails" title="Voir les détails">
                                             <span class="material-symbols-outlined text-sm">open_in_new</span>
                                         </button>
                                         @if (userRole() === 'practitioner') {
                                         <button (click)="onEditEvent(event.id)"
-                                            class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                            class="p-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                                             aria-label="Modifier" title="Modifier">
                                             <span class="material-symbols-outlined text-sm">edit</span>
                                         </button>
                                         <button (click)="onDeleteEvent(event.id)"
-                                            class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                             aria-label="Supprimer" title="Supprimer">
                                             <span class="material-symbols-outlined text-sm">delete</span>
                                         </button>
                                         }
                                         <button (click)="onShareEvent(event.id)"
-                                            class="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                            class="p-1.5 text-slate-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                             aria-label="Partager" title="Partager">
                                             <span class="material-symbols-outlined text-sm">share</span>
                                         </button>
@@ -439,7 +435,7 @@
                                 @if (event.measurements && event.measurements.length > 0) {
                                 <div class="mt-3 p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
                                     <p
-                                        class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                        class="text-[11px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
                                         <span class="material-symbols-outlined text-[13px]">analytics</span>
                                         Mesures du bilan
                                     </p>
@@ -453,7 +449,7 @@
                                                 </span>
                                                 @if (measure.normalMin !== undefined && measure.normalMax !== undefined)
                                                 {
-                                                <span class="text-[10px] text-slate-400 font-medium">
+                                                <span class="text-[10px] text-slate-600 font-medium">
                                                     ({{ measure.normalMin }}–{{ measure.normalMax }})
                                                 </span>
                                                 }
@@ -474,7 +470,7 @@
                                             </div>
                                         </div>
                                         @if (measure.normalMin !== undefined && measure.normalMax !== undefined) {
-                                        <p class="text-[10px] text-slate-400">
+                                        <p class="text-[10px] text-slate-600">
                                             Plage normale : {{ measure.normalMin }} – {{ measure.normalMax }} {{
                                             measure.unit }}
                                         </p>
@@ -499,12 +495,12 @@
                                             class="flex items-center gap-2 bg-white border border-blue-100 rounded-lg px-3 py-1.5 text-xs">
                                             <span class="text-blue-600 font-bold">{{ med.name }}</span>
                                             @if (med.dosage) {
-                                            <span class="text-slate-400">·</span>
+                                            <span class="text-slate-600">·</span>
                                             <span class="text-slate-600">{{ med.dosage }}</span>
                                             }
                                             @if (med.frequency) {
-                                            <span class="text-slate-400">·</span>
-                                            <span class="text-slate-500">{{ med.frequency }}</span>
+                                            <span class="text-slate-600">·</span>
+                                            <span class="text-slate-600">{{ med.frequency }}</span>
                                             }
                                         </div>
                                         }
@@ -528,7 +524,7 @@
                                         </div>
                                         @if (event.vaccine.nextDoseDate) {
                                         <div class="text-right">
-                                            <p class="text-[10px] text-slate-500 font-medium">Prochain rappel</p>
+                                            <p class="text-[10px] text-slate-600 font-medium">Prochain rappel</p>
                                             <p class="text-xs font-bold text-green-700">
                                                 {{ event.vaccine.nextDoseDate | date:'dd MMM yyyy' }}
                                             </p>
@@ -583,7 +579,7 @@
                                     }
 
                                     <button (click)="onShareEvent(event.id)"
-                                        class="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-slate-500 hover:text-[#1E40AF] rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors">
+                                        class="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:text-[#1E40AF] rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors">
                                         <span class="material-symbols-outlined text-[13px]">ios_share</span>
                                         Partager
                                     </button>

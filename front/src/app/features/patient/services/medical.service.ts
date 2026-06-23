@@ -45,13 +45,23 @@ export interface PrescriptionDTO {
     type_prescription: string;
     libelle: string;
     statut: string;
-    date_prescription: string;
+    date_prescription: string | null;
     special_instructions: string;
     prescripteur_nom: string | null;
     prescripteur_specialite: string | null;
     code_loinc: string | null;
     nature_examination: string | null;
     code_cvx: string | null;
+    examen_libelle: string | null;
+    vaccine_libelle: string | null;
+    nom_commercial: string | null;
+    dc_nom: string | null;
+    forme_galenique: string | null;
+    posologie: string | null;
+    duree_jours: number | null;
+    sous_type: string | null;
+    description_generale: string | null;
+    nombre_seances: number | null;
 }
 
 export interface AuthorizationDTO {
@@ -129,6 +139,7 @@ export interface DashboardSummaryDTO {
 export interface TimelineEventDTO {
     id: string;
     type: string;
+    type_acte?: string;
     title: string;
     description: string | null;
     date: string;
@@ -142,6 +153,12 @@ export interface TimelineEventDTO {
     icon: string;
     badge_text: string | null;
     badge_type: string | null;
+    vital_constants?: VitalConstantEntryDTO[];
+    diagnoses?: DiagnosisEntryDTO[];
+    medications?: MedicationEntryDTO[];
+    exam_prescriptions?: ExamenEntryDTO[];
+    vaccine_prescriptions?: VaccinEntryDTO[];
+    care_instructions?: CareInstructionEntryDTO[];
 }
 
 export interface DiseaseDTO {
@@ -153,8 +170,62 @@ export interface DiseaseDTO {
     note_clinique: string | null;
 }
 
+export interface VitalConstantEntryDTO {
+    code: string;
+    valeur: number;
+    nom?: string;
+    unite_mesure?: string;
+}
+
+export interface DiagnosisEntryDTO {
+    id: string;
+    statut_verification: string;
+    note_clinique?: string;
+    code_cim?: string;
+    libelle?: string;
+}
+
+export interface MedicationEntryDTO {
+    id: string;
+    nom_commercial?: string;
+    dc_nom?: string;
+    forme_galenique?: string;
+    posologie?: string;
+    duree_jours?: number;
+}
+
+export interface ExamenEntryDTO {
+    id: string;
+    code_loinc?: string;
+    libelle?: string;
+    nature_examination?: string;
+    special_instructions?: string;
+    statut?: string;
+}
+
+export interface VaccinEntryDTO {
+    id: string;
+    code_cvx?: string;
+    libelle?: string;
+    special_instructions?: string;
+    statut?: string;
+}
+
+export interface CareInstructionEntryDTO {
+    id: string;
+    sous_type?: string;
+    description_generale?: string;
+    nombre_seances?: number;
+    frequence_hebdo?: number;
+    objectifs?: string;
+    titre_consigne?: string;
+    recommandations?: string;
+}
+
 export interface ConsultationDTO {
     id: string;
+    type_acte: string;
+    created_at: string | null;
     duree_minutes: number | null;
     motif: string | null;
     raisons: string | null;
@@ -163,6 +234,12 @@ export interface ConsultationDTO {
     practitioner_name: string | null;
     practitioner_speciality: string | null;
     healthcare_nom: string | null;
+    vital_constants: VitalConstantEntryDTO[];
+    diagnoses: DiagnosisEntryDTO[];
+    medications: MedicationEntryDTO[];
+    exam_prescriptions: ExamenEntryDTO[];
+    vaccine_prescriptions: VaccinEntryDTO[];
+    care_instructions: CareInstructionEntryDTO[];
 }
 
 export interface PatientProfileUpdateReq {
@@ -185,6 +262,20 @@ export interface RespondAccessRequestReq {
     action: 'accept' | 'decline';
     perimeter?: string;
     duration?: string;
+}
+
+export interface PractitionerSearchResult {
+    id: string;
+    user_id: string;
+    first_name: string;
+    last_name: string;
+    speciality: string;
+}
+
+export interface CreateAccessRequestReq {
+    practitioner_user_id: string;
+    duration?: string;
+    perimeter?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -220,6 +311,10 @@ export class MedicalService {
 
     getConsultations(userId: string): Observable<ConsultationDTO[]> {
         return this.http.get<ConsultationDTO[]>(`${this.baseUrl}/${userId}/consultations`);
+    }
+
+    getMedicalActs(userId: string): Observable<ConsultationDTO[]> {
+        return this.http.get<ConsultationDTO[]>(`${this.baseUrl}/${userId}/medical-acts`);
     }
 
     getVaccinations(userId: string): Observable<any[]> {
@@ -284,5 +379,17 @@ export class MedicalService {
 
     revokeAuthorization(userId: string, authorizationId: string): Observable<{ status: string }> {
         return this.http.delete<{ status: string }>(`${this.baseUrl}/${userId}/authorizations/${authorizationId}`);
+    }
+
+    searchPractitioners(userId: string, q: string): Observable<PractitionerSearchResult[]> {
+        return this.http.get<PractitionerSearchResult[]>(`${this.baseUrl}/${userId}/practitioners/search`, { params: { q } });
+    }
+
+    createAuthorization(userId: string, data: CreateAccessRequestReq): Observable<{ id: string; status: string }> {
+        return this.http.post<{ id: string; status: string }>(`${this.baseUrl}/${userId}/authorizations`, data);
+    }
+
+    renewAuthorization(userId: string, authorizationId: string, data: RespondAccessRequestReq): Observable<{ status: string }> {
+        return this.http.put<{ status: string }>(`${this.baseUrl}/${userId}/authorizations/${authorizationId}/renew`, data);
     }
 }

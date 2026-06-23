@@ -2,15 +2,23 @@
 
     <!-- En-tête -->
     <div>
-        <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+        <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">
             <span>Dossier Médical</span>
             <span class="mx-2">/</span>
             <span class="text-primary">Modifier un contact</span>
         </nav>
         <h1 class="font-['Public_Sans'] text-3xl font-extrabold text-primary leading-tight">Modifier le contact</h1>
-        <p class="text-sm text-slate-500 mt-1">Mettez à jour les informations du contact de confiance.</p>
+        <p class="text-sm text-slate-600 mt-1">Mettez à jour les informations du contact de confiance.</p>
     </div>
 
+    @if (error(); as err) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3" role="alert">
+        <span class="material-symbols-outlined text-red-600">error</span>
+        <p class="text-sm text-red-700">{{ err }}</p>
+    </div>
+    }
+
+    @if (!loading()) {
     <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
         <div class="px-8 py-6 bg-gradient-to-r from-[#002B5C] to-[#004b99] flex justify-between items-center">
             <div class="flex items-center gap-4">
@@ -27,16 +35,16 @@
             </div>
         </div>
 
-        <form class="p-8 space-y-8">
+        <form (ngSubmit)="onSave()" class="p-8 space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nom Complet</label>
-                    <input type="text" [(ngModel)]="formData.nom" name="nom"
+                    <label for="contact-edit-nom" class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Nom Complet</label>
+                    <input type="text" id="contact-edit-nom" [(ngModel)]="formData.nom" name="nom"
                         class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/30">
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type de Relation</label>
-                    <select [(ngModel)]="formData.relation" name="relation"
+                    <label for="contact-edit-relation" class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Type de Relation</label>
+                    <select id="contact-edit-relation" [(ngModel)]="formData.relation" name="relation"
                         class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/30">
                         <option value="spouse">Conjoint(e)</option>
                         <option value="parent">Parent / Enfant</option>
@@ -45,13 +53,13 @@
                     </select>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Numéro de Téléphone</label>
-                    <input type="tel" [(ngModel)]="formData.telephone" name="telephone"
+                    <label for="contact-edit-telephone" class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Numéro de Téléphone</label>
+                    <input type="tel" id="contact-edit-telephone" [(ngModel)]="formData.telephone" name="telephone"
                         class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/30">
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Adresse Email</label>
-                    <input type="email" [(ngModel)]="formData.email" name="email"
+                    <label for="contact-edit-email" class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Adresse Email</label>
+                    <input type="email" id="contact-edit-email" [(ngModel)]="formData.email" name="email"
                         class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/30">
                 </div>
             </div>
@@ -60,19 +68,19 @@
                 <div class="flex gap-3 items-start">
                     <span class="material-symbols-outlined text-amber-600 mt-0.5">priority_high</span>
                     <div>
-                        <h4 class="font-bold text-amber-800">Contact d'Urgence Principal</h4>
+                        <h3 class="font-bold text-amber-800">Contact d'Urgence Principal</h3>
                         <p class="text-xs text-amber-600">Basculer le statut de contact d'urgence.</p>
                     </div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" [(ngModel)]="formData.urgence" name="urgence" class="sr-only peer">
+                    <input type="checkbox" id="contact-edit-urgence" [(ngModel)]="formData.urgence" name="urgence" class="sr-only peer">
                     <div class="w-14 h-7 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                 </label>
             </div>
 
             <div class="flex justify-end gap-4 pt-6 border-t border-slate-100">
-                <button type="button" class="px-6 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">Annuler</button>
-                <button type="submit" (click)="onSave()"
+                <button type="button" (click)="onCancel()" class="px-6 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">Annuler</button>
+                <button type="submit"
                     class="px-8 py-3 bg-[#002B5C] text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#001f45] transition-all shadow-sm">
                     <span class="material-symbols-outlined text-sm">save</span>
                     Enregistrer les modifications
@@ -80,4 +88,23 @@
             </div>
         </form>
     </div>
+    } @else {
+    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm animate-pulse">
+        <div class="px-8 py-6 bg-slate-200">
+            <div class="h-6 bg-slate-300 rounded w-48"></div>
+        </div>
+        <div class="p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <div class="h-3 bg-slate-200 rounded w-24"></div>
+                    <div class="h-10 bg-slate-200 rounded-lg"></div>
+                </div>
+                <div class="space-y-2">
+                    <div class="h-3 bg-slate-200 rounded w-20"></div>
+                    <div class="h-10 bg-slate-200 rounded-lg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
 </div>

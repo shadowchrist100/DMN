@@ -16,6 +16,7 @@ export class Allergies implements OnInit {
     private dashboardService = inject(DashboardService);
 
     loading = signal(true);
+    errorMessage = signal<string | null>(null);
     sortOption = signal<SortOption>('criticite');
     selectedId = signal<number | null>(null);
     showModal = signal(false);
@@ -54,9 +55,17 @@ export class Allergies implements OnInit {
     }
 
     ngOnInit(): void {
-        this.dashboardService.getAllergies().subscribe(data => {
-            this.allergies.set(data);
-            this.loading.set(false);
+        this.loading.set(true);
+        this.errorMessage.set(null);
+        this.dashboardService.getAllergies().subscribe({
+            next: (data) => {
+                this.allergies.set(data);
+                this.loading.set(false);
+            },
+            error: (err) => {
+                this.errorMessage.set('Impossible de charger les allergies.');
+                this.loading.set(false);
+            },
         });
     }
 

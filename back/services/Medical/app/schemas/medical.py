@@ -45,15 +45,25 @@ class ExamenResp(BaseModel):
 class PrescriptionResp(BaseModel):
     uuid: str
     type_prescription: str
-    libelle: str
+    libelle: str = ""
     statut: str
-    date_prescription: datetime
-    special_instructions: str
+    date_prescription: Optional[datetime] = None
+    special_instructions: str = ""
     prescripteur_nom: Optional[str] = None
     prescripteur_specialite: Optional[str] = None
     code_loinc: Optional[str] = None
     nature_examination: Optional[str] = None
     code_cvx: Optional[str] = None
+    examen_libelle: Optional[str] = None
+    vaccine_libelle: Optional[str] = None
+    nom_commercial: Optional[str] = None
+    dc_nom: Optional[str] = None
+    forme_galenique: Optional[str] = None
+    posologie: Optional[str] = None
+    duree_jours: Optional[int] = None
+    sous_type: Optional[str] = None
+    description_generale: Optional[str] = None
+    nombre_seances: Optional[int] = None
 
 
 class AuthorizationResp(BaseModel):
@@ -80,8 +90,62 @@ class DiseaseResp(BaseModel):
     note_clinique: Optional[str] = None
 
 
+class VitalConstantResp(BaseModel):
+    code: str
+    valeur: float
+    nom: Optional[str] = None
+    unite_mesure: Optional[str] = None
+
+
+class DiagnosisResp(BaseModel):
+    id: str
+    statut_verification: str
+    note_clinique: Optional[str] = None
+    code_cim: Optional[str] = None
+    libelle: Optional[str] = None
+
+
+class MedicationResp(BaseModel):
+    id: str
+    nom_commercial: Optional[str] = None
+    dc_nom: Optional[str] = None
+    forme_galenique: Optional[str] = None
+    posologie: Optional[str] = None
+    duree_jours: Optional[int] = None
+
+
+class ExamenPrescriptionResp(BaseModel):
+    id: str
+    code_loinc: Optional[str] = None
+    libelle: Optional[str] = None
+    nature_examination: Optional[str] = None
+    special_instructions: Optional[str] = None
+    statut: Optional[str] = None
+
+
+class VaccinePrescriptionResp(BaseModel):
+    id: str
+    code_cvx: Optional[str] = None
+    libelle: Optional[str] = None
+    special_instructions: Optional[str] = None
+    statut: Optional[str] = None
+
+
+class CareInstructionResp(BaseModel):
+    id: str
+    sous_type: Optional[str] = None
+    description_generale: Optional[str] = None
+    nombre_seances: Optional[int] = None
+    frequence_hebdo: Optional[int] = None
+    objectifs: Optional[str] = None
+    titre_consigne: Optional[str] = None
+    recommandations: Optional[str] = None
+
+
 class ConsultationResp(BaseModel):
     id: str
+    type_acte: str = "CONSULTATION"
+    created_at: Optional[str] = None
     duree_minutes: Optional[int] = None
     motif: Optional[str] = None
     raisons: Optional[str] = None
@@ -90,6 +154,12 @@ class ConsultationResp(BaseModel):
     practitioner_name: Optional[str] = None
     practitioner_speciality: Optional[str] = None
     healthcare_nom: Optional[str] = None
+    vital_constants: list[VitalConstantResp] = []
+    diagnoses: list[DiagnosisResp] = []
+    medications: list[MedicationResp] = []
+    exam_prescriptions: list[ExamenPrescriptionResp] = []
+    vaccine_prescriptions: list[VaccinePrescriptionResp] = []
+    care_instructions: list[CareInstructionResp] = []
 
 
 class VaccinationResp(BaseModel):
@@ -130,6 +200,13 @@ class PractitionerProfileResp(BaseModel):
     order_number: Optional[str] = None
     organization_id: Optional[str] = None
     organizations: list[OrganisationInfo] = []
+
+
+class PractitionerUpdateReq(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    speciality: Optional[str] = None
+    order_number: Optional[str] = None
 
 
 class PatientSummaryResp(BaseModel):
@@ -249,7 +326,8 @@ class PatientSearchResult(BaseModel):
 
 
 class CreateAccessRequestReq(BaseModel):
-    patient_user_id: str
+    patient_user_id: str = ""
+    practitioner_user_id: str = ""
     reason: str = ""
     duration: str = "24h"
     perimeter: str = "all"
@@ -366,6 +444,7 @@ class CreateMedicalActReq(BaseModel):
     observations_text: Optional[str] = None
     duree_minutes: Optional[int] = None
     prescription_examen_id: Optional[str] = None
+    organization_id: Optional[str] = None
 
     vital_constants: list[VitalConstantEntry] = []
 
@@ -380,3 +459,10 @@ class CreateMedicalActReq(BaseModel):
 class MedicalActCreatedResp(BaseModel):
     id: str
     status: str = "created"
+
+
+class CreateEmergencyAuthorizationReq(BaseModel):
+    patient_user_id: str
+    practitioner_user_id: str
+    type_autorisation: str
+    auteur_id: str

@@ -27,7 +27,7 @@
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
                 <nav
-                    class="flex items-center gap-1.5 text-[11px] text-slate-400 uppercase tracking-widest font-semibold mb-2">
+                    class="flex items-center gap-1.5 text-[11px] text-slate-600 uppercase tracking-widest font-semibold mb-2">
                     <a routerLink="/dashboard" class="hover:text-[#002B5C] transition-colors">Accueil</a>
                     <span class="material-symbols-outlined text-[11px]">chevron_right</span>
                     <span class="text-[#1E40AF]">Prescriptions</span>
@@ -35,7 +35,7 @@
                 <h1 class="text-3xl font-black text-[#001736] tracking-tight leading-tight">
                     Gestion des Prescriptions
                 </h1>
-                <p class="text-slate-500 text-sm mt-1.5">
+                <p class="text-slate-600 text-sm mt-1.5">
                     Historique complet et suivi des traitements en cours.
                 </p>
             </div>
@@ -56,29 +56,36 @@
             </div>
         </div>
 
+        @if (errorMessage()) {
+        <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 mb-4">
+          <span class="material-symbols-outlined text-red-500">error_outline</span>
+          <p class="text-sm font-medium">{{ errorMessage() }}</p>
+        </div>
+        }
+
         <!-- ══════════════════════════════════════════════════════════════════
          STATISTIQUES RAPIDES
          ══════════════════════════════════════════════════════════════════ -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total</p>
+                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total</p>
                 <p class="text-3xl font-black text-[#002B5C]">{{ totalCount() }}</p>
-                <p class="text-xs text-slate-500 mt-1">prescriptions</p>
+                <p class="text-xs text-slate-600 mt-1">prescriptions</p>
             </div>
             <div class="bg-white rounded-xl border border-green-200 p-4 shadow-sm">
                 <p class="text-[10px] font-bold text-green-500 uppercase tracking-widest mb-1">Actives</p>
                 <p class="text-3xl font-black text-green-700">{{ activeCount() }}</p>
-                <p class="text-xs text-slate-500 mt-1">en cours</p>
+                <p class="text-xs text-slate-600 mt-1">en cours</p>
             </div>
             <div class="bg-white rounded-xl border border-amber-200 p-4 shadow-sm">
                 <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">En attente</p>
                 <p class="text-3xl font-black text-amber-700">{{ waitingCount() }}</p>
-                <p class="text-xs text-slate-500 mt-1">examens à réaliser</p>
+                <p class="text-xs text-slate-600 mt-1">examens à réaliser</p>
             </div>
             <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Affichées</p>
+                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Affichées</p>
                 <p class="text-3xl font-black text-[#1E40AF]">{{ filtered().length }}</p>
-                <p class="text-xs text-slate-500 mt-1">après filtres</p>
+                <p class="text-xs text-slate-600 mt-1">après filtres</p>
             </div>
         </div>
 
@@ -107,14 +114,14 @@
 
                 <!-- Période -->
                 <div class="relative">
-                    <select (change)="setPeriod($any($event.target).value)"
+                    <select aria-label="Filtrer par type" (change)="setPeriod($any($event.target).value)"
                         class="appearance-none bg-slate-50 border border-slate-200 rounded-lg py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent cursor-pointer">
                         <option value="all">Toute la période</option>
                         <option value="6months">6 derniers mois</option>
                         <option value="year">Année {{ currentYear }}</option>
                     </select>
                     <span
-                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[14px] pointer-events-none">
+                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-600 text-[14px] pointer-events-none">
                         expand_more
                     </span>
                 </div>
@@ -122,13 +129,14 @@
                 <!-- Recherche -->
                 <div class="relative flex-1 min-w-48">
                     <span
-                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 text-sm">search</span>
                     <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+                        aria-label="Rechercher une prescription"
                         placeholder="Médicament, prescripteur, type…"
                         class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 pl-9 pr-8 text-sm focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent transition-all">
                     @if (searchTerm) {
                     <button (click)="clearSearch()"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-600">
                         <span class="material-symbols-outlined text-sm">close</span>
                     </button>
                     }
@@ -137,19 +145,19 @@
 
             <!-- Ligne 2 : filtres par type -->
             <div class="px-4 py-3 flex flex-wrap gap-2 items-center bg-slate-50/50">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-1">Type :</span>
+                <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mr-1">Type :</span>
                 @for (t of typeOptions; track t.value) {
                 <button (click)="toggleType(t.value)"
                     class="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border transition-all"
                     [class]="activeTypes().includes(t.value)
             ? typeColor(t.value) + ' shadow-sm ring-1 ring-current'
-            : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'">
+            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'">
                     {{ t.icon }} {{ t.label }}
                 </button>
                 }
                 @if (activeTypes().length > 0) {
                 <button (click)="activeTypes.set([]); applyFilters()"
-                    class="text-[11px] text-slate-400 hover:text-red-500 font-semibold underline transition-colors">
+                    class="text-[11px] text-slate-600 hover:text-red-500 font-semibold underline transition-colors">
                     Effacer
                 </button>
                 }
@@ -217,32 +225,32 @@
                                     <h3 class="font-black text-[#001736] text-base leading-tight">
                                         {{ p.libelle }}
                                         @if (p.dosage && p.unite_dosage) {
-                                        <span class="font-semibold text-slate-500 text-sm ml-1">
+                                        <span class="font-semibold text-slate-600 text-sm ml-1">
                                             {{ p.dosage }}{{ p.unite_dosage }}
                                         </span>
                                         }
                                     </h3>
                                     @if (p.forme_galenique) {
-                                    <p class="text-xs text-slate-400 font-medium mt-0.5">{{ p.forme_galenique }}</p>
+                                    <p class="text-xs text-slate-600 font-medium mt-0.5">{{ p.forme_galenique }}</p>
                                     }
                                 </div>
                             </div>
                             <!-- Référence -->
-                            <span class="text-[10px] font-mono text-slate-400 shrink-0 pt-1">{{ refLabel(p) }}</span>
+                            <span class="text-[10px] font-mono text-slate-600 shrink-0 pt-1">{{ refLabel(p) }}</span>
                         </div>
 
                         <!-- Grille infos -->
                         <div class="grid grid-cols-2 gap-x-6 gap-y-3 mb-4 text-sm">
                             @if (p.posologie_texte || p.frequence) {
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
+                                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">
                                     Posologie</p>
                                 <p class="font-semibold text-[#001736]">{{ p.posologie_texte ?? p.frequence }}</p>
                             </div>
                             }
                             @if (p.duree_jour || isExamen(p)) {
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
+                                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">
                                     {{ isExamen(p) ? 'À réaliser' : 'Durée' }}
                                 </p>
                                 @if (isExamen(p)) {
@@ -253,7 +261,7 @@
                                 <div>
                                     <p class="font-semibold text-[#001736]">{{ dureeLabel(p) }}</p>
                                     @if (dateFin(p)) {
-                                    <p class="text-xs text-slate-500">Fin : {{ dateFin(p) | date:'dd MMM yyyy' }}</p>
+                                    <p class="text-xs text-slate-600">Fin : {{ dateFin(p) | date:'dd MMM yyyy' }}</p>
                                     }
                                 </div>
                                 }
@@ -261,7 +269,7 @@
                             }
                             @if (p.visite_id) {
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Visite
+                                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Visite
                                     liée</p>
                                 <a class="text-[#0059bb] font-semibold hover:underline flex items-center gap-1">
                                     #{{ p.visite_id }}
@@ -271,7 +279,7 @@
                             }
                             @if (p.code_substance_code) {
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Code
+                                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Code
                                 </p>
                                 <p class="font-mono text-xs font-semibold text-slate-600">{{ p.code_substance_code }}
                                 </p>
@@ -316,14 +324,14 @@
                         <!-- Prescripteur -->
                         <div class="flex items-center gap-2.5">
                             <div
-                                class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                                class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 shrink-0">
                                 <span class="material-symbols-outlined text-sm">person</span>
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-[#001736] leading-tight">{{ p.prescripteur ?? '—' }}
                                 </p>
                                 @if (p.specialite_prescripteur) {
-                                <p class="text-[10px] text-slate-400">{{ p.specialite_prescripteur }}</p>
+                                <p class="text-[10px] text-slate-600">{{ p.specialite_prescripteur }}</p>
                                 }
                             </div>
                         </div>
@@ -332,8 +340,8 @@
                         <div class="flex items-center gap-1">
                             @if (p.ordonnance_url) {
                             <button (click)="downloadOrdonnance(p)"
-                                class="p-2 text-slate-400 hover:text-[#0059bb] hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Télécharger l'ordonnance">
+                                    class="p-3 text-slate-600 hover:text-[#0059bb] hover:bg-blue-50 rounded-lg transition-colors"
+                                    title="Télécharger l'ordonnance">
                                 <span class="material-symbols-outlined text-sm">download</span>
                             </button>
                             }
@@ -356,7 +364,7 @@
                         @if (p.code_substance_code) {
                         <div class="flex items-center gap-3 text-sm">
                             <span
-                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-24 shrink-0">Code
+                                class="text-[10px] font-bold text-slate-600 uppercase tracking-widest w-24 shrink-0">Code
                                 substance</span>
                             <span class="font-mono font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">{{
                                 p.code_substance_code }}</span>
@@ -365,8 +373,8 @@
                         @if (p.renouvelable !== undefined) {
                         <div class="flex items-center gap-3 text-sm">
                             <span
-                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-24 shrink-0">Renouvelable</span>
-                            <span class="font-semibold" [class]="p.renouvelable ? 'text-green-700' : 'text-slate-500'">
+                                class="text-[10px] font-bold text-slate-600 uppercase tracking-widest w-24 shrink-0">Renouvelable</span>
+                            <span class="font-semibold" [class]="p.renouvelable ? 'text-green-700' : 'text-slate-600'">
                                 {{ p.renouvelable ? 'Oui' : 'Non' }}
                             </span>
                         </div>
@@ -374,7 +382,7 @@
                         @if (p.date_prescription) {
                         <div class="flex items-center gap-3 text-sm">
                             <span
-                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-24 shrink-0">Prescrit
+                                class="text-[10px] font-bold text-slate-600 uppercase tracking-widest w-24 shrink-0">Prescrit
                                 le</span>
                             <span class="font-semibold text-slate-700">{{ p.date_prescription | date:'dd MMMM yyyy'
                                 }}</span>
@@ -383,7 +391,7 @@
                         @if (dateFin(p)) {
                         <div class="flex items-center gap-3 text-sm">
                             <span
-                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-24 shrink-0">Fin
+                                class="text-[10px] font-bold text-slate-600 uppercase tracking-widest w-24 shrink-0">Fin
                                 prévue</span>
                             <span class="font-semibold text-slate-700">{{ dateFin(p) | date:'dd MMMM yyyy' }}</span>
                         </div>
@@ -402,7 +410,7 @@
         @if (activePrescriptions().length === 0 && !loading()) {
         <div class="bg-white border border-dashed border-slate-300 rounded-xl p-12 text-center">
             <span class="material-symbols-outlined text-5xl text-slate-300 mb-3 block">medication</span>
-            <p class="text-slate-500 text-sm">Aucune prescription active en ce moment.</p>
+            <p class="text-slate-600 text-sm">Aucune prescription active en ce moment.</p>
         </div>
         }
 
@@ -426,18 +434,18 @@
                     <table class="w-full text-left">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200">
-                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                     Prescription</th>
-                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                     Type</th>
-                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                     Posologie / Instructions</th>
-                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                     Date & Prescripteur</th>
-                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <th class="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                     Statut</th>
                                 <th
-                                    class="px-5 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">
+                                    class="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-right">
                                     Actions</th>
                             </tr>
                         </thead>
@@ -456,11 +464,11 @@
                                             <p class="font-bold text-[#001736] text-sm">
                                                 {{ p.libelle }}
                                                 @if (p.dosage && p.unite_dosage) {
-                                                <span class="text-slate-400 font-medium text-xs ml-1">{{ p.dosage }}{{
+                                                <span class="text-slate-600 font-medium text-xs ml-1">{{ p.dosage }}{{
                                                     p.unite_dosage }}</span>
                                                 }
                                             </p>
-                                            <p class="text-[10px] font-mono text-slate-400">{{ refLabel(p) }}</p>
+                                            <p class="text-[10px] font-mono text-slate-600">{{ refLabel(p) }}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -478,7 +486,7 @@
                                     <p class="text-sm text-slate-700">{{ p.posologie_texte ?? p.instructions_speciales
                                         ?? '—' }}</p>
                                     @if (p.duree_jour) {
-                                    <p class="text-xs text-slate-400 mt-0.5">Durée : {{ dureeLabel(p) }}</p>
+                                    <p class="text-xs text-slate-600 mt-0.5">Durée : {{ dureeLabel(p) }}</p>
                                     }
                                 </td>
 
@@ -487,7 +495,7 @@
                                     <p class="text-sm font-semibold text-[#001736]">
                                         {{ p.date_prescription | date:'dd MMM yyyy' }}
                                     </p>
-                                    <p class="text-xs text-slate-500">{{ p.prescripteur ?? '—' }}</p>
+                                    <p class="text-xs text-slate-600">{{ p.prescripteur ?? '—' }}</p>
                                 </td>
 
                                 <!-- Statut -->
@@ -504,13 +512,13 @@
                                 <td class="px-5 py-4">
                                     <div class="flex items-center justify-end gap-1">
                                         <button (click)="downloadOrdonnance(p)" [disabled]="!p.ordonnance_url"
-                                            class="p-2 rounded-lg transition-colors disabled:opacity-30"
-                                            [class]="p.ordonnance_url ? 'text-slate-400 hover:text-[#0059bb] hover:bg-blue-50' : 'text-slate-200 cursor-not-allowed'"
+                                            class="p-3 rounded-lg transition-colors disabled:opacity-30"
+                                            [class]="p.ordonnance_url ? 'text-slate-600 hover:text-[#0059bb] hover:bg-blue-50' : 'text-slate-200 cursor-not-allowed'"
                                             title="Télécharger">
                                             <span class="material-symbols-outlined text-sm">download</span>
                                         </button>
                                         <button (click)="openDetail(p)"
-                                            class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                                            class="p-3 text-slate-600 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                                             title="Voir le détail">
                                             <span class="material-symbols-outlined text-sm">visibility</span>
                                         </button>
@@ -533,14 +541,14 @@
                                 <p class="font-bold text-[#001736] text-sm leading-tight">
                                     {{ p.libelle }}
                                     @if (p.dosage && p.unite_dosage) {
-                                    <span class="text-slate-400 font-medium text-xs"> {{ p.dosage }}{{ p.unite_dosage
+                                    <span class="text-slate-600 font-medium text-xs"> {{ p.dosage }}{{ p.unite_dosage
                                         }}</span>
                                     }
                                 </p>
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0"
                                     [class]="statutClass(p.statut)">{{ statutLabel(p.statut) }}</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-0.5">{{ p.prescripteur }} · {{ p.date_prescription |
+                            <p class="text-xs text-slate-600 mt-0.5">{{ p.prescripteur }} · {{ p.date_prescription |
                                 date:'dd MMM yyyy' }}</p>
                         </div>
                     </div>
@@ -550,12 +558,10 @@
                 <!-- Pagination -->
                 <div
                     class="px-5 py-3.5 border-t border-slate-100 bg-slate-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <p class="text-xs text-slate-500">
+                    <p class="text-xs text-slate-600">
                         Affichage de
                         <span class="font-bold text-slate-700">{{ (historyPage()-1)*historyPageSize+1 }}–{{
-                            [historyPage()*historyPageSize, historyPrescriptions().length] | slice:0:1 | slice:0:1 }}{{
-                            historyPage() * historyPageSize > historyPrescriptions().length ?
-                            historyPrescriptions().length : historyPage() * historyPageSize }}</span>
+                            historyPrescriptions().length }}</span>
                         sur <span class="font-bold text-slate-700">{{ historyPrescriptions().length }}</span>
                     </p>
                     <div class="flex items-center gap-1.5">
@@ -587,7 +593,7 @@
         <div class="bg-white border border-dashed border-slate-300 rounded-xl py-16 text-center">
             <span class="material-symbols-outlined text-5xl text-slate-300 mb-3 block">inbox</span>
             <h3 class="font-bold text-slate-800 mb-2">Aucune prescription trouvée</h3>
-            <p class="text-slate-500 text-sm mb-5">Essayez d'ajuster vos filtres ou votre recherche.</p>
+            <p class="text-slate-600 text-sm mb-5">Essayez d'ajuster vos filtres ou votre recherche.</p>
             <button (click)="setFilter('all'); clearSearch(); activeTypes.set([]); applyFilters()"
                 class="px-5 py-2.5 bg-[#002B5C] text-white font-semibold rounded-xl text-sm hover:bg-[#001f45] transition-colors">
                 Réinitialiser les filtres
@@ -604,7 +610,7 @@
     @if (detailModal(); as p) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
         (click)="closeDetail()">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" (click)="$event.stopPropagation()">
+        <div role="dialog" aria-modal="true" aria-labelledby="prescription-modal-title" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" (click)="$event.stopPropagation()">
 
             <!-- Header modal -->
             <div class="h-1.5 bg-gradient-to-r from-[#002B5C] to-[#0059bb]"></div>
@@ -613,18 +619,18 @@
                     <div class="w-11 h-11 rounded-xl text-xl flex items-center justify-center"
                         [class]="typeIconBg(p.type)">{{ typeIcon(p.type) }}</div>
                     <div>
-                        <h3 class="font-black text-[#001736] text-lg leading-tight">
+                        <h3 id="prescription-modal-title" class="font-black text-[#001736] text-lg leading-tight">
                             {{ p.libelle }}
                             @if (p.dosage && p.unite_dosage) {
-                            <span class="text-slate-400 font-medium text-sm ml-1">{{ p.dosage }}{{ p.unite_dosage
+                            <span class="text-slate-600 font-medium text-sm ml-1">{{ p.dosage }}{{ p.unite_dosage
                                 }}</span>
                             }
                         </h3>
-                        <p class="text-xs text-slate-400 font-mono">{{ refLabel(p) }}</p>
+                        <p class="text-xs text-slate-600 font-mono">{{ refLabel(p) }}</p>
                     </div>
                 </div>
                 <button (click)="closeDetail()"
-                    class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors shrink-0">
+                    class="p-3 text-slate-600 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors shrink-0">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
@@ -647,14 +653,14 @@
                 <dl class="grid grid-cols-2 gap-3 text-sm">
                     @if (p.forme_galenique) {
                     <div class="col-span-1">
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Forme
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Forme
                             galénique</dt>
                         <dd class="font-semibold text-slate-800">{{ p.forme_galenique }}</dd>
                     </div>
                     }
                     @if (p.code_substance_code) {
                     <div class="col-span-1">
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Code substance
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Code substance
                         </dt>
                         <dd class="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">{{
                             p.code_substance_code }}</dd>
@@ -662,57 +668,57 @@
                     }
                     @if (p.posologie_texte) {
                     <div class="col-span-2">
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Posologie</dt>
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Posologie</dt>
                         <dd class="font-semibold text-slate-800">{{ p.posologie_texte }}</dd>
                     </div>
                     }
                     @if (p.frequence) {
                     <div>
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Fréquence</dt>
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Fréquence</dt>
                         <dd class="font-semibold text-slate-800">{{ p.frequence }}</dd>
                     </div>
                     }
                     @if (p.duree_jour) {
                     <div>
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Durée</dt>
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Durée</dt>
                         <dd class="font-semibold text-slate-800">{{ dureeLabel(p) }}</dd>
                     </div>
                     }
                     @if (p.date_prescription) {
                     <div>
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Prescrit le
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Prescrit le
                         </dt>
                         <dd class="font-semibold text-slate-800">{{ p.date_prescription | date:'dd MMMM yyyy' }}</dd>
                     </div>
                     }
                     @if (dateFin(p)) {
                     <div>
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Fin prévue
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Fin prévue
                         </dt>
                         <dd class="font-semibold text-slate-800">{{ dateFin(p) | date:'dd MMMM yyyy' }}</dd>
                     </div>
                     }
                     @if (p.renouvelable !== undefined) {
                     <div>
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Renouvelable
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Renouvelable
                         </dt>
-                        <dd class="font-semibold" [class]="p.renouvelable ? 'text-green-700' : 'text-slate-500'">{{
+                        <dd class="font-semibold" [class]="p.renouvelable ? 'text-green-700' : 'text-slate-600'">{{
                             p.renouvelable ? 'Oui' : 'Non' }}</dd>
                     </div>
                     }
                     @if (p.prescripteur) {
                     <div class="col-span-2">
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Prescripteur
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Prescripteur
                         </dt>
                         <dd class="font-semibold text-slate-800">{{ p.prescripteur }}
-                            @if (p.specialite_prescripteur) {<span class="text-slate-500 font-normal"> · {{
+                            @if (p.specialite_prescripteur) {<span class="text-slate-600 font-normal"> · {{
                                 p.specialite_prescripteur }}</span>}
                         </dd>
                     </div>
                     }
                     @if (p.visite_id) {
                     <div>
-                        <dt class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Visite liée
+                        <dt class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Visite liée
                         </dt>
                         <dd class="text-[#0059bb] font-semibold">#{{ p.visite_id }}</dd>
                     </div>
@@ -736,7 +742,7 @@
 
             <!-- Footer modal -->
             <div class="p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2 text-[11px] text-slate-400 italic">
+                <div class="flex items-center gap-2 text-[11px] text-slate-600 italic">
                     <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">lock</span>
                     Signature numérique vérifiée — DMN PSSIE
                 </div>

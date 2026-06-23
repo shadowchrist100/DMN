@@ -9,7 +9,7 @@
     ══════════════════════════════════════════ -->
     <!-- Overlay mobile -->
     @if (sidebarOpen && isMobile) {
-    <div class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden" (click)="toggleSidebar()"></div>
+    <div role="button" tabindex="0" aria-label="Fermer le menu" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()" (keydown.space)="toggleSidebar()" class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"></div>
     }
 
     <aside class="fixed left-0 top-0 z-40 h-screen w-64 bg-[#002B5C] text-white flex flex-col
@@ -42,6 +42,7 @@
         <nav class="flex-1 py-3 px-2 space-y-0.5 overflow-hidden">
             @for (item of navItems; track item.key) {
             <button (click)="setView(item.key)"
+                [attr.aria-current]="view() === item.key ? 'page' : null"
                 class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all text-left"
                 [class.bg-white]="view() === item.key" [class.text-primary]="view() === item.key"
                 [class.font-bold]="view() === item.key" [class.shadow-sm]="view() === item.key"
@@ -80,8 +81,8 @@
 
                 <!-- Gauche : burger + titre -->
                 <div class="flex items-center gap-3">
-                    <button (click)="toggleSidebar()"
-                        class="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                    <button (click)="toggleSidebar()" aria-label="Menu" [attr.aria-expanded]="sidebarOpen"
+                        class="lg:hidden p-3 hover:bg-slate-100 rounded-lg transition-colors min-w-[44px] min-h-[44px]">
                         <span class="material-symbols-outlined text-slate-600">menu</span>
                     </button>
                     <div class="hidden lg:flex items-center gap-2">
@@ -98,19 +99,19 @@
                 <!-- Droite : recherche + actions -->
                 <div class="flex items-center gap-2 md:gap-3">
                     <div class="hidden md:flex relative">
-                        <input type="text" placeholder="Rechercher dans mon dossier…"
-                            (input)="onSearchWithinDossier($event)" class="bg-slate-50 border border-slate-200 rounded-full py-2 pl-10 pr-4 w-52 lg:w-64
+                        <input type="text" placeholder="Rechercher dans mon dossier…" aria-label="Rechercher dans mon dossier"
+                            class="bg-slate-50 border border-slate-200 rounded-full py-2 pl-10 pr-4 w-52 lg:w-64
                         text-sm focus:ring-2 focus:ring-secondary/30 focus:bg-white transition-all">
                         <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 text-base">
                             search
                         </span>
                     </div>
 
                     <!-- Alertes -->
-                    <button (click)="toggleAlertPanel()"
-                        class="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
-                        <span class="material-symbols-outlined text-slate-500">notifications</span>
+                    <button (click)="toggleAlertPanel()" aria-label="Notifications" [attr.aria-expanded]="alertPanelOpen"
+                        class="relative p-3 hover:bg-slate-100 rounded-full transition-colors min-w-[44px] min-h-[44px]">
+                        <span class="material-symbols-outlined text-slate-600">notifications</span>
                         @if (alertCount() > 0) {
                         <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white
                             text-[10px] font-black rounded-full flex items-center justify-center animate-pulse">
@@ -119,18 +120,18 @@
                         }
                     </button>
 
-                    <button (click)="openHelp()"
-                        class="hidden md:flex p-2 hover:bg-slate-100 rounded-full transition-colors">
-                        <span class="material-symbols-outlined text-slate-500">help</span>
+                    <button (click)="openHelp()" aria-label="Aide"
+                        class="hidden md:flex p-3 hover:bg-slate-100 rounded-full transition-colors min-w-[44px] min-h-[44px]">
+                        <span class="material-symbols-outlined text-slate-600">help</span>
                     </button>
-                    <button (click)="openSettings()"
-                        class="hidden md:flex p-2 hover:bg-slate-100 rounded-full transition-colors">
-                        <span class="material-symbols-outlined text-slate-500">settings</span>
+                    <button aria-label="Paramètres" disabled
+                        class="hidden md:flex p-3 hover:bg-slate-100 rounded-full transition-colors min-w-[44px] min-h-[44px] opacity-50 cursor-not-allowed">
+                        <span class="material-symbols-outlined text-slate-600">settings</span>
                     </button>
 
                     <!-- Avatar + menu -->
                     <div class="relative">
-                        <button (click)="toggleProfileMenu()"
+                        <button (click)="toggleProfileMenu()" aria-label="Profil" [attr.aria-expanded]="profileMenuOpen"
                             class="flex items-center gap-2 p-1 hover:bg-slate-100 rounded-full transition-colors">
                             <img [src]="patient().avatar" [alt]="patient().prenom"
                                 class="w-8 h-8 rounded-full object-cover border-2 border-slate-200">
@@ -138,17 +139,17 @@
                                 {{ patient().prenom }}
                             </span>
                             <span
-                                class="material-symbols-outlined text-slate-400 text-base hidden md:block">expand_more</span>
+                                class="material-symbols-outlined text-slate-600 text-base hidden md:block">expand_more</span>
                         </button>
                         @if (profileMenuOpen) {
                         <div
                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
                             <div class="px-4 py-3 border-b border-slate-100">
                                 <p class="text-xs font-bold text-slate-800">{{ patient().prenom }} {{ patient().nom }}</p>
-                                <p class="text-[10px] text-slate-400 font-mono">NIN : {{ patient().nin }}</p>
+                                <p class="text-[10px] text-slate-600 font-mono">NIN : {{ patient().nin }}</p>
                             </div>
-                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Mon Profil</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Paramètres</a>
+                            <button (click)="setView('profil')" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Mon Profil</button>
+                            <button class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Paramètres</button>
                             <hr class="my-1 border-slate-100">
                             <button (click)="onLogout()"
                                 class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
@@ -162,11 +163,11 @@
 
             <!-- Panel alertes dropdown -->
             @if (alertPanelOpen) {
-            <div
+            <div role="dialog" aria-modal="true" aria-label="Notifications"
                 class="absolute right-4 top-16 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-fadeIn">
                 <div class="px-5 py-3 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                     <span class="text-xs font-black uppercase text-slate-600">Mes alertes</span>
-                    <button (click)="toggleAlertPanel()" class="text-slate-400 hover:text-slate-600">
+                    <button (click)="toggleAlertPanel()" class="text-slate-600 hover:text-slate-600">
                         <span class="material-symbols-outlined text-base">close</span>
                     </button>
                 </div>
@@ -179,7 +180,7 @@
                             [class.text-blue-500]="a.type === 'info'">{{ alertIcon(a.type) }}</span>
                         <div>
                             <p class="text-xs text-slate-700 leading-snug">{{ a.message }}</p>
-                            <p class="text-[10px] text-slate-400 mt-0.5">{{ a.date }}</p>
+                            <p class="text-[10px] text-slate-600 mt-0.5">{{ a.date }}</p>
                         </div>
                     </div>
                     }
@@ -191,21 +192,46 @@
         <!-- ─── CONTENU PRINCIPAL ───────────────────────────────────────────── -->
         <main class="flex-1 p-4 md:p-6 lg:p-8 space-y-6 overflow-y-auto min-h-0">
 
+            @if (errorMessage()) {
+            <div role="alert" class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-start gap-3">
+                <span class="material-symbols-outlined text-red-500 shrink-0">error_outline</span>
+                <p class="text-sm font-medium">{{ errorMessage() }}</p>
+            </div>
+            }
+
+            @if (loading() && view() === 'dashboard') {
+            <div aria-label="Chargement" class="animate-pulse space-y-6">
+                <div class="h-8 bg-slate-200 rounded-lg w-64"></div>
+                <div class="h-4 bg-slate-200 rounded w-96"></div>
+                <div class="h-40 bg-slate-200 rounded-2xl"></div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="h-28 bg-slate-200 rounded-xl"></div>
+                    <div class="h-28 bg-slate-200 rounded-xl"></div>
+                    <div class="h-28 bg-slate-200 rounded-xl"></div>
+                    <div class="h-28 bg-slate-200 rounded-xl"></div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="h-48 bg-slate-200 rounded-2xl"></div>
+                    <div class="h-48 bg-slate-200 rounded-2xl"></div>
+                </div>
+            </div>
+            }
+
+            @if (!loading() && view() === 'dashboard') {
             <!-- ════════════════════════════════════════════
             VUE DASHBOARD (page d'accueil du dossier)
         ════════════════════════════════════════════ -->
-            @if (view() === 'dashboard') {
 
             <!-- Salutation -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                 <div>
-                    <p class="text-slate-400 text-sm">Bienvenue sur votre espace santé,</p>
+                    <p class="text-slate-600 text-sm">Bienvenue sur votre espace santé,</p>
                     <h2 class="font-['Public_Sans'] font-extrabold text-2xl md:text-3xl text-[#002B5C]">
                         Bonjour, {{ patient().prenom }} 👋
                     </h2>
                 </div>
                 <span class="text-xs bg-white border border-slate-200 shadow-sm px-3 py-1.5 rounded-full
-                        text-slate-500 font-medium flex items-center gap-1.5">
+                        text-slate-600 font-medium flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-sm">update</span>
                     Dossier mis à jour le {{ patient().dernierePrise }}
                 </span>
@@ -246,9 +272,9 @@
                                     {{ patient().sexe }}
                                 </span>
                             </div>
-                            <p class="text-sm text-slate-500">{{ patient().age }} ans · Né(e) le {{ patient().dateNaissance
+                            <p class="text-sm text-slate-600">{{ patient().age }} ans · Né(e) le {{ patient().dateNaissance
                                 }}</p>
-                            <p class="text-[10px] font-mono text-slate-400 mt-0.5">NIN : {{ patient().nin }}</p>
+                            <p class="text-[10px] font-mono text-slate-600 mt-0.5">NIN : {{ patient().nin }}</p>
                         </div>
                         <button (click)="setView('historique')" class="shrink-0  bg-[#002B5C] text-white px-4 py-2 rounded-xl text-xs font-bold
                         flex items-center gap-1.5 hover:bg-[#004b99] transition-colors">
@@ -268,40 +294,40 @@
                             <p class="text-2xl font-black text-red-600">
                                 {{ patient().groupeSanguin }}{{ patient().rhesus }}
                             </p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Groupe sanguin</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase mt-0.5">Groupe sanguin</p>
                         </div>
 
                         <!-- Poids -->
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
-                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">weight</span>
+                            <span class="material-symbols-outlined text-slate-600 text-xl mb-1">weight</span>
                             <p class="text-2xl font-black text-slate-800">{{ patient().poids }}</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">kg · Poids</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase">kg · Poids</p>
                         </div>
 
                         <!-- Taille -->
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
-                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">height</span>
+                            <span class="material-symbols-outlined text-slate-600 text-xl mb-1">height</span>
                             <p class="text-2xl font-black text-slate-800">{{ patient().taille }}</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">cm · Taille</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase">cm · Taille</p>
                         </div>
 
                         <!-- IMC -->
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
-                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">fitness_center</span>
+                            <span class="material-symbols-outlined text-slate-600 text-xl mb-1">fitness_center</span>
                             <p class="text-2xl font-black" [class]="imcClass">{{ patient().imc }}</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">IMC</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase">IMC</p>
                             <p class="text-[9px] font-semibold mt-0.5" [class]="imcClass">{{ patient().statutImc }}</p>
                         </div>
 
                         <!-- Âge -->
                         <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100
                             rounded-xl p-4 text-center">
-                            <span class="material-symbols-outlined text-slate-400 text-xl mb-1">cake</span>
+                            <span class="material-symbols-outlined text-slate-600 text-xl mb-1">cake</span>
                             <p class="text-2xl font-black text-slate-800">{{ patient().age }}</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">ans · Âge</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase">ans · Âge</p>
                         </div>
 
                         <!-- Allergie critique -->
@@ -310,14 +336,14 @@
                             <span class="material-symbols-outlined text-red-500 text-xl mb-1">allergy</span>
                             <p class="text-xs font-black text-red-600 leading-tight">{{ patient().allergiePrincipale }}
                             </p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Allergie critique</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase mt-0.5">Allergie critique</p>
                         </div>
                     </div>
 
                     <!-- ── Pathologies chroniques ────────────────────────────── -->
                     @if (patient().pathologiesChroni.length > 0) {
                     <div class="flex flex-wrap gap-2">
-                        <p class="w-full text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
+                        <p class="w-full text-[10px] font-black uppercase text-slate-600 tracking-widest mb-1">
                             Pathologies chroniques
                         </p>
                         @for (p of patient().pathologiesChroni; track p) {
@@ -347,7 +373,7 @@
                         </span>
                     </div>
                     <p class="text-3xl font-black text-[#002B5C]">{{ stat.value }}</p>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mt-0.5">{{ stat.label }}</p>
+                    <p class="text-xs font-bold text-slate-600 uppercase tracking-wide mt-0.5">{{ stat.label }}</p>
                 </button>
                 }
             </div>
@@ -364,14 +390,16 @@
                                 warning
                             </span>
                             Mes Alertes Médicales
-                            <!-- <span *ngIf="activeAlertsCount > 0"
-                                class="ml-2 text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
-                                {{ activeAlertsCount }}
-                            </span> -->
                         </h3>
-                        <div class="divide-y divide-slate-100">
+                        @if (alertes().length === 0) {
+                        <div class="px-5 py-8 text-center text-slate-600">
+                            <span class="material-symbols-outlined text-4xl mb-2">notifications_off</span>
+                            <p class="text-sm">Aucune alerte pour le moment</p>
+                        </div>
+                        } @else {
+                        <ul class="divide-y divide-slate-100">
                             @for (a of alertes(); track a.id) {
-                            <div class="px-5 py-4 flex items-start gap-3">
+                            <li class="px-5 py-4 flex items-start gap-3">
                                 <div class="mt-0.5 w-7 h-7 shrink-0 rounded-lg flex items-center justify-center"
                                     [class.bg-violet-50]="a.type === 'prescription'"
                                     [class.bg-red-50]="a.type === 'urgence'" [class.bg-blue-50]="a.type === 'examen'"
@@ -380,13 +408,13 @@
                                         [class.text-violet-500]="a.type === 'prescription'"
                                         [class.text-red-500]="a.type === 'urgence'"
                                         [class.text-blue-500]="a.type === 'examen'"
-                                        [class.text-slate-400]="a.type === 'info'">
+                                        [class.text-slate-600]="a.type === 'info'">
                                         {{ alertIcon(a.type) }}
                                     </span>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm text-slate-700 leading-snug">{{ a.message }}</p>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">
+                                    <p class="text-[10px] text-slate-600 mt-0.5">
                                         {{ a.date }}
                                         @if (a.auteur) { · <span class="font-medium">{{ a.auteur }}</span> }
                                     </p>
@@ -395,32 +423,40 @@
                                     [class]="alertBadge(a.type)">
                                     {{ a.type }}
                                 </span>
-                            </div>
+                            </li>
                             }
-                        </div>
+                        </ul>
+                        }
                 </section>
 
                 <!-- Accès récents -->
                 <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                     <div class="bg-slate-50 border-b border-slate-100 px-5 py-4 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-slate-500 text-lg">manage_history</span>
+                        <span class="material-symbols-outlined text-slate-600 text-lg">manage_history</span>
                         <h4 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Accès récents à mon dossier
                         </h4>
                     </div>
-                    <div class="divide-y divide-slate-100">
+                    @if (accesRecents().length === 0) {
+                    <div class="px-5 py-8 text-center text-slate-600">
+                        <span class="material-symbols-outlined text-4xl mb-2">history</span>
+                        <p class="text-sm">Aucun accès récent</p>
+                    </div>
+                    } @else {
+                    <ul class="divide-y divide-slate-100">
                         @for (a of accesRecents(); track a.id) {
-                        <div class="px-5 py-4 flex items-center gap-3">
+                        <li class="px-5 py-4 flex items-center gap-3">
                             <div class="h-9 w-9 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
                                 <span class="material-symbols-outlined text-secondary text-lg">{{ a.icon }}</span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-slate-800 truncate">{{ a.qui }}</p>
-                                <p class="text-[10px] text-slate-400">{{ a.role }}</p>
+                                <p class="text-[10px] text-slate-600">{{ a.role }}</p>
                             </div>
-                            <p class="text-[10px] text-slate-400 whitespace-nowrap">{{ a.date }}</p>
-                        </div>
+                            <p class="text-[10px] text-slate-600 whitespace-nowrap">{{ a.date }}</p>
+                        </li>
                         }
-                    </div>
+                    </ul>
+                    }
                     <div class="px-5 py-3 bg-slate-50 border-t border-slate-100">
                         <button class="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
                             <span class="material-symbols-outlined text-sm">open_in_new</span>
@@ -432,28 +468,34 @@
             } <!-- /dashboard -->
 
             <!-- ════════════════════════════════════════════
-           AUTRES VUES (composants enfants)
+            AUTRES VUES (composants enfants)
       ════════════════════════════════════════════ -->
-            @if (view() === 'historique') { <app-time-lines /> }
+            @if (view() === 'historique') { <app-time-lines (viewActe)="onViewActe($event)" /> }
             @if (view() === 'prescriptions') { <app-prescriptions /> }
             @if (view() === 'examens') { <app-examens /> }
             @if (view() === 'allergies') { <app-allergies /> }
             @if (view() === 'pathologies') { <app-pathologies /> }
             @if (view() === 'consentements') { <app-consentements /> }
-            @if (view() === 'profil') { <app-profil /> }
-            @if (view() === 'contacts') { <app-contacts /> }
-            @if (view() === 'contact-edit') { <app-contact-edit /> }
-            @if (view() === 'profil-edit') { <app-profil-edit /> }
-            @if (view() === 'acte') { <app-acte-view /> }
+            @if (view() === 'profil') {
+            <app-profil (editProfil)="setView('profil-edit')" (addContact)="setView('contacts')" (editContact)="editRelative($event)" />
+            }
+            @if (view() === 'contacts') {
+            <app-contacts (saved)="setView('profil')" (cancelled)="setView('profil')" />
+            }
+            @if (view() === 'contact-edit') {
+            <app-contact-edit [relativeId]="selectedRelativeId()" (saved)="setView('profil')" (cancelled)="setView('profil')" />
+            }
+            @if (view() === 'profil-edit') { <app-profil-edit (cancelled)="setView('profil')" /> }
+            @if (view() === 'acte') { <app-acte-view [actId]="selectedActId()" /> }
 
         </main>
 
         <!-- ─── FOOTER ──────────────────────────────────────────────────────── -->
         <footer class="bg-white border-t border-slate-200 px-6 md:px-8 py-5">
             <div
-                class="max-w-360 mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
+                class="max-w-360 mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-600">
                 <div>
-                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Protection des
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-1">Protection des
                         Données</p>
                     <div class="flex items-center gap-4">
                         <span class="flex items-center gap-1 text-xs">

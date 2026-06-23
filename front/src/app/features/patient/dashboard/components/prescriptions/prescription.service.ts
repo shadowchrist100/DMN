@@ -7,7 +7,13 @@ import { AuthStore } from '../../../../../core/auth/auth.store';
 
 const TYPE_MAP: Record<string, PrescriptionType> = {
     'EXAMINATION': 'analyse',
-    'VACCIN': 'medicament',
+    'examen': 'analyse',
+    'VACCIN': 'vaccin',
+    'vaccin': 'vaccin',
+    'medicament': 'medicament',
+    'soins': 'soins',
+    'MEDICATION': 'medicament',
+    'CARE_INSTRUCTION': 'soins',
 };
 
 const STATUT_MAP: Record<string, PrescriptionStatut> = {
@@ -15,6 +21,8 @@ const STATUT_MAP: Record<string, PrescriptionStatut> = {
     'DISPENSE': 'termine',
     'ANNULE': 'annule',
     'TERMINE': 'termine',
+    'active': 'actif',
+    'pending': 'en_attente',
 };
 
 @Injectable({ providedIn: 'root' })
@@ -55,16 +63,27 @@ export class PrescriptionService {
         const type = TYPE_MAP[dto.type_prescription] || 'medicament';
         const statut = STATUT_MAP[dto.statut] || 'en_attente';
 
+        const libelle = dto.libelle
+            || dto.nom_commercial
+            || (dto.dc_nom ? `${dto.dc_nom} (DCI)` : null)
+            || dto.examen_libelle
+            || dto.vaccine_libelle
+            || dto.description_generale
+            || 'Prescription';
+
         return {
             uuid: dto.uuid,
             type,
-            libelle: dto.libelle,
+            libelle,
             statut,
             date_prescription: dto.date_prescription,
-            instructions_speciales: dto.special_instructions,
+            instructions_speciales: dto.special_instructions || dto.posologie || undefined,
             code_substance_code: dto.code_loinc || dto.code_cvx || undefined,
             prescripteur: dto.prescripteur_nom || undefined,
             specialite_prescripteur: dto.prescripteur_specialite || undefined,
+            forme_galenique: dto.forme_galenique || undefined,
+            posologie_texte: dto.posologie || undefined,
+            duree_jour: dto.duree_jours || undefined,
         } as Prescription;
     }
 }

@@ -14,6 +14,7 @@ from app.schemas.medical import (
     PractitionerActivityResp, PatientSearchResult,
     CreateAccessRequestReq, CreateMedicalActReq,
     MedicalActCreatedResp, PractitionerConsentResp,
+    PractitionerUpdateReq,
 )
 from app.schemas.patient import PatientListResp
 from app.services.practitioner_service import PractitionerService
@@ -81,6 +82,21 @@ def get_practitioner_profile(
     roles = session.exec(
         select(PractitionerRole).where(PractitionerRole.practitioner_id == practitioner.id)
     ).all()
+
+    if not roles and practitioner.organization_id:
+        org_id = UUID(practitioner.organization_id) if practitioner.organization_id else None
+        if org_id:
+            org = session.get(HealthcareSystem, org_id)
+            if org:
+                role = PractitionerRole(
+                    practitioner_id=practitioner.id,
+                    health_care_system_id=org.id,
+                    role="medecin",
+                    start_date=date.today(),
+                )
+                session.add(role)
+                session.commit()
+                roles = [role]
 
     organizations = []
     for role in roles:
@@ -320,6 +336,40 @@ def search_patients(
     return [PatientSearchResult(**r) for r in results]
 
 
+@router.put("/practitioners/by-user/{user_id}/profile", response_model=PractitionerProfileResp)
+def update_practitioner_profile(
+    user_id: str,
+    body: PractitionerUpdateReq,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    practitioner = _ensure_practitioner(session, user_id, current_user)
+    if body.first_name is not None:
+        practitioner.first_name = body.first_name
+    if body.last_name is not None:
+        practitioner.last_name = body.last_name
+    if body.speciality is not None:
+        try:
+            practitioner.speciality = Speciality(body.speciality)
+        except ValueError:
+            pass
+    if body.order_number is not None:
+        practitioner.order_number = body.order_number
+    session.add(practitioner)
+    session.commit()
+    session.refresh(practitioner)
+    return PractitionerProfileResp(
+        id=str(practitioner.id),
+        user_id=practitioner.user_id,
+        first_name=practitioner.first_name,
+        last_name=practitioner.last_name,
+        speciality=practitioner.speciality.value if practitioner.speciality else "",
+        order_number=practitioner.order_number,
+        organization_id=practitioner.organization_id,
+    )
+
+
 @router.post("/practitioners/by-user/{user_id}/access-requests", status_code=201)
 def create_access_request(
     user_id: str,
@@ -348,6 +398,30 @@ def create_access_request(
         reason=body.reason,
         duration=body.duration,
         perimeter=body.perimeter,
+    )
+    if not result:
+        not_found("Patient ou dossier médical introuvable")
+    session.commit()
+    return result
+
+
+@router.post("/practitioners/by-user/{user_id}/patients/{patient_user_id}/emergency-access")
+def create_emergency_access(
+    user_id: str,
+    patient_user_id: str,
+    body: CreateAccessRequestReq,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    practitioner = _ensure_practitioner(session, user_id, current_user)
+
+    result = PractitionerRepository.create_emergency_access(
+        session,
+        practitioner=practitioner,
+        patient_user_id=patient_user_id,
+        reason=body.reason or "Accès d'urgence (break-glass)",
+        duration=body.duration or "24h",
     )
     if not result:
         not_found("Patient ou dossier médical introuvable")
@@ -403,6 +477,7 @@ def create_medical_act(
         observations_text=body.observations_text,
         duree_minutes=body.duree_minutes,
         prescription_examen_id=body.prescription_examen_id,
+        organization_id=body.organization_id,
         vital_constants=[v.model_dump() for v in body.vital_constants],
         diagnoses=[d.model_dump() for d in body.diagnoses],
         medications=[m.model_dump() for m in body.medications],

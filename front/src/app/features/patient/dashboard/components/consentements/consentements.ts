@@ -1,8 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
-import { MedicalService, AuthorizationDTO, PendingAccessRequestDTO } from '../../../services/medical.service';
+import { firstValueFrom, Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { MedicalService, AuthorizationDTO, PendingAccessRequestDTO, PractitionerSearchResult } from '../../../services/medical.service';
 import { AuthStore } from '../../../../../core/auth/auth.store';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -34,12 +35,13 @@ export interface AuditEntry {
 export class Consentements implements OnInit {
 
     private medicalService = inject(MedicalService);
-    private dashboardService = inject(DashboardService);
+    dashboardService = inject(DashboardService);
 
     searchQuery = signal('');
     selectedDuree = signal('24h');
     selectedPerimetre: string[] = [];
     loading = signal(true);
+    errorMessage = signal<string | null>(null);
     refreshing = signal(false);
     authorizations = signal<AuthorizationDTO[]>([]);
     pendingRequests = signal<PendingAccessRequestDTO[]>([]);
@@ -64,6 +66,115 @@ export class Consentements implements OnInit {
         { value: '30j', label: '30 Jours' },
         { value: 'indeterminee', label: 'Indéterminée (Révocable à tout moment)' },
     ];
+
+    // ── New consent form ──
+    showCreateForm = signal(false);
+    searchPractitionerQuery = signal('');
+    practitionerResults = signal<PractitionerSearchResult[]>([]);
+    selectedPractitioner = signal<PractitionerSearchResult | null>(null);
+    createPerimeter = signal('all');
+    createDuration = signal('24h');
+    creating = signal(false);
+
+    // ── Renewal ──
+    renewId = signal<string | null>(null);
+    renewDuration = signal('24h');
+    renewing = signal(false);
+
+    private searchSubject = new Subject<string>();
+
+    ngOnInit(): void {
+        this.loadData();
+        this.searchSubject.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap(q => {
+                const uid = AuthStore.userId();
+                if (!q.trim() || !uid) return of([]);
+                return this.dashboardService.searchPractitioners(uid, q);
+            }),
+        ).subscribe(results => this.practitionerResults.set(results));
+    }
+
+    onSearchPractitioner(q: string): void {
+        this.searchPractitionerQuery.set(q);
+        this.searchSubject.next(q);
+    }
+
+    selectPractitioner(p: PractitionerSearchResult): void {
+        this.selectedPractitioner.set(p);
+        this.searchPractitionerQuery.set(`${p.first_name} ${p.last_name}`);
+        this.practitionerResults.set([]);
+    }
+
+    startCreateConsent(): void {
+        this.showCreateForm.set(true);
+        this.selectedPractitioner.set(null);
+        this.searchPractitionerQuery.set('');
+        this.createPerimeter.set('all');
+        this.createDuration.set('24h');
+    }
+
+    cancelCreateConsent(): void {
+        this.showCreateForm.set(false);
+    }
+
+    async confirmCreateConsent(): Promise<void> {
+        const practitioner = this.selectedPractitioner();
+        if (!practitioner) return;
+        const uid = AuthStore.userId();
+        if (!uid) return;
+
+        this.creating.set(true);
+        try {
+            await firstValueFrom(this.dashboardService.createAuthorization(uid, {
+                practitioner_user_id: practitioner.user_id,
+                duration: this.createDuration(),
+                perimeter: this.createPerimeter(),
+            }));
+            this.showCreateForm.set(false);
+            this.medicalService.getAuthorizations(uid).subscribe(data => this.authorizations.set(data));
+        } catch {
+            this.errorMessage.set('Erreur lors de la création du consentement.');
+        } finally {
+            this.creating.set(false);
+        }
+    }
+
+    startRenew(auth: AuthorizationDTO): void {
+        this.renewId.set(auth.id);
+        this.renewDuration.set(auth.duration || '24h');
+    }
+
+    cancelRenew(): void {
+        this.renewId.set(null);
+    }
+
+    async confirmRenew(): Promise<void> {
+        const id = this.renewId();
+        if (!id) return;
+        this.renewing.set(true);
+        try {
+            await firstValueFrom(this.dashboardService.renewAuthorization(id, {
+                action: 'accept',
+                duration: this.renewDuration(),
+            }));
+            this.renewId.set(null);
+            const uid = AuthStore.userId();
+            if (uid) {
+                this.medicalService.getAuthorizations(uid).subscribe(data => this.authorizations.set(data));
+            }
+        } catch {
+            this.errorMessage.set('Erreur lors du renouvellement.');
+        } finally {
+            this.renewing.set(false);
+        }
+    }
+
+    isExpired(auth: AuthorizationDTO): boolean {
+        if (!auth.expire_at) return false;
+        return new Date(auth.expire_at) < new Date();
+    }
 
     readonly consentements = computed<Consentement[]>(() =>
         this.authorizations().map(a => ({
@@ -97,10 +208,6 @@ export class Consentements implements OnInit {
         }))
     );
 
-    ngOnInit(): void {
-        this.loadData();
-    }
-
     private loadData(): void {
         const userId = AuthStore.userId();
         if (!userId) {
@@ -109,12 +216,13 @@ export class Consentements implements OnInit {
         }
 
         this.loading.set(true);
+        this.errorMessage.set(null);
         this.medicalService.getAuthorizations(userId).subscribe({
             next: (data) => {
                 this.authorizations.set(data);
                 this.loading.set(false);
             },
-            error: () => this.loading.set(false),
+            error: () => { this.errorMessage.set('Impossible de charger les consentements.'); this.loading.set(false); },
         });
 
         this.medicalService.getPendingAccessRequests(userId).subscribe({
@@ -143,7 +251,7 @@ export class Consentements implements OnInit {
             await firstValueFrom(this.dashboardService.revokeAuthorization(id));
             this.authorizations.update(list => list.filter(a => a.id !== id));
         } catch {
-            // ignore
+            this.errorMessage.set('Erreur lors de la révocation de l\'accès.');
         } finally {
             this.respondingId.set(null);
         }
@@ -191,7 +299,7 @@ export class Consentements implements OnInit {
             await firstValueFrom(this.dashboardService.respondToRequest(requestId, 'decline'));
             this.pendingRequests.update(list => list.filter(r => r.id !== requestId));
         } catch {
-            // ignore
+            this.errorMessage.set('Erreur lors du refus de la demande.');
         } finally {
             this.respondingId.set(null);
         }

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from sqlmodel import Session, select
 from uuid import UUID
+from typing import Optional
 
 from app.database import get_session
-from app.auth import CurrentUser, verify_jwt
+from app.auth import CurrentUser, verify_jwt, verify_internal_api_key
 from app.deps import check_owner, check_patient_access
 from app.schemas.patient import (
     CreatePatientReq, PatientResp,
@@ -14,9 +15,13 @@ from app.schemas.medical import (
     PatientProfileResp, AllergyResp, ExamenResp,
     PrescriptionResp, AuthorizationResp,
     DiseaseResp, ConsultationResp, VaccinationResp,
+    VitalConstantResp, DiagnosisResp, MedicationResp,
+    ExamenPrescriptionResp, VaccinePrescriptionResp,
+    CareInstructionResp,
     DashboardSummaryResp, DashboardStatsResp,
     AlertResp, AccessLogResp, TimelineEventResp,
     PendingAccessRequestResp, RespondAccessRequestReq,
+    CreateAccessRequestReq,
 )
 from app.services.patient_service import PatientService
 from app.repositories.medical_repository import MedicalRepository
@@ -113,16 +118,19 @@ def get_patient_profile(
 def create_patient_dmn(
     user_id: str,
     session: Session = Depends(get_session),
+    x_api_key: Optional[str] = Header(None),
     current_user: CurrentUser = Depends(verify_jwt),
 ):
-    check_owner(user_id, current_user)
+    if x_api_key:
+        verify_internal_api_key(x_api_key=x_api_key)
+    else:
+        check_owner(user_id, current_user)
     dmn = PatientService.create_dmn(session, user_id)
     return {
         "id": str(dmn.id),
         "patient_id": str(dmn.patient_id),
         "date_creation": dmn.date_creation,
     }
-
 
 
 @router.get("/patients/by-user/{user_id}/allergies", response_model=list[AllergyResp])
@@ -192,7 +200,12 @@ def get_patient_prescriptions(
     prescriptions = MedicalRepository.get_prescriptions(session, user_id)
     result = []
     for p in prescriptions:
-        libelle = p.get("examen_libelle") or p.get("vaccine_libelle") or ""
+        libelle = (p.get("nom_commercial")
+                   or p.get("examen_libelle")
+                   or p.get("vaccine_libelle")
+                   or p.get("description_generale")
+                   or p.get("libelle")
+                   or "")
 
         result.append(PrescriptionResp(
             uuid=str(p["id"]),
@@ -201,9 +214,21 @@ def get_patient_prescriptions(
             statut=p["statut"],
             date_prescription=p["date_prescription"],
             special_instructions=p.get("special_instructions") or "",
+            prescripteur_nom=p.get("prescripteur_nom"),
+            prescripteur_specialite=p.get("prescripteur_specialite"),
             code_loinc=p.get("code_loinc"),
             nature_examination=p.get("nature_examination"),
             code_cvx=p.get("code_cvx"),
+            examen_libelle=p.get("examen_libelle"),
+            vaccine_libelle=p.get("vaccine_libelle"),
+            nom_commercial=p.get("nom_commercial"),
+            dc_nom=p.get("dc_nom"),
+            forme_galenique=p.get("forme_galenique"),
+            posologie=p.get("posologie"),
+            duree_jours=p.get("duree_jours"),
+            sous_type=p.get("sous_type"),
+            description_generale=p.get("description_generale"),
+            nombre_seances=p.get("nombre_seances"),
         ))
     return result
 
@@ -272,12 +297,9 @@ def get_patient_consultations(
     consultations = MedicalRepository.get_consultations(session, user_id)
     result = []
     for c in consultations:
-        pr_name = None
-        pr_speciality = None
-        hc_nom = None
-
         result.append(ConsultationResp(
             id=str(c["id"]),
+            created_at=c.get("created_at"),
             duree_minutes=c.get("duree_minutes"),
             motif=c.get("motif"),
             raisons=c.get("raisons"),
@@ -286,6 +308,44 @@ def get_patient_consultations(
             practitioner_name=_build_practitioner_name(c.get("practitioner_first_name"), c.get("practitioner_last_name")),
             practitioner_speciality=c.get("speciality"),
             healthcare_nom=c.get("healthcare_nom"),
+            vital_constants=[VitalConstantResp(**vc) for vc in (c.get("vital_constants") or [])],
+            diagnoses=[DiagnosisResp(**d) for d in (c.get("diagnoses") or [])],
+            medications=[MedicationResp(**m) for m in (c.get("medications") or [])],
+            exam_prescriptions=[ExamenPrescriptionResp(**e) for e in (c.get("exam_prescriptions") or [])],
+            vaccine_prescriptions=[VaccinePrescriptionResp(**v) for v in (c.get("vaccine_prescriptions") or [])],
+            care_instructions=[CareInstructionResp(**ci) for ci in (c.get("care_instructions") or [])],
+        ))
+    return result
+
+
+@router.get("/patients/by-user/{user_id}/medical-acts", response_model=list[ConsultationResp])
+def get_patient_medical_acts(
+    user_id: str,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_patient_access(user_id, current_user, session)
+    acts = MedicalRepository.get_all_medical_acts(session, user_id)
+    result = []
+    for c in acts:
+        result.append(ConsultationResp(
+            id=str(c["id"]),
+            type_acte=c.get("type_acte", "Autre"),
+            created_at=c.get("created_at"),
+            duree_minutes=c.get("duree_minutes"),
+            motif=c.get("motif"),
+            raisons=c.get("raisons"),
+            rapport_text=c.get("rapport_text"),
+            observations_text=c.get("observations_text"),
+            practitioner_name=c.get("practitioner_name"),
+            practitioner_speciality=c.get("practitioner_speciality"),
+            healthcare_nom=c.get("healthcare_nom"),
+            vital_constants=[VitalConstantResp(**vc) for vc in (c.get("vital_constants") or [])],
+            diagnoses=[DiagnosisResp(**d) for d in (c.get("diagnoses") or [])],
+            medications=[MedicationResp(**m) for m in (c.get("medications") or [])],
+            exam_prescriptions=[ExamenPrescriptionResp(**e) for e in (c.get("exam_prescriptions") or [])],
+            vaccine_prescriptions=[VaccinePrescriptionResp(**v) for v in (c.get("vaccine_prescriptions") or [])],
+            care_instructions=[CareInstructionResp(**ci) for ci in (c.get("care_instructions") or [])],
         ))
     return result
 
@@ -647,6 +707,80 @@ def respond_to_access_request(
         not_found("Demande d'accès introuvable")
     session.commit()
     return {"status": body.action}
+
+
+@router.get("/patients/by-user/{user_id}/practitioners/search", response_model=list[dict])
+def search_practitioners(
+    user_id: str,
+    q: str = "",
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    if not q.strip():
+        return []
+    practitioners = session.exec(
+        select(Practitioner).where(
+            Practitioner.last_name.ilike(f"%{q}%") |
+            Practitioner.first_name.ilike(f"%{q}%") |
+            Practitioner.user_id.ilike(f"%{q}%")
+        ).limit(20)
+    ).all()
+    return [
+        {
+            "id": str(p.id),
+            "user_id": p.user_id,
+            "first_name": p.first_name,
+            "last_name": p.last_name,
+            "speciality": p.speciality.value if p.speciality else "",
+        }
+        for p in practitioners
+    ]
+
+
+@router.post("/patients/by-user/{user_id}/authorizations")
+def create_authorization(
+    user_id: str,
+    body: CreateAccessRequestReq,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_owner(user_id, current_user)
+    dmn = MedicalRepository.get_dmn_id_by_user_id(session, user_id)
+    if not dmn:
+        not_found("Dossier médical introuvable")
+
+    auth_id = MedicalRepository.create_authorization(
+        session,
+        dmn_id=dmn,
+        practitioner_user_id=body.practitioner_user_id,
+        perimeter=body.perimeter,
+        duration=body.duration,
+    )
+    if not auth_id:
+        not_found("Praticien introuvable")
+    session.commit()
+    return {"id": str(auth_id), "status": "created"}
+
+
+@router.put("/patients/by-user/{user_id}/authorizations/{authorization_id}/renew")
+def renew_authorization(
+    user_id: str,
+    authorization_id: UUID,
+    body: RespondAccessRequestReq,
+    session: Session = Depends(get_session),
+    current_user: CurrentUser = Depends(verify_jwt),
+):
+    check_patient_access(user_id, current_user, session)
+    ok = MedicalRepository.renew_authorization(
+        session,
+        authorization_id=authorization_id,
+        duration=body.duration or "24h",
+    )
+    if not ok:
+        not_found("Autorisation introuvable")
+    session.commit()
+    return {"status": "renewed"}
 
 
 @router.delete("/patients/by-user/{user_id}/authorizations/{authorization_id}")

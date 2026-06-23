@@ -299,12 +299,24 @@ export class Patients {
 
   async forceEmergencyAccess(): Promise<void> {
     const sessionId = this.urgentSessionId();
-    if (!sessionId) return;
+    const patient = this.selectedPatientForAccess;
+    if (!sessionId || !patient) return;
     this.urgentState.set('forcing');
     try {
       await this.authService.forcerUrgence(sessionId);
       this.urgentState.set('forced');
     } catch (e: any) {
+      // Fallback: essayer l'endpoint direct du service médical
+      try {
+        const uid = this.authStore.userId();
+        if (uid) {
+          await firstValueFrom(this.medicalPrac.createEmergencyAccess(uid, patient.user_id));
+          this.urgentState.set('forced');
+          return;
+        }
+      } catch {
+        // fallback aussi échoué
+      }
       this.urgentState.set('error');
       this.urgentError.set(e?.error?.error || e?.error?.detail || 'Erreur lors du forçage de l\'accès');
     }

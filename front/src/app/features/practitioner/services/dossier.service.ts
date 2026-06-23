@@ -48,6 +48,15 @@ export interface EvenementHistorique {
   medecin: string;
   etablissement: string;
   statut: string;
+  motif?: string | null;
+  observations_text?: string | null;
+  duree_minutes?: number | null;
+  vital_constants?: { code: string; valeur: number; nom?: string | null; unite_mesure?: string | null }[] | null;
+  diagnoses?: { id: string; statut_verification: string; note_clinique?: string | null; code_cim?: string | null; libelle?: string | null }[] | null;
+  medications?: { id: string; nom_commercial?: string | null; dc_nom?: string | null; posologie: string; duree_jours: number }[] | null;
+  exam_prescriptions?: { id: string; code_loinc?: string | null; libelle: string; nature_examination?: string | null; special_instructions?: string | null; statut?: string | null }[] | null;
+  vaccine_prescriptions?: { id: string; code_cvx?: string | null; libelle: string; special_instructions?: string | null; statut?: string | null }[] | null;
+  care_instructions?: { id: string; sous_type?: string | null; description_generale: string; nombre_seances?: number | null }[] | null;
 }
 
 export interface Pathologie {
@@ -163,12 +172,23 @@ export class DossierService {
       dtos.map(dto => ({
         id: dto.id,
         type: 'consultation' as const,
-        titre: 'Consultation',
-        description: dto.raisons || dto.rapport_text || '',
-        date: new Date(),
-        medecin: dto.practitioner_name || '',
+        titre: 'Consultation' + (dto.motif ? ' — ' + dto.motif : ''),
+        description: dto.raisons || dto.rapport_text || dto.observations_text || '',
+        date: dto.created_at ? new Date(dto.created_at) : new Date(),
+        medecin: dto.practitioner_first_name || dto.practitioner_last_name
+          ? `Dr. ${(dto.practitioner_first_name || '') + ' ' + (dto.practitioner_last_name || '')}`.trim()
+          : '',
         etablissement: dto.healthcare_nom || '',
         statut: 'Finalisé',
+        motif: dto.motif,
+        observations_text: dto.observations_text,
+        duree_minutes: dto.duree_minutes,
+        vital_constants: dto.vital_constants,
+        diagnoses: dto.diagnoses,
+        medications: dto.medications,
+        exam_prescriptions: dto.exam_prescriptions,
+        vaccine_prescriptions: dto.vaccine_prescriptions,
+        care_instructions: dto.care_instructions,
       }))
     );
   }
@@ -199,7 +219,7 @@ export class DossierService {
               : 'medicament') as 'examen' | 'medicament' | 'vaccin',
         libelle: dto.libelle || dto.nature_examination || 'Prescription',
         statut: dto.statut || 'active',
-        datePrescription: new Date(dto.date_prescription),
+        datePrescription: new Date(dto.date_prescription ?? Date.now()),
         prescripteur: dto.prescripteur_nom || '',
         specialite: dto.prescripteur_specialite || '',
         instructions: dto.special_instructions || '',
@@ -220,8 +240,8 @@ export class DossierService {
           forme: 'comprimé',
           frequence: '',
           voie: 'orale',
-          dateDebut: new Date(dto.date_prescription),
-          dateFin: new Date(new Date(dto.date_prescription).getTime() + 90 * 24 * 60 * 60 * 1000),
+          dateDebut: new Date(dto.date_prescription ?? Date.now()),
+          dateFin: new Date(new Date(dto.date_prescription ?? Date.now()).getTime() + 90 * 24 * 60 * 60 * 1000),
           statut: dto.statut === 'active' ? 'actif' as const : 'termine' as const,
           prescripteur: dto.prescripteur_nom || '',
           renouvelable: false,

@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, signal, HostListener, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, HostListener, computed, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription, firstValueFrom } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 import { TimeLinesComponent } from "./components/time-lines/time-lines";
 import { Prescriptions } from "./components/prescriptions/prescriptions";
 import { Examens } from "./components/examens/examens";
@@ -76,6 +77,7 @@ export class Dashboard implements OnInit, OnDestroy {
     private router = inject(Router);
     private dashboardService = inject(DashboardService);
     private medicalService = inject(MedicalService);
+    private titleService = inject(Title);
 
     // ── UI state ─────────────────────────────────────────────────────────────
     view = signal<ViewKey>('dashboard');
@@ -84,9 +86,12 @@ export class Dashboard implements OnInit, OnDestroy {
     isMobile = false;
     alertPanelOpen = false;
     authStore = AuthStore;
+    selectedRelativeId = signal<string>('');
+    selectedActId = signal<string>('');
 
     // ── Données dynamiques ────────────────────────────────────────────────────
     loading = signal(true);
+    errorMessage = signal<string | null>(null);
     dashboardData = signal<DashboardSummaryDTO | null>(null);
     alertes = signal<AlertDTO[]>([]);
     accesRecents = signal<AccessLogDTO[]>([]);
@@ -178,6 +183,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     ngOnInit(): void {
+        this.titleService.setTitle('Tableau de bord — DMN');
         this.checkScreenSize();
         this.loadDashboardData();
     }
@@ -201,6 +207,7 @@ export class Dashboard implements OnInit, OnDestroy {
                 this.loading.set(false);
             },
             error: () => {
+                this.errorMessage.set('Impossible de charger les données du tableau de bord.');
                 this.loading.set(false);
             },
         });
@@ -208,6 +215,11 @@ export class Dashboard implements OnInit, OnDestroy {
 
     async respondToRequest(requestId: string, action: 'accept' | 'decline', perimeter?: string, duration?: string): Promise<void> {
         await firstValueFrom(this.dashboardService.respondToRequest(requestId, action, perimeter, duration));
+    }
+
+    editRelative(relativeId: string): void {
+        this.selectedRelativeId.set(relativeId);
+        this.setView('contact-edit');
     }
 
     @HostListener('window:resize')
@@ -225,14 +237,16 @@ export class Dashboard implements OnInit, OnDestroy {
         this.profileMenuOpen = false;
     }
 
+    onViewActe(actId: string): void {
+        this.selectedActId.set(actId);
+        this.view.set('acte');
+    }
+
     toggleSidebar(): void { this.sidebarOpen = !this.sidebarOpen; }
     toggleProfileMenu(): void { this.profileMenuOpen = !this.profileMenuOpen; }
     toggleAlertPanel(): void { this.alertPanelOpen = !this.alertPanelOpen; }
 
-    onSearchWithinDossier(event: Event): void { }
-
     openHelp(): void { window.open('https://dmn.benin/help', '_blank'); }
-    openSettings(): void { }
 
     onLogout(): void {
         this.authStore.clearAuth();

@@ -234,6 +234,31 @@ export class AuthService {
         );
     }
 
+    async updateProfile(data: Partial<ApiUser> & { photo?: File }): Promise<ApiUser> {
+        const formData = new FormData();
+        const allowedFields: (keyof ApiUser)[] = [
+            'first_name', 'last_name', 'gender', 'birth_date',
+            'matrimonial_status', 'phone', 'city', 'address',
+        ];
+        for (const key of allowedFields) {
+            const val = data[key];
+            if (val !== undefined && val !== null) {
+                formData.append(key, String(val));
+            }
+        }
+        formData.append('_method', 'PUT');
+        if (data.photo) {
+            formData.append('photo', data.photo);
+        }
+        const result = await firstValueFrom(
+            this.http.post<{ message: string; user: ApiUser }>(
+                `${API.AUTH_BASE_URL}/me`,
+                formData
+            )
+        );
+        return result.user;
+    }
+
     async getUser(userId: string): Promise<UserDetailResponse> {
         return firstValueFrom(
             this.http.get<UserDetailResponse>(`${API.AUTH_BASE_URL}/users/${userId}`)

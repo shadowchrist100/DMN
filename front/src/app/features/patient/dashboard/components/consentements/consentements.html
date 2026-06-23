@@ -1,9 +1,22 @@
 <div class="p-2 md:py-2 max-w-360 mx-auto space-y-6">
 
+    @if (errorMessage()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 mb-4">
+      <span class="material-symbols-outlined text-red-600">error_outline</span>
+      <p class="text-sm font-medium">{{ errorMessage() }}</p>
+    </div>
+    }
+
+    @if (loading()) {
+    <div class="flex items-center justify-center py-24">
+      <div class="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    } @else {
+
     <!-- En-tête -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-            <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+            <nav class="flex text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">
                 <span>Dossier Médical</span>
                 <span class="mx-2">/</span>
                 <span class="text-secondary">Consentements</span>
@@ -11,7 +24,7 @@
             <h1 class="font-['Public_Sans'] text-3xl font-extrabold text-primary leading-tight">
                 Contrôle d'accès aux données
             </h1>
-            <p class="text-sm text-slate-500 mt-1">
+            <p class="text-sm text-slate-600 mt-1">
                 Gérez qui peut consulter vos informations médicales en toute sécurité.
             </p>
         </div>
@@ -34,22 +47,22 @@
             @if (pendingRequests().length > 0) {
             <section class="bg-white border border-amber-200 rounded-xl p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-amber-500">verified_user</span>
+                    <h2 class="font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-600">verified_user</span>
                         Demandes d'accès en attente
                         <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
                             {{ pendingRequests().length }}
                         </span>
-                    </h3>
+                    </h2>
                 </div>
 
                 @if (respondSuccess()) {
                 <p class="text-green-600 text-sm mb-3 bg-green-50 p-2 rounded-lg">✓ {{ respondSuccess() }}</p>
                 }
 
-                <div class="space-y-3">
+                <ul class="space-y-3">
                     @for (req of pendingRequests(); track req.id) {
-                    <div class="border border-slate-200 rounded-xl p-4 hover:bg-slate-50/50 transition-colors">
+                    <li class="border border-slate-200 rounded-xl p-4 hover:bg-slate-50/50 transition-colors">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex items-center gap-3 flex-1">
                                 <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
@@ -57,8 +70,8 @@
                                 </div>
                                 <div>
                                     <p class="font-bold text-slate-800 text-sm">{{ req.practitioner_name }}</p>
-                                    <p class="text-[10px] text-slate-400">{{ req.practitioner_speciality }}</p>
-                                    <p class="text-xs text-slate-500 mt-1 italic">"{{ req.reason }}"</p>
+                                    <p class="text-[10px] text-slate-600">{{ req.practitioner_speciality }}</p>
+                                    <p class="text-xs text-slate-600 mt-1 italic">"{{ req.reason }}"</p>
                                 </div>
                             </div>
 
@@ -81,13 +94,13 @@
                                 </button>
                             </div>
                             }
+
                         </div>
 
-                        <!-- Accept form -->
                         @if (acceptFormRequest()?.id === req.id) {
                         <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+                                <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest block mb-1">
                                     Périmètre d'accès
                                 </label>
                                 <div class="flex gap-2">
@@ -108,7 +121,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Durée</label>
+                                <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest block mb-1">Durée</label>
                                 <select [ngModel]="acceptDuration()" (ngModelChange)="acceptDuration.set($event)"
                                     class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#002B5C] outline-none">
                                     <option value="24h">24 Heures</option>
@@ -128,32 +141,56 @@
                             </div>
                         </div>
                         }
-                    </div>
+                    </li>
                     }
-                </div>
+                </ul>
             </section>
             }
 
             <!-- Accorder un consentement -->
             <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                <h3 class="font-bold text-primary flex items-center gap-2 mb-6">
+                <h2 class="font-bold text-primary flex items-center gap-2 mb-6">
                     <span class="material-symbols-outlined text-secondary">person_add</span>
                     Accorder un nouveau consentement
-                </h3>
+                </h2>
 
+                @if (!showCreateForm()) {
+                <div class="text-center py-8">
+                    <button (click)="startCreateConsent()"
+                        class="bg-[#002B5C] text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#001f45] transition-all shadow-sm mx-auto">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Nouveau consentement
+                    </button>
+                </div>
+                } @else {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rechercher un Praticien</label>
+                        <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Rechercher un Praticien</label>
                         <div class="relative">
-                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-                            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 text-sm">search</span>
+                            <input type="text" [ngModel]="searchPractitionerQuery()" (ngModelChange)="onSearchPractitioner($event)"
                                 placeholder="Nom, NPI ou Spécialité"
                                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/30">
                         </div>
+                        @if (practitionerResults().length > 0) {
+                        <ul class="mt-1 border border-slate-200 rounded-lg bg-white shadow-lg max-h-40 overflow-y-auto">
+                            @for (p of practitionerResults(); track p.id) {
+                            <li (click)="selectPractitioner(p)"
+                                class="px-3 py-2 text-sm hover:bg-secondary/10 cursor-pointer border-b border-slate-100 last:border-0">
+                                {{ p.first_name }} {{ p.last_name }} <span class="text-slate-500">— {{ p.speciality }}</span>
+                            </li>
+                            }
+                        </ul>
+                        }
+                        @if (selectedPractitioner()) {
+                        <p class="text-xs text-green-600 font-bold mt-1">
+                            ✓ {{ selectedPractitioner()?.first_name }} {{ selectedPractitioner()?.last_name }} sélectionné
+                        </p>
+                        }
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Durée de validité</label>
-                        <select [ngModel]="selectedDuree()" (ngModelChange)="selectedDuree.set($event)"
+                        <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Durée de validité</label>
+                        <select [ngModel]="createDuration()" (ngModelChange)="createDuration.set($event)"
                             class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/30">
                             @for (d of dureeOptions; track d.value) {
                             <option [value]="d.value">{{ d.label }}</option>
@@ -161,54 +198,74 @@
                         </select>
                     </div>
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Périmètre d'accès</label>
+                        <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Périmètre d'accès</label>
                         <div class="flex flex-wrap gap-2">
-                            @for (p of perimetreOptions; track p.value) {
-                            <button (click)="togglePerimetre(p.value)"
+                            <button (click)="createPerimeter.set('all')"
                                 class="px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all"
-                                [class]="selectedPerimetre.includes(p.value)
+                                [class]="createPerimeter() === 'all'
                                     ? 'bg-secondary text-white border-secondary shadow-sm'
                                     : 'bg-white text-slate-600 border-slate-200 hover:border-secondary hover:text-secondary'">
-                                {{ p.label }}
+                                Complet
                             </button>
-                            }
+                            <button (click)="createPerimeter.set('prescriptions')"
+                                class="px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all"
+                                [class]="createPerimeter() === 'prescriptions'
+                                    ? 'bg-secondary text-white border-secondary shadow-sm'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-secondary hover:text-secondary'">
+                                Prescriptions
+                            </button>
+                            <button (click)="createPerimeter.set('consultations')"
+                                class="px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all"
+                                [class]="createPerimeter() === 'consultations'
+                                    ? 'bg-secondary text-white border-secondary shadow-sm'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-secondary hover:text-secondary'">
+                                Consultations
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex justify-end">
-                    <button class="bg-[#002B5C] text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#001f45] transition-all shadow-sm">
+                <div class="flex justify-end gap-3">
+                    <button (click)="cancelCreateConsent()"
+                        class="px-4 py-2.5 text-sm font-bold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50">
+                        Annuler
+                    </button>
+                    <button (click)="confirmCreateConsent()" [disabled]="!selectedPractitioner() || creating()"
+                        class="bg-[#002B5C] text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#001f45] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        @if (creating()) { <span class="material-symbols-outlined text-sm animate-spin">sync</span> }
                         <span class="material-symbols-outlined text-sm">security</span>
                         Valider le consentement
                     </button>
                 </div>
+                }
             </section>
 
             <!-- Accès actifs -->
             <section class="space-y-4">
-                <h3 class="font-bold text-primary flex items-center gap-2 text-lg">
+                <h2 class="font-bold text-primary flex items-center gap-2 text-lg">
                     Accès actifs
                     <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-700 text-[11px] font-bold rounded-full">{{ consentementsFiltres().filter(c => c.actif).length }}</span>
-                </h3>
+                </h2>
 
+                <ul class="space-y-3">
                 @for (c of consentementsFiltres(); track c.id) {
-                <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
+                <li class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
                     <div class="flex items-center gap-4">
                         <div class="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-secondary font-bold border border-blue-100">
                             {{ c.initiales }}
                         </div>
                         <div>
                             <h4 class="font-bold text-primary">{{ c.praticien }}</h4>
-                            <p class="text-sm text-slate-500 italic">{{ c.specialite }} • {{ c.etablissement }}</p>
+                            <p class="text-sm text-slate-600 italic">{{ c.specialite }} • {{ c.etablissement }}</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-4 items-center">
                         <div class="text-center px-4 border-r border-slate-200 hidden md:block">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Périmètre</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase">Périmètre</p>
                             <span class="text-sm font-semibold text-secondary">{{ c.perimetre }}</span>
                         </div>
                         <div class="text-center px-4 border-r border-slate-200 hidden md:block">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Validité</p>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase">Validité</p>
                             <span class="text-sm font-semibold" [class.text-red-500]="!c.actif">{{ c.validite }}</span>
                         </div>
                         <div class="flex items-center gap-3">
@@ -222,10 +279,41 @@
                                 }
                             </button>
                             }
+                            @if (!c.actif) {
+                            <button (click)="startRenew(authorizations().find(a => a.id === c.id)!)"
+                                class="text-sm font-bold text-secondary hover:underline">
+                                Renouveler
+                            </button>
+                            }
                         </div>
+                    </div>
+                </li>
+
+                @if (renewId() === c.id) {
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 -mt-2 space-y-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest block mb-1">Nouvelle durée</label>
+                        <select [ngModel]="renewDuration()" (ngModelChange)="renewDuration.set($event)"
+                            class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#002B5C] outline-none">
+                            <option value="24h">24 Heures</option>
+                            <option value="7j">7 Jours</option>
+                            <option value="30j">30 Jours</option>
+                            <option value="indeterminee">Indéterminée</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button (click)="cancelRenew()"
+                            class="px-3 py-1.5 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg">Annuler</button>
+                        <button (click)="confirmRenew()" [disabled]="renewing()"
+                            class="px-3 py-1.5 text-xs font-bold text-white bg-secondary rounded-lg disabled:opacity-50 flex items-center gap-1">
+                            @if (renewing()) { <span class="material-symbols-outlined text-sm animate-spin">sync</span> }
+                            Confirmer le renouvellement
+                        </button>
                     </div>
                 </div>
                 }
+                }
+            </ul>
             </section>
         </div>
 
@@ -250,35 +338,36 @@
             <!-- Journal d'audit -->
             <section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                 <div class="p-5 border-b border-slate-200 flex items-center justify-between">
-                    <h3 class="font-bold text-primary text-sm">Historique des accès</h3>
+                    <h2 class="font-bold text-primary text-sm">Historique des accès</h2>
                     <button class="text-secondary text-xs font-bold hover:underline">Voir tout</button>
                 </div>
-                <div class="divide-y divide-slate-100">
+                <ul class="divide-y divide-slate-100">
                     @for (entry of auditEntries(); track $index) {
-                    <div class="p-4 hover:bg-slate-50 transition-colors">
+                    <li class="p-4 hover:bg-slate-50 transition-colors">
                         <div class="flex items-start gap-3">
                             <span class="material-symbols-outlined text-secondary mt-0.5">{{ entry.icon }}</span>
                             <div>
                                 <p class="text-sm font-semibold text-primary">{{ entry.action }}</p>
                                 <div class="mt-1 flex items-center gap-2">
-                                    <span class="text-xs text-slate-400">{{ entry.horodatage }}</span>
+                                    <span class="text-xs text-slate-600">{{ entry.horodatage }}</span>
                                     <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
                                     <span class="text-[10px] font-bold px-1.5 py-0.5 rounded" [class]="entry.metaClass">{{ entry.meta }}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </li>
                     }
-                </div>
+                </ul>
             </section>
 
             <!-- Conformité -->
             <div class="p-5 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center">
                 <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">verified_user</span>
-                <p class="text-[11px] leading-relaxed text-slate-500">
+                <p class="text-[11px] leading-relaxed text-slate-600">
                     Conformément à la Loi N° 2017-20 du 20 Avril 2018 portant Code du Numérique en République du Bénin. Vos données sont hébergées souverainement et cryptées de bout en bout.
                 </p>
             </div>
         </div>
     </div>
+}
 </div>

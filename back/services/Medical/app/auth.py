@@ -1,4 +1,4 @@
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Request
 from typing import Optional
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTError
@@ -6,6 +6,14 @@ from jose.exceptions import ExpiredSignatureError, JWTError
 from app.config import settings
 
 ALGORITHM = "HS256"
+
+
+def verify_internal_api_key(x_api_key: Optional[str] = Header(None)) -> bool:
+    if not x_api_key:
+        raise HTTPException(status_code=401, detail="Clé API manquante")
+    if x_api_key != settings.internal_api_key:
+        raise HTTPException(status_code=401, detail="Clé API invalide")
+    return True
 
 
 class CurrentUser:

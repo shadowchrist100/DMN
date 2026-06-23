@@ -188,8 +188,95 @@
                             <span class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
                                 {{ event.statut }}
                             </span>
+                            @if (event.duree_minutes) {
+                            <span class="text-[10px] text-slate-500">Durée: {{ event.duree_minutes }} min</span>
+                            }
                         </div>
                         <p class="text-xs text-slate-600 mb-2">{{ event.description }}</p>
+
+                        @if (event.vital_constants && event.vital_constants.length > 0) {
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            @for (vc of event.vital_constants; track vc.code) {
+                            <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100">
+                                {{ vc.nom || vc.code }}: <strong>{{ vc.valeur }}</strong> {{ vc.unite_mesure || '' }}
+                            </span>
+                            }
+                        </div>
+                        }
+
+                        @if (event.diagnoses && event.diagnoses.length > 0) {
+                        <div class="mb-2">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Diagnostics</p>
+                            <div class="flex flex-wrap gap-1">
+                                @for (d of event.diagnoses; track d.id) {
+                                <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100">
+                                    {{ d.code_cim || '' }} {{ d.libelle || '' }}
+                                    @if (d.statut_verification === 'suspected') { (Suspecté) }
+                                </span>
+                                }
+                            </div>
+                        </div>
+                        }
+
+                        @if (event.medications && event.medications.length > 0) {
+                        <div class="mb-2">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Médicaments prescrits</p>
+                            <div class="flex flex-wrap gap-1">
+                                @for (m of event.medications; track m.id) {
+                                <span class="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200">
+                                    {{ m.nom_commercial || m.dc_nom || 'Médicament' }} — {{ m.posologie }} ({{ m.duree_jours }}j)
+                                </span>
+                                }
+                            </div>
+                        </div>
+                        }
+
+                        @if (event.exam_prescriptions && event.exam_prescriptions.length > 0) {
+                        <div class="mb-2">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Examens prescrits</p>
+                            <div class="flex flex-wrap gap-1">
+                                @for (e of event.exam_prescriptions; track e.id) {
+                                <span class="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded border border-purple-200">
+                                    {{ e.libelle }}
+                                    @if (e.nature_examination) { ({{ e.nature_examination }}) }
+                                </span>
+                                }
+                            </div>
+                        </div>
+                        }
+
+                        @if (event.vaccine_prescriptions && event.vaccine_prescriptions.length > 0) {
+                        <div class="mb-2">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Vaccins prescrits</p>
+                            <div class="flex flex-wrap gap-1">
+                                @for (v of event.vaccine_prescriptions; track v.id) {
+                                <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+                                    {{ v.libelle }}
+                                </span>
+                                }
+                            </div>
+                        </div>
+                        }
+
+                        @if (event.care_instructions && event.care_instructions.length > 0) {
+                        <div class="mb-2">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Instructions de soins</p>
+                            <div class="flex flex-wrap gap-1">
+                                @for (c of event.care_instructions; track c.id) {
+                                <span class="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
+                                    {{ c.description_generale }}
+                                </span>
+                                }
+                            </div>
+                        </div>
+                        }
+
+                        @if (event.observations_text) {
+                        <div class="mb-2 text-xs text-slate-600 italic border-l-2 border-slate-300 pl-2">
+                            {{ event.observations_text }}
+                        </div>
+                        }
+
                         <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
                             <span class="flex items-center gap-1">
                                 <span class="material-symbols-outlined text-xs">location_on</span>

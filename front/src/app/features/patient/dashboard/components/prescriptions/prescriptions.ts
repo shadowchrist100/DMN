@@ -3,7 +3,7 @@ import {
     signal, computed, Signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe, SlicePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -22,6 +22,8 @@ import { PrescriptionService } from './prescription.service';
 const TYPE_ICON: Record<PrescriptionType, string> = {
     medicament: '💊',
     analyse: '🧪',
+    vaccin: '💉',
+    soins: '🩹',
     biologie: '🔬',
     radiographie: '🩻',
     echographie: '📡',
@@ -33,6 +35,8 @@ const TYPE_ICON: Record<PrescriptionType, string> = {
 const TYPE_LABEL: Record<PrescriptionType, string> = {
     medicament: 'Médicament',
     analyse: 'Analyse',
+    vaccin: 'Vaccin',
+    soins: 'Soins',
     biologie: 'Biologie',
     radiographie: 'Radiographie',
     echographie: 'Échographie',
@@ -44,6 +48,8 @@ const TYPE_LABEL: Record<PrescriptionType, string> = {
 const TYPE_COLOR: Record<PrescriptionType, string> = {
     medicament: 'bg-indigo-50 text-indigo-700 border-indigo-100',
     analyse: 'bg-purple-50 text-purple-700 border-purple-100',
+    vaccin: 'bg-rose-50 text-rose-700 border-rose-100',
+    soins: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     biologie: 'bg-violet-50 text-violet-700 border-violet-100',
     radiographie: 'bg-sky-50 text-sky-700 border-sky-100',
     echographie: 'bg-cyan-50 text-cyan-700 border-cyan-100',
@@ -55,6 +61,8 @@ const TYPE_COLOR: Record<PrescriptionType, string> = {
 const TYPE_ICON_BG: Record<PrescriptionType, string> = {
     medicament: 'bg-indigo-100 text-indigo-600',
     analyse: 'bg-purple-100 text-purple-600',
+    vaccin: 'bg-rose-100 text-rose-600',
+    soins: 'bg-emerald-100 text-emerald-600',
     biologie: 'bg-violet-100 text-violet-600',
     radiographie: 'bg-sky-100 text-sky-600',
     echographie: 'bg-cyan-100 text-cyan-600',
@@ -92,7 +100,7 @@ const STATUT_DOT: Record<PrescriptionStatut, string> = {
 @Component({
     selector: 'app-prescriptions',
     standalone: true,
-    imports: [RouterLink, DatePipe, SlicePipe, FormsModule],
+    imports: [RouterLink, DatePipe, FormsModule],
     templateUrl: './prescriptions.html',
 })
 export class Prescriptions implements OnInit, OnDestroy {
@@ -104,6 +112,7 @@ export class Prescriptions implements OnInit, OnDestroy {
     isExporting = signal<boolean>(false);
     expandedCard = signal<string | null>(null);
     detailModal = signal<Prescription | null>(null);
+    errorMessage = signal<string | null>(null);
 
     // ── Données ─────────────────────────────────────────────────────────
     allPrescriptions = signal<Prescription[]>([]);
@@ -184,10 +193,16 @@ export class Prescriptions implements OnInit, OnDestroy {
             distinctUntilChanged(),
         ).subscribe(v => { this.searchValue.set(v); this.applyFilters(); });
 
-        this.prescriptionService.getPrescriptions().subscribe((data: Prescription[]) => {
-            this.allPrescriptions.set(data);
-            this.applyFilters();
-            this.loading.set(false);
+        this.prescriptionService.getPrescriptions().subscribe({
+            next: (data: Prescription[]) => {
+                this.allPrescriptions.set(data);
+                this.applyFilters();
+                this.loading.set(false);
+            },
+            error: (err) => {
+                this.errorMessage.set('Impossible de charger les prescriptions.');
+                this.loading.set(false);
+            },
         });
     }
 

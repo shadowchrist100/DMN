@@ -55,6 +55,19 @@ export const AuthStore = {
     return role ? roles.includes(role) : false;
   },
 
+  updateUser(updates: Partial<Iuser['identity']>) {
+    const current = _user();
+    if (!current) return;
+    const updated: Iuser = {
+      ...current,
+      identity: { ...current.identity, ...updates },
+    };
+    _user.set(updated);
+    try {
+      localStorage.setItem('auth_user', JSON.stringify(updated));
+    } catch {}
+  },
+
   updateToken(token: string) {
     _token.set(token);
     try {

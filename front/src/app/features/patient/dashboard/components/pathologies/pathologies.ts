@@ -29,6 +29,7 @@ export class Pathologies implements OnInit {
   private dashboardService = inject(DashboardService);
 
   loading   = signal(true);
+  errorMessage = signal<string | null>(null);
   pathologies = signal<Pathologie[]>([]);
   showDetail  = signal<Pathologie | null>(null);
   filterStatut = signal<string>('all');
@@ -55,11 +56,13 @@ export class Pathologies implements OnInit {
   }));
 
   ngOnInit(): void {
+    this.loading.set(true);
+    this.errorMessage.set(null);
     this.dashboardService.getPathologies().pipe(
       map((dtos: DiseaseDTO[]) => dtos.map((d, i) => this.mapPathologie(d, i))),
     ).subscribe({
       next: (data) => { this.pathologies.set(data); this.loading.set(false); },
-      error: () => { this.loading.set(false); },
+      error: () => { this.errorMessage.set('Impossible de charger les pathologies.'); this.loading.set(false); },
     });
   }
 
@@ -68,7 +71,7 @@ export class Pathologies implements OnInit {
       id: index + 1,
       code: dto.code_cim || '—',
       libelle: dto.libelle || '—',
-      type: 'chronique',
+      type: dto.code_cim ? 'chronique' : 'aigue',
       statut: dto.statut_verification === 'CONFIRMED' ? 'active' : 'suspecte',
       severite: 'modérée',
       dateDebut: dto.date || '—',
